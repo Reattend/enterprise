@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#F3F4F6" rx="8"/>
+  <rect x="0" y="0" width="200" height="800" fill="#E5E7EB" rx="8"/>
+  <rect x="16" y="20" width="168" height="36" fill="#D1D5DB" rx="6"/>
+  <rect x="232" y="20" width="300" height="36" fill="#E5E7EB" rx="6"/>
+  <rect x="232" y="80" width="936" height="100" fill="#FEF3C7" rx="8"/>
+  <rect x="248" y="96" width="200" height="16" fill="#F59E0B" rx="3"/>
+  <rect x="248" y="120" width="500" height="12" fill="#D1D5DB" rx="2"/>
+  <rect x="248" y="140" width="350" height="12" fill="#D1D5DB" rx="2"/>
+  <rect x="232" y="200" width="936" height="100" fill="#DBEAFE" rx="8"/>
+  <rect x="248" y="216" width="180" height="16" fill="#3B82F6" rx="3"/>
+  <rect x="248" y="240" width="480" height="12" fill="#D1D5DB" rx="2"/>
+  <rect x="248" y="260" width="320" height="12" fill="#D1D5DB" rx="2"/>
+  <rect x="232" y="320" width="936" height="100" fill="#F3E8FF" rx="8"/>
+  <rect x="248" y="336" width="220" height="16" fill="#8B5CF6" rx="3"/>
+  <rect x="248" y="360" width="460" height="12" fill="#D1D5DB" rx="2"/>
+  <rect x="248" y="380" width="300" height="12" fill="#D1D5DB" rx="2"/>
+  <text x="700" y="750" font-family="system-ui,sans-serif" font-size="16" fill="#9CA3AF" text-anchor="middle">Memory List View</text>
+</svg>

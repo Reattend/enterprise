@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#F3F4F6" rx="8"/>
+  <rect x="0" y="0" width="200" height="800" fill="#E5E7EB" rx="8"/>
+  <rect x="16" y="20" width="168" height="36" fill="#D1D5DB" rx="6"/>
+  <rect x="16" y="72" width="168" height="28" fill="#D1D5DB" rx="4"/>
+  <rect x="16" y="108" width="168" height="28" fill="#D1D5DB" rx="4"/>
+  <rect x="16" y="144" width="168" height="28" fill="#D1D5DB" rx="4"/>
+  <rect x="16" y="180" width="168" height="28" fill="#D1D5DB" rx="4"/>
+  <rect x="232" y="20" width="400" height="36" fill="#E5E7EB" rx="6"/>
+  <rect x="232" y="80" width="936" height="160" fill="#E5E7EB" rx="8"/>
+  <rect x="232" y="260" width="456" height="160" fill="#E5E7EB" rx="8"/>
+  <rect x="712" y="260" width="456" height="160" fill="#E5E7EB" rx="8"/>
+  <rect x="232" y="440" width="300" height="160" fill="#E5E7EB" rx="8"/>
+  <rect x="556" y="440" width="300" height="160" fill="#E5E7EB" rx="8"/>
+  <rect x="880" y="440" width="288" height="160" fill="#E5E7EB" rx="8"/>
+  <text x="700" y="750" font-family="system-ui,sans-serif" font-size="16" fill="#9CA3AF" text-anchor="middle">Dashboard Overview</text>
+</svg>
