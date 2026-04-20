@@ -1,19 +1,40 @@
-# Project: Reattend.com
+# Project: Reattend Enterprise
 
 ## Vision
-Reattend is an AI-native "shared memory + decision OS" that compounds into a living memory graph over time. Users capture raw moments (notes, decisions, snippets). An AI agent decides what to store, enriches it, assigns it to projects, and links it into a memory graph. Users explore the graph and use a whiteboard/canvas to spatially organize memories.
+Reattend Enterprise is an organizational memory platform that solves corporate amnesia. When employees leave, transfer, or retire, their institutional knowledge stays. Every decision, every context, every piece of organizational knowledge is captured, linked, and accessible — forever.
+
+**This is a fork of Reattend Personal** (`~/Desktop/Final Reattend/reattend/`). Read `ENTERPRISE.md` for the full architecture, pricing, and build plan.
+
+## What's different from Personal Reattend
+- **Org hierarchy**: Organization → Department → Division → Team (not just workspaces)
+- **RBAC**: Department-level access control (HR sees HR, Engineering sees Engineering)
+- **Decision tracking**: Who decided what, when, context, outcome, was it reversed
+- **Transfer protocol**: Knowledge stays with the role, not the person
+- **Self-healing**: Auto-detects stale policies, contradictions, knowledge gaps
+- **Admin dashboard**: Usage analytics, health scores, member management
+- **Audit trail**: Every query logged, every access tracked
+- **Enterprise connectors**: SharePoint, Teams, Confluence, SAP
+- **On-premise**: Rabbit runs on customer's servers. Zero data leaves the org.
+- **Enterprise theme**: Professional, dense, MS Teams-like. Not consumer-friendly.
+
+## Competitors
+- **Glean** ($200M ARR, $7.2B valuation): Cloud-only search, $25/user. No temporal reasoning, no on-prem.
+- **Guru** ($250/mo min): Manual curation wiki. Not AI-native.
+- **Confluence**: Static docs. No AI. No temporal reasoning.
+- **Microsoft Copilot**: Locked to M365 stack. No cross-tool memory.
 
 ## Tech Stack
 - **Framework**: Next.js 14+ (App Router) with TypeScript
-- **Database**: SQLite via better-sqlite3 + Drizzle ORM (cheap, zero-infra)
-- **Auth**: NextAuth.js v5 (Auth.js) with credentials + magic link stubs
+- **Database**: SQLite via better-sqlite3 + Drizzle ORM (migrate to Postgres for production enterprise)
+- **Auth**: NextAuth.js v5 + SSO/SAML for enterprise
 - **UI**: Tailwind CSS + shadcn/ui + Radix UI primitives
-- **Graph**: React Flow (for both graph visualization and whiteboard)
 - **Animations**: Framer Motion
 - **State**: Zustand for client state
-- **AI**: Provider-agnostic LLM interface with mock mode
-- **Embeddings**: Local vector similarity (cosine) on SQLite; upgrade path to pgvector
-- **Jobs**: SQLite-backed job queue with in-process worker
+- **AI Ingestion**: Groq Llama 3.3 70B (SaaS) or Rabbit v2.1 (on-prem)
+- **AI Answering**: Claude Sonnet (SaaS) or Rabbit v2.1 (on-prem)
+- **Embeddings**: FastEmbed BGE-Base-EN-v1.5 (local, always)
+- **Search**: FTS5 full-text + sqlite-vec ANN vector search
+- **Jobs**: SQLite-backed job queue with retry/backoff
 
 ## Architecture
 ```
