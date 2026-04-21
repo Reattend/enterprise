@@ -282,6 +282,24 @@ function OrgOnboardingContent() {
               })}
             </div>
 
+            {(deployment === 'on_prem' || deployment === 'air_gapped') && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+                <div className="text-sm font-medium">
+                  {deployment === 'on_prem' ? 'On-Premise' : 'Air-Gapped'} requires a sales conversation
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  These deployments include Rabbit v2.1 on your hardware, custom SSO wiring, and a dedicated support engineer.
+                  Reach out and we'll set up a call within 24 hours.
+                </p>
+                <a
+                  href="mailto:pb@reattend.ai?subject=Enterprise%20deployment%20%E2%80%94%20on-prem%20%2F%20air-gapped"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  → Talk to sales (pb@reattend.ai)
+                </a>
+              </div>
+            )}
+
             {error && (
               <div className="text-sm text-destructive border border-destructive/30 bg-destructive/10 rounded p-2">
                 {error}
@@ -290,7 +308,10 @@ function OrgOnboardingContent() {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-              <Button onClick={submit} disabled={!canSubmit || submitting}>
+              <Button
+                onClick={submit}
+                disabled={!canSubmit || submitting || deployment === 'on_prem' || deployment === 'air_gapped'}
+              >
                 {submitting ? 'Creating…' : 'Create organization'}
               </Button>
             </div>

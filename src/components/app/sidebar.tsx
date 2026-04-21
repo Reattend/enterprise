@@ -60,15 +60,14 @@ import { toast } from 'sonner'
 
 // Reattend Enterprise primary nav.
 // Chat + Capture are primary buttons (above the nav). Search is in the topbar.
-// Nav: Home · Memory · My team · Decisions · Graph · Agents · Policies.
+// Nav (trimmed for Enterprise): Home · Tasks · Memory · Wiki · Agents · Policies.
+// Decisions + Graph are now filter-chip views inside Memory, not top-level links.
+// My team, Projects, and legacy Personal nav have been removed.
 const navItems = [
   { href: '/app', icon: Home, label: 'Home', exact: true },
   { href: '/app/tasks', icon: Zap, label: 'Tasks' },
   { href: '/app/memories', icon: Brain, label: 'Memory' },
   { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
-  { href: '/app/team', icon: Users, label: 'My team' },
-  { href: '/app/decisions', icon: Gavel, label: 'Decisions' },
-  { href: '/app/graph', icon: Network, label: 'Graph' },
   { href: '/app/agents', icon: Bot, label: 'Agents' },
   { href: '/app/policies', icon: FileText, label: 'Policies' },
 ]
@@ -778,9 +777,6 @@ function MobileOverlay({
           {navLink('/app/tasks', Zap, 'Tasks')}
           {navLink('/app/memories', Brain, 'Memory')}
           {navLink('/app/wiki', BookOpen, 'Wiki')}
-          {navLink('/app/team', Users, 'My team')}
-          {navLink('/app/decisions', Gavel, 'Decisions')}
-          {navLink('/app/graph', Network, 'Graph')}
           {navLink('/app/agents', Bot, 'Agents')}
           {navLink('/app/policies', FileText, 'Policies')}
           <div className="my-2 h-px bg-sidebar-border" />

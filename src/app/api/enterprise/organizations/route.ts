@@ -140,6 +140,15 @@ export async function POST(req: NextRequest) {
       status: 'active',
     })
 
+    // Seed the 10 default agents so the org's Agents page isn't empty on
+    // day one. Admins can edit prompts or archive any of them later.
+    try {
+      const { seedDefaultAgents } = await import('@/lib/enterprise/default-agents')
+      await seedDefaultAgents(orgId, userId)
+    } catch (e) {
+      console.error('[org.create] default-agents seed failed', e)
+    }
+
     const userRow = await db.select({ email: schema.users.email }).from(schema.users).where(eq(schema.users.id, userId)).limit(1)
     const email = userRow[0]?.email ?? 'unknown'
     const meta = extractRequestMeta(req)

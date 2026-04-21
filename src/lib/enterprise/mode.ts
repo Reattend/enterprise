@@ -73,6 +73,13 @@ export interface InviteRejection {
   message: string
 }
 
+// Invite policy:
+//   - Always reject syntactically-invalid emails.
+//   - If the org has declared a primaryDomain, enforce it (reject personal
+//     providers AND anything not matching the domain).
+//   - If the org has NO primaryDomain set (starter orgs, small teams), accept
+//     any address — including personal gmail/hotmail. Many real 10-person
+//     startups run on founders' personal email.
 export function validateEnterpriseInviteEmail(
   email: string,
   primaryDomain: string | null | undefined,
@@ -81,15 +88,19 @@ export function validateEnterpriseInviteEmail(
   if (!e.includes('@') || e.length < 5) {
     return { ok: false, reason: 'invalid_email', message: 'invalid email format' }
   }
-  if (isPersonalEmail(e)) {
-    return {
-      ok: false,
-      reason: 'personal_email',
-      message:
-        'Enterprise invites require an organization email. Ask the recipient to use their work address — they can create a separate Reattend Enterprise account with it.',
-    }
+  // No org-level restriction set → allow any valid email.
+  if (!primaryDomain) {
+    return { ok: true }
   }
-  if (primaryDomain && !emailMatchesOrgDomain(e, primaryDomain)) {
+  // primaryDomain set → strict: both personal-provider AND mismatched-domain fail.
+  if (!emailMatchesOrgDomain(e, primaryDomain)) {
+    if (isPersonalEmail(e)) {
+      return {
+        ok: false,
+        reason: 'personal_email',
+        message: `This organization requires work emails. Ask the recipient to use their @${primaryDomain.replace(/^@/, '')} address.`,
+      }
+    }
     return {
       ok: false,
       reason: 'wrong_domain',

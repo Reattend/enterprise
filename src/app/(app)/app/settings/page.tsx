@@ -535,14 +535,12 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile">
+        {/* Enterprise Settings = only personal account stuff.
+            Workspace / Members / Agent Logs / API Keys / Desktop are managed
+            in the org-level admin cockpit (/app/admin/[orgId]), not here. */}
         <TabsList className="w-full justify-start">
           <TabsTrigger value="profile"><User className="h-3.5 w-3.5 mr-1.5" /> Profile</TabsTrigger>
-          <TabsTrigger value="workspace"><Building className="h-3.5 w-3.5 mr-1.5" /> Workspace</TabsTrigger>
-          {workspaceType === 'team' && <TabsTrigger value="members"><Users className="h-3.5 w-3.5 mr-1.5" /> Members</TabsTrigger>}
           <TabsTrigger value="preferences"><Palette className="h-3.5 w-3.5 mr-1.5" /> Preferences</TabsTrigger>
-          <TabsTrigger value="agent-logs"><Terminal className="h-3.5 w-3.5 mr-1.5" /> Agent Logs</TabsTrigger>
-          <TabsTrigger value="api-keys"><Key className="h-3.5 w-3.5 mr-1.5" /> API Keys</TabsTrigger>
-          <TabsTrigger value="desktop"><Monitor className="h-3.5 w-3.5 mr-1.5" /> Desktop App</TabsTrigger>
         </TabsList>
 
         {/* Profile */}

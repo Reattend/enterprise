@@ -19,7 +19,6 @@ import {
   Download,
   Calendar,
   Gauge,
-  FolderKanban,
   Gavel,
   Lightbulb,
   MessageSquare,
@@ -27,8 +26,6 @@ import {
   FileText,
   Target,
   StickyNote,
-  ChevronsUpDown,
-  Check,
   PenLine,
   Sparkles,
   Mic,
@@ -45,12 +42,6 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 
 const typeConfig: Record<string, { icon: any; color: string; bg: string; gradient: string; label: string }> = {
@@ -77,50 +68,12 @@ export default function MemoryDetailPage() {
   const [editTitle, setEditTitle] = useState('')
   const [editSummary, setEditSummary] = useState('')
   const [editContent, setEditContent] = useState('')
-  const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([])
-  const [movingProject, setMovingProject] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [promoteOpen, setPromoteOpen] = useState(false)
 
   useEffect(() => {
     fetchRecord()
-    fetchProjects()
   }, [recordId])
-
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch('/api/projects')
-      const data = await res.json()
-      if (data.projects) setProjects(data.projects)
-    } catch {
-      // silent
-    }
-  }
-
-  const handleMoveToProject = async (projectId: string | null) => {
-    setMovingProject(true)
-    try {
-      const res = await fetch('/api/records', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: recordId, projectId }),
-      })
-      if (res.ok) {
-        const targetProject = projects.find(p => p.id === projectId)
-        setRecord((prev: any) => ({
-          ...prev,
-          project: projectId ? { id: projectId, name: targetProject?.name } : null,
-        }))
-        toast.success(projectId ? `Moved to ${targetProject?.name}` : 'Removed from project')
-      } else {
-        toast.error('Failed to move')
-      }
-    } catch {
-      toast.error('Failed to move')
-    } finally {
-      setMovingProject(false)
-    }
-  }
 
   const fetchRecord = async () => {
     try {
@@ -442,44 +395,6 @@ export default function MemoryDetailPage() {
                     {record.visibility === 'org' && <><Globe className="h-3 w-3" /> Organization</>}
                     {!record.visibility && <><Users className="h-3 w-3" /> Team</>}
                   </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <FolderKanban className="h-3 w-3" /> Project
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline" disabled={movingProject}>
-                        {movingProject ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <>
-                            {record.project?.name || 'None'}
-                            <ChevronsUpDown className="h-3 w-3 text-muted-foreground" />
-                          </>
-                        )}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => handleMoveToProject(null)}
-                        className="text-xs cursor-pointer"
-                      >
-                        <span className="text-muted-foreground">No project</span>
-                        {!record.project && <Check className="h-3.5 w-3.5 ml-auto text-primary" />}
-                      </DropdownMenuItem>
-                      {projects.map((p) => (
-                        <DropdownMenuItem
-                          key={p.id}
-                          onClick={() => handleMoveToProject(p.id)}
-                          className="text-xs cursor-pointer"
-                        >
-                          {p.name}
-                          {record.project?.id === p.id && <Check className="h-3.5 w-3.5 ml-auto text-primary" />}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
               </div>
             </div>

@@ -436,6 +436,44 @@ export default function MemoriesPage() {
         </div>
       </div>
 
+      {/* Type chips — decisions, insights, meetings were their own sidebar
+          entries in Personal Reattend. In Enterprise they're lenses over
+          memory. Graph stays a full page because the React-Flow canvas needs
+          the screen. */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'decision', label: 'Decisions' },
+          { key: 'insight', label: 'Insights' },
+          { key: 'meeting', label: 'Meetings' },
+          { key: 'idea', label: 'Ideas' },
+          { key: 'note', label: 'Notes' },
+        ].map((t) => {
+          const active = typeFilter === t.key
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTypeFilter(t.key)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-xs transition-colors',
+                active
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50',
+              )}
+            >
+              {t.label}
+            </button>
+          )
+        })}
+        <div className="mx-2 h-4 w-px bg-border" />
+        <Link
+          href="/app/graph"
+          className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+        >
+          <Network className="h-3 w-3" /> Graph view
+        </Link>
+      </div>
+
       {/* Search + Filter bar */}
       <div className="space-y-2">
         {/* Row 1: Search + view toggle + filter toggle */}
