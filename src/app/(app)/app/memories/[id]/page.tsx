@@ -32,7 +32,14 @@ import {
   PenLine,
   Sparkles,
   Mic,
+  Share2,
+  Users,
+  Building2,
+  Globe,
+  ShieldCheck,
 } from 'lucide-react'
+import { RecordSharePanel } from '@/components/enterprise/record-share-panel'
+import { PromoteToDecisionDialog } from '@/components/enterprise/promote-to-decision-dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -72,6 +79,8 @@ export default function MemoryDetailPage() {
   const [editContent, setEditContent] = useState('')
   const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([])
   const [movingProject, setMovingProject] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [promoteOpen, setPromoteOpen] = useState(false)
 
   useEffect(() => {
     fetchRecord()
@@ -238,6 +247,12 @@ export default function MemoryDetailPage() {
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
         </Button>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setPromoteOpen(true)} className="gap-1.5">
+            <Gavel className="h-4 w-4" /> Promote to decision
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setShareOpen(true)} className="gap-1.5">
+            <Share2 className="h-4 w-4" /> Share
+          </Button>
           <Button variant="ghost" size="icon-sm" onClick={() => setIsEditing(!isEditing)}>
             <Edit3 className="h-4 w-4" />
           </Button>
@@ -415,6 +430,21 @@ export default function MemoryDetailPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <ShieldCheck className="h-3 w-3" /> Visibility
+                  </span>
+                  <button
+                    onClick={() => setShareOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                  >
+                    {record.visibility === 'private' && <><Lock className="h-3 w-3" /> Private</>}
+                    {record.visibility === 'team' && <><Users className="h-3 w-3" /> Team</>}
+                    {record.visibility === 'department' && <><Building2 className="h-3 w-3" /> Department</>}
+                    {record.visibility === 'org' && <><Globe className="h-3 w-3" /> Organization</>}
+                    {!record.visibility && <><Users className="h-3 w-3" /> Team</>}
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <FolderKanban className="h-3 w-3" /> Project
                   </span>
                   <DropdownMenu>
@@ -510,6 +540,19 @@ export default function MemoryDetailPage() {
           )}
         </div>
       </div>
+
+      <RecordSharePanel
+        recordId={recordId}
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        onVisibilityChange={(v) => setRecord((prev: any) => ({ ...prev, visibility: v }))}
+      />
+
+      <PromoteToDecisionDialog
+        open={promoteOpen}
+        onOpenChange={setPromoteOpen}
+        record={record}
+      />
     </motion.div>
   )
 }

@@ -6,24 +6,30 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  Lightbulb,
-  FolderKanban,
+  Home,
+  Sparkles,
+  Brain,
+  Gavel,
+  Network,
+  Bot,
+  FileText,
   Settings,
   Plus,
   LogOut,
   User,
-  CreditCard,
   UserPlus,
   Loader2,
   PanelLeftClose,
   PanelLeft,
-  Plug,
-  Monitor,
-  TrendingUp,
-  LayoutGrid,
   MessageSquare,
-  Mic,
-  MessagesSquare,
+  Building2,
+  Activity,
+  Check,
+  Search,
+  Users,
+  Plug,
+  BookOpen,
+  Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -52,11 +58,19 @@ import { useAppStore } from '@/stores/app-store'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
+// Reattend Enterprise primary nav.
+// Chat + Capture are primary buttons (above the nav). Search is in the topbar.
+// Nav: Home · Memory · My team · Decisions · Graph · Agents · Policies.
 const navItems = [
-  { href: '/app/explore', icon: TrendingUp, label: 'Explore' },
-  { href: '/app/memories', icon: Lightbulb, label: 'Memories' },
-  { href: '/app/transcripts', icon: Mic, label: 'Transcripts' },
-  { href: '/app/board', icon: LayoutGrid, label: 'Board' },
+  { href: '/app', icon: Home, label: 'Home', exact: true },
+  { href: '/app/tasks', icon: Zap, label: 'Tasks' },
+  { href: '/app/memories', icon: Brain, label: 'Memory' },
+  { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
+  { href: '/app/team', icon: Users, label: 'My team' },
+  { href: '/app/decisions', icon: Gavel, label: 'Decisions' },
+  { href: '/app/graph', icon: Network, label: 'Graph' },
+  { href: '/app/agents', icon: Bot, label: 'Agents' },
+  { href: '/app/policies', icon: FileText, label: 'Policies' },
 ]
 
 interface UserInfo {
@@ -94,6 +108,10 @@ export function AppSidebar() {
     inboxUnread,
     setInboxUnread,
     setOnboardingCompleted,
+    enterpriseOrgs,
+    setEnterpriseOrgs,
+    activeEnterpriseOrgId,
+    setActiveEnterpriseOrgId,
   } = useAppStore()
 
   const [user, setUser] = useState<UserInfo | null>(null)
@@ -105,9 +123,31 @@ export function AppSidebar() {
     fetchUser()
     fetchChats()
     fetchInboxUnread()
+    fetchEnterpriseOrgs()
     const interval = setInterval(fetchInboxUnread, 60_000)
     return () => clearInterval(interval)
   }, [])
+
+  const fetchEnterpriseOrgs = async () => {
+    try {
+      const res = await fetch('/api/enterprise/organizations')
+      if (!res.ok) return
+      const data = await res.json()
+      const orgs = (data.organizations ?? []).map((o: { orgId: string; orgName: string; orgSlug: string; orgPlan: string; orgDeployment: string; role: string }) => ({
+        orgId: o.orgId,
+        orgName: o.orgName,
+        orgSlug: o.orgSlug,
+        orgPlan: o.orgPlan,
+        orgDeployment: o.orgDeployment,
+        role: o.role,
+      }))
+      setEnterpriseOrgs(orgs)
+      // Initialize active org if not set and user has exactly one
+      if (orgs.length > 0 && !activeEnterpriseOrgId) {
+        setActiveEnterpriseOrgId(orgs[0].orgId)
+      }
+    } catch { /* silent */ }
+  }
 
   const fetchInboxUnread = async () => {
     try {
@@ -229,67 +269,36 @@ export function AppSidebar() {
               <TooltipTrigger asChild>
                 <Button
                   size="icon"
-                  className="h-8 w-8 bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white hover:from-[#4338CA] hover:to-[#5558E6] shadow-[0_2px_8px_rgba(79,70,229,0.25)] border-0"
-                  onClick={handleNewChat}
+                  className="h-8 w-8"
+                  onClick={() => useAppStore.getState().setCaptureOpen(true)}
                 >
-                  <MessageSquare className="h-3.5 w-3.5" />
+                  <Plus className="h-3.5 w-3.5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">New Chat</TooltipContent>
+              <TooltipContent side="right">Capture memory</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8"
-                  onClick={() => router.push('/app/memories')}
+                <Link
+                  href="/app/chat"
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded transition-colors',
+                    pathname.startsWith('/app/chat')
+                      ? 'bg-primary text-primary-foreground'
+                      : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
+                  )}
                 >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                </Button>
+                  <Sparkles className="h-3.5 w-3.5" />
+                </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Add Memory</TooltipContent>
+              <TooltipContent side="right">Chat with memory</TooltipContent>
             </Tooltip>
           </div>
 
           <ScrollArea className="flex-1 px-2 py-2">
             <nav className="flex flex-col gap-1">
-              {/* Explore */}
-              {(() => {
-                const active = isActive('/app/explore')
-                return (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href="/app/explore" className={cn('flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors', active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground')}>
-                        <TrendingUp className={cn('h-4 w-4 shrink-0', active && 'text-primary')} />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Explore</TooltipContent>
-                  </Tooltip>
-                )
-              })()}
-
-              {/* Projects */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href="/app/projects"
-                    className={cn(
-                      'flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
-                      isActive('/app/projects')
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                        : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                    )}
-                  >
-                    <FolderKanban className={cn('h-4 w-4 shrink-0', isActive('/app/projects') && 'text-primary')} />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Projects</TooltipContent>
-              </Tooltip>
-
-              {/* Memories, Transcripts, Board */}
-              {navItems.filter(i => i.href !== '/app/explore').map((item) => {
-                const active = isActive(item.href)
+              {navItems.map((item) => {
+                const active = item.exact ? pathname === item.href : isActive(item.href)
                 return (
                   <Tooltip key={item.href}>
                     <TooltipTrigger asChild>
@@ -313,42 +322,48 @@ export function AppSidebar() {
           </ScrollArea>
 
           <div className="px-2 pb-2 flex flex-col gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/app/integrations"
-                  className={cn(
-                    'flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
-                    isActive('/app/integrations')
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                  )}
-                >
-                  <div className="relative">
-                    <Plug className="h-4 w-4" />
-                    {inboxUnread > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[7px] font-bold text-white leading-none">
-                        {inboxUnread > 9 ? '9+' : inboxUnread}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                Integrations{inboxUnread > 0 ? ` (${inboxUnread} needs attention)` : ''}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/app/desktop"
-                  className="flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                >
-                  <Monitor className="h-4 w-4" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Install App</TooltipContent>
-            </Tooltip>
+            {/* Enterprise cockpit shortcut in collapsed mode */}
+            {enterpriseOrgs.length > 0 && (() => {
+              const active = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
+              const isAdminRole = active.role === 'super_admin' || active.role === 'admin'
+              if (!isAdminRole) return null
+              const inAdminRoute = pathname.startsWith('/app/admin')
+              return (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={`/app/admin/${active.orgId}`}
+                      className={cn(
+                        'flex items-center justify-center rounded-md px-2 py-2 transition-colors',
+                        inAdminRoute
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-primary/10 text-primary hover:bg-primary/20',
+                      )}
+                    >
+                      <Activity className="h-4 w-4" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {active.orgName} · Memory cockpit
+                  </TooltipContent>
+                </Tooltip>
+              )
+            })()}
+
+            {enterpriseOrgs.length === 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/app/admin/onboarding"
+                    className="flex items-center justify-center rounded-md px-2 py-2 text-primary hover:bg-primary/10"
+                  >
+                    <Building2 className="h-4 w-4" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Set up organization</TooltipContent>
+              </Tooltip>
+            )}
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
@@ -382,9 +397,6 @@ export function AppSidebar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/app/settings"><User className="mr-2 h-4 w-4" /> Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/app/billing"><CreditCard className="mr-2 h-4 w-4" /> Billing</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
@@ -446,7 +458,10 @@ export function AppSidebar() {
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1">
             <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 dark:hidden" />
             <Image src="/white_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 hidden dark:block" />
-            <span className="text-[15px] font-bold text-sidebar-foreground tracking-tight">Reattend</span>
+            <div className="flex flex-col min-w-0 leading-tight">
+              <span className="text-[15px] font-bold text-sidebar-foreground tracking-tight">Reattend</span>
+              <span className="text-[9px] uppercase tracking-wider text-primary font-semibold">Enterprise</span>
+            </div>
           </Link>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -463,95 +478,77 @@ export function AppSidebar() {
 
         <Separator className="bg-sidebar-border" />
 
-        {/* Quick Actions */}
+        {/* Enterprise identity — primary, above nav. The ONLY identity in
+            Reattend Enterprise. No personal/team workspace concepts here. */}
+        <div className="px-2 pt-2">
+          <EnterpriseSidebarSection
+            orgs={enterpriseOrgs}
+            activeOrgId={activeEnterpriseOrgId}
+            setActiveOrgId={setActiveEnterpriseOrgId}
+            currentPathname={pathname}
+            variant="primary"
+          />
+        </div>
+
+        <Separator className="mt-2 bg-sidebar-border" />
+
+        {/* Quick Actions — Capture (primary) + Chat (secondary). Both sit
+            above the nav because they're the two most-used daily actions.
+            Search lives in the topbar. */}
         <div className="px-2 pt-2 flex flex-col gap-1.5">
           <Button
             size="sm"
-            className="w-full h-9 text-xs bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white hover:from-[#4338CA] hover:to-[#5558E6] shadow-[0_2px_8px_rgba(79,70,229,0.25)] border-0"
-            onClick={handleNewChat}
+            className="w-full h-8 text-[13px] font-medium"
+            onClick={() => useAppStore.getState().setCaptureOpen(true)}
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Chat
+            Capture memory
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full h-9 text-xs bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-500/10 dark:to-indigo-500/10 border-[#4F46E5]/20 text-[#4F46E5] dark:text-[#818CF8] hover:from-violet-100 hover:to-indigo-100 dark:hover:from-violet-500/15 dark:hover:to-indigo-500/15"
-            onClick={() => router.push('/app/memories')}
+          <Link
+            href="/app/chat"
+            className={cn(
+              'w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded transition-colors',
+              pathname.startsWith('/app/chat')
+                ? 'bg-primary text-primary-foreground'
+                : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
+            )}
           >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Memories
-          </Button>
+            <Sparkles className="h-3.5 w-3.5" />
+            Chat
+          </Link>
         </div>
 
         {/* Main scrollable area */}
         <ScrollArea className="flex-1 px-2 py-2 min-h-0">
-          {/* Nav Items */}
           <nav className="flex flex-col gap-0.5 mb-2">
-            {/* Explore */}
-            {(() => {
-              const active = isActive('/app/explore')
-              return (
-                <Link
-                  href="/app/explore"
-                  className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    active
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                  )}
-                >
-                  <TrendingUp className={cn('h-4 w-4 shrink-0', active && 'text-primary')} />
-                  <span>Explore</span>
-                </Link>
-              )
-            })()}
-
-            {/* Projects */}
-            <Link
-              href="/app/projects"
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                isActive('/app/projects')
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-              )}
-            >
-              <FolderKanban className={cn('h-4 w-4 shrink-0', isActive('/app/projects') && 'text-primary')} />
-              <span>Projects</span>
-            </Link>
-
-            {/* Remaining nav items (Memories, Transcripts, Board) */}
-            {navItems.filter(i => i.href !== '/app/explore').map((item) => {
-              const active = isActive(item.href)
+            {navItems.map((item) => {
+              const active = item.exact ? pathname === item.href : isActive(item.href)
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
                     active
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                      : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
                   )}
                 >
-                  <item.icon className={cn('h-4 w-4 shrink-0', active && 'text-primary')} />
+                  <item.icon className={cn('h-3.5 w-3.5 shrink-0', active && 'text-primary')} />
                   <span>{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Recent Chats section */}
-          <div className="mt-3">
-            <div className="px-3 py-1.5">
-              <span className="text-[11px] font-semibold text-sidebar-foreground/50 uppercase tracking-wider">Recent Chats</span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              {recentChats.length === 0 ? (
-                <p className="text-[12px] text-muted-foreground/60 px-3 py-2 italic">No conversations yet</p>
-              ) : (
-                recentChats.slice(0, 8).map((chat) => {
+          {/* Recent Ask threads — only visible if the user has some */}
+          {recentChats.length > 0 && (
+            <div className="mt-3">
+              <div className="px-3 py-1.5">
+                <span className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-wider">Recent questions</span>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                {recentChats.slice(0, 6).map((chat) => {
                   const chatUrl = `/app?chat=${chat.id}`
                   const isActiveChatUrl = typeof window !== 'undefined'
                     ? window.location.pathname === '/app' && new URLSearchParams(window.location.search).get('chat') === chat.id
@@ -561,115 +558,58 @@ export function AppSidebar() {
                       key={chat.id}
                       onClick={() => router.push(chatUrl)}
                       className={cn(
-                        'flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] text-left w-full transition-colors',
+                        'flex items-center gap-2 rounded px-3 py-1 text-[12px] text-left w-full transition-colors',
                         isActiveChatUrl
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                          : 'text-sidebar-foreground/55 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                          : 'text-sidebar-foreground/55 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
                       )}
                     >
-                      <MessagesSquare className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/30" />
                       <span className="truncate flex-1">{chat.title}</span>
                     </button>
                   )
-                })
-              )}
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </ScrollArea>
 
-        {/* Bottom section */}
+        {/* Bottom section — settings + profile. Integrations + desktop install
+            are now behind Admin → Integrations (org-level config). */}
         <div className="px-2 pb-2 flex flex-col gap-0.5">
           <Separator className="mb-2 bg-sidebar-border" />
 
-          {/* Integrations */}
+          {/* Integrations — quick access to Connect / Disconnect / Sync */}
           <Link
             href="/app/integrations"
             className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
               isActive('/app/integrations')
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
             )}
           >
-            <div className="relative shrink-0">
-              <Plug className={cn('h-4 w-4', isActive('/app/integrations') && 'text-primary')} />
-              {inboxUnread > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[7px] font-bold text-white leading-none">
-                  {inboxUnread > 9 ? '9+' : inboxUnread}
-                </span>
-              )}
-            </div>
+            <Plug className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/integrations') && 'text-primary')} />
             <span>Integrations</span>
-            {inboxUnread > 0 && (
-              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                {inboxUnread > 99 ? '99+' : inboxUnread}
-              </span>
-            )}
-          </Link>
-
-          {/* Install App */}
-          <Link
-            href="/app/desktop"
-            className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              isActive('/app/desktop')
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-            )}
-          >
-            <Monitor className={cn('h-4 w-4 shrink-0', isActive('/app/desktop') && 'text-primary')} />
-            <span>Install App</span>
           </Link>
 
           {/* Settings */}
           <Link
             href="/app/settings"
             className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
               isActive('/app/settings')
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
             )}
           >
-            <Settings className={cn('h-4 w-4 shrink-0', isActive('/app/settings') && 'text-primary')} />
+            <Settings className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/settings') && 'text-primary')} />
             <span>Settings</span>
           </Link>
 
           <Separator className="my-1.5 bg-sidebar-border" />
 
-          {/* AI quota — free users only */}
-          {subscription && !subscription.isSmartActive && subscription.aiQueriesLimit !== null && (
-            subscription.aiQueriesUsed >= subscription.aiQueriesLimit ? (
-              <Link href="/app/billing" className="block mx-1 mb-1 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-                  <span className="text-[11px] font-semibold text-red-600">Daily limit reached</span>
-                </div>
-                <p className="text-[10px] text-red-500/60 mb-1.5">AI queries reset at midnight UTC</p>
-                <span className="text-[10px] font-semibold text-indigo-600">Upgrade to Pro for unlimited →</span>
-              </Link>
-            ) : (
-              <Link href="/app/billing" className="block mx-1 mb-1 px-3 py-2.5 rounded-lg bg-sidebar-accent/40 hover:bg-sidebar-accent/60 transition-colors group">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-medium text-sidebar-foreground/50">Daily usage</span>
-                  <span className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">Go Pro →</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex-1 h-1 rounded-full bg-sidebar-border overflow-hidden">
-                    <div
-                      className={cn('h-full rounded-full transition-all duration-500',
-                        (subscription.aiQueriesUsed / subscription.aiQueriesLimit) >= 0.7 ? 'bg-amber-500' : 'bg-primary/70'
-                      )}
-                      style={{ width: `${Math.min(100, (subscription.aiQueriesUsed / subscription.aiQueriesLimit) * 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-[11px] tabular-nums font-medium whitespace-nowrap text-sidebar-foreground/60">
-                    {subscription.aiQueriesLimit - subscription.aiQueriesUsed} left
-                  </span>
-                </div>
-              </Link>
-            )
-          )}
+          {/* Personal usage quota removed — enterprise billing is org-level,
+              not per-user. See Admin → Settings → Plan. */}
 
           {/* User profile */}
           <DropdownMenu>
@@ -693,9 +633,6 @@ export function AppSidebar() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/app/settings"><User className="mr-2 h-4 w-4" /> Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/app/billing"><CreditCard className="mr-2 h-4 w-4" /> Billing</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/app/settings"><Settings className="mr-2 h-4 w-4" /> Settings</Link>
@@ -819,38 +756,168 @@ function MobileOverlay({
         <div className="px-2 pt-2 pb-1 flex flex-col gap-1.5 shrink-0">
           <Button
             size="sm"
-            className="w-full h-9 text-xs bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white hover:from-[#4338CA] hover:to-[#5558E6] shadow-[0_2px_8px_rgba(79,70,229,0.25)] border-0"
-            onClick={() => { router.push('/app'); close() }}
+            className="w-full h-8 text-[13px] font-medium"
+            onClick={() => { useAppStore.getState().setCaptureOpen(true); close() }}
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Chat
+            Capture memory
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full h-9 text-xs border-[#4F46E5]/20 text-[#4F46E5] dark:text-[#818CF8] bg-violet-50 dark:bg-violet-500/10"
-            onClick={() => { router.push('/app/memories'); close() }}
+          <Link
+            href="/app/chat"
+            onClick={close}
+            className="w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15 transition-colors"
           >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Memory
-          </Button>
+            <Sparkles className="h-3.5 w-3.5" />
+            Chat
+          </Link>
         </div>
 
         {/* Nav */}
         <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
-          {navLink('/app/explore', TrendingUp, 'Explore')}
-          {navLink('/app/projects', FolderKanban, 'Projects')}
-          {navLink('/app/memories', Lightbulb, 'Memories')}
-          {navLink('/app/transcripts', Mic, 'Transcripts')}
-          {navLink('/app/board', LayoutGrid, 'Board')}
-
+          {navLink('/app', Home, 'Home')}
+          {navLink('/app/tasks', Zap, 'Tasks')}
+          {navLink('/app/memories', Brain, 'Memory')}
+          {navLink('/app/wiki', BookOpen, 'Wiki')}
+          {navLink('/app/team', Users, 'My team')}
+          {navLink('/app/decisions', Gavel, 'Decisions')}
+          {navLink('/app/graph', Network, 'Graph')}
+          {navLink('/app/agents', Bot, 'Agents')}
+          {navLink('/app/policies', FileText, 'Policies')}
           <div className="my-2 h-px bg-sidebar-border" />
-
-          {navLink('/app/integrations', Plug, 'Integrations', inboxUnread)}
-          {navLink('/app/desktop', Monitor, 'Install App')}
           {navLink('/app/settings', Settings, 'Settings')}
         </div>
       </div>
     </>
+  )
+}
+
+// ─── Enterprise section in sidebar ──────────────────────────────────────────
+// Shown to every authenticated user:
+//   - If they belong to zero orgs: a single "Set up organization" CTA
+//   - If they belong to 1+ orgs: the active org card with a Cockpit link
+//     (for admins/super_admins) and a switcher if they belong to more than one
+function EnterpriseSidebarSection({
+  orgs,
+  activeOrgId,
+  setActiveOrgId,
+  currentPathname,
+}: {
+  orgs: import('@/stores/app-store').EnterpriseOrgMembership[]
+  activeOrgId: string | null
+  setActiveOrgId: (id: string | null) => void
+  currentPathname: string
+  variant?: 'primary' | 'secondary'
+}) {
+  const active = orgs.find((o) => o.orgId === activeOrgId) ?? orgs[0]
+  const isAdmin = active && (active.role === 'super_admin' || active.role === 'admin')
+  const inAdminRoute = currentPathname.startsWith('/app/admin')
+
+  if (orgs.length === 0) {
+    return (
+      <Link
+        href="/app/admin/onboarding"
+        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors"
+      >
+        <Building2 className="h-4 w-4 text-primary shrink-0" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-[13px] font-medium text-primary">Set up organization</span>
+          <span className="text-[10px] text-muted-foreground">Nothing happens until you do</span>
+        </div>
+      </Link>
+    )
+  }
+
+  return (
+    <>
+      {active && (
+        <div className="rounded border border-border bg-sidebar-accent/40 p-2.5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-7 w-7 rounded bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center shrink-0">
+              {active.orgName[0]?.toUpperCase() ?? 'O'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-semibold truncate">{active.orgName}</div>
+              <div className="text-[10px] text-muted-foreground capitalize">
+                {active.role.replace('_', ' ')} · {active.orgPlan}
+              </div>
+            </div>
+            {orgs.length >= 2 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="h-6 w-6 flex items-center justify-center rounded hover:bg-sidebar-accent/60 text-muted-foreground">
+                    <ChevronsUpDownLocal />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Switch organization</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {orgs.map((o) => (
+                    <DropdownMenuItem
+                      key={o.orgId}
+                      className="cursor-pointer"
+                      onClick={() => setActiveOrgId(o.orgId)}
+                    >
+                      <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate">{o.orgName}</div>
+                        <div className="text-[10px] text-muted-foreground capitalize">{o.role.replace('_', ' ')}</div>
+                      </div>
+                      {o.orgId === activeOrgId && <Check className="h-3.5 w-3.5 text-primary" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
+          {isAdmin && (
+            <Link
+              href={`/app/admin/${active.orgId}`}
+              className={cn(
+                'flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors',
+                inAdminRoute
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-primary/90 text-white hover:bg-primary',
+              )}
+            >
+              <Activity className="h-3.5 w-3.5" />
+              <span>Memory cockpit</span>
+            </Link>
+          )}
+
+          {isAdmin && (
+            <div className="grid grid-cols-2 gap-1 mt-1">
+              <Link
+                href={`/app/admin/${active.orgId}/members`}
+                className="text-[11px] text-center px-1.5 py-1 rounded hover:bg-sidebar-accent/50 text-muted-foreground hover:text-foreground"
+              >
+                Members
+              </Link>
+              <Link
+                href={`/app/admin/${active.orgId}/health`}
+                className="text-[11px] text-center px-1.5 py-1 rounded hover:bg-sidebar-accent/50 text-muted-foreground hover:text-foreground"
+              >
+                Self-healing
+              </Link>
+            </div>
+          )}
+
+          {!isAdmin && (
+            <div className="text-[11px] text-muted-foreground px-1 py-0.5">
+              You are a {active.role.replace('_', ' ')} in this organization.
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  )
+}
+
+function ChevronsUpDownLocal() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m7 15 5 5 5-5" />
+      <path d="m7 9 5-5 5 5" />
+    </svg>
   )
 }

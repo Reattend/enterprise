@@ -3,10 +3,17 @@ import { db, schema } from '@/lib/db'
 import { eq, and, desc, inArray, ne, count, isNotNull, gte } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
+import {
+  auditForAllUserOrgs,
+  extractRequestMeta,
+  buildAccessContext,
+  filterToAccessibleRecords,
+} from '@/lib/enterprise'
+import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 
 export async function GET(req: NextRequest) {
   try {
-    const { workspaceId } = await requireAuth()
+    const { workspaceId, userId } = await requireAuth()
     const params = req.nextUrl.searchParams
     const type = params.get('type')
     const source = params.get('source') // 'gmail' | 'google-calendar' | 'manual' | null
@@ -73,6 +80,13 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // Record-level RBAC: strip records the user can't see (private of others,
+    // dept-scoped outside their dept, etc.). Within the same workspace this
+    // mostly affects 'private' records of others.
+    const accessCtx = await buildAccessContext(userId)
+    const allowed = await filterToAccessibleRecords(accessCtx, records.map((r) => r.id))
+    records = records.filter((r) => allowed.has(r.id))
+
     return NextResponse.json({ records, total })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
@@ -84,7 +98,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId, userId } = await requireAuth()
+    const { workspaceId, userId, session } = await requireAuth()
+    const userEmail = session?.user?.email || 'unknown'
     const body = await req.json()
     const { content, project_id } = body
 
@@ -92,22 +107,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'content is required' }, { status: 400 })
     }
 
-    // Dedup: reject if identical content was saved in the last 30 seconds
-    const thirtySecsAgo = new Date(Date.now() - 30_000).toISOString()
-    const recent = await db.query.records.findFirst({
-      where: and(
-        eq(schema.records.workspaceId, workspaceId),
-        eq(schema.records.content, content),
-      ),
-    })
-    if (recent && recent.createdAt > thirtySecsAgo) {
-      const record = recent
-      return NextResponse.json({ record })
+    // Content-hash dedup: if the exact same content was ingested before in
+    // this workspace, return the existing record instead of creating a duplicate.
+    // This catches the common "two people paste the same email" / "Nango +
+    // Chrome extension both captured it" cases. The legacy 30s window check
+    // is now redundant but kept inside findExactDuplicate's normalization.
+    const dup = await findExactDuplicate(workspaceId, content)
+    if (dup.hit) {
+      const existing = await db.query.records.findFirst({
+        where: eq(schema.records.id, dup.existingRecordId),
+      })
+      return NextResponse.json({ record: existing, deduplicated: true })
     }
 
     // Save immediately with defaults — AI enrichment runs in background
     const recordId = crypto.randomUUID()
     const title = content.slice(0, 60)
+    const hash = contentHash(content)
 
     await db.insert(schema.records).values({
       id: recordId,
@@ -120,6 +136,8 @@ export async function POST(req: NextRequest) {
       tags: '[]',
       triageStatus: 'auto_accepted',
       createdBy: userId,
+      // Store hash in meta so future dedup checks hit the index path
+      meta: JSON.stringify({ contentHash: hash }),
     })
 
     // Assign to project
@@ -151,6 +169,15 @@ export async function POST(req: NextRequest) {
     await enqueueJob(workspaceId, 'ingest', { recordId, content })
     // Kick the worker immediately — don't await, don't block the response.
     processAllPendingJobs().catch(e => console.error('[records] worker kick failed:', e))
+
+    const reqMeta = extractRequestMeta(req)
+    auditForAllUserOrgs(userId, userEmail, 'create', {
+      resourceType: 'record',
+      resourceId: recordId,
+      ipAddress: reqMeta.ipAddress,
+      userAgent: reqMeta.userAgent,
+      metadata: { workspaceId, title },
+    })
 
     return NextResponse.json({ record })
   } catch (error: any) {
@@ -216,7 +243,8 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    await requireAuth()
+    const { userId, session } = await requireAuth()
+    const userEmail = session?.user?.email || 'unknown'
     const { id } = await req.json()
 
     if (!id) {
@@ -224,6 +252,15 @@ export async function DELETE(req: NextRequest) {
     }
 
     await db.delete(schema.records).where(eq(schema.records.id, id))
+
+    const reqMeta = extractRequestMeta(req)
+    auditForAllUserOrgs(userId, userEmail, 'delete', {
+      resourceType: 'record',
+      resourceId: id,
+      ipAddress: reqMeta.ipAddress,
+      userAgent: reqMeta.userAgent,
+    })
+
     return NextResponse.json({ message: 'Record deleted' })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {

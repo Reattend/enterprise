@@ -5,6 +5,7 @@ import { db, schema } from '../db'
 import { eq, and } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { sendWelcomeEmail } from '../email'
+import { verifySsoTicket } from '../sso/oidc'
 
 /**
  * Find or create a user + workspace + subscription.
@@ -128,6 +129,36 @@ export const {
           email: user.email,
           name: user.name,
           image: user.avatarUrl,
+        }
+      },
+    }),
+    // SSO ticket handoff — the /api/sso/callback endpoint verifies the IdP
+    // id_token and issues a 60-second JWT ticket. The login page trades the
+    // ticket here to get a real NextAuth session cookie.
+    CredentialsProvider({
+      id: 'sso-ticket',
+      name: 'SSO',
+      credentials: {
+        ticket: { label: 'SSO Ticket', type: 'text' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.ticket) return null
+        try {
+          const claims = await verifySsoTicket(
+            credentials.ticket as string,
+            process.env.NEXTAUTH_SECRET || 'dev-fallback-do-not-use',
+          )
+          const dbUser = await db.query.users.findFirst({ where: eq(schema.users.id, claims.userId) })
+          if (!dbUser) return null
+          return {
+            id: dbUser.id,
+            email: dbUser.email,
+            name: dbUser.name,
+            image: dbUser.avatarUrl,
+          }
+        } catch (err) {
+          console.error('[sso-ticket authorize]', err)
+          return null
         }
       },
     }),

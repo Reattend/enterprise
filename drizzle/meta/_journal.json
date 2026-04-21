@@ -15,6 +15,69 @@
       "when": 1776238820927,
       "tag": "0001_safe_ser_duncan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776663046432,
+      "tag": "0002_enterprise_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776679663742,
+      "tag": "0003_enterprise_invites",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1776680553240,
+      "tag": "0004_taxonomy_and_loosen_enums",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1776693364612,
+      "tag": "0005_agents",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1776697659068,
+      "tag": "0006_rbac_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1776703033257,
+      "tag": "0007_chubby_annihilus",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1776732503563,
+      "tag": "0008_foamy_thunderbolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1776733394663,
+      "tag": "0009_curvy_hedge_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1776738663922,
+      "tag": "0010_chilly_drax",
+      "breakpoints": true
     }
   ]
 }

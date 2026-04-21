@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useState, useRef } from 'react'
+import React, { Suspense, useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -19,10 +19,52 @@ function LoginForm() {
   const [devCode, setDevCode] = useState<string | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  // SSO handoff — if /api/sso/callback sent us back with ?sso_ticket=,
+  // trade it for a NextAuth session. Also surface sso_error if present.
+  useEffect(() => {
+    const ticket = searchParams.get('sso_ticket')
+    const ssoErr = searchParams.get('sso_error')
+    if (ssoErr) {
+      toast.error(`SSO failed: ${ssoErr}`)
+      return
+    }
+    if (ticket) {
+      signIn('sso-ticket', { ticket, callbackUrl })
+    }
+  }, [searchParams, callbackUrl])
+
+  // Before sending an OTP, check if the email's domain has SSO enabled.
+  // If so, bounce the user straight to the IdP instead.
+  const maybeStartSso = async (emailAddr: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/sso/initiate?email=${encodeURIComponent(emailAddr)}`, { redirect: 'manual' })
+      // If the API 302s to the IdP, fetch can't follow it with redirect:manual.
+      // The browser will navigate via window.location instead.
+      if (res.type === 'opaqueredirect' || res.status === 0) {
+        window.location.href = `/api/sso/initiate?email=${encodeURIComponent(emailAddr)}`
+        return true
+      }
+      // JSON response means SSO is not configured for this domain.
+      if (res.ok) {
+        const data = await res.json().catch(() => null)
+        if (data && data.ssoAvailable === false) return false
+      }
+    } catch { /* fall through to OTP */ }
+    return false
+  }
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
     setLoading(true)
+
+    // SSO-first: if the email's domain has an SSO config, the initiate
+    // endpoint will 302 to the IdP and navigation happens there. We bail
+    // out of the OTP path in that case.
+    if (await maybeStartSso(email.trim())) {
+      setLoading(false)
+      return
+    }
 
     try {
       const res = await fetch('/api/auth/send-otp', {

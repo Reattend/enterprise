@@ -59,6 +59,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
+        display: ['var(--font-display)', 'Iowan Old Style', 'Apple Garamond', 'Georgia', 'serif'],
       },
       keyframes: {
         'fade-in': {

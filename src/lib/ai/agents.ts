@@ -542,6 +542,25 @@ export async function runEmbeddingJob(recordId: string, workspaceId: string, sug
     }
   }
 
+  // Near-duplicate detection: now that we have this record's vector, compare
+  // against every other embedding in the workspace. Anything > 0.95 cosine
+  // is almost certainly the same thing said twice — auto-link as same_topic
+  // so the graph shows the relationship and Chat doesn't retrieve redundant
+  // context.
+  try {
+    const { detectNearDuplicates, linkNearDuplicates } = await import('./ingestion')
+    const nearDups = await detectNearDuplicates(recordId, workspaceId, vector)
+    if (nearDups.found.length > 0) {
+      const linked = await linkNearDuplicates(recordId, workspaceId, nearDups)
+      if (linked > 0) {
+        console.log(`[embed] linked ${linked} near-duplicates for ${recordId}`)
+      }
+    }
+  } catch (e) {
+    // Near-dup is best-effort — a failure here shouldn't break ingestion
+    console.warn('[embed] near-dup detection failed:', (e as Error).message)
+  }
+
   // NOTE: in the records route we call runLinkingAgent() directly right
   // after runEmbeddingJob(), so no queue row is needed. Enqueuing a link
   // job here would create an orphan pending row that never gets picked up,

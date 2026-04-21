@@ -28,6 +28,8 @@ import {
   Glasses,
   ArrowRight,
   BookOpen,
+  Building2,
+  Search,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -61,7 +63,9 @@ interface Notification {
 export function AppTopbar() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
-  const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen } = useAppStore()
+  const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
+  const activeEnterpriseOrg = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
+  const hasEnterprise = enterpriseOrgs.length > 0
 
   // Create team
   const [newTeamName, setNewTeamName] = useState('')
@@ -222,135 +226,74 @@ export function AppTopbar() {
           <Menu className="h-4 w-4" />
         </button>
 
-        {/* Left: Personal / Team pills — hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-1 shrink-0">
+        {/* Left: org identity pill — compact. */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
+          {hasEnterprise && activeEnterpriseOrg && (
+            <Link
+              href={`/app/admin/${activeEnterpriseOrg.orgId}`}
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded hover:bg-muted/60 transition-colors text-[12px]"
+              title="Open Memory Cockpit"
+            >
+              <div className="h-4 w-4 rounded bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center">
+                {(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}
+              </div>
+              <span className="font-medium text-foreground truncate max-w-[140px]">{activeEnterpriseOrg.orgName}</span>
+            </Link>
+          )}
+        </div>
+
+        {/* Center: Global search — Glean-style. */}
+        <div className="flex-1 flex justify-center min-w-0 px-4">
           <button
-            className={cn(
-              'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all',
-              workspaceType !== 'team'
-                ? 'bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white shadow-[0_2px_8px_rgba(79,70,229,0.25)]'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            )}
-            onClick={() => {
-              const personal = allWorkspaces.find(ws => ws.type === 'personal')
-              if (personal && personal.id !== currentWorkspaceId) handleSwitchWorkspace(personal.id)
-            }}
+            onClick={() => router.push('/app/search')}
+            className="w-full max-w-xl inline-flex items-center gap-2.5 h-9 px-3 rounded-md border border-border bg-background/60 hover:bg-background hover:border-border/80 transition-colors text-[13px] text-muted-foreground"
           >
-            Personal
-          </button>
-          <button
-            className={cn(
-              'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all',
-              workspaceType === 'team'
-                ? 'bg-gradient-to-r from-neutral-800 to-neutral-900 text-white shadow-[0_2px_8px_rgba(0,0,0,0.25)]'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            )}
-            onClick={() => {
-              const team = allWorkspaces.find(ws => ws.type === 'team')
-              if (team && team.id !== currentWorkspaceId) {
-                handleSwitchWorkspace(team.id)
-              } else if (!team) {
-                setCreateTeamOpen(true)
-              }
-            }}
-          >
-            Team
+            <Search className="h-3.5 w-3.5 flex-shrink-0" />
+            <span className="flex-1 text-left">Search memories, decisions, policies, people…</span>
+            <kbd className="text-[10px] font-mono text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
           </button>
         </div>
 
-        {/* Center: Current workspace dropdown */}
-        <div className="flex-1 flex justify-center">
+        {/* Org switcher (only for multi-org users) */}
+        {hasEnterprise && enterpriseOrgs.length >= 2 && activeEnterpriseOrg && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="group inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full border border-white/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-md shadow-[0_2px_12px_rgba(79,70,229,0.12)] hover:shadow-[0_2px_16px_rgba(79,70,229,0.2)] hover:border-primary/25 hover:bg-white/80 dark:hover:bg-white/8 transition-all duration-200 min-w-[180px] max-w-[300px]">
-                <div className={cn(
-                  'flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-bold shrink-0 shadow-sm',
-                  workspaceType === 'team'
-                    ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white'
-                    : 'bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] text-white'
-                )}>
-                  {(workspaceName || 'W')[0]?.toUpperCase()}
-                </div>
-                <span className="text-sm font-semibold text-foreground truncate flex-1 text-left">{workspaceName || 'Loading...'}</span>
-                {workspaceType === 'team' && (
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 shrink-0 tracking-wide uppercase">Team</span>
-                )}
-                <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-muted-foreground shrink-0 transition-colors" />
+              <button className="h-8 w-8 flex items-center justify-center rounded hover:bg-muted/60 text-muted-foreground" title="Switch organization">
+                <ChevronsUpDown className="h-3.5 w-3.5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-56">
-              {allWorkspaces.map((ws) => (
+            <DropdownMenuContent align="end" className="w-64">
+              <div className="px-2 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                Switch organization
+              </div>
+              {enterpriseOrgs.map((o) => (
                 <DropdownMenuItem
-                  key={ws.id}
+                  key={o.orgId}
                   onClick={() => {
-                    if (ws.id !== currentWorkspaceId) handleSwitchWorkspace(ws.id)
+                    useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)
+                    if ((o.role === 'super_admin' || o.role === 'admin')) {
+                      router.push(`/app/admin/${o.orgId}`)
+                    }
                   }}
                   className="cursor-pointer"
                 >
-                  <div className={cn(
-                    'flex h-6 w-6 items-center justify-center rounded text-xs font-bold mr-2 shrink-0',
-                    ws.type === 'team' ? 'bg-indigo-500 text-white' : 'bg-primary text-primary-foreground'
-                  )}>
-                    {ws.name[0]?.toUpperCase()}
+                  <div className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
+                    {o.orgName[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm truncate block">{ws.name}</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-muted-foreground">{ws.type === 'team' ? 'Team' : 'Personal'}</span>
-                      {ws.type === 'team' && (
-                        <span className={cn(
-                          'text-[9px] font-semibold px-1.5 rounded-full leading-relaxed',
-                          ws.role === 'owner'
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                            : ws.role === 'admin'
-                            ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
-                            : 'bg-muted text-muted-foreground'
-                        )}>
-                          {ws.role === 'owner' ? 'Owner' : ws.role === 'admin' ? 'Admin' : 'Member'}
-                        </span>
-                      )}
-                    </div>
+                    <span className="text-sm truncate block">{o.orgName}</span>
+                    <span className="text-[10px] text-muted-foreground capitalize">
+                      {o.role.replace('_', ' ')} · {o.orgPlan}
+                    </span>
                   </div>
-                  {ws.id === currentWorkspaceId && (
-                    <Check className="h-4 w-4 text-primary shrink-0" />
+                  {o.orgId === activeEnterpriseOrgId && (
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                   )}
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuSeparator />
-              {workspaceType === 'team' && (
-                <DropdownMenuItem
-                  onClick={() => setInviteOpen(true)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-indigo-500/10 mr-2 shrink-0">
-                    <UserPlus className="h-3.5 w-3.5 text-indigo-500" />
-                  </div>
-                  <span className="text-sm font-medium">Invite People</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onClick={() => setCreateTeamOpen(true)}
-                className="cursor-pointer text-indigo-600 dark:text-indigo-400"
-              >
-                <div className="flex h-6 w-6 items-center justify-center rounded bg-indigo-500/10 mr-2 shrink-0">
-                  <Plus className="h-3.5 w-3.5 text-indigo-500" />
-                </div>
-                <span className="text-sm font-medium">Create Team</span>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Invite shortcut for team workspaces */}
-          {workspaceType === 'team' && (
-            <button
-              onClick={() => setInviteOpen(true)}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors"
-              title="Invite people"
-            >
-              <UserPlus className="h-3.5 w-3.5 text-indigo-500" />
-            </button>
-          )}
-        </div>
+        )}
 
         {/* Right: Action icons */}
         <div className="flex items-center gap-1 shrink-0">

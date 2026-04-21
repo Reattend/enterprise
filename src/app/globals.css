@@ -3,59 +3,79 @@
 @tailwind utilities;
 
 @layer base {
+  /* Reattend Enterprise design tokens.
+     Slate palette with a single indigo accent — MS Fluent / Notion / Linear
+     aesthetic. Higher density, flatter, crisper corners (4px). */
   :root {
+    /* Surfaces */
     --background: 0 0% 100%;
-    --foreground: 224 71% 4%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --primary: 252 62% 55%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Single indigo accent — used sparingly for CTAs + links */
+    --primary: 239 84% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 9% 46%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 252 62% 96%;
-    --accent-foreground: 252 62% 35%;
-    --destructive: 0 84% 60%;
+
+    /* Quiet slate grays for secondary surfaces */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 30% 22%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 94%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 252 62% 55%;
-    --radius: 0.625rem;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 224 71% 4%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-accent: 252 62% 96%;
-    --sidebar-accent-foreground: 252 62% 35%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 239 84% 60%;
+
+    /* Crisp corners: 4px everywhere */
+    --radius: 0.25rem;
+
+    /* Sidebar is slightly cooler/lighter than main bg for edge definition */
+    --sidebar: 210 40% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-accent: 210 40% 94%;
+    --sidebar-accent-foreground: 222 47% 11%;
   }
 
+  /* Dark mode — slate-950 base. This is the enterprise default. */
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 8%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 8%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 252 62% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 47% 12%;
-    --secondary-foreground: 213 31% 70%;
-    --muted: 222 47% 12%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 252 40% 15%;
-    --accent-foreground: 252 62% 75%;
-    --destructive: 0 63% 45%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 222 47% 15%;
-    --input: 222 47% 15%;
-    --ring: 252 62% 55%;
-    --sidebar: 222 47% 6%;
-    --sidebar-foreground: 213 31% 91%;
-    --sidebar-border: 222 47% 15%;
-    --sidebar-accent: 252 40% 12%;
-    --sidebar-accent-foreground: 252 62% 75%;
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 239 84% 67%;
+    --primary-foreground: 222 47% 7%;
+
+    --secondary: 222 47% 14%;
+    --secondary-foreground: 210 40% 90%;
+    --muted: 222 47% 14%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 47% 14%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 96%;
+
+    --border: 222 47% 16%;
+    --input: 222 47% 16%;
+    --ring: 239 84% 67%;
+
+    --sidebar: 222 47% 5%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-border: 222 47% 14%;
+    --sidebar-accent: 222 47% 11%;
+    --sidebar-accent-foreground: 210 40% 96%;
   }
 
   /* Team workspace theme — monochrome, professional, zero color */
@@ -141,7 +161,40 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Enterprise density: 13.5px base, tighter leading */
+    font-size: 13.5px;
+    line-height: 1.5;
   }
+  /* Headings use the display serif inside admin/cockpit pages.
+     Scoped via .enterprise-shell wrapper so marketing pages keep their type. */
+  .enterprise-shell h1,
+  .enterprise-shell .font-display {
+    font-family: var(--font-display), 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+  /* Restore standard sizes for input/button so forms don't shrink */
+  input, select, textarea, button {
+    font-size: inherit;
+  }
+}
+
+/* Enterprise-themed ambient tweaks */
+.enterprise-shell {
+  /* Subtle noise/grain for editorial feel could go here in future.
+     For now keep it clean. */
+}
+.enterprise-shell ::selection {
+  @apply bg-primary/25 text-foreground;
+}
+
+/* Kill the Personal-inherited gradient "hero" buttons. Enterprise uses flat. */
+.enterprise-shell [class*="bg-gradient-to-r"][class*="from-[#4F46E5]"],
+.enterprise-shell [class*="bg-gradient-to-r"][class*="from-indigo-"],
+.enterprise-shell [class*="bg-gradient-to-br"][class*="from-[#4F46E5]"] {
+  background: hsl(var(--primary)) !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 /* Custom scrollbar */

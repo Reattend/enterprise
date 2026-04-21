@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import './globals.css'
@@ -13,6 +13,15 @@ const inter = Inter({
 const mono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+})
+
+// Enterprise display font — used for page titles in the admin cockpit and
+// marketing hero moments. Gives the Notion/Bloomberg editorial feel.
+const displaySerif = Instrument_Serif({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-display',
+  style: ['normal', 'italic'],
 })
 
 export const metadata: Metadata = {
@@ -269,7 +278,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.variable} ${mono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${mono.variable} ${displaySerif.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

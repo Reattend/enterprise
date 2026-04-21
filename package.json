@@ -11,11 +11,21 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/lib/db/seed.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed:demo": "tsx scripts/seed-demo-org.ts",
+    "test:rbac": "tsx scripts/test-rbac.ts",
+    "test:nango": "tsx scripts/test-nango-normalizers.ts",
+    "test:policies": "tsx scripts/test-policies.ts",
+    "test:agents": "tsx scripts/test-agents.ts",
+    "test:transfer": "tsx scripts/test-transfer.ts",
+    "test:audit": "tsx scripts/test-audit-chain.ts",
+    "test:briefing": "tsx scripts/test-briefing.ts"
   },
   "dependencies": {
     "@auth/core": "^0.34.0",
     "@auth/drizzle-adapter": "^1.4.0",
+    "@nangohq/frontend": "^0.70.1",
+    "@nangohq/node": "^0.70.1",
     "@paddle/paddle-js": "^1.6.2",
     "@radix-ui/react-alert-dialog": "^1.1.0",
     "@radix-ui/react-avatar": "^1.1.0",
@@ -68,6 +78,7 @@
     "tailwind-merge": "^2.5.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^10.0.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.0",
     "zustand": "^4.5.0"
   },

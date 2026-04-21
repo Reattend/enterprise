@@ -1,678 +1,296 @@
 'use client'
 
-import React, { useState, useEffect, useRef, Suspense } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Brain, Lightbulb, CheckSquare, Sparkles, ArrowUp,
-  BookOpen, RefreshCw, ChevronDown, ChevronRight,
-  ThumbsUp, ThumbsDown, Share2, Copy, Check,
-  MessageSquare, Zap, FileText,
-} from 'lucide-react'
+// Home — personal briefing feed.
+//
+// Design goal: the first thing you see when you open Reattend should make
+// organizational amnesia impossible. Not "ask a question" (Chat does that),
+// not "here are 10 AI suggestions" (generic). Instead: the state of YOUR
+// slice of the org — what needs your attention, what changed, who's at risk.
+//
+// The feed is personal (scoped to you) and amnesia-native (decisions,
+// policies, transfers, sync). If the user has no active org, we fall back
+// to a minimal welcome screen.
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import ReactMarkdown from 'react-markdown'
-import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import {
+  AlertTriangle,
+  Gavel,
+  FileText,
+  ArrowRightLeft,
+  Sparkles,
+  Plus,
+  MessageSquare,
+  Brain,
+  Loader2,
+  ChevronRight,
+  Clock,
+} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/app-store'
-import { useSearchParams } from 'next/navigation'
+import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
 
-const TYPE_COLORS: Record<string, string> = {
-  decision: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
-  meeting: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
-  idea: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-  insight: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-  context: 'bg-slate-500/15 text-slate-600 dark:text-slate-400',
-  tasklike: 'bg-red-500/15 text-red-600 dark:text-red-400',
-  note: 'bg-gray-500/15 text-gray-600 dark:text-gray-400',
-  transcript: 'bg-pink-500/15 text-pink-600 dark:text-pink-400',
-}
+type PendingPolicy = { policyId: string; title: string; category: string | null }
+type Decision = { id: string; title: string; status: string; createdAt: string; decidedAt: string }
+type MemoryRow = { id: string; title: string; type: string; createdAt: string; summary: string | null }
 
-const CAPABILITY_CARDS = [
-  {
-    icon: Brain,
-    label: 'Synthesize',
-    description: 'Connect dots across your meetings and notes',
-    prompt: 'Synthesize the key insights and themes from my recent memories',
-    gradient: 'from-violet-500/20 to-purple-500/10',
-    border: 'border-violet-500/20 hover:border-violet-500/40',
-    iconBg: 'bg-violet-500/20 text-violet-400',
-  },
-  {
-    icon: FileText,
-    label: 'Draft',
-    description: 'Create emails, briefs, and updates from your notes',
-    prompt: 'Draft a status update email based on my recent meetings and decisions',
-    gradient: 'from-amber-500/20 to-orange-500/10',
-    border: 'border-amber-500/20 hover:border-amber-500/40',
-    iconBg: 'bg-amber-500/20 text-amber-400',
-  },
-  {
-    icon: Zap,
-    label: 'Prepare',
-    description: 'Get ready for your next meeting or call',
-    prompt: 'What should I know before my next meeting? Summarize relevant context.',
-    gradient: 'from-emerald-500/20 to-teal-500/10',
-    border: 'border-emerald-500/20 hover:border-emerald-500/40',
-    iconBg: 'bg-emerald-500/20 text-emerald-400',
-  },
-]
+export default function HomePage() {
+  const { activeEnterpriseOrgId, hasHydratedStore, enterpriseOrgs, captureOpen, setCaptureOpen } = useAppStore()
 
-const SUGGESTED = [
-  'What decisions did I make this week?',
-  'Summarize my recent meetings',
-  'Draft a status update from my notes',
-  'What risks should I flag before Friday?',
-  'Who has open action items?',
-  'Prepare me for my next meeting',
-]
+  const [pending, setPending] = useState<PendingPolicy[]>([])
+  const [recentDecisions, setRecentDecisions] = useState<Decision[]>([])
+  const [recentRecords, setRecentRecords] = useState<MemoryRow[]>([])
+  const [loading, setLoading] = useState(true)
 
-// Matches follow-ups heading from AI responses. Covers:
-//   ---FOLLOWUPS---, Follow-up questions:, Follow-ups:, FOLLOWUPS, followups:
-// We look for the heading on its own line (or preceded by blank line) so we
-// don't accidentally catch "follow up with Sarah" inside prose.
-const FOLLOWUPS_RE = /(?:^|\n)(?:\*\*)?(?:---\s*)?(?:Follow-?ups?(?:\s+questions?)?|FOLLOWUPS)(?:\s*---)?(?:\*\*)?:?\s*\n/i
-// Matches the offers heading. Covers ---OFFERS---, Offers:, OFFERS, "I can":
-const OFFERS_RE = /(?:^|\n)(?:\*\*)?(?:---\s*)?(?:Offers?|OFFERS)(?:\s*---)?(?:\*\*)?:?\s*\n/i
-
-type Source = { id: string; title: string; type: string; workspace?: string }
-
-type Message = {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  sources?: Source[]
-  followUps?: string[]
-  // Offer-style suggestions — "If you want, I can…" prompts.
-  // Same shape as followUps (just a list of strings), rendered as a
-  // separate pill row below the curious follow-ups.
-  offers?: string[]
-}
-
-function ChatPageInner() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [streaming, setStreaming] = useState(false)
-  const [userName, setUserName] = useState('')
-  const [chatId, setChatId] = useState<string | null>(null)
-  // Track which message's sources are expanded (collapsed by default)
-  const [openSourceIds, setOpenSourceIds] = useState<Set<string>>(new Set())
-  const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({})
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { upsertRecentChat } = useAppStore()
-  const searchParams = useSearchParams()
-  const chatIdParam = searchParams.get('chat')
-
-  // Load user name once
-  useEffect(() => {
-    fetch('/api/user').then(r => r.json()).then(d => {
-      if (d.user) setUserName(d.user.name?.split(' ')[0] || d.user.email?.split('@')[0] || '')
-    }).catch(() => {})
-  }, [])
-
-  // React to URL ?chat= param changes (covers New Chat + thread switching)
-  useEffect(() => {
-    if (chatIdParam) {
-      if (chatIdParam !== chatId) {
-        setMessages([])
-        setOpenSourceIds(new Set())
-        loadChat(chatIdParam)
-      }
-    } else {
-      // No ?chat= param → new chat
-      setMessages([])
-      setChatId(null)
-      setOpenSourceIds(new Set())
-    }
-  }, [chatIdParam]) // eslint-disable-line react-hooks/exhaustive-deps
+  const activeOrg = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)
+  const displayName = activeOrg?.orgName || 'your organization'
 
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
-    }
-  }, [messages])
-
-  const loadChat = async (id: string) => {
-    try {
-      const res = await fetch(`/api/chats/${id}`)
-      if (!res.ok) return
-      const data = await res.json()
-      if (data.chat) {
-        setChatId(id)
-        setMessages(data.chat.messages || [])
-      }
-    } catch {}
-  }
-
-  const saveChat = async (msgs: Message[], existingId: string | null, firstQuestion: string) => {
-    try {
-      if (existingId) {
-        await fetch('/api/chats', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: existingId, messages: msgs }),
-        })
-        upsertRecentChat({ id: existingId, title: firstQuestion.slice(0, 60), updatedAt: new Date().toISOString() })
-      } else {
-        const res = await fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: firstQuestion.slice(0, 60), messages: msgs }),
-        })
-        const data = await res.json()
-        if (data.chat?.id) {
-          setChatId(data.chat.id)
-          window.history.replaceState(null, '', `/app?chat=${data.chat.id}`)
-          upsertRecentChat({ id: data.chat.id, title: firstQuestion.slice(0, 60), updatedAt: new Date().toISOString() })
-          return data.chat.id
-        }
-      }
-    } catch {}
-    return existingId
-  }
-
-  const sendMessage = async (question: string) => {
-    if (!question.trim() || streaming) return
-    setInput('')
-    if (textareaRef.current) textareaRef.current.style.height = 'auto'
-
-    const userMsg: Message = { id: crypto.randomUUID(), role: 'user', content: question.trim() }
-    const aiId = crypto.randomUUID()
-    const aiMsg: Message = { id: aiId, role: 'assistant', content: '' }
-    const nextMessages = [...messages, userMsg, aiMsg]
-
-    setMessages(nextMessages)
-    setStreaming(true)
-
-    const firstQuestion = messages.length === 0 ? question.trim() : messages.find(m => m.role === 'user')?.content || question.trim()
-
-    try {
-      const history = messages.map(m => ({
-        role: m.role === 'user' ? 'user' as const : 'ai' as const,
-        content: m.content,
-      }))
-
-      const res = await fetch('/api/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim(), history }),
-      })
-
-      let sources: Source[] = []
+    if (!hasHydratedStore || !activeEnterpriseOrgId) return
+    let cancelled = false
+    setLoading(true)
+    ;(async () => {
       try {
-        const h = res.headers.get('X-Sources')
-        if (h) sources = JSON.parse(h)
-      } catch {}
-
-      const reader = res.body?.getReader()
-      const decoder = new TextDecoder()
-      let fullText = ''
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          fullText += decoder.decode(value, { stream: true })
-          // During streaming, hide everything from the first ---FOLLOWUPS--- or ---OFFERS---
-          // onward so the user only sees the clean answer growing in real time.
-          const sepMatch = FOLLOWUPS_RE.exec(fullText) || OFFERS_RE.exec(fullText)
-          const display = sepMatch
-            ? fullText.slice(0, sepMatch.index).trim()
-            : fullText
-          setMessages(prev => prev.map(m => m.id === aiId ? { ...m, content: display } : m))
+        const [pendRes, decRes, recRes] = await Promise.all([
+          fetch(`/api/enterprise/policies/pending?orgId=${activeEnterpriseOrgId}`),
+          fetch(`/api/enterprise/organizations/${activeEnterpriseOrgId}/decisions?limit=5`),
+          fetch('/api/records?limit=6'),
+        ])
+        if (!cancelled) {
+          if (pendRes.ok) {
+            const d = await pendRes.json()
+            setPending(d.pending || [])
+          }
+          if (decRes.ok) {
+            const d = await decRes.json()
+            setRecentDecisions((d.decisions || []).slice(0, 5))
+          }
+          if (recRes.ok) {
+            const d = await recRes.json()
+            setRecentRecords((d.records || []).slice(0, 6))
+          }
         }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
+    })()
+    return () => { cancelled = true }
+  }, [hasHydratedStore, activeEnterpriseOrgId])
 
-      // Parse both follow-ups and offers from the trailing sections.
-      // Structure: ANSWER <---FOLLOWUPS---> questions <---OFFERS---> offers
-      let mainContent = fullText.trim()
-      let followUps: string[] = []
-      let offers: string[] = []
-
-      const parseBulletList = (block: string): string[] =>
-        block.split('\n')
-          .filter(l => l.trim().startsWith('- '))
-          .map(l => l.trim().slice(2).trim())
-          .filter(Boolean)
-
-      // Strip trailing "Sources:" block that the AI often appends (redundant
-      // with the X-Sources header the frontend already parses separately).
-      mainContent = mainContent.replace(/\n\s*Sources?:\s*\n(\[?\d\].*\n?)*/gi, '').trim()
-
-      const followupsMatch = FOLLOWUPS_RE.exec(fullText)
-      const offersMatch = OFFERS_RE.exec(fullText)
-
-      if (followupsMatch) {
-        mainContent = fullText.slice(0, followupsMatch.index).trim()
-        const afterFollowups = fullText.slice(followupsMatch.index + followupsMatch[0].length)
-        // If OFFERS_RE is after FOLLOWUPS_RE in the stream, split there
-        const offersInAfter = OFFERS_RE.exec(afterFollowups)
-        if (offersInAfter) {
-          followUps = parseBulletList(afterFollowups.slice(0, offersInAfter.index))
-          offers = parseBulletList(afterFollowups.slice(offersInAfter.index + offersInAfter[0].length))
-        } else {
-          followUps = parseBulletList(afterFollowups)
-        }
-      } else if (offersMatch) {
-        // Model skipped follow-ups, went straight to offers
-        mainContent = fullText.slice(0, offersMatch.index).trim()
-        offers = parseBulletList(fullText.slice(offersMatch.index + offersMatch[0].length))
-      }
-
-      const finalMessages = nextMessages.map(m =>
-        m.id === aiId ? { ...m, content: mainContent, sources, followUps, offers } : m
-      )
-      setMessages(finalMessages)
-
-      await saveChat(finalMessages, chatId, firstQuestion)
-    } catch (err) {
-      const errorMsg = err instanceof Error && err.message.includes('fetch')
-        ? 'Could not reach the AI service. Please try again in a moment.'
-        : 'Something went wrong. Please try again.'
-      setMessages(prev => prev.map(m =>
-        m.id === aiId ? { ...m, content: errorMsg } : m
-      ))
-    } finally {
-      setStreaming(false)
-    }
+  if (!hasHydratedStore) {
+    return <div className="py-20 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
   }
 
-  const startNewChat = () => {
-    setMessages([])
-    setChatId(null)
-    setOpenSourceIds(new Set())
-    window.history.replaceState(null, '', '/app')
+  // Users without any org land on an intro card pointing to onboarding.
+  if (!activeEnterpriseOrgId) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <Brain className="h-10 w-10 text-primary mx-auto mb-4" />
+        <h1 className="text-2xl font-bold tracking-tight mb-2">Welcome to Reattend Enterprise</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          Your organization's memory, preserved across every person who comes and goes.
+        </p>
+        <Button asChild>
+          <Link href="/app/admin/onboarding">Set up your organization</Link>
+        </Button>
+      </div>
+    )
   }
-
-  const toggleSources = (msgId: string) => {
-    setOpenSourceIds(prev => {
-      const next = new Set(prev)
-      if (next.has(msgId)) next.delete(msgId)
-      else next.add(msgId)
-      return next
-    })
-  }
-
-  const giveFeedback = async (msgId: string, vote: 'up' | 'down') => {
-    setFeedbackGiven(prev => ({ ...prev, [msgId]: vote }))
-    const msgIdx = messages.findIndex(m => m.id === msgId)
-    const answer = messages[msgIdx]
-    const question = msgIdx > 0 ? messages[msgIdx - 1]?.content : ''
-    try {
-      await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'feedback',
-          message: JSON.stringify({
-            vote,
-            question,
-            answer: answer?.content?.slice(0, 1000),
-            sources: answer?.sources?.map(s => s.title),
-            chatId,
-          }),
-        }),
-      })
-    } catch { /* silent */ }
-  }
-
-  const copyAnswer = (msgId: string, content: string) => {
-    navigator.clipboard.writeText(content)
-    setCopiedId(msgId)
-    setTimeout(() => setCopiedId(null), 2000)
-  }
-
-  const shareAnswer = (content: string) => {
-    if (navigator.share) {
-      navigator.share({ text: content }).catch(() => {})
-    } else {
-      navigator.clipboard.writeText(content)
-      alert('Answer copied to clipboard!')
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage(input)
-    }
-  }
-
-  const isChat = messages.length > 0
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0 relative">
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,92,246,0.10),transparent)]" />
-
-      <div className="relative flex-1 overflow-y-auto min-h-0">
-        <AnimatePresence mode="wait">
-          {!isChat ? (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center justify-center min-h-full p-6"
-            >
-              <div className="w-full max-w-2xl space-y-8">
-                <div className="text-center space-y-2">
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="flex justify-center mb-5"
-                  >
-                    <Image src="/black_logo.svg" alt="Reattend" width={64} height={64} className="h-16 w-16 dark:hidden" />
-                    <Image src="/white_logo.svg" alt="Reattend" width={64} height={64} className="h-16 w-16 hidden dark:block" />
-                  </motion.div>
-                  <motion.h1
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="text-4xl font-bold tracking-tight"
-                  >
-                    Hello{userName ? `, ${userName}` : ''}!
-                  </motion.h1>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-muted-foreground text-base"
-                  >
-                    Ask anything — I&apos;ll answer from your memories.
-                  </motion.p>
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-                >
-                  {CAPABILITY_CARDS.map(({ icon: Icon, label, description, prompt, gradient, border, iconBg }) => (
-                    <motion.button
-                      key={label}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => sendMessage(prompt)}
-                      className={cn(
-                        'group text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer backdrop-blur-sm hover:shadow-lg',
-                        `bg-gradient-to-br ${gradient}`, border,
-                      )}
-                    >
-                      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', iconBg)}>
-                        <Icon className="h-[18px] w-[18px]" />
-                      </div>
-                      <p className="text-sm font-semibold leading-tight mb-1">{label}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
-                    </motion.button>
-                  ))}
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex flex-wrap gap-2 justify-center"
-                >
-                  {SUGGESTED.map(p => (
-                    <button
-                      key={p}
-                      onClick={() => sendMessage(p)}
-                      className="flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full border border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border transition-all backdrop-blur-sm"
-                    >
-                      <Sparkles className="h-3 w-3 text-primary/60" />
-                      {p}
-                    </button>
-                  ))}
-                </motion.div>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="chat"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-32"
-            >
-              {messages.map((msg, idx) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {msg.role === 'user' ? (
-                    <div className="flex justify-end group">
-                      <button
-                        onClick={() => copyAnswer(msg.id, msg.content)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg text-muted-foreground/40 hover:text-muted-foreground self-center mr-2"
-                        title="Copy question"
-                      >
-                        {copiedId === msg.id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-                      </button>
-                      <div className="max-w-[82%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed">
-                        {msg.content}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {/* Answer */}
-                      <div className="flex gap-3">
-                        <div className="h-7 w-7 shrink-0 mt-0.5 flex items-center justify-center">
-                          <Image src="/black_logo.svg" alt="R" width={28} height={28} className="h-7 w-7 dark:hidden" />
-                          <Image src="/white_logo.svg" alt="R" width={28} height={28} className="h-7 w-7 hidden dark:block" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          {msg.content ? (
-                            <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:text-foreground prose-a:text-primary">
-                              <ReactMarkdown>{msg.content}</ReactMarkdown>
-                            </div>
-                          ) : (
-                            <motion.div
-                              animate={{ opacity: [0.4, 1, 0.4] }}
-                              transition={{ repeat: Infinity, duration: 1.2 }}
-                              className="flex gap-1 py-1"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary/60 inline-block" />
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary/60 inline-block" />
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary/60 inline-block" />
-                            </motion.div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Action bar — thumbs, copy, share */}
-                      {msg.content && !streaming && (
-                        <div className="ml-10 flex items-center gap-1 pt-1">
-                          <button
-                            onClick={() => giveFeedback(msg.id, 'up')}
-                            className={cn(
-                              'p-1.5 rounded-lg transition-all',
-                              feedbackGiven[msg.id] === 'up'
-                                ? 'text-emerald-500 bg-emerald-500/10'
-                                : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50'
-                            )}
-                            title="Good answer"
-                          >
-                            <ThumbsUp className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => giveFeedback(msg.id, 'down')}
-                            className={cn(
-                              'p-1.5 rounded-lg transition-all',
-                              feedbackGiven[msg.id] === 'down'
-                                ? 'text-red-500 bg-red-500/10'
-                                : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50'
-                            )}
-                            title="Bad answer"
-                          >
-                            <ThumbsDown className="h-3.5 w-3.5" />
-                          </button>
-                          <div className="w-px h-4 bg-border/40 mx-1" />
-                          <button
-                            onClick={() => copyAnswer(msg.id, msg.content)}
-                            className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50 transition-all"
-                            title="Copy answer"
-                          >
-                            {copiedId === msg.id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-                          </button>
-                          <button
-                            onClick={() => shareAnswer(msg.content)}
-                            className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50 transition-all"
-                            title="Share answer"
-                          >
-                            <Share2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Sources — collapsible chevron */}
-                      {msg.sources && msg.sources.length > 0 && (
-                        <div className="ml-10 space-y-1.5">
-                          <button
-                            onClick={() => toggleSources(msg.id)}
-                            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors font-medium"
-                          >
-                            <BookOpen className="h-3 w-3" />
-                            Sources ({msg.sources.length})
-                            {openSourceIds.has(msg.id)
-                              ? <ChevronDown className="h-3 w-3 ml-0.5" />
-                              : <ChevronRight className="h-3 w-3 ml-0.5" />
-                            }
-                          </button>
-                          {openSourceIds.has(msg.id) && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                              {msg.sources.map((s, i) => (
-                                <Link
-                                  key={s.id}
-                                  href={`/app/memories/${s.id}`}
-                                  className="group flex items-start gap-2 p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/50 hover:border-border transition-all"
-                                >
-                                  <span className={cn(
-                                    'h-5 w-5 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5',
-                                    TYPE_COLORS[s.type] || 'bg-muted text-muted-foreground'
-                                  )}>
-                                    {i + 1}
-                                  </span>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-medium leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                                      {s.title}
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
-                                      {s.workspace || 'Personal'} · {s.type}
-                                    </p>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Follow-up questions — what the user might ask next */}
-                      {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && !streaming && (
-                        <div className="ml-10 flex flex-wrap gap-2 pt-1">
-                          {msg.followUps.map(q => (
-                            <button
-                              key={q}
-                              onClick={() => sendMessage(q)}
-                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border transition-all"
-                            >
-                              <Sparkles className="h-3 w-3 text-primary/50 shrink-0" />
-                              {q}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Offers — things Reattend can do next for the user.
-                          Tinted indigo to visually distinguish from the neutral
-                          follow-up pills above. */}
-                      {msg.offers && msg.offers.length > 0 && idx === messages.length - 1 && !streaming && (
-                        <div className="ml-10 flex flex-wrap gap-2 pt-1">
-                          {msg.offers.map(o => (
-                            <button
-                              key={o}
-                              onClick={() => sendMessage(o)}
-                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-primary/25 bg-primary/5 text-primary/90 hover:text-primary hover:bg-primary/10 hover:border-primary/40 transition-all"
-                            >
-                              <Sparkles className="h-3 w-3 text-primary shrink-0" />
-                              {o}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-              <div ref={messagesEndRef} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Input bar — outside scroll container, always at bottom */}
-      <div className="relative shrink-0 p-4 bg-gradient-to-t from-background via-background/95 to-transparent pt-6 z-10 border-t border-border/10">
-        <div className="max-w-4xl mx-auto space-y-2">
-          {isChat && (
-            <div className="flex justify-center">
-              <button
-                onClick={startNewChat}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full hover:bg-muted/50"
-              >
-                <RefreshCw className="h-3 w-3" /> New chat
-              </button>
-            </div>
-          )}
-          <div className="relative rounded-2xl border border-border/60 bg-card/90 backdrop-blur-md shadow-lg transition-all duration-200">
-            <div className="flex items-end gap-3 p-3 pl-4">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isChat ? 'Ask a follow-up...' : 'Ask me anything about your memories...'}
-                rows={1}
-                disabled={streaming}
-                className="flex-1 bg-transparent border-none outline-none resize-none text-sm placeholder:text-muted-foreground/40 min-h-[28px] max-h-[160px] py-1 leading-relaxed disabled:opacity-50"
-                style={{ height: 'auto' }}
-                onInput={e => {
-                  const el = e.currentTarget
-                  el.style.height = 'auto'
-                  el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-                }}
-              />
-              <button
-                onClick={() => sendMessage(input)}
-                disabled={!input.trim() || streaming}
-                className={cn(
-                  'h-8 w-8 rounded-xl flex items-center justify-center transition-all shrink-0 mb-0.5',
-                  input.trim() && !streaming
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/25'
-                    : 'bg-muted/50 text-muted-foreground/40 cursor-not-allowed'
-                )}
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <p className="text-center text-[10px] text-muted-foreground/30">
-            Enter to send · Shift+Enter for new line
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-5xl space-y-5"
+    >
+      {/* Hero */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Good {greeting()}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Here's what needs your attention in <strong>{displayName}</strong>.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setCaptureOpen(!captureOpen)}>
+            <Plus className="h-4 w-4 mr-1" /> Capture
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/app/chat">
+              <MessageSquare className="h-4 w-4 mr-1" /> Ask AI
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Pending acknowledgments — top priority */}
+      {pending.length > 0 && (
+        <div className="rounded-2xl border bg-yellow-500/5 border-yellow-500/30 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <h2 className="text-sm font-semibold">Needs your acknowledgment</h2>
+            <Badge variant="outline" className="text-[10px] ml-auto border-yellow-500/40 text-yellow-700 dark:text-yellow-400">
+              {pending.length}
+            </Badge>
+          </div>
+          <div className="space-y-1">
+            {pending.slice(0, 3).map((p) => (
+              <Link
+                key={p.policyId}
+                href={`/app/policies/${p.policyId}`}
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60 transition-colors group"
+              >
+                <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-sm font-medium truncate flex-1 group-hover:text-primary">{p.title}</span>
+                {p.category && <Badge variant="outline" className="text-[9px] capitalize h-4 px-1">{p.category}</Badge>}
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground" />
+              </Link>
+            ))}
+            {pending.length > 3 && (
+              <Link href="/app/policies" className="block text-xs text-primary hover:underline px-2 py-1 mt-1">
+                View all {pending.length} pending →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Main column */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Recent memories */}
+          <div className="rounded-2xl border bg-card overflow-hidden">
+            <div className="px-4 py-3 border-b flex items-center gap-2 bg-muted/10">
+              <Brain className="h-3.5 w-3.5 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Recent memories</h2>
+              <Link href="/app/memories" className="text-xs text-primary hover:underline ml-auto">All memories</Link>
+            </div>
+            {loading ? (
+              <div className="p-8 flex items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+            ) : recentRecords.length === 0 ? (
+              <div className="p-8 text-center">
+                <p className="text-sm text-muted-foreground mb-3">Nothing captured yet.</p>
+                <Button size="sm" onClick={() => setCaptureOpen(true)}>
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Capture your first memory
+                </Button>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {recentRecords.map((r) => (
+                  <Link
+                    key={r.id}
+                    href={`/app/memories/${r.id}`}
+                    className="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors group"
+                  >
+                    <Badge variant="secondary" className="text-[9px] capitalize shrink-0 h-4 px-1 mt-0.5">{r.type}</Badge>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate group-hover:text-primary">{r.title}</div>
+                      {r.summary && <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{r.summary}</div>}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground shrink-0 mt-1">
+                      <Clock className="h-2.5 w-2.5 inline mr-0.5" />{timeAgo(r.createdAt)}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent decisions */}
+          <div className="rounded-2xl border bg-card overflow-hidden">
+            <div className="px-4 py-3 border-b flex items-center gap-2 bg-muted/10">
+              <Gavel className="h-3.5 w-3.5 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Recent decisions</h2>
+              <Link href="/app/decisions" className="text-xs text-primary hover:underline ml-auto">All decisions</Link>
+            </div>
+            {loading ? (
+              <div className="p-8 flex items-center justify-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+            ) : recentDecisions.length === 0 ? (
+              <div className="p-6 text-center text-xs text-muted-foreground">
+                No decisions logged yet. Promote a memory to decision from any memory page.
+              </div>
+            ) : (
+              <div className="divide-y">
+                {recentDecisions.map((d) => (
+                  <div key={d.id} className="flex items-center gap-2 px-4 py-2 text-sm">
+                    <Badge variant="outline" className={`text-[9px] h-4 px-1 capitalize ${
+                      d.status === 'reversed' ? 'text-red-600 border-red-500/30' :
+                      d.status === 'superseded' ? 'text-yellow-600 border-yellow-500/30' :
+                      'text-emerald-600 border-emerald-500/30'
+                    }`}>{d.status}</Badge>
+                    <span className="flex-1 truncate">{d.title}</span>
+                    <span className="text-[10px] text-muted-foreground shrink-0">
+                      {new Date(d.decidedAt || d.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Side column */}
+        <div className="space-y-4">
+          <QuickActions orgId={activeEnterpriseOrgId} />
+          <SyncStatusCard />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function QuickActions({ orgId }: { orgId: string }) {
+  const actions = [
+    { label: 'Knowledge transfer', href: `/app/admin/${orgId}/transfers`, icon: ArrowRightLeft, color: 'text-primary' },
+    { label: 'Self-healing scan', href: `/app/admin/${orgId}/health`, icon: Sparkles, color: 'text-violet-500' },
+    { label: 'Download briefing', href: `/api/enterprise/organizations/${orgId}/decisions/briefing?format=markdown`, icon: FileText, color: 'text-emerald-500', external: true },
+  ]
+  return (
+    <div className="rounded-2xl border bg-card overflow-hidden">
+      <div className="px-4 py-2.5 border-b bg-muted/10">
+        <h2 className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Quick actions</h2>
+      </div>
+      <div className="divide-y">
+        {actions.map((a) => {
+          const Icon = a.icon
+          return a.external ? (
+            <a key={a.href} href={a.href} download className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/40 transition-colors group">
+              <Icon className={`h-3.5 w-3.5 ${a.color}`} />
+              <span className="flex-1">{a.label}</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+            </a>
+          ) : (
+            <Link key={a.href} href={a.href} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/40 transition-colors group">
+              <Icon className={`h-3.5 w-3.5 ${a.color}`} />
+              <span className="flex-1">{a.label}</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+            </Link>
+          )
+        })}
       </div>
     </div>
   )
 }
 
-export default function ChatPage() {
-  return (
-    <Suspense>
-      <ChatPageInner />
-    </Suspense>
-  )
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'morning'
+  if (h < 18) return 'afternoon'
+  return 'evening'
+}
+
+function timeAgo(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime()
+  const m = Math.round(ms / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}m`
+  const h = Math.round(m / 60)
+  if (h < 24) return `${h}h`
+  const d = Math.round(h / 24)
+  if (d < 30) return `${d}d`
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }

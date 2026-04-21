@@ -89,6 +89,16 @@ export const records = sqliteTable('records', {
   occurredAt: text('occurred_at'), // when the event originally happened
   meta: text('meta'), // JSON string for extra metadata
   triageStatus: text('triage_status', { enum: ['auto_accepted', 'needs_review'] }).notNull().default('needs_review'),
+  // RBAC visibility level. Enterprise-only; Personal Reattend still works
+  // with the default 'team' value because workspace_members governs access
+  // there. For Enterprise:
+  //   - private    → only createdBy sees it
+  //   - team       → members of the backing workspace (default)
+  //   - department → any user in the dept the workspace is linked to, via
+  //                  workspace_org_links + role cascade
+  //   - org        → everyone in the org
+  // Explicit cross-dept/user sharing lives in record_shares.
+  visibility: text('visibility', { enum: ['private', 'team', 'department', 'org'] }).notNull().default('team'),
   createdBy: text('created_by').notNull(), // user id or 'agent'
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -96,6 +106,7 @@ export const records = sqliteTable('records', {
   workspaceIdx: index('rec_workspace_idx').on(table.workspaceId),
   typeIdx: index('rec_type_idx').on(table.type),
   triageStatusIdx: index('rec_triage_status_idx').on(table.triageStatus),
+  visibilityIdx: index('rec_visibility_idx').on(table.visibility),
 }))
 
 // ─── Attachments ────────────────────────────────────────
@@ -674,3 +685,527 @@ export const askFeedback = sqliteTable('ask_feedback', {
   rating: text('rating', { enum: ['up', 'down'] }).notNull(),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ENTERPRISE LAYER
+// Organization → Department → (Division) → Team(workspace) → Members
+// Plus: decisions, audit, SSO, employee roles, knowledge health.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Organizations ────────────────────────────────────────
+export const organizations = sqliteTable('organizations', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  primaryDomain: text('primary_domain'), // e.g. "acme.com" — used for SSO domain-match
+  plan: text('plan', { enum: ['starter', 'business', 'enterprise', 'government'] }).notNull().default('starter'),
+  deployment: text('deployment', { enum: ['saas', 'on_prem', 'air_gapped'] }).notNull().default('saas'),
+  onPremRabbitUrl: text('on_prem_rabbit_url'),
+  seatLimit: integer('seat_limit'),
+  status: text('status', { enum: ['active', 'suspended', 'canceled'] }).notNull().default('active'),
+  settings: text('settings'), // JSON — retention days, default role, etc.
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  slugIdx: index('org_slug_idx').on(table.slug),
+  domainIdx: index('org_domain_idx').on(table.primaryDomain),
+}))
+
+// ─── Departments (self-referential: supports Department → Division → Team) ─
+export const departments = sqliteTable('departments', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  parentId: text('parent_id'), // self-ref: null for root; set for nested units
+  // Free-text kind label (customizable per-org via organization_taxonomy).
+  // Default values: 'department' | 'division' | 'team'. Government orgs override
+  // with values like 'Ministry', 'Directorate', 'Wing', 'Section', etc.
+  // The special string 'team' triggers workspace auto-provisioning.
+  kind: text('kind').notNull().default('department'),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  headUserId: text('head_user_id').references(() => users.id), // current head
+  description: text('description'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('dept_org_idx').on(table.organizationId),
+  parentIdx: index('dept_parent_idx').on(table.parentId),
+  orgSlugIdx: index('dept_org_slug_idx').on(table.organizationId, table.slug),
+}))
+
+// ─── Organization Members ─────────────────────────────────
+// Org-level membership. A user can belong to multiple orgs (consultants, contractors).
+export const organizationMembers = sqliteTable('organization_members', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  role: text('role', { enum: ['super_admin', 'admin', 'member', 'guest'] }).notNull().default('member'),
+  status: text('status', { enum: ['active', 'suspended', 'offboarded'] }).notNull().default('active'),
+  title: text('title'), // free-text job title, e.g. "VP Engineering"
+  offboardedAt: text('offboarded_at'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgUserIdx: index('om_org_user_idx').on(table.organizationId, table.userId),
+  userIdx: index('om_user_idx').on(table.userId),
+  statusIdx: index('om_status_idx').on(table.status),
+}))
+
+// ─── Department Members ───────────────────────────────────
+// Department-level membership drives RBAC (HR sees HR, Eng sees Eng).
+export const departmentMembers = sqliteTable('department_members', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  departmentId: text('department_id').notNull().references(() => departments.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  role: text('role', { enum: ['dept_head', 'manager', 'member', 'viewer'] }).notNull().default('member'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  deptUserIdx: index('dm_dept_user_idx').on(table.departmentId, table.userId),
+  userIdx: index('dm_user_idx').on(table.userId),
+  orgIdx: index('dm_org_idx').on(table.organizationId),
+}))
+
+// ─── Employee Roles ───────────────────────────────────────
+// Knowledge stays with the ROLE, not the person. When a person leaves,
+// their successor inherits the role's records automatically.
+export const employeeRoles = sqliteTable('employee_roles', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
+  title: text('title').notNull(), // e.g. "VP Engineering", "Finance Controller"
+  description: text('description'),
+  // Free-text seniority label — any value per-org taxonomy. Historic defaults:
+  // ic/lead/manager/director/vp/c_level. Government values: Secretary/JS/DS/...
+  seniority: text('seniority'),
+  // Integer rank for sorting. Lower = more senior. Populated from
+  // organization_taxonomy.rankOrder when a labeled entry is chosen.
+  seniorityRank: integer('seniority_rank'),
+  status: text('status', { enum: ['active', 'vacant', 'archived'] }).notNull().default('active'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('er_org_idx').on(table.organizationId),
+  deptIdx: index('er_dept_idx').on(table.departmentId),
+}))
+
+// ─── Role Assignments ─────────────────────────────────────
+// Who held which role, when. endedAt = null means currently held.
+// This enables "when Partha left, what knowledge did VP Eng lose" queries.
+export const roleAssignments = sqliteTable('role_assignments', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  roleId: text('role_id').notNull().references(() => employeeRoles.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  startedAt: text('started_at').notNull().$defaultFn(() => new Date().toISOString()),
+  endedAt: text('ended_at'), // null = current holder
+  transferNotes: text('transfer_notes'), // handover context
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  roleIdx: index('ra_role_idx').on(table.roleId),
+  userIdx: index('ra_user_idx').on(table.userId),
+  currentIdx: index('ra_current_idx').on(table.roleId, table.endedAt),
+}))
+
+// ─── Decisions ────────────────────────────────────────────
+// First-class decision tracking. Not every record is a decision, but every
+// decision gets a record + a decisions row linking context, rationale, outcome.
+export const decisions = sqliteTable('decisions', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  recordId: text('record_id').references(() => records.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  context: text('context'), // why this decision was needed
+  rationale: text('rationale'), // why this option was chosen
+  outcome: text('outcome'), // what actually happened — filled in later
+  decidedByUserId: text('decided_by_user_id').references(() => users.id),
+  decidedByRoleId: text('decided_by_role_id').references(() => employeeRoles.id), // survives user departures
+  decidedAt: text('decided_at').notNull(),
+  status: text('status', { enum: ['active', 'superseded', 'reversed', 'archived'] }).notNull().default('active'),
+  supersededById: text('superseded_by_id'), // self-ref: points to newer decision
+  reversedAt: text('reversed_at'),
+  reversedByUserId: text('reversed_by_user_id').references(() => users.id),
+  reversedReason: text('reversed_reason'),
+  tags: text('tags'), // JSON array
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('dec_org_idx').on(table.organizationId),
+  deptIdx: index('dec_dept_idx').on(table.departmentId),
+  workspaceIdx: index('dec_workspace_idx').on(table.workspaceId),
+  statusIdx: index('dec_status_idx').on(table.status),
+  decidedAtIdx: index('dec_decided_at_idx').on(table.decidedAt),
+}))
+
+// ─── Audit Log ────────────────────────────────────────────
+// Immutable. Separate from activity_log (which is per-workspace product events).
+// Audit log captures every query, every read, every admin action — with IP, UA,
+// and denormalized user email so records survive user deletion for retention.
+export const auditLog = sqliteTable('audit_log', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull(),
+  departmentId: text('department_id'),
+  userId: text('user_id'),
+  userEmail: text('user_email').notNull(), // denormalized — survives user deletion
+  action: text('action', { enum: [
+    'query', 'read', 'create', 'update', 'delete', 'export',
+    'login', 'logout', 'sso_login', 'role_change',
+    'member_invite', 'member_remove', 'permission_change',
+    'decision_create', 'decision_reverse',
+    'admin_action', 'integration_connect', 'integration_disconnect',
+  ] }).notNull(),
+  resourceType: text('resource_type'),
+  resourceId: text('resource_id'),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  metadata: text('metadata'), // JSON — query text, old/new values, etc.
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('audit_org_idx').on(table.organizationId),
+  userIdx: index('audit_user_idx').on(table.userId),
+  actionIdx: index('audit_action_idx').on(table.action),
+  createdAtIdx: index('audit_created_at_idx').on(table.createdAt),
+  orgCreatedIdx: index('audit_org_created_idx').on(table.organizationId, table.createdAt),
+}))
+
+// ─── SSO Configurations ───────────────────────────────────
+export const ssoConfigs = sqliteTable('sso_configs', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  provider: text('provider', { enum: ['azure_ad', 'okta', 'google_workspace', 'saml_generic', 'oidc_generic'] }).notNull(),
+  clientId: text('client_id'),
+  clientSecretEncrypted: text('client_secret_encrypted'), // encrypted at rest
+  tenantId: text('tenant_id'), // Azure AD tenant / SAML idp id
+  metadataUrl: text('metadata_url'),
+  acsUrl: text('acs_url'), // SAML assertion consumer URL
+  entityId: text('entity_id'),
+  domain: text('domain').notNull(), // which email domain this applies to
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(false),
+  justInTimeProvisioning: integer('jit_provisioning', { mode: 'boolean' }).notNull().default(true),
+  defaultRole: text('default_role', { enum: ['member', 'guest'] }).notNull().default('member'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('sso_org_idx').on(table.organizationId),
+  domainIdx: index('sso_domain_idx').on(table.domain),
+}))
+
+// ─── Knowledge Health ─────────────────────────────────────
+// Computed per department by self-healing agents. Drives the admin dashboard.
+export const knowledgeHealth = sqliteTable('knowledge_health', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'cascade' }),
+  totalRecords: integer('total_records').notNull().default(0),
+  staleCount: integer('stale_count').notNull().default(0),
+  contradictionsCount: integer('contradictions_count').notNull().default(0),
+  gapsCount: integer('gaps_count').notNull().default(0),
+  orphanedCount: integer('orphaned_count').notNull().default(0), // records with no owner role
+  healthScore: real('health_score').notNull().default(100), // 0-100
+  findings: text('findings'), // JSON array of specific issues
+  computedAt: text('computed_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('kh_org_idx').on(table.organizationId),
+  deptIdx: index('kh_dept_idx').on(table.departmentId),
+  computedAtIdx: index('kh_computed_at_idx').on(table.computedAt),
+}))
+
+// ─── Enterprise Workspace Links ───────────────────────────
+// Workspaces remain the unit where records/memories live. In enterprise mode,
+// a workspace belongs to exactly one department (and by transitivity, one org).
+// Personal / team workspaces (inherited from Personal Reattend) leave these null.
+export const workspaceOrgLinks = sqliteTable('workspace_org_links', {
+  workspaceId: text('workspace_id').primaryKey().references(() => workspaces.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
+  visibility: text('visibility', { enum: ['department_only', 'org_wide', 'cross_dept'] }).notNull().default('department_only'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('wol_org_idx').on(table.organizationId),
+  deptIdx: index('wol_dept_idx').on(table.departmentId),
+}))
+
+// ─── AI Agents ────────────────────────────────────────────
+// Purpose-built AI helpers — each one is Chat with a specific system prompt,
+// scoped to specific knowledge sources. Org-level (available to everyone),
+// departmental (scoped to dept members), or personal (one user only).
+// Deployment targets: web (default), slack, teams, email, api.
+export const agents = sqliteTable('agents', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  tier: text('tier', { enum: ['org', 'departmental', 'personal', 'third_party'] }).notNull().default('org'),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
+  ownerUserId: text('owner_user_id').references(() => users.id, { onDelete: 'set null' }), // for personal agents
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  iconName: text('icon_name'), // lucide icon name, e.g. "FileText"
+  color: text('color'), // e.g. "text-blue-500"
+  systemPrompt: text('system_prompt').notNull(), // persona + rules
+  // Scope JSON: { types: ['policy']? , departmentIds: []?, recordIds: []?, tags: []? }
+  // Empty scope = all accessible records.
+  scopeConfig: text('scope_config'),
+  deploymentTargets: text('deployment_targets').notNull().default('[]'), // JSON array: ['web', 'slack', ...]
+  usageCount: integer('usage_count').notNull().default(0),
+  status: text('status', { enum: ['active', 'archived', 'draft'] }).notNull().default('active'),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('ag_org_idx').on(table.organizationId),
+  orgSlugIdx: index('ag_org_slug_idx').on(table.organizationId, table.slug),
+  tierIdx: index('ag_tier_idx').on(table.tier),
+}))
+
+// ─── Organization Taxonomy ────────────────────────────────
+// Per-org customization of department kinds and seniority ladders.
+// Default orgs get standard values (department/division/team, ic/lead/...).
+// Government orgs override with their own: Ministry/Department/Wing/Section,
+// Secretary/Joint Secretary/Deputy Secretary/Director, etc.
+// `kind='department_kind'` drives the dept tree's "kind" field.
+// `kind='seniority_rank'` drives the employee_roles "seniority" field.
+export const organizationTaxonomy = sqliteTable('organization_taxonomy', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  kind: text('kind', { enum: ['department_kind', 'seniority_rank'] }).notNull(),
+  label: text('label').notNull(),
+  rankOrder: integer('rank_order').notNull().default(0), // lower = more senior / higher in tree
+  description: text('description'),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgKindIdx: index('ot_org_kind_idx').on(table.organizationId, table.kind),
+  orgKindRankIdx: index('ot_org_kind_rank_idx').on(table.organizationId, table.kind, table.rankOrder),
+}))
+
+// ─── Record shares (explicit cross-dept / user / role grants) ─────────────
+// Lets a team-scoped record be shared out to another department, a specific
+// role, or a named user. Exactly one of (userId, departmentId, roleId) must
+// be set per row. The read-path RBAC filter OR-joins these with the record's
+// own visibility level.
+export const recordShares = sqliteTable('record_shares', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  recordId: text('record_id').notNull().references(() => records.id, { onDelete: 'cascade' }),
+  workspaceId: text('workspace_id').notNull(), // for fast workspace-scoped reads
+  organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'cascade' }),
+  roleId: text('role_id').references(() => employeeRoles.id, { onDelete: 'cascade' }),
+  sharedBy: text('shared_by').notNull().references(() => users.id),
+  sharedAt: text('shared_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  recordIdx: index('rs_record_idx').on(table.recordId),
+  userIdx: index('rs_user_idx').on(table.userId),
+  deptIdx: index('rs_dept_idx').on(table.departmentId),
+  roleIdx: index('rs_role_idx').on(table.roleId),
+}))
+
+// ─── Enterprise Invites (pending, pre-signup) ─────────────
+// Outstanding invitations sent to people who don't have a Reattend Enterprise
+// account yet. Once the recipient visits the token URL and accepts, we create
+// their user + add them to the org + optionally a department in one txn.
+// Workflow:
+//   invited -> (email sent) -> user clicks link
+//   -> /enterprise-invite/[token] -> sign in OR create account
+//   -> POST /accept -> status='accepted', org membership created
+// Tokens are opaque random strings (32 hex). Expiry default: 14 days.
+export const enterpriseInvites = sqliteTable('enterprise_invites', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  role: text('role', { enum: ['super_admin', 'admin', 'member', 'guest'] }).notNull().default('member'),
+  title: text('title'),
+  departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
+  deptRole: text('dept_role', { enum: ['dept_head', 'manager', 'member', 'viewer'] }),
+  token: text('token').notNull().unique(),
+  status: text('status', { enum: ['pending', 'accepted', 'expired', 'canceled'] }).notNull().default('pending'),
+  invitedByUserId: text('invited_by_user_id').notNull().references(() => users.id),
+  expiresAt: text('expires_at').notNull(),
+  acceptedAt: text('accepted_at'),
+  acceptedByUserId: text('accepted_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('ei_org_idx').on(table.organizationId),
+  emailIdx: index('ei_email_idx').on(table.email),
+  tokenIdx: index('ei_token_idx').on(table.token),
+  statusIdx: index('ei_status_idx').on(table.status),
+}))
+
+// ─── Record Role Ownership ────────────────────────────────
+// Links a record to the employee role that owns it. Survives user departure —
+// when the next person takes the role, they inherit access automatically.
+export const recordRoleOwnership = sqliteTable('record_role_ownership', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  recordId: text('record_id').notNull().references(() => records.id, { onDelete: 'cascade' }),
+  roleId: text('role_id').notNull().references(() => employeeRoles.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  assignedByUserId: text('assigned_by_user_id').references(() => users.id),
+  assignedAt: text('assigned_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  recordIdx: index('rro_record_idx').on(table.recordId),
+  roleIdx: index('rro_role_idx').on(table.roleId),
+  orgIdx: index('rro_org_idx').on(table.organizationId),
+}))
+
+// ─── Wiki Summaries (Claude-generated, cached) ────────────
+// A wiki page is a cached Claude summary for one of three targets:
+//   dept   → organizational unit (dept, division, team, ministry, section, …)
+//   topic  → a tag or entity name that crosses multiple records
+//   person → a user whose contributions we're summarizing
+//
+// We cache the summary here so we don't re-call the LLM on every page load.
+// The cache is invalidated when any linked record is updated (see staleAfter).
+// Each row covers exactly one (org, pageType, pageKey) — pageKey is a deptId,
+// a normalized topic slug, or a userId depending on pageType.
+export const wikiSummaries = sqliteTable('wiki_summaries', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  pageType: text('page_type', { enum: ['dept', 'topic', 'person'] }).notNull(),
+  pageKey: text('page_key').notNull(),
+  summary: text('summary').notNull(), // Claude's 100-word summary
+  recordCount: integer('record_count').notNull().default(0),
+  lastRecordAt: text('last_record_at'), // most-recent underlying record timestamp
+  // True when the cache is known to be behind reality (new record landed
+  // since we generated). Next page load regenerates.
+  dirty: integer('dirty', { mode: 'boolean' }).notNull().default(false),
+  generatedAt: text('generated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgPageIdx: index('ws_org_page_idx').on(table.organizationId, table.pageType, table.pageKey),
+  dirtyIdx: index('ws_dirty_idx').on(table.dirty),
+}))
+
+// ─── Policies (enterprise, versioned, ack-tracked) ────────
+// The authoritative store of "how we do things here" — travel, security, HR,
+// IT, finance, compliance. Every edit creates a new row in policy_versions;
+// policies.currentVersionId points at the live one. Acks are per (user,
+// policyVersionId) so changing a policy requires re-acknowledgment by default
+// (admin can opt out on trivial edits via version.requiresReAck=false).
+//
+// Applicability JSON:
+//   { allOrg: boolean, departments: string[], roles: string[], users: string[] }
+// At least one scope applies; union semantics (any match = applies).
+export const policies = sqliteTable('policies', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  slug: text('slug').notNull(),
+  category: text('category'), // "security" | "hr" | "finance" | "it" | "travel" | "compliance" | "other"
+  iconName: text('icon_name'), // lucide icon name
+  status: text('status', { enum: ['draft', 'published', 'archived'] }).notNull().default('draft'),
+  // Pointer to live version. Nullable for drafts that haven't been saved yet.
+  currentVersionId: text('current_version_id'),
+  effectiveDate: text('effective_date'), // ISO date; when the live version takes effect
+  // JSON: { allOrg, departments, roles, users }. See module-level comment.
+  applicability: text('applicability').notNull().default('{"allOrg":true,"departments":[],"roles":[],"users":[]}'),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('pol_org_idx').on(table.organizationId),
+  orgSlugIdx: index('pol_org_slug_idx').on(table.organizationId, table.slug),
+  statusIdx: index('pol_status_idx').on(table.status),
+}))
+
+export const policyVersions = sqliteTable('policy_versions', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  policyId: text('policy_id').notNull().references(() => policies.id, { onDelete: 'cascade' }),
+  versionNumber: integer('version_number').notNull(), // 1, 2, 3…
+  title: text('title').notNull(), // snapshot of title at this version
+  summary: text('summary'), // short human-readable summary
+  body: text('body').notNull(), // full policy text (markdown)
+  // When true, publishing this version wipes old acks and forces re-ack.
+  // Admin sets false for minor typo fixes.
+  requiresReAck: integer('requires_re_ack', { mode: 'boolean' }).notNull().default(true),
+  changeNote: text('change_note'), // what changed vs previous version
+  supersedesVersionId: text('supersedes_version_id'),
+  publishedAt: text('published_at'), // null if draft
+  publishedByUserId: text('published_by_user_id').references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  policyIdx: index('pv_policy_idx').on(table.policyId),
+  policyVersionIdx: index('pv_policy_version_idx').on(table.policyId, table.versionNumber),
+}))
+
+export const policyAcknowledgments = sqliteTable('policy_acknowledgments', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  policyId: text('policy_id').notNull().references(() => policies.id, { onDelete: 'cascade' }),
+  policyVersionId: text('policy_version_id').notNull().references(() => policyVersions.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  acknowledgedAt: text('acknowledged_at').notNull().$defaultFn(() => new Date().toISOString()),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+}, (table) => ({
+  policyUserIdx: index('pa_policy_user_idx').on(table.policyId, table.userId),
+  versionUserIdx: index('pa_version_user_idx').on(table.policyVersionId, table.userId),
+  orgUserIdx: index('pa_org_user_idx').on(table.organizationId, table.userId),
+}))
+
+// ─── Agent Queries (analytics / per-agent logging) ────────
+// Every query handled by a named agent gets a row here. The chat API writes
+// these inline so the analytics tab doesn't need to scan chat_sessions JSON.
+// Ratings come from the existing ask_feedback flow — we denormalize a copy
+// so per-agent "avg rating" queries stay fast.
+export const agentQueries = sqliteTable('agent_queries', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  agentId: text('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  question: text('question').notNull(),
+  answerPreview: text('answer_preview'), // first 500 chars of the answer
+  sourceCount: integer('source_count').notNull().default(0),
+  latencyMs: integer('latency_ms'),
+  rating: text('rating', { enum: ['up', 'down'] }),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  agentIdx: index('aq_agent_idx').on(table.agentId),
+  agentDayIdx: index('aq_agent_day_idx').on(table.agentId, table.createdAt),
+}))
+
+// ─── Agent API Keys (external deployment: Slack bot / API / Email) ────────
+// Hashed at rest (sha256). The first 8 chars of the plaintext are stored in
+// keyPrefix for UI display ("ak_live_abcdef12…"); the full key is shown
+// exactly once at create time. Revocation is non-destructive so audit trail
+// survives.
+export const agentApiKeys = sqliteTable('agent_api_keys', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  agentId: text('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(), // "Slack bot" | "Teams bot" | "CLI" | ...
+  keyHash: text('key_hash').notNull().unique(),
+  keyPrefix: text('key_prefix').notNull(), // first 8 chars for UI display
+  createdByUserId: text('created_by_user_id').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  lastUsedAt: text('last_used_at'),
+  revokedAt: text('revoked_at'),
+}, (table) => ({
+  agentIdx: index('aak_agent_idx').on(table.agentId),
+  hashIdx: index('aak_hash_idx').on(table.keyHash),
+}))
+
+// ─── Knowledge Transfer Events ────────────────────────────
+// One row per transfer operation. The actual record ownership moves live in
+// record_role_ownership + role_assignments; this table is the audit + UX
+// trail so we can render "On Mar 12, 47 records transferred from Partha
+// (VP Eng) to Aditi (VP Eng)" without scanning those base tables.
+export const transferEvents = sqliteTable('transfer_events', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  fromUserId: text('from_user_id').notNull().references(() => users.id),
+  toUserId: text('to_user_id').references(() => users.id), // null = "park at role, no named successor yet"
+  roleId: text('role_id').references(() => employeeRoles.id, { onDelete: 'set null' }),
+  reason: text('reason', { enum: ['offboard', 'role_change', 'temporary', 'correction'] }).notNull(),
+  recordsTransferred: integer('records_transferred').notNull().default(0),
+  decisionsTransferred: integer('decisions_transferred').notNull().default(0),
+  transferNotes: text('transfer_notes'), // handover summary authored by outgoing person / admin
+  initiatedByUserId: text('initiated_by_user_id').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('te_org_idx').on(table.organizationId),
+  fromUserIdx: index('te_from_user_idx').on(table.fromUserId),
+  toUserIdx: index('te_to_user_idx').on(table.toUserId),
+}))

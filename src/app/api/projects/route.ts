@@ -42,11 +42,34 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId } = await requireAuth()
-    const { name, description, color } = await req.json()
+    const { userId, workspaceId: defaultWorkspaceId } = await requireAuth()
+    const body = await req.json()
+    const { name, description, color, workspaceId: requestedWorkspaceId } = body as {
+      name?: string
+      description?: string
+      color?: string
+      workspaceId?: string
+    }
 
     if (!name) {
       return NextResponse.json({ error: 'name is required' }, { status: 400 })
+    }
+
+    // Allow the caller to specify a workspaceId (e.g. team page creating a project
+    // in a team's workspace). Verify the user is actually a member of that
+    // workspace before accepting.
+    let workspaceId = defaultWorkspaceId
+    if (requestedWorkspaceId && requestedWorkspaceId !== defaultWorkspaceId) {
+      const membership = await db.query.workspaceMembers.findFirst({
+        where: and(
+          eq(schema.workspaceMembers.workspaceId, requestedWorkspaceId),
+          eq(schema.workspaceMembers.userId, userId),
+        ),
+      })
+      if (!membership) {
+        return NextResponse.json({ error: 'not a member of that workspace' }, { status: 403 })
+      }
+      workspaceId = requestedWorkspaceId
     }
 
     const id = crypto.randomUUID()

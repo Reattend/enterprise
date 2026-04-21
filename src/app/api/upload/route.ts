@@ -3,6 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
+import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 import path from 'path'
 import fs from 'fs'
 
@@ -13,6 +14,8 @@ const ALLOWED_TYPES = new Set([
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
   'application/msword', // .doc
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  'application/vnd.ms-excel', // .xls
   'text/plain',
   'text/markdown',
   'text/csv',
@@ -37,6 +40,24 @@ async function extractText(buffer: Buffer, mimeType: string, fileName: string): 
     const mammoth = await import('mammoth')
     const result = await mammoth.extractRawText({ buffer })
     return result.value || ''
+  }
+
+  if (
+    mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    mimeType === 'application/vnd.ms-excel'
+  ) {
+    const XLSX = await import('xlsx')
+    const wb = XLSX.read(buffer, { type: 'buffer' })
+    const sheets: string[] = []
+    for (const sheetName of wb.SheetNames) {
+      const sheet = wb.Sheets[sheetName]
+      // CSV dump per sheet keeps structure + is easier for triage + embedding
+      const csv = XLSX.utils.sheet_to_csv(sheet, { strip: true })
+      if (csv.trim().length > 0) {
+        sheets.push(`## ${sheetName}\n${csv}`)
+      }
+    }
+    return sheets.join('\n\n') || ''
   }
 
   if (mimeType.startsWith('text/')) {
@@ -99,9 +120,25 @@ export async function POST(req: NextRequest) {
     const textForAI = extractedText.slice(0, 8000)
     const contentWithMeta = `[Uploaded file: ${file.name}]\n\n${extractedText}`
 
+    // Dedup by extracted-text hash. Same file uploaded twice (or the same
+    // doc via two different integrations) → return the existing record.
+    const dup = await findExactDuplicate(workspaceId, extractedText)
+    if (dup.hit) {
+      const existing = await db.query.records.findFirst({
+        where: eq(schema.records.id, dup.existingRecordId),
+      })
+      // Still save the new file on disk, but don't create a new record
+      return NextResponse.json({
+        record: existing,
+        deduplicated: true,
+        storedAs: storedName,
+      })
+    }
+
     // Save immediately with defaults — AI enrichment runs in background
     const title = file.name.replace(ext, '')
     const fileTags = [`file:${ext.replace('.', '')}`, 'attachment']
+    const hash = contentHash(extractedText)
 
     const recordId = crypto.randomUUID()
     await db.insert(schema.records).values({
@@ -115,6 +152,7 @@ export async function POST(req: NextRequest) {
       tags: JSON.stringify(fileTags),
       triageStatus: 'auto_accepted',
       createdBy: userId,
+      meta: JSON.stringify({ contentHash: hash, fileName: file.name, fileSize: file.size }),
     })
 
     // Create attachment entry

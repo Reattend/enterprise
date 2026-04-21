@@ -58,6 +58,10 @@ interface AppState {
   createTeamOpen: boolean
   setCreateTeamOpen: (open: boolean) => void
 
+  // Universal capture drawer (opens from anywhere via sidebar + shortcuts)
+  captureOpen: boolean
+  setCaptureOpen: (open: boolean) => void
+
   // Invite modal (shared between topbar dropdown and sidebar)
   inviteOpen: boolean
   setInviteOpen: (open: boolean) => void
@@ -81,6 +85,27 @@ interface AppState {
   // Onboarding
   onboardingCompleted: boolean | null
   setOnboardingCompleted: (completed: boolean) => void
+
+  // Enterprise orgs (list the user belongs to)
+  enterpriseOrgs: EnterpriseOrgMembership[]
+  setEnterpriseOrgs: (orgs: EnterpriseOrgMembership[]) => void
+  activeEnterpriseOrgId: string | null
+  setActiveEnterpriseOrgId: (id: string | null) => void
+  // False during SSR and until the client hydrator component mounts. Pages
+  // that branch on activeEnterpriseOrgId should render a neutral loading
+  // state while this is false, otherwise the server HTML (null orgId) won't
+  // match the client render (localStorage orgId).
+  hasHydratedStore: boolean
+  setHasHydratedStore: (v: boolean) => void
+}
+
+export interface EnterpriseOrgMembership {
+  orgId: string
+  orgName: string
+  orgSlug: string
+  orgPlan: string
+  orgDeployment: string
+  role: 'super_admin' | 'admin' | 'member' | 'guest'
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -113,6 +138,9 @@ export const useAppStore = create<AppState>((set) => ({
   createTeamOpen: false,
   setCreateTeamOpen: (open) => set({ createTeamOpen: open }),
 
+  captureOpen: false,
+  setCaptureOpen: (open) => set({ captureOpen: open }),
+
   inviteOpen: false,
   setInviteOpen: (open) => set({ inviteOpen: open }),
 
@@ -134,4 +162,20 @@ export const useAppStore = create<AppState>((set) => ({
 
   onboardingCompleted: null,
   setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
+
+  enterpriseOrgs: [],
+  setEnterpriseOrgs: (enterpriseOrgs) => set({ enterpriseOrgs }),
+  // Always null on init (server + first client render agree). The StoreHydrator
+  // component mounted in the app layout reads localStorage and calls
+  // setActiveEnterpriseOrgId() after first mount, which flips hasHydratedStore.
+  activeEnterpriseOrgId: null,
+  setActiveEnterpriseOrgId: (id) => {
+    if (typeof window !== 'undefined') {
+      if (id) localStorage.setItem('active_enterprise_org_id', id)
+      else localStorage.removeItem('active_enterprise_org_id')
+    }
+    set({ activeEnterpriseOrgId: id })
+  },
+  hasHydratedStore: false,
+  setHasHydratedStore: (v) => set({ hasHydratedStore: v }),
 }))

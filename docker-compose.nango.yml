@@ -1,0 +1,108 @@
+# Self-hosted Nango stack for Reattend Enterprise.
+#
+# Why self-host: enterprise customers' security teams block OAuth callbacks
+# routed through a third-party SaaS host (api.nango.dev). With this stack,
+# every OAuth callback is nango.reattend.com/oauth/callback — entirely our
+# infrastructure, entirely our brand.
+#
+# Usage (local dev):
+#   docker compose -f docker-compose.nango.yml up -d
+#   Then visit http://localhost:3003 to configure providers, grab the
+#   secret key, and put it into .env.local as NANGO_SECRET_KEY.
+#   Set NANGO_HOST=http://localhost:3003.
+#
+# Usage (production on DO):
+#   1. On the droplet, clone this repo
+#   2. Set envs in a .env file (see docs/DEPLOY.md)
+#   3. docker compose -f docker-compose.nango.yml up -d
+#   4. nginx reverse-proxies nango.reattend.com → this stack's server
+#
+# Resource profile (single $24/4GB DO droplet can hold app + this stack):
+#   - nango-db (Postgres):   ~400MB RAM
+#   - nango-redis:           ~80MB RAM
+#   - nango-server:          ~300MB RAM
+#   - nango-jobs:            ~250MB RAM
+#   - nango-runner:          ~200MB RAM
+# Total for Nango: ~1.2GB. Leaves ~2.5GB for Reattend Next.js + SQLite.
+#
+# Pinning to a specific tag (0.70.x) so a surprise Nango release can't break
+# production. Bump deliberately with a planned smoke test.
+
+services:
+  nango-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${NANGO_DB_USER:-nango}
+      POSTGRES_PASSWORD: ${NANGO_DB_PASSWORD:-nango}
+      POSTGRES_DB: ${NANGO_DB_NAME:-nango}
+    volumes:
+      - nango-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${NANGO_DB_USER:-nango}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  nango-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+
+  nango-server:
+    image: nangohq/nango-server:0.70.1
+    restart: unless-stopped
+    depends_on:
+      nango-db:
+        condition: service_healthy
+      nango-redis:
+        condition: service_started
+    environment:
+      NANGO_DB_USER: ${NANGO_DB_USER:-nango}
+      NANGO_DB_PASSWORD: ${NANGO_DB_PASSWORD:-nango}
+      NANGO_DB_NAME: ${NANGO_DB_NAME:-nango}
+      NANGO_DB_HOST: nango-db
+      NANGO_DB_PORT: 5432
+      NANGO_REDIS_URL: redis://nango-redis:6379
+      # NANGO_SERVER_URL is the public URL Nango emits in callbacks and webhooks.
+      # Production: https://nango.reattend.com. Local: http://localhost:3003.
+      NANGO_SERVER_URL: ${NANGO_SERVER_URL:-http://localhost:3003}
+      # Random string; used to encrypt OAuth tokens at rest in nango-db.
+      # MUST be set in production — losing it means re-auth for every user.
+      NANGO_ENCRYPTION_KEY: ${NANGO_ENCRYPTION_KEY}
+      SERVER_PORT: 3003
+      TELEMETRY: 'false'
+    ports:
+      - '${NANGO_SERVER_PORT:-3003}:3003'
+
+  nango-jobs:
+    image: nangohq/nango-jobs:0.70.1
+    restart: unless-stopped
+    depends_on:
+      nango-db:
+        condition: service_healthy
+      nango-redis:
+        condition: service_started
+    environment:
+      NANGO_DB_USER: ${NANGO_DB_USER:-nango}
+      NANGO_DB_PASSWORD: ${NANGO_DB_PASSWORD:-nango}
+      NANGO_DB_NAME: ${NANGO_DB_NAME:-nango}
+      NANGO_DB_HOST: nango-db
+      NANGO_DB_PORT: 5432
+      NANGO_REDIS_URL: redis://nango-redis:6379
+      NANGO_SERVER_URL: ${NANGO_SERVER_URL:-http://localhost:3003}
+      NANGO_ENCRYPTION_KEY: ${NANGO_ENCRYPTION_KEY}
+      TELEMETRY: 'false'
+
+  nango-runner:
+    image: nangohq/nango-runner:0.70.1
+    restart: unless-stopped
+    depends_on:
+      - nango-server
+    environment:
+      NANGO_SERVER_URL: http://nango-server:3003
+      NANGO_ENCRYPTION_KEY: ${NANGO_ENCRYPTION_KEY}
+      TELEMETRY: 'false'
+
+volumes:
+  nango-db-data:

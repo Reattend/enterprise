@@ -5,6 +5,13 @@ import { requireAuth, getUserSubscription } from '@/lib/auth'
 import { recordUsage } from '@/lib/metering'
 import { getAskLLM } from '@/lib/ai/llm'
 import { cosineSimilarity } from '@/lib/utils'
+import {
+  auditForAllUserOrgs,
+  extractRequestMeta,
+  buildAccessContext,
+  filterToAccessibleRecords,
+} from '@/lib/enterprise'
+import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 
 const AI_QUERY_LIMIT = 20
 
@@ -384,13 +391,47 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, session } = await requireAuth()
     const userEmail = session?.user?.email || ''
-    const { question, history } = await req.json() as { question: string; history?: ChatMessage[] }
+    const { question, history, agentId } = await req.json() as { question: string; history?: ChatMessage[]; agentId?: string }
 
     if (!question) {
       return new Response(JSON.stringify({ error: 'question is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    // Enterprise audit: fire-and-forget, no-op for personal-only users.
+    const reqMeta = extractRequestMeta(req)
+    auditForAllUserOrgs(userId, userEmail, 'query', {
+      resourceType: 'ask',
+      ipAddress: reqMeta.ipAddress,
+      userAgent: reqMeta.userAgent,
+      metadata: { question: question.slice(0, 500), agentId: agentId || null },
+    })
+
+    // Agent query log — fire-and-forget so analytics has per-agent data.
+    // We don't have the answer yet at this point; follow-up PATCH can attach
+    // answer preview + latency. For the builder's immediate needs this is
+    // enough to drive the "queries/day" sparkline.
+    if (agentId) {
+      ;(async () => {
+        try {
+          const agentRow = await db.query.agents.findFirst({ where: eq(schema.agents.id, agentId) })
+          if (!agentRow) return
+          await db.insert(schema.agentQueries).values({
+            agentId,
+            organizationId: agentRow.organizationId,
+            userId,
+            question: question.slice(0, 2000),
+            sourceCount: 0,
+          })
+          await db.update(schema.agents)
+            .set({ usageCount: (agentRow.usageCount || 0) + 1 })
+            .where(eq(schema.agents.id, agentId))
+        } catch (e) {
+          console.error('[ask] agent_queries insert failed', e)
+        }
+      })()
     }
 
     // Enforce daily query limit for free users (shared with extension)
@@ -519,11 +560,74 @@ Offers:
 
     // Merge: keyword + recent, deduplicated
     const seenIds = new Set<string>()
-    const allRecords: typeof recentRecords = []
+    const allRecordsUnfiltered: typeof recentRecords = []
     for (const r of [...keywordRecords, ...recentRecords]) {
       if (!seenIds.has(r.id)) {
         seenIds.add(r.id)
-        allRecords.push(r)
+        allRecordsUnfiltered.push(r)
+      }
+    }
+
+    // Record-level RBAC: strip anything the user can't access (private records
+    // of others, dept-scoped records outside their dept, etc.). This is the
+    // critical layer — without it, Chat could leak restricted context.
+    const accessCtx = await buildAccessContext(userId)
+    const allowedIds = await filterToAccessibleRecords(
+      accessCtx,
+      allRecordsUnfiltered.map((r) => r.id),
+    )
+    let allRecords = allRecordsUnfiltered.filter((r) => allowedIds.has(r.id))
+
+    // Agent scope enforcement. When an agentId is passed, the agent's
+    // scopeConfig narrows retrieval further — the agent only sees memories
+    // matching its types / department / tag filters. This is what makes
+    // "HR Assistant" feel scoped; without it, every agent is identical.
+    let agentSystemPrompt: string | null = null
+    let agentName: string | null = null
+    if (agentId) {
+      const agentRow = await db.query.agents.findFirst({ where: eq(schema.agents.id, agentId) })
+      if (agentRow && agentRow.status === 'active') {
+        agentSystemPrompt = agentRow.systemPrompt
+        agentName = agentRow.name
+        const scopeRaw = agentRow.scopeConfig ? JSON.parse(agentRow.scopeConfig) : {}
+        const allowedTypes: string[] | undefined = Array.isArray(scopeRaw.types) && scopeRaw.types.length ? scopeRaw.types : undefined
+        const allowedDeptIds: string[] | undefined = Array.isArray(scopeRaw.departmentIds) && scopeRaw.departmentIds.length ? scopeRaw.departmentIds : undefined
+        const allowedTags: string[] | undefined = Array.isArray(scopeRaw.tags) && scopeRaw.tags.length
+          ? scopeRaw.tags.map((t: string) => String(t).toLowerCase())
+          : undefined
+        const allowedRecIds: string[] | undefined = Array.isArray(scopeRaw.recordIds) && scopeRaw.recordIds.length ? scopeRaw.recordIds : undefined
+
+        if (allowedTypes || allowedDeptIds || allowedTags || allowedRecIds) {
+          // Dept scope requires a workspace→dept map. Only hit the DB if needed.
+          let wsDeptMap: Map<string, string | null> | null = null
+          if (allowedDeptIds) {
+            const wsIds = Array.from(new Set(allRecords.map((r) => r.workspaceId)))
+            const links = wsIds.length
+              ? await db.select({
+                  workspaceId: schema.workspaceOrgLinks.workspaceId,
+                  departmentId: schema.workspaceOrgLinks.departmentId,
+                }).from(schema.workspaceOrgLinks).where(inArray(schema.workspaceOrgLinks.workspaceId, wsIds))
+              : []
+            wsDeptMap = new Map(links.map((l) => [l.workspaceId, l.departmentId]))
+          }
+
+          allRecords = allRecords.filter((r) => {
+            if (allowedRecIds && !allowedRecIds.includes(r.id)) return false
+            if (allowedTypes && !allowedTypes.includes(r.type)) return false
+            if (allowedDeptIds && wsDeptMap) {
+              const deptId = wsDeptMap.get(r.workspaceId)
+              if (!deptId || !allowedDeptIds.includes(deptId)) return false
+            }
+            if (allowedTags) {
+              try {
+                const recTags: string[] = r.tags ? JSON.parse(r.tags) : []
+                const lowered = recTags.map((t) => String(t).toLowerCase())
+                if (!allowedTags.some((t) => lowered.includes(t))) return false
+              } catch { return false }
+            }
+            return true
+          })
+        }
       }
     }
 
@@ -658,22 +762,41 @@ Offers:
     // 40% of the top record — this eliminates tangentially-related noise
     const topScore = scored[0]?.score ?? 0
     const minScore = properNouns.length > 0 ? Math.max(topScore * 0.4, 3) : 1
-    // Step 1: widen retrieval to 20 — extraction pass will filter to relevant ones
-    let top = scored
+    // Step 1: widen retrieval to 30 candidates — reranker will narrow to 10.
+    // Previously: sliced to 20 directly. The wider window catches records
+    // that hybrid scoring ranked low but Claude Haiku will rank high.
+    let candidates = scored
       .filter(s => s.score >= minScore)
-      .slice(0, 20)
+      .slice(0, 30)
       .map(s => s.record)
 
     // Deduplicate by normalized title (prevents the same record appearing twice)
     const seenTitles = new Set<string>()
-    top = top.filter(r => {
+    candidates = candidates.filter(r => {
       const key = r.title.toLowerCase().replace(/\s+/g, ' ').trim()
       if (seenTitles.has(key)) return false
       seenTitles.add(key)
       return true
     })
 
-    if (top.length === 0) top = allRecords.slice(0, 3)
+    if (candidates.length === 0) candidates = allRecords.slice(0, 3)
+
+    // Step 2: Claude Haiku rerank. Takes 30 → top 10 by actual semantic
+    // relevance to the question. Falls back to hybrid order on any failure.
+    let top = await rerankWithClaudeHaiku(
+      question,
+      candidates.map(r => ({
+        id: r.id,
+        title: r.title,
+        summary: r.summary,
+        content: r.content,
+        type: r.type,
+      })),
+      10,
+    ).then(ranked => {
+      const byId = new Map(candidates.map(r => [r.id, r]))
+      return ranked.map(r => byId.get(r.id)).filter((r): r is NonNullable<typeof candidates[number]> => !!r)
+    }).catch(() => candidates.slice(0, 10))
 
     if (top.length === 0) {
       const encoder = new TextEncoder()
@@ -820,7 +943,12 @@ Offers:
       ? '\n- When a memory is from a specific workspace, attribute it: "In your [Workspace] workspace, ..."'
       : ''
 
-    const prompt = `You are Reattend — the user's AI memory assistant. You have perfect recall of everything they've saved. You're a sharp, knowledgeable colleague who thinks strategically.
+    // Persona block: if an agent was passed, its systemPrompt replaces the
+    // generic Reattend persona. The "Use only the memories below + cite [1]"
+    // rules remain fixed — they're the safety layer, not the persona.
+    const persona = agentSystemPrompt
+      ? `${agentSystemPrompt}\n\n(You are running as the "${agentName}" agent. Your knowledge is scoped to the memories below, which may be a filtered subset of the org's full memory.)`
+      : `You are Reattend — the user's AI memory assistant. You have perfect recall of everything they've saved. You're a sharp, knowledgeable colleague who thinks strategically.
 
 WHAT YOU CAN DO:
 - Answer questions about their memories with specific names, dates, and numbers
@@ -829,7 +957,9 @@ WHAT YOU CAN DO:
 - Surface contradictions, risks, and forgotten commitments
 - Prepare them for upcoming meetings by synthesizing relevant context
 - Reformat or restructure previous answers ("make that into bullet points", "draft that as an email to the CEO")
-- Connect dots across different memories that the user might not see
+- Connect dots across different memories that the user might not see`
+
+    const prompt = `${persona}
 
 RULES:
 - Use ONLY the memories below. Never invent facts. Cite sources inline as [1], [2], [3].
