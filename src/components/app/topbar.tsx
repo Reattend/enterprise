@@ -310,6 +310,16 @@ export function AppTopbar() {
             )
           )}
 
+          {/* Who Should I Ask? (⌘⇧K) — the "org knowledge router" */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => window.dispatchEvent(new CustomEvent('reattend:open-experts'))}
+            title="Who should I ask? (⌘⇧K)"
+          >
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </Button>
+
           {/* Quick Capture */}
           <Button
             variant="ghost"

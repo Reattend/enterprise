@@ -12,6 +12,7 @@ import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
+import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +29,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isFullBleed = FULL_BLEED_PATHS.includes(pathname)
   const [isMobile, setIsMobile] = useState(false)
   const [orgsLoaded, setOrgsLoaded] = useState(false)
+  const [askExpertsOpen, setAskExpertsOpen] = useState(false)
+
+  // Global shortcut: ⌘⇧K (or Ctrl+Shift+K) opens Ask Experts.
+  // Separate from ⌘K (search). Also listens for a 'reattend:open-experts'
+  // custom event so the topbar button can trigger without prop drilling.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setAskExpertsOpen(true)
+      }
+    }
+    const onCustom = () => setAskExpertsOpen(true)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('reattend:open-experts', onCustom as EventListener)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('reattend:open-experts', onCustom as EventListener)
+    }
+  }, [])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640)
@@ -55,6 +76,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background enterprise-shell">
       <StoreHydrator />
       <KeyboardShortcuts />
+      <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
       <AppSidebar />
       <QuickCapture />
       <CaptureDrawer />

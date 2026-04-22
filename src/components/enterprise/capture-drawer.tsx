@@ -4,15 +4,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Plus, FileText, Link as LinkIcon, Upload, Check, Loader2, Sparkles,
-  ChevronDown, Target,
+  ChevronDown, Target, Mic,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
+import { VoiceRecorder } from './voice-recorder'
 
-type Tab = 'text' | 'file' | 'url'
+type Tab = 'text' | 'file' | 'url' | 'voice'
 
 interface Team {
   teamId: string
@@ -197,7 +198,8 @@ export function CaptureDrawer() {
               <>
                 {/* Tabs */}
                 <div className="flex border-b border-border px-4">
-                  <TabBtn active={tab === 'text'} onClick={() => setTab('text')} icon={FileText} label="Paste text" />
+                  <TabBtn active={tab === 'text'} onClick={() => setTab('text')} icon={FileText} label="Text" />
+                  <TabBtn active={tab === 'voice'} onClick={() => setTab('voice')} icon={Mic} label="Voice" />
                   <TabBtn active={tab === 'file'} onClick={() => setTab('file')} icon={Upload} label="Upload" />
                   <TabBtn active={tab === 'url'} onClick={() => setTab('url')} icon={LinkIcon} label="Link" />
                 </div>
@@ -219,6 +221,14 @@ export function CaptureDrawer() {
                         AI extracts entities, summary, and links to related memories automatically.
                       </div>
                     </>
+                  )}
+
+                  {tab === 'voice' && (
+                    <VoiceRecorder
+                      selectedProject={selectedProject}
+                      onSuccess={(r) => setSuccess({ recordId: r.recordId ?? '', title: r.title })}
+                      onError={(msg) => setErr(msg)}
+                    />
                   )}
 
                   {tab === 'file' && (

@@ -991,21 +991,42 @@ Offers:
     const stream = await llm.generateTextStream(prompt)
 
     // Escape non-ASCII so the header stays within Latin-1 (HTTP header requirement)
-    const sourcesJson = JSON.stringify(top.map(r => ({
+    const escapeHeaderValue = (s: string) => s.replace(/[\u0080-\uffff]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
+    const sourcesJson = escapeHeaderValue(JSON.stringify(top.map(r => ({
       id: r.id,
       title: r.title,
       type: r.type,
       workspace: wsNameMap.get(r.workspaceId) || 'Personal',
       date: formatDate(r.occurredAt || r.createdAt),
-    }))).replace(/[\u0080-\uffff]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
+    }))))
+
+    // Reasoning trace — the visible "Claude is thinking" ticker on the client.
+    // Each step carries a label and the metric that made it interesting. The
+    // client animates through these in order (they already ran; this is
+    // pedagogical replay, not live events — but it feels live and it's honest).
+    const traceJson = escapeHeaderValue(JSON.stringify({
+      steps: [
+        { id: 'keywords', label: 'Extracted keywords from your question', count: keywords.length, detail: keywords.slice(0, 6).join(', ') },
+        { id: 'candidates', label: 'Searched memories across every workspace you can see', count: allRecordsUnfiltered.length },
+        { id: 'rbac', label: 'Applied record-level visibility (privacy filter)', count: allRecords.length, detail: `${allRecordsUnfiltered.length - allRecords.length} hidden` },
+        { id: 'scoped', label: agentSystemPrompt ? `Scoped to ${agentName || 'agent'}` : 'No agent scoping', count: allRecords.length, skipAnimate: !agentSystemPrompt },
+        { id: 'scored', label: 'Scored by keyword + recency + workspace relevance', count: scored.length },
+        { id: 'reranked', label: 'Re-ranked top 30 with Claude Haiku', count: Math.min(candidates.length, 30) },
+        { id: 'selected', label: 'Selected final memories to answer from', count: top.length },
+      ],
+      question,
+      agentId: agentId || null,
+      agentName: agentName || null,
+    }))
 
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
+        'X-Trace': traceJson,
         'Cache-Control': 'no-cache',
         'X-Accel-Buffering': 'no',
         'X-Sources': sourcesJson,
-        'Access-Control-Expose-Headers': 'X-Sources',
+        'Access-Control-Expose-Headers': 'X-Sources, X-Trace',
       },
     })
   } catch (error: any) {

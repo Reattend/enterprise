@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react'
 import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
+import { ReasoningTrace, type TraceData } from '@/components/enterprise/reasoning-trace'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Brain, Lightbulb, CheckSquare, Sparkles, ArrowUp,
@@ -86,6 +87,9 @@ type Message = {
   // Same shape as followUps (just a list of strings), rendered as a
   // separate pill row below the curious follow-ups.
   offers?: string[]
+  // Reasoning trace — populated from X-Trace response header. Lets the
+  // ReasoningTrace component replay the pipeline steps that found the answer.
+  trace?: TraceData
 }
 
 function ChatPageInner() {
@@ -235,9 +239,14 @@ function ChatPageInner() {
       })
 
       let sources: Source[] = []
+      let trace: TraceData | undefined = undefined
       try {
         const h = res.headers.get('X-Sources')
         if (h) sources = JSON.parse(h)
+      } catch {}
+      try {
+        const t = res.headers.get('X-Trace')
+        if (t) trace = JSON.parse(t) as TraceData
       } catch {}
 
       const reader = res.body?.getReader()
@@ -296,7 +305,7 @@ function ChatPageInner() {
       }
 
       const finalMessages = nextMessages.map(m =>
-        m.id === aiId ? { ...m, content: mainContent, sources, followUps, offers } : m
+        m.id === aiId ? { ...m, content: mainContent, sources, followUps, offers, trace } : m
       )
       setMessages(finalMessages)
 
@@ -575,6 +584,15 @@ function ChatPageInner() {
                           </button>
                         </div>
                       )}
+
+                      {/* Reasoning trace — animates the retrieval pipeline
+                          that produced this answer. Only rendered for assistant
+                          messages with a trace payload. */}
+                      {msg.trace ? (
+                        <div className="ml-10">
+                          <ReasoningTrace trace={msg.trace} active={false} />
+                        </div>
+                      ) : null}
 
                       {/* Sources — collapsible chevron */}
                       {msg.sources && msg.sources.length > 0 && (
