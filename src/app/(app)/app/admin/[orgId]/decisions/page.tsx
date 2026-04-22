@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  Gavel, Plus, X, AlertCircle, CheckCircle2, Archive, Undo2, Layers,
+  Gavel, Plus, X, AlertCircle, CheckCircle2, Archive, Undo2, Layers, Radar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BlastRadiusDialog } from '@/components/enterprise/blast-radius-dialog'
 
 type Status = 'active' | 'superseded' | 'reversed' | 'archived'
 
@@ -58,6 +59,7 @@ const STATUS_META: Record<Status, { label: string; icon: typeof CheckCircle2; cl
 export default function DecisionsListPage({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [decisions, setDecisions] = useState<Decision[] | null>(null)
+  const [blastDecisionId, setBlastDecisionId] = useState<string | null>(null)
   const [departments, setDepartments] = useState<Dept[]>([])
   const [workspaces, setWorkspaces] = useState<{ workspaceId: string; label: string }[]>([])
   const [err, setErr] = useState<string | null>(null)
@@ -193,12 +195,12 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
               const Icon = meta.icon
               return (
                 <li key={d.id}>
-                  <Link
-                    href={`/app/admin/${orgId}/decisions/${d.id}`}
-                    className="flex items-start gap-3 p-4 hover:bg-muted/40 transition-colors"
-                  >
+                  <div className="flex items-start gap-3 p-4 hover:bg-muted/40 transition-colors">
                     <Icon className={cn('h-4 w-4 mt-0.5 flex-shrink-0', meta.cls.split(' ')[1])} />
-                    <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/app/admin/${orgId}/decisions/${d.id}`}
+                      className="flex-1 min-w-0"
+                    >
                       <div className="text-sm font-medium truncate">{d.title}</div>
                       <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
                         <span>{new Date(d.decidedAt).toLocaleDateString()}</span>
@@ -215,17 +217,30 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
                           </>
                         )}
                       </div>
-                    </div>
+                    </Link>
+                    <button
+                      onClick={() => setBlastDecisionId(d.id)}
+                      className="text-[11px] text-muted-foreground hover:text-red-600 inline-flex items-center gap-1 rounded border px-2 py-1 shrink-0"
+                      title="See blast radius"
+                    >
+                      <Radar className="h-3 w-3" /> Blast
+                    </button>
                     <span className={cn('text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0', meta.cls)}>
                       {meta.label}
                     </span>
-                  </Link>
+                  </div>
                 </li>
               )
             })}
           </ul>
         )}
       </Card>
+
+      <BlastRadiusDialog
+        decisionId={blastDecisionId}
+        open={!!blastDecisionId}
+        onOpenChange={(v) => !v && setBlastDecisionId(null)}
+      />
     </div>
   )
 }

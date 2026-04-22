@@ -69,6 +69,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'empty transcript — try speaking louder or longer' }, { status: 422 })
     }
 
+    // Brain-dump flow wants JUST the transcript text — it'll route the text
+    // through Claude parsing before any records are created. Skip the full
+    // record creation + ingest enqueue in that case.
+    if (req.nextUrl.searchParams.get('transcriptOnly') === '1') {
+      return NextResponse.json({ transcript, durationSec: transcription.duration ?? null })
+    }
+
     // Dedup on transcript text within the workspace (rare for voice but cheap)
     const dup = await findExactDuplicate(workspaceId, transcript)
     if (dup.hit) {
