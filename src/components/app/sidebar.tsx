@@ -30,6 +30,7 @@ import {
   Plug,
   BookOpen,
   Zap,
+  Crown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -65,6 +66,7 @@ import { toast } from 'sonner'
 // My team, Projects, and legacy Personal nav have been removed.
 const navItems = [
   { href: '/app', icon: Home, label: 'Home', exact: true },
+  { href: '/app/oracle', icon: Crown, label: 'Oracle' },
   { href: '/app/tasks', icon: Zap, label: 'Tasks' },
   { href: '/app/memories', icon: Brain, label: 'Memory' },
   { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
@@ -774,6 +776,7 @@ function MobileOverlay({
         {/* Nav */}
         <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
           {navLink('/app', Home, 'Home')}
+          {navLink('/app/oracle', Crown, 'Oracle')}
           {navLink('/app/tasks', Zap, 'Tasks')}
           {navLink('/app/memories', Brain, 'Memory')}
           {navLink('/app/wiki', BookOpen, 'Wiki')}
