@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { UserPlus, AlertCircle, Check, UserX, Mail, RefreshCw, X, Copy, Clock, Upload, Download, FileSpreadsheet, Loader2 } from 'lucide-react'
+import { UserPlus, AlertCircle, Check, UserX, Mail, RefreshCw, X, Copy, Clock, Upload, Download, FileSpreadsheet, Loader2, Users } from 'lucide-react'
 import { DepartmentTreePicker, type DeptNode } from '@/components/enterprise/department-tree-picker'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type OrgRole = 'super_admin' | 'admin' | 'member' | 'guest'
 
@@ -381,7 +382,21 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
         {members === null ? (
           <div className="p-4 text-sm text-muted-foreground">Loading…</div>
         ) : members.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">No members yet.</div>
+          <div className="p-4">
+            <EmptyState
+              icon={Users}
+              title="No one's here yet"
+              description="Your org is empty. Invite your team so memories, decisions, and policies have people attached to them."
+              action={{ label: 'Invite first member', onClick: () => {
+                const el = document.querySelector<HTMLInputElement>('input[type="email"]')
+                el?.focus()
+              } }}
+              secondary={{ label: 'Bulk invite via CSV', onClick: () => {
+                const btn = document.querySelector<HTMLElement>('[data-bulk-invite-trigger]')
+                btn?.click()
+              } }}
+            />
+          </div>
         ) : (
           <ul className="divide-y divide-border">
             {members.map((m) => (

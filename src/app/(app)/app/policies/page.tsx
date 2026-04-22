@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type AckState = 'pending' | 'acknowledged' | 'not_subject' | 'not_applicable'
 
@@ -169,21 +170,33 @@ export default function PoliciesPage() {
           <Loader2 className="h-4 w-4 animate-spin" /> Loading policies…
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border bg-card p-10 text-center">
-          <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-          <p className="text-sm text-muted-foreground">
-            {policies && policies.length === 0
-              ? 'No policies authored yet.'
-              : 'No policies match your search.'}
-          </p>
-          {canAuthor && policies && policies.length === 0 && (
-            <Button className="mt-4" size="sm" asChild>
-              <Link href={`/app/admin/${activeEnterpriseOrgId}/policies/new`}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> Author your first policy
-              </Link>
-            </Button>
-          )}
-        </div>
+        policies && policies.length === 0 ? (
+          canAuthor ? (
+            <EmptyState
+              icon={FileText}
+              title="No policies authored yet"
+              description="Policies are the rules of your org — ones everyone should know and acknowledge. Author one, publish it, and members will see an ack prompt on Home."
+              action={{
+                label: 'Author first policy',
+                href: `/app/admin/${activeEnterpriseOrgId}/policies/new`,
+              }}
+            />
+          ) : (
+            <EmptyState
+              icon={FileText}
+              title="No policies yet"
+              description="Your admins haven't published any policies to acknowledge. When they do, you'll see them here with a one-click ack button."
+              tone="muted"
+            />
+          )
+        ) : (
+          <EmptyState
+            icon={Search}
+            title="No policies match your search"
+            description="Try a different keyword or clear the search box."
+            tone="muted"
+          />
+        )
       ) : (
         <div className="space-y-2">
           {filtered.map((p) => {

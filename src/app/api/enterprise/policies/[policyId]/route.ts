@@ -8,6 +8,7 @@ import {
   userIsSubjectToPolicy,
   getOrgContext,
   hasOrgPermission,
+  notifyOrgMembers,
 } from '@/lib/enterprise'
 
 // GET /api/enterprise/policies/[policyId]
@@ -161,6 +162,34 @@ export async function PATCH(
     if (body.publish === false && policy.status === 'draft') updates.status = 'draft'
 
     await db.update(schema.policies).set(updates).where(eq(schema.policies.id, policyId))
+
+    // Notify all org members on transition to 'published' — they need to see
+    // "policy X needs your acknowledgment" even if they don't visit the Policies
+    // page. Skip if the policy was already published (edit-in-place shouldn't
+    // spam everyone).
+    const didPublish = body.publish === true && policy.status !== 'published'
+    if (didPublish) {
+      const link = await db.select()
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, policy.organizationId))
+        .limit(1)
+      const ws = link[0]?.workspaceId
+      if (ws) {
+        const finalTitle = (body.title || policy.title || 'Untitled').slice(0, 100)
+        notifyOrgMembers({
+          organizationId: policy.organizationId,
+          workspaceId: ws,
+          excludeUserId: userId,
+          notification: {
+            type: 'todo',
+            title: `New policy to acknowledge: ${finalTitle}`,
+            body: (body.summary || 'Please read and acknowledge this policy.').slice(0, 240),
+            objectType: 'policy',
+            objectId: policyId,
+          },
+        }).catch((e) => console.warn('[policies] publish notify failed', e))
+      }
+    }
 
     return NextResponse.json({ ok: true, version: newVersion })
   } catch (err) {

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BlastRadiusDialog } from '@/components/enterprise/blast-radius-dialog'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type Status = 'active' | 'superseded' | 'reversed' | 'archived'
 
@@ -185,8 +186,27 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
         {decisions === null ? (
           <div className="p-4 text-sm text-muted-foreground">Loading…</div>
         ) : decisions.length === 0 ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">
-            {filter === 'all' ? 'No decisions logged yet.' : `No ${filter} decisions.`}
+          <div className="p-6">
+            {filter === 'all' ? (
+              <EmptyState
+                icon={Gavel}
+                title="No decisions logged yet"
+                description="Decisions are the load-bearing memories of your org — who decided what, when, and why. Log one to start a chain other memories can cite."
+                action={{
+                  label: 'Log first decision',
+                  onClick: () => {
+                    const btn = document.querySelector<HTMLButtonElement>('[data-new-decision-trigger]')
+                    btn?.click()
+                  },
+                }}
+              />
+            ) : (
+              <EmptyState
+                icon={Archive}
+                title={`No ${filter} decisions`}
+                description={`Switch the filter above to see decisions in other statuses.`}
+              />
+            )}
           </div>
         ) : (
           <ul className="divide-y divide-border">

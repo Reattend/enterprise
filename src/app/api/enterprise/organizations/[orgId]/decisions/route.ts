@@ -7,6 +7,7 @@ import {
   auditFromAuth,
   handleEnterpriseError,
   listAccessibleDepartmentIds,
+  notifyDepartmentMembers,
 } from '@/lib/enterprise'
 
 // GET /api/enterprise/organizations/[orgId]/decisions
@@ -184,6 +185,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       departmentId: departmentId || link[0].departmentId || null,
       metadata: { title: title.trim(), workspaceId, recordId: recordId || null },
     })
+
+    // Fire-and-forget notification to everyone who should know. The decision
+    // itself has already committed above, so notify failures must not block
+    // the response.
+    const resolvedDeptId = departmentId || link[0].departmentId || null
+    if (resolvedDeptId) {
+      notifyDepartmentMembers({
+        organizationId: orgId,
+        departmentId: resolvedDeptId,
+        workspaceId,
+        excludeUserId: auth.userId,
+        notification: {
+          type: 'decision_pending',
+          title: `New decision: ${title.trim().slice(0, 100)}`,
+          body: (rationale || context || '').slice(0, 240) || null,
+          objectType: 'decision',
+          objectId: decisionId,
+        },
+      }).catch((e) => console.warn('[decisions] notify failed', e))
+    }
 
     const inserted = await db.select().from(schema.decisions).where(eq(schema.decisions.id, decisionId)).limit(1)
     return NextResponse.json({ decision: inserted[0] }, { status: 201 })
