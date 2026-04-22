@@ -12,11 +12,11 @@ export async function GET(req: NextRequest) {
     const appUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || 'http://localhost:3000'
 
     if (error) {
-      return NextResponse.redirect(new URL('/app?gmail_error=denied', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?gmail_error=denied', appUrl))
     }
 
     if (!code || !stateParam) {
-      return NextResponse.redirect(new URL('/app?gmail_error=missing_params', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?gmail_error=missing_params', appUrl))
     }
 
     // Decode state
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       userId = state.userId
       workspaceId = state.workspaceId
     } catch {
-      return NextResponse.redirect(new URL('/app?gmail_error=invalid_state', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?gmail_error=invalid_state', appUrl))
     }
 
     // Exchange code for tokens
@@ -80,10 +80,10 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    return NextResponse.redirect(new URL('/app?gmail=connected', appUrl))
+    return NextResponse.redirect(new URL('/app/integrations?gmail=connected', appUrl))
   } catch (error: any) {
     console.error('[Gmail Callback Error]', error)
     const appUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || 'http://localhost:3000'
-    return NextResponse.redirect(new URL(`/app?gmail_error=token_exchange`, appUrl))
+    return NextResponse.redirect(new URL(`/app/integrations?gmail_error=token_exchange`, appUrl))
   }
 }

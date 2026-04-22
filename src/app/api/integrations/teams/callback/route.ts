@@ -12,11 +12,11 @@ export async function GET(req: NextRequest) {
     const appUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || 'http://localhost:3000'
 
     if (error) {
-      return NextResponse.redirect(new URL('/app?teams_error=denied', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?teams_error=denied', appUrl))
     }
 
     if (!code || !stateParam) {
-      return NextResponse.redirect(new URL('/app?teams_error=missing_params', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?teams_error=missing_params', appUrl))
     }
 
     let userId: string, workspaceId: string
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       userId = state.userId
       workspaceId = state.workspaceId
     } catch {
-      return NextResponse.redirect(new URL('/app?teams_error=invalid_state', appUrl))
+      return NextResponse.redirect(new URL('/app/integrations?teams_error=invalid_state', appUrl))
     }
 
     const tokens = await exchangeMsCodeForTokens(code)
@@ -64,10 +64,10 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    return NextResponse.redirect(new URL('/app?teams=connected', appUrl))
+    return NextResponse.redirect(new URL('/app/integrations?teams=connected', appUrl))
   } catch (error: any) {
     console.error('[Teams Callback Error]', error)
     const appUrl = process.env.NEXTAUTH_URL || process.env.APP_URL || 'http://localhost:3000'
-    return NextResponse.redirect(new URL('/app?teams_error=token_exchange', appUrl))
+    return NextResponse.redirect(new URL('/app/integrations?teams_error=token_exchange', appUrl))
   }
 }

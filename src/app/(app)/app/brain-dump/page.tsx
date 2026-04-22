@@ -8,12 +8,13 @@
 //   3. User deselects anything they don't want + edits titles inline.
 //   4. Commit: each selected item becomes its own record, ingest job runs.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Brain, Sparkles, Loader2, Check, X, Gavel, HelpCircle, CheckSquare,
   Info, ArrowRight, Mic, Square, BrainCircuit, FileUp, LinkIcon, Upload,
+  Target, ChevronDown,
 } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/stores/app-store'
 
 type ItemKind = 'decision' | 'question' | 'action' | 'fact'
 interface DumpItem {
@@ -39,7 +41,16 @@ const KIND_META: Record<ItemKind, { label: string; icon: any; color: string }> =
 
 type Mode = 'firehose' | 'file' | 'link'
 
+interface Team {
+  teamId: string
+  teamName: string
+  departmentPath: string
+  workspaceId: string
+  projects: Array<{ id: string; name: string; isDefault: boolean }>
+}
+
 export default function BrainDumpPage() {
+  const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const [mode, setMode] = useState<Mode>('firehose')
   const [rawText, setRawText] = useState('')
   const [parsing, setParsing] = useState(false)
@@ -48,6 +59,33 @@ export default function BrainDumpPage() {
   const [rejectedReason, setRejectedReason] = useState<string | null>(null)
   const [committing, setCommitting] = useState(false)
   const [result, setResult] = useState<{ created: Array<{ id: string; title: string; kind: ItemKind }>; skippedDupes: string[] } | null>(null)
+
+  // Scope picker — same behavior the old CaptureDrawer had. Loaded once per
+  // org. Defaults to the first team + default project so most people can
+  // skip it entirely.
+  const [teams, setTeams] = useState<Team[]>([])
+  const [showScope, setShowScope] = useState(false)
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!activeOrgId) return
+    ;(async () => {
+      try {
+        const res = await fetch(`/api/enterprise/organizations/${activeOrgId}/teams`)
+        if (!res.ok) return
+        const data = await res.json()
+        setTeams(data.teams || [])
+        if (data.teams?.[0]) {
+          setSelectedTeam(data.teams[0].teamId)
+          const def = data.teams[0].projects.find((p: { isDefault: boolean }) => p.isDefault) || data.teams[0].projects[0]
+          setSelectedProject(def?.id ?? null)
+        }
+      } catch { /* non-fatal */ }
+    })()
+  }, [activeOrgId])
+
+  const activeTeam = teams.find((t) => t.teamId === selectedTeam)
 
   // File upload state — Brain Dump's File tab. PDFs / DOCX / images go through
   // /api/upload which extracts text and creates a record.
@@ -149,7 +187,12 @@ export default function BrainDumpPage() {
       const res = await fetch('/api/enterprise/brain-dump', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commit: true, items: toCommit }),
+        body: JSON.stringify({
+          commit: true,
+          items: toCommit,
+          workspaceId: activeTeam?.workspaceId,
+          projectId: selectedProject || undefined,
+        }),
       })
       if (!res.ok) {
         const b = await res.json().catch(() => ({}))
@@ -300,6 +343,63 @@ export default function BrainDumpPage() {
 
       {!result && mode === 'firehose' && (
         <div className="rounded-2xl border-2 border-fuchsia-500/20 bg-card p-4 shadow-lg">
+          {/* Scope picker — which team + project this dump lands in. Hidden
+              behind a chevron so the 95% case (default team / default project)
+              doesn't see any extra UI. Moved here from the old CaptureDrawer. */}
+          {teams.length > 0 && (
+            <div className="mb-3">
+              <button
+                type="button"
+                onClick={() => setShowScope(!showScope)}
+                className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Target className="h-3 w-3" />
+                <span>
+                  Scope: <strong className="text-foreground">{activeTeam?.teamName || 'default'}</strong>
+                  {selectedProject && activeTeam?.projects.find((p) => p.id === selectedProject) && (
+                    <> · {activeTeam.projects.find((p) => p.id === selectedProject)!.name}</>
+                  )}
+                </span>
+                <ChevronDown className={cn('h-3 w-3 transition-transform', showScope && 'rotate-180')} />
+              </button>
+              {showScope && (
+                <div className="mt-2 rounded-md border bg-muted/30 p-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Team</label>
+                    <select
+                      value={selectedTeam ?? ''}
+                      onChange={(e) => {
+                        const newTeam = e.target.value
+                        setSelectedTeam(newTeam)
+                        const t = teams.find((tt) => tt.teamId === newTeam)
+                        const def = t?.projects.find((p) => p.isDefault) || t?.projects[0]
+                        setSelectedProject(def?.id ?? null)
+                      }}
+                      className="w-full h-7 text-xs rounded border border-input bg-background px-2"
+                    >
+                      {teams.map((t) => (
+                        <option key={t.teamId} value={t.teamId}>{t.departmentPath} · {t.teamName}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Project</label>
+                    <select
+                      value={selectedProject ?? ''}
+                      onChange={(e) => setSelectedProject(e.target.value || null)}
+                      className="w-full h-7 text-xs rounded border border-input bg-background px-2"
+                      disabled={!activeTeam || activeTeam.projects.length === 0}
+                    >
+                      {activeTeam?.projects.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name}{p.isDefault ? ' (default)' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <Textarea
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}

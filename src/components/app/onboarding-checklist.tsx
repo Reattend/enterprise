@@ -60,6 +60,14 @@ export function OnboardingChecklist() {
       },
     },
     {
+      key: 'integration',
+      label: 'See the connector roadmap',
+      sublabel: 'Gmail, Slack, Calendar — coming via Nango.',
+      done: serverSteps.hasIntegration,
+      href: '/app/integrations',
+      onClick: null,
+    },
+    {
       key: 'memory',
       label: 'Save your first memory',
       sublabel: 'Capture a thought or note.',

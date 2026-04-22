@@ -25,7 +25,6 @@ import {
   UserPlus,
   FolderKanban,
   Brain,
-  Glasses,
   ArrowRight,
   BookOpen,
   Building2,
@@ -377,16 +376,6 @@ export function AppTopbar() {
           >
             <BookOpen className="h-4 w-4 text-sky-500" />
           </Button>
-
-          {/* DeepThink */}
-          <button
-            onClick={() => window.location.href = '/app/deepthink'}
-            title="DeepThink"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-600/20 to-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 hover:from-amber-600/30 hover:to-amber-500/20 transition-all text-amber-400/90 hover:text-amber-300"
-          >
-            <Glasses className="h-3.5 w-3.5" />
-            <span className="text-[11px] font-semibold tracking-tight hidden sm:inline">DeepThink</span>
-          </button>
 
           {/* Theme toggle */}
           <Button

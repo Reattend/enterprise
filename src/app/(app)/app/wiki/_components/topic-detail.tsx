@@ -76,6 +76,14 @@ export function TopicDetail({ orgId, topic }: { orgId: string; topic: string }) 
             <p className="text-xs text-muted-foreground mt-1">
               Appears in {data.recordCount} memor{data.recordCount === 1 ? 'y' : 'ies'} across {data.departments.length} department{data.departments.length === 1 ? '' : 's'}
             </p>
+            <div className="mt-2">
+              <Link
+                href={`/app/memories?tag=${encodeURIComponent(data.topic)}`}
+                className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+              >
+                <FileText className="h-3 w-3" /> See all underlying memories →
+              </Link>
+            </div>
           </div>
         </div>
       </div>

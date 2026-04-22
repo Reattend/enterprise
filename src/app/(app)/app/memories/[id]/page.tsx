@@ -35,6 +35,7 @@ import {
   Globe,
   ShieldCheck,
   ScrollText,
+  BookOpen,
 } from 'lucide-react'
 import { RecordSharePanel } from '@/components/enterprise/record-share-panel'
 import { PromoteToDecisionDialog } from '@/components/enterprise/promote-to-decision-dialog'
@@ -211,6 +212,28 @@ export default function MemoryDetailPage() {
           <Button variant="ghost" size="sm" onClick={() => setShareOpen(true)} className="gap-1.5">
             <Share2 className="h-4 w-4" /> Share
           </Button>
+          {/* Jump to Wiki — opens Topics filtered to the first tag, else
+              Hierarchy filtered to the record's workspace. Gives context for
+              this record: who else touched it, adjacent knowledge. */}
+          {(() => {
+            if (!record) return null
+            const tags: string[] = Array.isArray(record.tags)
+              ? record.tags
+              : (typeof record.tags === 'string' && record.tags.startsWith('[')
+                ? (() => { try { return JSON.parse(record.tags) } catch { return [] } })()
+                : [])
+            const firstTag = tags.find((t: string) => t && !/^(brain-dump|decision|open-question|action-item|observation)$/i.test(t))
+            const wikiHref = firstTag
+              ? `/app/wiki?tab=topics&topic=${encodeURIComponent(String(firstTag).toLowerCase().replace(/\s+/g, '-'))}`
+              : `/app/wiki?tab=hierarchy`
+            return (
+              <Button asChild variant="ghost" size="sm" className="gap-1.5" title="See this in the Wiki roll-up">
+                <Link href={wikiHref}>
+                  <BookOpen className="h-4 w-4" /> On Wiki
+                </Link>
+              </Button>
+            )
+          })()}
           {isAdmin && activeOrg && (
             <Button
               asChild

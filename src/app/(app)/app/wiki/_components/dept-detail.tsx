@@ -112,10 +112,20 @@ export function DeptDetail({ deptId }: { deptId: string }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Recent memories */}
         <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-            Recent memories ({data.recordCount})
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+              Recent memories ({data.recordCount})
+            </h3>
+            {data.recordCount > 0 && (
+              <Link
+                href={`/app/memories?dept=${encodeURIComponent(data.dept.id)}`}
+                className="text-[11px] text-primary hover:underline"
+              >
+                See all →
+              </Link>
+            )}
+          </div>
           {data.records.length === 0 ? (
             <p className="text-xs text-muted-foreground italic">No visible memories.</p>
           ) : (

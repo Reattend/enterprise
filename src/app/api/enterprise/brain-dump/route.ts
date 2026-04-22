@@ -41,17 +41,35 @@ interface Preview {
 
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId, userId, session } = await requireAuth()
+    const { workspaceId: defaultWorkspaceId, userId, session } = await requireAuth()
     const userEmail = session?.user?.email || 'unknown'
     const body = await req.json()
-    const { rawText, commit, items: commitItems } = body as {
+    const { rawText, commit, items: commitItems, workspaceId: overrideWorkspaceId, projectId } = body as {
       rawText?: string
       commit?: boolean
       items?: DumpItem[]
+      workspaceId?: string
+      projectId?: string
     }
 
     if (commit === true) {
-      return handleCommit({ workspaceId, userId, userEmail, items: commitItems || [], req })
+      // Allow committing to a specific workspace (team scope) or fall back to
+      // the user's default. Validated below against workspace_members to
+      // prevent cross-org poison.
+      let targetWorkspaceId = defaultWorkspaceId
+      if (overrideWorkspaceId && overrideWorkspaceId !== defaultWorkspaceId) {
+        const membership = await db.select()
+          .from(schema.workspaceMembers)
+          .where(and(
+            eq(schema.workspaceMembers.workspaceId, overrideWorkspaceId),
+            eq(schema.workspaceMembers.userId, userId),
+          ))
+          .limit(1)
+        if (membership[0]) {
+          targetWorkspaceId = overrideWorkspaceId
+        }
+      }
+      return handleCommit({ workspaceId: targetWorkspaceId, userId, userEmail, items: commitItems || [], projectId, req })
     }
 
     if (!rawText || rawText.trim().length < 50) {
@@ -121,9 +139,10 @@ async function handleCommit(opts: {
   userId: string
   userEmail: string
   items: DumpItem[]
+  projectId?: string
   req: NextRequest
 }) {
-  const { workspaceId, userId, items, req } = opts
+  const { workspaceId, userId, items, projectId, req } = opts
   if (items.length === 0) {
     return NextResponse.json({ error: 'items required when commit=true' }, { status: 400 })
   }
@@ -169,8 +188,21 @@ async function handleCommit(opts: {
       triageStatus: 'auto_accepted',
       createdBy: userId,
       source: 'brain-dump',
-      meta: JSON.stringify({ contentHash: hash, brainDump: true, kind: item.kind }),
+      meta: JSON.stringify({ contentHash: hash, brainDump: true, kind: item.kind, projectId: projectId || null }),
     })
+
+    // Project linking (if specified). project_records table is a many-to-many
+    // join between projects and records.
+    if (projectId) {
+      try {
+        await db.insert(schema.projectRecords).values({
+          projectId,
+          recordId,
+        })
+      } catch (e) {
+        console.warn('[brain-dump] project link failed', e)
+      }
+    }
 
     // Ingest job picks up the new record, embeds + links + further triage.
     await enqueueJob(workspaceId, 'ingest', { recordId, content })

@@ -34,7 +34,7 @@ export default function SlackConnectRequired() {
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/app"
+            href="/app/integrations"
             className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
           >
             Go to Integrations

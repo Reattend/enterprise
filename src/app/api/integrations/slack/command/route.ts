@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
         type: 'context',
         elements: [{
           type: 'mrkdwn',
-          text: '<https://reattend.com/app|Manage Reattend integration>',
+          text: '<https://reattend.com/app/integrations|Manage Reattend integration>',
         }],
       },
     ],

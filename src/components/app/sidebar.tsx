@@ -30,6 +30,7 @@ import {
   BookOpen,
   Zap,
   BrainCircuit,
+  Plug,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -269,18 +270,6 @@ export function AppSidebar() {
           <div className="px-2 pt-2 flex flex-col gap-1.5 items-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => useAppStore.getState().setCaptureOpen(true)}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Capture memory</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <Link
                   href="/app/ask"
                   className={cn(
@@ -494,18 +483,11 @@ export function AppSidebar() {
 
         <Separator className="mt-2 bg-sidebar-border" />
 
-        {/* Quick Actions — Capture (primary) + Chat (secondary). Both sit
-            above the nav because they're the two most-used daily actions.
-            Search lives in the topbar. */}
+        {/* Quick action — Ask. Capture lives in the nav (→ /app/brain-dump)
+            and is also reachable by ⌘N (drawer). We used to double up with a
+            "Capture memory" button here; removed so there's a single canonical
+            entry point per action. */}
         <div className="px-2 pt-2 flex flex-col gap-1.5">
-          <Button
-            size="sm"
-            className="w-full h-8 text-[13px] font-medium"
-            onClick={() => useAppStore.getState().setCaptureOpen(true)}
-          >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Capture memory
-          </Button>
           <Link
             href="/app/ask"
             className={cn(
@@ -579,6 +561,22 @@ export function AppSidebar() {
             are now behind Admin → Integrations (org-level config). */}
         <div className="px-2 pb-2 flex flex-col gap-0.5">
           <Separator className="mb-2 bg-sidebar-border" />
+
+          {/* Integrations — placeholder until Nango self-host lands. Shows
+              connector roadmap + admin config location so the OAuth callback
+              URLs have a landing page. */}
+          <Link
+            href="/app/integrations"
+            className={cn(
+              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
+              isActive('/app/integrations')
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
+            )}
+          >
+            <Plug className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/integrations') && 'text-primary')} />
+            <span>Integrations</span>
+          </Link>
 
           {/* Settings */}
           <Link
@@ -740,16 +738,8 @@ function MobileOverlay({
           </button>
         </div>
 
-        {/* Quick actions */}
+        {/* Quick action — Ask only. Capture is in the nav below. */}
         <div className="px-2 pt-2 pb-1 flex flex-col gap-1.5 shrink-0">
-          <Button
-            size="sm"
-            className="w-full h-8 text-[13px] font-medium"
-            onClick={() => { useAppStore.getState().setCaptureOpen(true); close() }}
-          >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Capture memory
-          </Button>
           <Link
             href="/app/ask"
             onClick={close}
