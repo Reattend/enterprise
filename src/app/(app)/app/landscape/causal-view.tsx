@@ -117,7 +117,7 @@ function edgeStyle(kind: string) {
   return { stroke: 'hsl(var(--border))', strokeWidth: 1, animated: false }
 }
 
-export default function GraphPage() {
+export function CausalView() {
   const [nodes, setNodes] = useState<GraphNode[] | null>(null)
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [err, setErr] = useState<string | null>(null)

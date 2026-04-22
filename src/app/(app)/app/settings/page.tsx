@@ -1199,27 +1199,6 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Desktop App — redirect to dedicated page */}
-        <TabsContent value="desktop" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Monitor className="h-4 w-4" /> Reattend Desktop App
-              </CardTitle>
-              <CardDescription>
-                Download, setup instructions, and API token management have moved to their own page.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild size="sm">
-                <a href="/app/desktop">
-                  <Monitor className="h-3.5 w-3.5 mr-1.5" />
-                  Go to Desktop App page
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </motion.div>
   )

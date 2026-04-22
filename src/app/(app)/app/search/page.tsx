@@ -184,13 +184,13 @@ export default function SearchPage() {
               </p>
               <div className="flex items-center justify-center gap-2 flex-wrap">
                 <Link
-                  href={`/app/chat?q=${encodeURIComponent(q)}`}
+                  href={`/app/ask?mode=chat&q=${encodeURIComponent(q)}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-95"
                 >
-                  Ask Chat instead
+                  Ask in Chat mode
                 </Link>
                 <Link
-                  href={`/app/oracle?q=${encodeURIComponent(q)}`}
+                  href={`/app/ask?mode=oracle&q=${encodeURIComponent(q)}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-primary/40 text-primary bg-primary/5 text-xs font-medium hover:bg-primary/10"
                 >
                   Deep-research with Oracle

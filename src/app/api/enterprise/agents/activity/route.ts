@@ -4,6 +4,8 @@ import { desc, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { filterToAccessibleWorkspaces, handleEnterpriseError } from '@/lib/enterprise'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/enterprise/agents/activity
 // Returns the last 100 job_queue entries across the user's accessible workspaces.
 // This is the "what is the AI doing" feed shown on the Agents page.

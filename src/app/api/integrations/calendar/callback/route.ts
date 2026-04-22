@@ -12,10 +12,10 @@ export async function GET(req: NextRequest) {
     const error = req.nextUrl.searchParams.get('error')
 
     if (error) {
-      return NextResponse.redirect(new URL('/app/integrations?calendar_error=denied', appUrl))
+      return NextResponse.redirect(new URL('/app?calendar_error=denied', appUrl))
     }
     if (!code || !stateParam) {
-      return NextResponse.redirect(new URL('/app/integrations?calendar_error=missing_params', appUrl))
+      return NextResponse.redirect(new URL('/app?calendar_error=missing_params', appUrl))
     }
 
     let userId: string, workspaceId: string
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       userId = state.userId
       workspaceId = state.workspaceId
     } catch {
-      return NextResponse.redirect(new URL('/app/integrations?calendar_error=invalid_state', appUrl))
+      return NextResponse.redirect(new URL('/app?calendar_error=invalid_state', appUrl))
     }
 
     const tokens = await exchangeCodeForTokens(code, getCalendarCallbackUrl())
@@ -76,9 +76,9 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    return NextResponse.redirect(new URL('/app/integrations?calendar=connected', appUrl))
+    return NextResponse.redirect(new URL('/app?calendar=connected', appUrl))
   } catch (error: any) {
     console.error('[Calendar Callback Error]', error)
-    return NextResponse.redirect(new URL('/app/integrations?calendar_error=token_exchange', appUrl))
+    return NextResponse.redirect(new URL('/app?calendar_error=token_exchange', appUrl))
   }
 }

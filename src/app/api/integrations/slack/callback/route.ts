@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const error = req.nextUrl.searchParams.get('error')
 
     if (error) {
-      return NextResponse.redirect(new URL(`/app/integrations?slack_error=${encodeURIComponent(error)}`, baseUrl))
+      return NextResponse.redirect(new URL(`/app?slack_error=${encodeURIComponent(error)}`, baseUrl))
     }
 
     if (!code || !stateParam) {
@@ -65,9 +65,9 @@ export async function GET(req: NextRequest) {
       await db.insert(schema.integrationsConnections).values(connectionData)
     }
 
-    return NextResponse.redirect(new URL('/app/integrations?slack=connected', baseUrl))
+    return NextResponse.redirect(new URL('/app?slack=connected', baseUrl))
   } catch (error: any) {
     console.error('[Slack Callback Error]', error)
-    return NextResponse.redirect(new URL(`/app/integrations?slack_error=${encodeURIComponent(error.message)}`, baseUrl))
+    return NextResponse.redirect(new URL(`/app?slack_error=${encodeURIComponent(error.message)}`, baseUrl))
   }
 }

@@ -91,7 +91,7 @@ export function KeyboardShortcuts() {
           break
         case 'g':
           e.preventDefault()
-          router.push('/app/graph')
+          router.push('/app/landscape?mode=causal')
           break
         case '\\':
           e.preventDefault()

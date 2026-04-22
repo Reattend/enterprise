@@ -16,7 +16,7 @@ import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
 
-const FULL_BLEED_PATHS = ['/app', '/app/board']
+const FULL_BLEED_PATHS = ['/app', '/app/landscape']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.

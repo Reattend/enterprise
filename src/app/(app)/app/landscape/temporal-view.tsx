@@ -51,7 +51,7 @@ function buildTicks(months: number): Date[] {
 
 const RANGE_MONTHS = 24
 
-export default function TimelinePage() {
+export function TemporalView() {
   const { activeEnterpriseOrgId, hasHydratedStore } = useAppStore()
   const ticks = useMemo(() => buildTicks(RANGE_MONTHS), [])
   const [index, setIndex] = useState(RANGE_MONTHS) // start at "now"

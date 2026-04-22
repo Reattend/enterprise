@@ -13,10 +13,10 @@ export async function GET(req: NextRequest) {
     const clientSecret = process.env.NOTION_CLIENT_SECRET
 
     if (error) {
-      return NextResponse.redirect(new URL('/app/integrations?notion_error=denied', appUrl))
+      return NextResponse.redirect(new URL('/app?notion_error=denied', appUrl))
     }
     if (!code || !stateParam || !clientId || !clientSecret) {
-      return NextResponse.redirect(new URL('/app/integrations?notion_error=missing_params', appUrl))
+      return NextResponse.redirect(new URL('/app?notion_error=missing_params', appUrl))
     }
 
     let userId: string, workspaceId: string
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       userId = state.userId
       workspaceId = state.workspaceId
     } catch {
-      return NextResponse.redirect(new URL('/app/integrations?notion_error=invalid_state', appUrl))
+      return NextResponse.redirect(new URL('/app?notion_error=invalid_state', appUrl))
     }
 
     const redirectUri = `${appUrl}/api/integrations/notion/callback`
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     if (!tokenRes.ok) {
       const err = await tokenRes.text()
       console.error('[Notion OAuth] Token exchange failed:', err)
-      return NextResponse.redirect(new URL('/app/integrations?notion_error=token_failed', appUrl))
+      return NextResponse.redirect(new URL('/app?notion_error=token_failed', appUrl))
     }
 
     const tokens = await tokenRes.json()
@@ -75,10 +75,10 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    return NextResponse.redirect(new URL('/app/integrations?notion=connected', appUrl))
+    return NextResponse.redirect(new URL('/app?notion=connected', appUrl))
   } catch (error: any) {
     console.error('[Notion OAuth] Callback error:', error)
     const appUrl = process.env.APP_URL || 'http://localhost:3000'
-    return NextResponse.redirect(new URL('/app/integrations?notion_error=unknown', appUrl))
+    return NextResponse.redirect(new URL('/app?notion_error=unknown', appUrl))
   }
 }

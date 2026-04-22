@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, Suspense } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
 import { ReasoningTrace, type TraceData } from '@/components/enterprise/reasoning-trace'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -92,7 +92,7 @@ type Message = {
   trace?: TraceData
 }
 
-function ChatPageInner() {
+export function ChatView() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
@@ -734,10 +734,3 @@ function ChatPageInner() {
   )
 }
 
-export default function ChatPage() {
-  return (
-    <Suspense>
-      <ChatPageInner />
-    </Suspense>
-  )
-}

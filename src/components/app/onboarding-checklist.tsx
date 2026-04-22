@@ -60,14 +60,6 @@ export function OnboardingChecklist() {
       },
     },
     {
-      key: 'integration',
-      label: 'Connect an integration',
-      sublabel: 'Gmail, Slack, Google Calendar.',
-      done: serverSteps.hasIntegration,
-      href: '/app/integrations',
-      onClick: null,
-    },
-    {
       key: 'memory',
       label: 'Save your first memory',
       sublabel: 'Capture a thought or note.',

@@ -2,11 +2,10 @@
 
 // Small Home-dashboard card showing connected integrations + last-sync time.
 // Hidden entirely if Nango isn't configured or the user hasn't connected
-// anything — no point cluttering Home with "connect something" nudges there
-// (that belongs on /app/integrations).
+// anything — integrations are configured by admins under
+// /app/admin/:orgId/integrations, not per-user here.
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { CheckCircle2, AlertCircle, Plug, Clock } from 'lucide-react'
 
 type Provider = {
@@ -54,7 +53,6 @@ export function SyncStatusCard() {
       <div className="px-4 py-2.5 border-b bg-muted/20 flex items-center gap-2">
         <Plug className="h-3.5 w-3.5 text-muted-foreground" />
         <div className="text-sm font-semibold">Sync status</div>
-        <Link href="/app/integrations" className="text-xs text-primary hover:underline ml-auto">Manage</Link>
       </div>
       <div className="divide-y">
         {connected.map((p) => {

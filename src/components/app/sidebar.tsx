@@ -27,12 +27,9 @@ import {
   Check,
   Search,
   Users,
-  Plug,
   BookOpen,
   Zap,
-  Crown,
   BrainCircuit,
-  History,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -68,14 +65,14 @@ import { toast } from 'sonner'
 // My team, Projects, and legacy Personal nav have been removed.
 const navItems = [
   { href: '/app', icon: Home, label: 'Home', exact: true },
-  { href: '/app/oracle', icon: Crown, label: 'Oracle' },
-  { href: '/app/brain-dump', icon: BrainCircuit, label: 'Brain dump' },
-  { href: '/app/timeline', icon: History, label: 'Time Machine' },
-  { href: '/app/tasks', icon: Zap, label: 'Tasks' },
+  { href: '/app/ask', icon: Sparkles, label: 'Ask' },
+  { href: '/app/brain-dump', icon: BrainCircuit, label: 'Capture' },
+  { href: '/app/landscape', icon: Network, label: 'Landscape' },
   { href: '/app/memories', icon: Brain, label: 'Memory' },
   { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
   { href: '/app/agents', icon: Bot, label: 'Agents' },
   { href: '/app/policies', icon: FileText, label: 'Policies' },
+  { href: '/app/tasks', icon: Zap, label: 'Tasks' },
 ]
 
 interface UserInfo {
@@ -285,10 +282,10 @@ export function AppSidebar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/app/chat"
+                  href="/app/ask"
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded transition-colors',
-                    pathname.startsWith('/app/chat')
+                    pathname.startsWith('/app/ask')
                       ? 'bg-primary text-primary-foreground'
                       : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
                   )}
@@ -296,7 +293,7 @@ export function AppSidebar() {
                   <Sparkles className="h-3.5 w-3.5" />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Chat with memory</TooltipContent>
+              <TooltipContent side="right">Ask</TooltipContent>
             </Tooltip>
           </div>
 
@@ -510,16 +507,16 @@ export function AppSidebar() {
             Capture memory
           </Button>
           <Link
-            href="/app/chat"
+            href="/app/ask"
             className={cn(
               'w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded transition-colors',
-              pathname.startsWith('/app/chat')
+              pathname.startsWith('/app/ask')
                 ? 'bg-primary text-primary-foreground'
                 : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
             )}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Chat
+            Ask
           </Link>
         </div>
 
@@ -582,20 +579,6 @@ export function AppSidebar() {
             are now behind Admin → Integrations (org-level config). */}
         <div className="px-2 pb-2 flex flex-col gap-0.5">
           <Separator className="mb-2 bg-sidebar-border" />
-
-          {/* Integrations — quick access to Connect / Disconnect / Sync */}
-          <Link
-            href="/app/integrations"
-            className={cn(
-              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
-              isActive('/app/integrations')
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
-            )}
-          >
-            <Plug className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/integrations') && 'text-primary')} />
-            <span>Integrations</span>
-          </Link>
 
           {/* Settings */}
           <Link
@@ -768,26 +751,26 @@ function MobileOverlay({
             Capture memory
           </Button>
           <Link
-            href="/app/chat"
+            href="/app/ask"
             onClick={close}
             className="w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15 transition-colors"
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Chat
+            Ask
           </Link>
         </div>
 
         {/* Nav */}
         <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
           {navLink('/app', Home, 'Home')}
-          {navLink('/app/oracle', Crown, 'Oracle')}
-          {navLink('/app/brain-dump', BrainCircuit, 'Brain dump')}
-          {navLink('/app/timeline', History, 'Time Machine')}
-          {navLink('/app/tasks', Zap, 'Tasks')}
+          {navLink('/app/ask', Sparkles, 'Ask')}
+          {navLink('/app/brain-dump', BrainCircuit, 'Capture')}
+          {navLink('/app/landscape', Network, 'Landscape')}
           {navLink('/app/memories', Brain, 'Memory')}
           {navLink('/app/wiki', BookOpen, 'Wiki')}
           {navLink('/app/agents', Bot, 'Agents')}
           {navLink('/app/policies', FileText, 'Policies')}
+          {navLink('/app/tasks', Zap, 'Tasks')}
           <div className="my-2 h-px bg-sidebar-border" />
           {navLink('/app/settings', Settings, 'Settings')}
         </div>

@@ -467,7 +467,7 @@ export default function MemoriesPage() {
         })}
         <div className="mx-2 h-4 w-px bg-border" />
         <Link
-          href="/app/graph"
+          href="/app/landscape?mode=causal"
           className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
         >
           <Network className="h-3 w-3" /> Graph view
@@ -532,7 +532,7 @@ export default function MemoriesPage() {
             </Select>
           </div>
 
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} onBoard={() => router.push('/app/board')} />
+          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
         </div>
 
         {/* Row 2: mobile filters (collapsible) */}
@@ -1068,7 +1068,7 @@ function DateRangePills({ value, onChange }: { value: string; onChange: (v: stri
   )
 }
 
-function ViewToggle({ viewMode, setViewMode, onBoard }: { viewMode: string; setViewMode: (v: any) => void; onBoard: () => void }) {
+function ViewToggle({ viewMode, setViewMode }: { viewMode: string; setViewMode: (v: any) => void }) {
   return (
     <div className="flex border rounded-md shrink-0">
       <Button variant={viewMode === 'timeline' ? 'secondary' : 'ghost'} size="icon-sm" onClick={() => setViewMode('timeline')} title="Timeline">
@@ -1079,9 +1079,6 @@ function ViewToggle({ viewMode, setViewMode, onBoard }: { viewMode: string; setV
       </Button>
       <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon-sm" onClick={() => setViewMode('list')} title="List">
         <List className="h-4 w-4" />
-      </Button>
-      <Button variant="ghost" size="icon-sm" onClick={onBoard} title="Board">
-        <Network className="h-4 w-4" />
       </Button>
     </div>
   )

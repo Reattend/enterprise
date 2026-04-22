@@ -122,7 +122,7 @@ export default function HomePage() {
             <Plus className="h-4 w-4 mr-1" /> Capture
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/app/chat">
+            <Link href="/app/ask">
               <MessageSquare className="h-4 w-4 mr-1" /> Ask AI
             </Link>
           </Button>

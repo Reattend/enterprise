@@ -47,7 +47,7 @@ const PIPELINE_STEPS = [
   { label: 'Drafting the dossier with Claude', min: 10000 },
 ]
 
-export default function OraclePage() {
+export function OracleView() {
   const { activeEnterpriseOrgId, hasHydratedStore } = useAppStore()
   const [question, setQuestion] = useState('')
   const [running, setRunning] = useState(false)

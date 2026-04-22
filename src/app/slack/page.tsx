@@ -91,7 +91,7 @@ export default function SlackLandingPage() {
             Add to Slack
           </Link>
           <Link
-            href="/app/integrations"
+            href="/app"
             className="text-[14px] text-gray-500 hover:text-[#4F46E5] transition-colors"
           >
             Already have an account? Connect here →

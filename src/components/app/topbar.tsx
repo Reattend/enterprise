@@ -300,17 +300,16 @@ export function AppTopbar() {
 
         {/* Right: Action icons */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Plan badge */}
-          {subscription && (
-            subscription.isSmartActive ? (
-              <Link href="/app/billing" className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 text-[11px] font-semibold border border-violet-500/20 hover:bg-violet-500/20 transition-colors mr-1">
-                Pro
-              </Link>
-            ) : (
-              <Link href="/app/billing" className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium hover:bg-muted/80 transition-colors mr-1 border border-border">
-                Free · Upgrade
-              </Link>
-            )
+          {/* Plan badge — Enterprise billing lives under admin/settings (org-level),
+              not a per-user subscription. Kept the pill as a quick admin jump
+              when the user has an org; hidden on tablet and below. */}
+          {activeEnterpriseOrg && (
+            <Link
+              href={`/app/admin/${activeEnterpriseOrg.orgId}/settings`}
+              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 text-[11px] font-semibold border border-violet-500/20 hover:bg-violet-500/20 transition-colors mr-1 capitalize"
+            >
+              {activeEnterpriseOrg.orgPlan}
+            </Link>
           )}
 
           {/* Who Should I Ask? (⌘⇧K) — the "org knowledge router" */}

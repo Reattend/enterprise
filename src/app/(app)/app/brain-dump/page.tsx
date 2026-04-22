@@ -13,7 +13,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Brain, Sparkles, Loader2, Check, X, Gavel, HelpCircle, CheckSquare,
-  Info, ArrowRight, Mic, Square, BrainCircuit,
+  Info, ArrowRight, Mic, Square, BrainCircuit, FileUp, LinkIcon, Upload,
 } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,10 @@ const KIND_META: Record<ItemKind, { label: string; icon: any; color: string }> =
   fact: { label: 'Fact', icon: Info, color: 'text-slate-500 bg-slate-500/10' },
 }
 
+type Mode = 'firehose' | 'file' | 'link'
+
 export default function BrainDumpPage() {
+  const [mode, setMode] = useState<Mode>('firehose')
   const [rawText, setRawText] = useState('')
   const [parsing, setParsing] = useState(false)
   const [items, setItems] = useState<DumpItem[] | null>(null)
@@ -45,6 +48,18 @@ export default function BrainDumpPage() {
   const [rejectedReason, setRejectedReason] = useState<string | null>(null)
   const [committing, setCommitting] = useState(false)
   const [result, setResult] = useState<{ created: Array<{ id: string; title: string; kind: ItemKind }>; skippedDupes: string[] } | null>(null)
+
+  // File upload state — Brain Dump's File tab. PDFs / DOCX / images go through
+  // /api/upload which extracts text and creates a record.
+  const [fileUploading, setFileUploading] = useState(false)
+  const [fileDragOver, setFileDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Link tab — paste a URL, create a `[Link]` record that the ingest job
+  // enriches by fetching page content.
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkNote, setLinkNote] = useState('')
+  const [linkSaving, setLinkSaving] = useState(false)
 
   // Voice capture — tap mic to speak, same pipeline as capture drawer, but
   // the transcript goes into the textarea instead of creating a memory.
@@ -155,6 +170,85 @@ export default function BrainDumpPage() {
     setSelected(new Set())
     setResult(null)
     setRejectedReason(null)
+    setLinkUrl('')
+    setLinkNote('')
+  }
+
+  async function uploadFile(file: File) {
+    if (!file) return
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File too big — 20MB max')
+      return
+    }
+    setFileUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Upload failed')
+        return
+      }
+      const data = await res.json()
+      const newRecord = data.record || data
+      const id = newRecord?.id
+      if (id) {
+        setResult({
+          created: [{ id, title: newRecord.title || file.name, kind: 'fact' }],
+          skippedDupes: [],
+        })
+        toast.success(`Added ${file.name}`)
+      } else {
+        toast.success('Uploaded — processing in the background')
+      }
+    } finally {
+      setFileUploading(false)
+    }
+  }
+
+  async function saveLink() {
+    const url = linkUrl.trim()
+    if (!/^https?:\/\//i.test(url)) {
+      toast.error('Paste a full URL starting with http(s)://')
+      return
+    }
+    setLinkSaving(true)
+    try {
+      const res = await fetch('/api/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `[Link] ${url}`,
+          content: linkNote ? `${url}\n\n${linkNote}` : url,
+          type: 'context',
+          source: 'url',
+        }),
+      })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Link save failed')
+        return
+      }
+      const data = await res.json()
+      const r = data.record || data
+      if (r?.id) {
+        setResult({
+          created: [{ id: r.id, title: r.title || `[Link] ${url}`, kind: 'fact' }],
+          skippedDupes: [],
+        })
+        toast.success('Link captured — page content will be enriched in background')
+      }
+    } finally {
+      setLinkSaving(false)
+    }
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setFileDragOver(false)
+    const f = e.dataTransfer.files?.[0]
+    if (f) uploadFile(f)
   }
 
   function toggleSelected(i: number) {
@@ -179,16 +273,32 @@ export default function BrainDumpPage() {
     >
       <div className="text-center space-y-2 py-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500/10 to-pink-500/10 text-fuchsia-600 text-[11px] font-medium uppercase tracking-wider">
-          <BrainCircuit className="h-3 w-3" /> Brain Dump
+          <BrainCircuit className="h-3 w-3" /> Capture
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">Give me the firehose</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {mode === 'firehose' && 'Give me the firehose'}
+          {mode === 'file' && 'Drop a file'}
+          {mode === 'link' && 'Paste a link'}
+        </h1>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          Talk or type everything in your head. Reattend splits it into decisions, open questions,
-          actions, and facts — you review and commit in one click.
+          {mode === 'firehose' && 'Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts — you review and commit in one click.'}
+          {mode === 'file' && 'PDF, Word, image, or audio. Claude extracts the text, creates a memory, and links it to what you already know.'}
+          {mode === 'link' && 'Save any URL as a memory. The ingest job fetches the page title, extracts key content, and enriches it in the background.'}
         </p>
       </div>
 
-      {!result && (
+      {/* Tab bar — three capture modes. "Firehose" is the hero; File + Link
+          are first-class alternatives so this page is the single New Memory
+          surface for the whole app. */}
+      {!result && !items && (
+        <div className="flex items-center justify-center gap-1 border-b">
+          <TabButton active={mode === 'firehose'} onClick={() => setMode('firehose')} icon={BrainCircuit} label="Firehose" />
+          <TabButton active={mode === 'file'} onClick={() => setMode('file')} icon={FileUp} label="File" />
+          <TabButton active={mode === 'link'} onClick={() => setMode('link')} icon={LinkIcon} label="Link" />
+        </div>
+      )}
+
+      {!result && mode === 'firehose' && (
         <div className="rounded-2xl border-2 border-fuchsia-500/20 bg-card p-4 shadow-lg">
           <Textarea
             value={rawText}
@@ -222,6 +332,80 @@ export default function BrainDumpPage() {
             >
               {parsing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
               Structure this
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {!result && mode === 'file' && (
+        <div
+          onDragOver={(e) => { e.preventDefault(); setFileDragOver(true) }}
+          onDragLeave={() => setFileDragOver(false)}
+          onDrop={onDrop}
+          className={cn(
+            'rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
+            fileDragOver ? 'border-fuchsia-500 bg-fuchsia-500/5' : 'border-fuchsia-500/30 bg-card',
+          )}
+        >
+          <div className="mx-auto h-12 w-12 rounded-full bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center mb-3">
+            <Upload className="h-5 w-5" />
+          </div>
+          <p className="font-semibold mb-1">Drop a file here, or click to pick one</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            PDF · Word · image · audio · video — up to 20MB. Text is extracted and indexed.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.mp3,.m4a,.wav,.webm,.mp4"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) uploadFile(f)
+            }}
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={fileUploading}
+            className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95"
+          >
+            {fileUploading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <FileUp className="h-4 w-4 mr-1" />}
+            {fileUploading ? 'Uploading…' : 'Choose file'}
+          </Button>
+        </div>
+      )}
+
+      {!result && mode === 'link' && (
+        <div className="rounded-2xl border-2 border-fuchsia-500/20 bg-card p-4 shadow-lg space-y-3">
+          <div>
+            <label className="text-xs text-muted-foreground mb-1.5 block">URL</label>
+            <Input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://..."
+              onKeyDown={(e) => { if (e.key === 'Enter') saveLink() }}
+              disabled={linkSaving}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1.5 block">Note (optional)</label>
+            <Textarea
+              value={linkNote}
+              onChange={(e) => setLinkNote(e.target.value)}
+              rows={3}
+              placeholder="Why this matters, what you want to remember…"
+              disabled={linkSaving}
+            />
+          </div>
+          <div className="flex items-center justify-end pt-2 border-t">
+            <Button
+              onClick={saveLink}
+              disabled={linkSaving || !linkUrl.trim()}
+              className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95"
+            >
+              {linkSaving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <LinkIcon className="h-4 w-4 mr-1" />}
+              Save link
             </Button>
           </div>
         </div>
@@ -350,5 +534,27 @@ export default function BrainDumpPage() {
         </div>
       )}
     </motion.div>
+  )
+}
+
+function TabButton({
+  active, onClick, icon: Icon, label,
+}: {
+  active: boolean
+  onClick: () => void
+  icon: any
+  label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'inline-flex items-center gap-1.5 px-4 py-2 text-sm border-b-2 -mb-px transition-colors',
+        active ? 'border-fuchsia-500 text-foreground font-medium' : 'border-transparent text-muted-foreground hover:text-foreground',
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </button>
   )
 }
