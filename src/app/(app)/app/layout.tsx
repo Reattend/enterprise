@@ -51,7 +51,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640)
+    // Treat anything below md (768px) as mobile so iPad portrait and small
+    // laptops get the full-width drawer instead of a squeezed 240px sidebar.
+    const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)

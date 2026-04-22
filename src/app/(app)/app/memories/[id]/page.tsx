@@ -34,9 +34,11 @@ import {
   Building2,
   Globe,
   ShieldCheck,
+  ScrollText,
 } from 'lucide-react'
 import { RecordSharePanel } from '@/components/enterprise/record-share-panel'
 import { PromoteToDecisionDialog } from '@/components/enterprise/promote-to-decision-dialog'
+import { useAppStore } from '@/stores/app-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -59,6 +61,9 @@ export default function MemoryDetailPage() {
   const params = useParams()
   const router = useRouter()
   const recordId = params.id as string
+  const { enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
+  const activeOrg = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
+  const isAdmin = activeOrg && (activeOrg.role === 'super_admin' || activeOrg.role === 'admin')
 
   const [record, setRecord] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -206,6 +211,19 @@ export default function MemoryDetailPage() {
           <Button variant="ghost" size="sm" onClick={() => setShareOpen(true)} className="gap-1.5">
             <Share2 className="h-4 w-4" /> Share
           </Button>
+          {isAdmin && activeOrg && (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="gap-1.5"
+              title="View audit history for this memory"
+            >
+              <Link href={`/app/admin/${activeOrg.orgId}/audit?resourceId=${recordId}`}>
+                <ScrollText className="h-4 w-4" /> History
+              </Link>
+            </Button>
+          )}
           <Button variant="ghost" size="icon-sm" onClick={() => setIsEditing(!isEditing)}>
             <Edit3 className="h-4 w-4" />
           </Button>

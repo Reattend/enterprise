@@ -178,10 +178,35 @@ export default function SearchPage() {
           ) : results === null || results.length === 0 ? (
             <Card className="p-8 text-center">
               <Search className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-              <h3 className="font-medium mb-1">No results for &ldquo;{q}&rdquo;</h3>
-              <p className="text-sm text-muted-foreground">
-                Try broader terms, or try <Link href="/app/chat" className="text-primary hover:underline">asking in Chat</Link> for a synthesized answer.
+              <h3 className="font-medium mb-1">No memory matches &ldquo;{q}&rdquo;</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto leading-relaxed">
+                Three things you can try.
               </p>
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <Link
+                  href={`/app/chat?q=${encodeURIComponent(q)}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-95"
+                >
+                  Ask Chat instead
+                </Link>
+                <Link
+                  href={`/app/oracle?q=${encodeURIComponent(q)}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-primary/40 text-primary bg-primary/5 text-xs font-medium hover:bg-primary/10"
+                >
+                  Deep-research with Oracle
+                </Link>
+                <Link
+                  href="/app/brain-dump"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs font-medium hover:bg-muted/60"
+                >
+                  Capture it as a memory
+                </Link>
+              </div>
+              {typeFilter && (
+                <p className="text-[11px] text-muted-foreground mt-4">
+                  Filtering by <strong>{typeFilter}</strong> — <button onClick={() => setTypeFilter('')} className="underline hover:text-primary">clear filter</button> to broaden.
+                </p>
+              )}
             </Card>
           ) : (
             <div className="space-y-2">

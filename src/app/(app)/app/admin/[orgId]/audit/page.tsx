@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ScrollText, Filter, AlertCircle, Eye, Edit, Trash2, Shield, Key, LogIn, PlusCircle, Search } from 'lucide-react'
+import { ScrollText, Filter, AlertCircle, Eye, Edit, Trash2, Shield, Key, LogIn, PlusCircle, Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface AuditEntry {
@@ -52,11 +53,15 @@ const ACTION_OPTIONS = [
 
 export default function AuditPage({ params }: { params: { orgId: string } }) {
   const { orgId } = params
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const [entries, setEntries] = useState<AuditEntry[] | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [action, setAction] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [resourceType, setResourceType] = useState('')
+  const [resourceId, setResourceId] = useState<string>(searchParams.get('resourceId') || '')
   const [selected, setSelected] = useState<AuditEntry | null>(null)
 
   async function load() {
@@ -64,6 +69,7 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
     const q = new URLSearchParams()
     if (action) q.set('action', action)
     if (resourceType) q.set('resourceType', resourceType)
+    if (resourceId) q.set('resourceId', resourceId)
     q.set('limit', '200')
     const res = await fetch(`/api/enterprise/organizations/${orgId}/audit?${q.toString()}`)
     if (!res.ok) {
@@ -76,7 +82,12 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
 
   useEffect(() => {
     load()
-  }, [orgId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, resourceId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function clearResourceFilter() {
+    setResourceId('')
+    router.replace(pathname)
+  }
 
   // User email filter is client-side since we don't have a userEmail filter in the API
   // (we filter by userId server-side, but matching by email typed in UI is easier client-side).
@@ -89,6 +100,18 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
 
   return (
     <div className="space-y-4">
+      {resourceId && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 flex items-center gap-2 flex-wrap text-xs">
+          <Eye className="h-3.5 w-3.5 text-primary" />
+          <span className="font-medium">Viewing history for resource</span>
+          <code className="bg-background px-1.5 py-0.5 rounded text-[11px] font-mono">{resourceId.slice(0, 12)}…</code>
+          <span className="text-muted-foreground">— every read, write, and permission change touching this item.</span>
+          <Button variant="ghost" size="sm" className="h-6 text-xs ml-auto" onClick={clearResourceFilter}>
+            <X className="h-3 w-3 mr-1" /> Clear filter
+          </Button>
+        </div>
+      )}
+
       <Card className="p-4">
         <div className="flex items-center gap-2 text-sm font-semibold mb-3">
           <Filter className="h-4 w-4 text-muted-foreground" />

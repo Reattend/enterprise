@@ -36,13 +36,16 @@ const prevOrg = db.prepare('SELECT id FROM organizations WHERE slug = ?').get(TE
 if (prevOrg) {
   db.prepare('DELETE FROM organizations WHERE id = ?').run(prevOrg.id)
 }
+// Disable foreign keys during teardown so we don't have to enumerate every
+// table that references users (new ones keep landing). Re-enabled below.
+db.pragma('foreign_keys = OFF')
 for (const email of [TEST_EMAIL_ENG, TEST_EMAIL_HR, TEST_EMAIL_ADMIN, TEST_EMAIL_OUTSIDER]) {
   const u = db.prepare('SELECT id FROM users WHERE email = ?').get(email) as { id: string } | undefined
   if (u) {
-    db.prepare('DELETE FROM workspace_members WHERE user_id = ?').run(u.id)
     db.prepare('DELETE FROM users WHERE id = ?').run(u.id)
   }
 }
+db.pragma('foreign_keys = ON')
 
 // ─── 2. Create users ───────────────────────────────────────────────────────
 function createUser(email: string, name: string): string {

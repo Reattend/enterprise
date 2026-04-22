@@ -250,7 +250,7 @@ export function AppSidebar() {
           initial={false}
           animate={{ width: 64 }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="hidden sm:flex fixed left-0 top-0 z-40 h-screen flex-col border-r bg-sidebar text-sidebar-foreground"
+          className="hidden md:flex fixed left-0 top-0 z-40 h-screen flex-col border-r bg-sidebar text-sidebar-foreground"
         >
           {/* Header */}
           <div className="flex items-center justify-center p-3">
@@ -739,9 +739,9 @@ function MobileOverlay({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-50 bg-black/40 sm:hidden" onClick={close} />
+      <div className="fixed inset-0 z-50 bg-black/40 md:hidden" onClick={close} />
       {/* Drawer */}
-      <div className="fixed left-0 top-0 z-50 h-screen w-[260px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border sm:hidden">
+      <div className="fixed left-0 top-0 z-50 h-screen w-[260px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border md:hidden">
         {/* Header */}
         <div className="flex items-center gap-2 p-3 border-b border-sidebar-border shrink-0">
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1" onClick={close}>

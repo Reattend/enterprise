@@ -221,13 +221,13 @@ export function AppTopbar() {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          className="sm:hidden flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors shrink-0"
+          className="md:hidden flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors shrink-0"
         >
           <Menu className="h-4 w-4" />
         </button>
 
         {/* Left: org identity pill — compact. */}
-        <div className="hidden sm:flex items-center gap-2 shrink-0">
+        <div className="hidden md:flex items-center gap-2 shrink-0">
           {hasEnterprise && activeEnterpriseOrg && (
             <Link
               href={`/app/admin/${activeEnterpriseOrg.orgId}`}
@@ -249,8 +249,11 @@ export function AppTopbar() {
             className="w-full max-w-xl inline-flex items-center gap-2.5 h-9 px-3 rounded-md border border-border bg-background/60 hover:bg-background hover:border-border/80 transition-colors text-[13px] text-muted-foreground"
           >
             <Search className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="flex-1 text-left">Search memories, decisions, policies, people…</span>
-            <kbd className="text-[10px] font-mono text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
+            <span className="flex-1 text-left truncate">
+              <span className="hidden md:inline">Search memories, decisions, policies, people…</span>
+              <span className="md:hidden">Search…</span>
+            </span>
+            <kbd className="text-[10px] font-mono text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded hidden sm:inline">⌘K</kbd>
           </button>
         </div>
 
