@@ -32,6 +32,7 @@ import {
   Zap,
   Crown,
   BrainCircuit,
+  History,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -69,6 +70,7 @@ const navItems = [
   { href: '/app', icon: Home, label: 'Home', exact: true },
   { href: '/app/oracle', icon: Crown, label: 'Oracle' },
   { href: '/app/brain-dump', icon: BrainCircuit, label: 'Brain dump' },
+  { href: '/app/timeline', icon: History, label: 'Time Machine' },
   { href: '/app/tasks', icon: Zap, label: 'Tasks' },
   { href: '/app/memories', icon: Brain, label: 'Memory' },
   { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
@@ -780,6 +782,7 @@ function MobileOverlay({
           {navLink('/app', Home, 'Home')}
           {navLink('/app/oracle', Crown, 'Oracle')}
           {navLink('/app/brain-dump', BrainCircuit, 'Brain dump')}
+          {navLink('/app/timeline', History, 'Time Machine')}
           {navLink('/app/tasks', Zap, 'Tasks')}
           {navLink('/app/memories', Brain, 'Memory')}
           {navLink('/app/wiki', BookOpen, 'Wiki')}
