@@ -579,7 +579,7 @@ export function AppTopbar() {
         )}
       </AnimatePresence>
 
-      {/* Docs Panel */}
+      {/* Docs Panel — Reattend Enterprise guide, scoped by role. */}
       <AnimatePresence>
         {docsOpen && (
           <motion.div
@@ -587,215 +587,21 @@ export function AppTopbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed right-0 top-14 z-50 h-[calc(100vh-3.5rem)] w-[420px] border-l bg-background shadow-xl overflow-hidden flex flex-col"
+            className="fixed right-0 top-14 z-50 h-[calc(100vh-3.5rem)] w-[460px] border-l bg-background shadow-xl overflow-hidden flex flex-col"
           >
             <div className="flex items-center justify-between border-b px-5 py-3.5 shrink-0">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-sky-500" />
-                <h3 className="font-semibold text-sm">Reattend Guide</h3>
+                <h3 className="font-semibold text-sm">
+                  Reattend Enterprise · User Guide
+                </h3>
               </div>
               <Button variant="ghost" size="icon-sm" onClick={() => setDocsOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            <ScrollArea className="flex-1">
-              <div className="px-5 py-4 space-y-7 text-sm">
-
-                {/* Overview */}
-                <section>
-                  <h2 className="font-bold text-base mb-1">What is Reattend?</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Reattend is your AI memory layer — a single place where everything you read, write, decide, and discuss gets captured, organised, and made instantly searchable. Instead of hunting through Slack, email, and docs, you ask Reattend and get an answer with a source.
-                  </p>
-                </section>
-
-                {/* Memories */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Memories</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-3">
-                    Memories are the core unit in Reattend. Every meeting note, decision, idea, or captured insight is stored as a memory. The AI automatically classifies, summarises, and extracts entities so you never have to tag things manually.
-                  </p>
-                  <div className="space-y-2">
-                    {[
-                      { label: 'Meeting', color: 'bg-blue-500/10 text-blue-600', desc: 'Summaries from calls and syncs — participants, decisions, follow-ups.' },
-                      { label: 'Decision', color: 'bg-violet-500/10 text-violet-600', desc: 'Choices made. Good for architecture, product, or business decisions.' },
-                      { label: 'Idea', color: 'bg-amber-500/10 text-amber-600', desc: 'Raw concepts and hypotheses before they become decisions.' },
-                      { label: 'Insight', color: 'bg-emerald-500/10 text-emerald-600', desc: 'Key learnings from data, research, or experience.' },
-                      { label: 'Note', color: 'bg-gray-500/10 text-gray-600', desc: 'General freeform text — catch-all for anything that doesn\'t fit above.' },
-                      { label: 'Transcript', color: 'bg-pink-500/10 text-pink-600', desc: 'Audio recordings with AI transcription from the Chrome extension.' },
-                      { label: 'Context', color: 'bg-slate-500/10 text-slate-600', desc: 'Background information — team bios, onboarding notes, product context.' },
-                    ].map(({ label, color, desc }) => (
-                      <div key={label} className="flex gap-2.5 items-start">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 mt-0.5 ${color}`}>{label}</span>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                    When you save a memory, the AI runs in the background: it assigns a type, writes a summary, extracts people and companies (entities), scores confidence, and links the memory to related ones.
-                  </p>
-                </section>
-
-                {/* Creating Memories */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">How to Create Memories</h2>
-                  <div className="space-y-3">
-                    {[
-                      { step: '⌘ Quick Capture', desc: 'Hit the command icon in the top bar (or use the keyboard shortcut). Type anything — a thought, a decision, a URL, a meeting summary. Fastest path to saving something.' },
-                      { step: 'New Memory button', desc: 'Go to Memories → click "+ New Memory". Write text or upload a file (PDF, Word, image, CSV). AI enriches it in the background.' },
-                      { step: 'Integrations', desc: 'Connect Gmail, Google Calendar, or Slack. Emails, calendar events, and Slack messages are automatically pulled into your Inbox for review.' },
-                      { step: 'Chrome Extension', desc: 'The browser extension passively captures important content as you browse. It also lets you manually clip any page or selection.' },
-                      { step: 'Webhook / API', desc: 'POST JSON to your workspace webhook endpoint. Useful for automating from Zapier, Make, or your own code.' },
-                    ].map(({ step, desc }, i) => (
-                      <div key={i} className="flex gap-3">
-                        <div className="h-5 w-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
-                        <div>
-                          <p className="text-xs font-semibold">{step}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Quick Capture */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Quick Capture ⌘</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    The command icon (⌘) in the top bar opens the Quick Capture panel from anywhere in the app. You can type a memory, search your existing memories, or navigate to any page — all from the keyboard. It&apos;s designed to get information in within seconds, before the thought is gone.
-                  </p>
-                </section>
-
-                {/* Ask / AI Chat */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Ask — AI Chat</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-3">
-                    Ask is your memory-aware AI assistant. It searches across all your saved memories to answer questions — not the web, not a generic model, just your data. Answers include source citations so you can trace every statement back to the original memory.
-                  </p>
-                  <div className="space-y-1.5">
-                    {[
-                      '"What did we decide about the pricing model?"',
-                      '"Who was in the onboarding meeting last Tuesday?"',
-                      '"What are all the action items from this week?"',
-                      '"Summarise everything we know about Competitor X."',
-                    ].map((q, i) => (
-                      <p key={i} className="text-xs text-muted-foreground italic pl-3 border-l-2 border-primary/20">{q}</p>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                    After each answer, Reattend suggests 3 follow-up questions to help you explore deeper. Free accounts get 10 questions per month. Pro is unlimited.
-                  </p>
-                </section>
-
-                {/* Inbox */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Inbox</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    The Inbox is where raw items land before they become memories. When Reattend pulls in an email, calendar event, or Slack message, it goes to Inbox first so you can review and approve. Items you don&apos;t want can be rejected. Approved items get AI-enriched and move to Memories. You can also snooze items to review later.
-                  </p>
-                </section>
-
-                {/* Projects */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Projects</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Projects let you organise memories by theme — a product launch, a client, a quarter, a topic. Every workspace has an &quot;Unassigned&quot; default project. When creating or editing a memory, assign it to any project. You can filter Memories view by project and ask questions scoped to a specific project.
-                  </p>
-                </section>
-
-                {/* Board */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Board — Visual Graph</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    The Board shows your memories as an interactive graph. Nodes are memories, edges are connections the AI found between them. You can zoom, pan, click a node to read the memory, and see clusters of related content. Useful for spotting patterns you wouldn&apos;t notice in a list view.
-                  </p>
-                </section>
-
-                {/* Integrations */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Integrations</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-3">
-                    Connect your existing tools so memories flow in automatically. Go to Integrations in the sidebar to connect.
-                  </p>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Gmail', desc: 'Syncs important emails from domains you whitelist. Threads are summarised and go to Inbox for review.' },
-                      { name: 'Google Calendar', desc: 'Pulls in upcoming and past events. Meeting titles, descriptions, attendees, and times become searchable memories.' },
-                      { name: 'Slack', desc: 'Captures messages from channels you select. Decisions, links, and announcements are automatically extracted.' },
-                      { name: 'Webhook / API', desc: 'Any system can POST JSON to your workspace endpoint. The payload becomes a memory. Full control over what gets saved.' },
-                    ].map(({ name, desc }) => (
-                      <div key={name}>
-                        <p className="text-xs font-semibold">{name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Sharing */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Sharing a Memory</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Any memory can be shared via a public link. Open a memory → click the share icon. The recipient sees a preview of the memory including summary, action items, and key points. They can save it directly to their own Reattend account with one click. Share links expire after 30 days.
-                  </p>
-                </section>
-
-                {/* Chrome Extension */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Chrome Extension</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-2">
-                    The extension runs silently in your browser. It has two main modes:
-                  </p>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Passive Capture', desc: 'As you browse — reading articles, Notion pages, Google Docs, emails — the extension extracts meaningful content and saves it as a memory. It skips sensitive apps, banking, and passwords automatically.' },
-                      { name: 'Ambient Recall', desc: 'If you open a page related to something you\'ve saved, the extension shows a subtle suggestion in the corner. Like Grammarly for your memory.' },
-                      { name: 'Ask Sidebar', desc: 'Open the sidebar in Chrome and ask questions about your memories without leaving the current tab.' },
-                      { name: 'Meeting Recorder', desc: 'Record audio from any browser-based meeting (Google Meet, Zoom web, Teams web). The recording is transcribed and saved as a Transcript memory.' },
-                    ].map(({ name, desc }) => (
-                      <div key={name}>
-                        <p className="text-xs font-semibold">{name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                    Go to Install → Chrome Extension to download and connect the extension to your account using an API token.
-                  </p>
-                </section>
-
-                {/* Teams */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Team Workspaces</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Create a team workspace to share memories with colleagues. Every member can add memories, ask questions, and see shared integrations. Workspace owners can invite members and manage integrations. Switch between Personal and Team workspaces using the pills in the top bar. Ask questions in Team workspace to query only team memories — or switch to Personal to query your own.
-                  </p>
-                </section>
-
-                {/* Settings */}
-                <section>
-                  <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Settings</h2>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Profile', desc: 'Update your name and email. Your avatar is pulled from Google if you signed in with Google.' },
-                      { name: 'Notifications', desc: 'Control which types of alerts appear in your Inbox — suggestions, to-dos, decision reminders.' },
-                      { name: 'Billing', desc: 'View your current plan, upgrade to Pro, or manage your Paddle subscription. Pro gives unlimited AI questions and higher sync limits.' },
-                      { name: 'Delete Account', desc: 'Permanently deletes all your memories, workspaces, tokens, and personal data. Required by GDPR. This action cannot be undone.' },
-                    ].map(({ name, desc }) => (
-                      <div key={name}>
-                        <p className="text-xs font-semibold">{name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <div className="pb-6 text-center">
-                  <p className="text-xs text-muted-foreground">Questions? Use the feedback button to reach us directly.</p>
-                </div>
-              </div>
-            </ScrollArea>
+            <EnterpriseDocsBody role={activeEnterpriseOrg?.role} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -891,5 +697,384 @@ export function AppTopbar() {
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+// ─── Enterprise docs body ───────────────────────────────────────────────
+// Renders the guide with "who can do what" scoped to the viewer's role.
+// Source of truth for permissions is src/lib/enterprise/rbac.ts.
+type RoleKey = 'super_admin' | 'admin' | 'member' | 'guest'
+const ROLE_META: Record<RoleKey, { label: string; tone: string; short: string }> = {
+  super_admin: { label: 'Super admin',  tone: 'bg-amber-500/15 text-amber-600 border-amber-500/30', short: 'Owner' },
+  admin:       { label: 'Admin',        tone: 'bg-violet-500/15 text-violet-600 border-violet-500/30', short: 'Admin' },
+  member:      { label: 'Member',       tone: 'bg-sky-500/15 text-sky-600 border-sky-500/30', short: 'Member' },
+  guest:       { label: 'Guest',        tone: 'bg-slate-500/15 text-slate-600 border-slate-500/30', short: 'Guest' },
+}
+
+function RolePill({ r }: { r: RoleKey }) {
+  const m = ROLE_META[r]
+  return (
+    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded border ${m.tone}`}>{m.short}</span>
+  )
+}
+
+function Scope({ can, cannot }: { can: RoleKey[]; cannot?: RoleKey[] }) {
+  return (
+    <div className="flex items-center gap-1 flex-wrap text-[10px] mt-1">
+      <span className="text-muted-foreground">Who:</span>
+      {can.map((r) => <RolePill key={r} r={r} />)}
+      {cannot && cannot.length > 0 && (
+        <>
+          <span className="text-muted-foreground ml-1">· hidden from:</span>
+          {cannot.map((r) => (
+            <span key={r} className="text-[9px] text-muted-foreground line-through">{ROLE_META[r].short}</span>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
+
+function DocRow({
+  title, desc, can, cannot,
+}: {
+  title: string
+  desc: string
+  can: RoleKey[]
+  cannot?: RoleKey[]
+}) {
+  return (
+    <div className="rounded-md border bg-card/50 px-3 py-2">
+      <p className="text-xs font-semibold">{title}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
+      <Scope can={can} cannot={cannot} />
+    </div>
+  )
+}
+
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-semibold text-[11px] uppercase tracking-wider text-muted-foreground mb-2 mt-1">
+      {children}
+    </h2>
+  )
+}
+
+function EnterpriseDocsBody({ role }: { role?: string }) {
+  const current: RoleKey | null = (role === 'super_admin' || role === 'admin' || role === 'member' || role === 'guest') ? role : null
+
+  return (
+    <ScrollArea className="flex-1">
+      <div className="px-5 py-4 space-y-6 text-sm">
+
+        {/* Who you are */}
+        {current && (
+          <div className={`rounded-xl border p-3 ${ROLE_META[current].tone}`}>
+            <div className="flex items-center gap-2 mb-1">
+              <User className="h-3.5 w-3.5" />
+              <span className="text-[10px] uppercase tracking-wider font-semibold">You are in this org as</span>
+            </div>
+            <p className="text-sm font-bold">{ROLE_META[current].label}</p>
+            <p className="text-[11px] mt-1 opacity-80">
+              {current === 'super_admin' && 'Full access. You own the org: settings, billing, SSO, all departments, all records, audit log, self-healing, agents, policies.'}
+              {current === 'admin' && 'Admin powers: manage members, departments, policies, agents, read audit. Cannot change billing or transfer ownership.'}
+              {current === 'member' && 'You see records your departments allow. You can capture memories, ask questions, use agents, and acknowledge policies. Admin views are hidden.'}
+              {current === 'guest' && 'Read-only on what has been explicitly shared with you. No capture, no admin, no org-wide search.'}
+            </p>
+          </div>
+        )}
+
+        {/* What Reattend is */}
+        <section>
+          <h2 className="font-bold text-base mb-1">What is Reattend Enterprise?</h2>
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            Reattend Enterprise is your organisation&apos;s memory system. Every decision, context, policy,
+            and meeting is captured, linked, and searchable — even after people leave. Queries are
+            answered by AI with citations to the original source. Every record respects department-level
+            access control.
+          </p>
+        </section>
+
+        {/* Role matrix */}
+        <section>
+          <SectionHeader>Role matrix · who can do what</SectionHeader>
+          <div className="rounded-xl border overflow-hidden text-[11px]">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="text-left">
+                  <th className="px-2 py-1.5 font-semibold">Action</th>
+                  <th className="px-1.5 py-1.5 text-center font-semibold">Super</th>
+                  <th className="px-1.5 py-1.5 text-center font-semibold">Admin</th>
+                  <th className="px-1.5 py-1.5 text-center font-semibold">Member</th>
+                  <th className="px-1.5 py-1.5 text-center font-semibold">Guest</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {([
+                  ['Ask / search org memory (scoped)', '✓', '✓', '✓', '◐'],
+                  ['Capture a memory', '✓', '✓', '✓', '—'],
+                  ['See all departments&apos; data', '✓', '✓', '—', '—'],
+                  ['Invite & remove members', '✓', '✓', '—', '—'],
+                  ['Create / edit departments', '✓', '✓', '—', '—'],
+                  ['Author / publish policies', '✓', '✓', '—', '—'],
+                  ['Acknowledge policies', '✓', '✓', '✓', '—'],
+                  ['Create & run agents', '✓', '✓', '◐', '—'],
+                  ['Read audit log', '✓', '✓', '—', '—'],
+                  ['Self-healing dashboard', '✓', '✓', '—', '—'],
+                  ['Onboarding Genie', '✓', '✓', '—', '—'],
+                  ['Time Machine (org-scope)', '✓', '✓', '◐', '—'],
+                  ['Edit billing / plan / SSO', '✓', '—', '—', '—'],
+                  ['Transfer org ownership', '✓', '—', '—', '—'],
+                ] as const).map(([label, a, b, c, d]) => (
+                  <tr key={label} className="bg-card">
+                    <td className="px-2 py-1.5">{label}</td>
+                    <td className="px-1.5 py-1.5 text-center">{a}</td>
+                    <td className="px-1.5 py-1.5 text-center">{b}</td>
+                    <td className="px-1.5 py-1.5 text-center">{c}</td>
+                    <td className="px-1.5 py-1.5 text-center">{d}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            <strong>✓</strong> allowed · <strong>◐</strong> scoped to their department / visibility · <strong>—</strong> hidden or denied
+          </p>
+        </section>
+
+        {/* Capture */}
+        <section>
+          <SectionHeader>Capture — how memory gets in</SectionHeader>
+          <div className="space-y-2">
+            <DocRow
+              title="Quick Capture (⌘)"
+              desc="Top-bar command icon. Type anything — a decision, a meeting note, a lesson learned — and it becomes a memory, auto-classified and linked."
+              can={['super_admin', 'admin', 'member']}
+              cannot={['guest']}
+            />
+            <DocRow
+              title="Voice capture"
+              desc="Record up to 120s; Whisper transcribes, Claude enriches. Useful when typing is too slow (post-meeting debriefs)."
+              can={['super_admin', 'admin', 'member']}
+              cannot={['guest']}
+            />
+            <DocRow
+              title="Brain Dump"
+              desc="Paste or dictate 1,000 words of raw thinking. Claude splits it into decisions, questions, action items, and facts — each saved as a separate memory."
+              can={['super_admin', 'admin', 'member']}
+              cannot={['guest']}
+            />
+            <DocRow
+              title="Integrations (Gmail, Calendar, Slack…)"
+              desc="Auto-pull relevant items into the Inbox for review. Connectors are configured per-org; members see imports scoped to their departments."
+              can={['super_admin', 'admin']}
+            />
+          </div>
+        </section>
+
+        {/* Recall */}
+        <section>
+          <SectionHeader>Recall — how memory comes back</SectionHeader>
+          <div className="space-y-2">
+            <DocRow
+              title="Global search (⌘K)"
+              desc="Fuzzy + semantic search across every record you have access to. Results are always RBAC-filtered — you only see what your departments allow."
+              can={['super_admin', 'admin', 'member', 'guest']}
+            />
+            <DocRow
+              title="Chat / Ask"
+              desc="Conversational Q&A over your accessible memory. Every answer cites sources. Follow-up questions are suggested."
+              can={['super_admin', 'admin', 'member', 'guest']}
+            />
+            <DocRow
+              title="Oracle Mode"
+              desc="Deep-research mode for high-stakes questions. Scans 150 candidates, reranks top 30 with Claude, returns a 5-section dossier (Situation / Evidence / Risks / Recommendations / Unknowns). Slower (~20-40s)."
+              can={['super_admin', 'admin', 'member']}
+              cannot={['guest']}
+            />
+            <DocRow
+              title="Who should I ask? (⌘⇧K)"
+              desc="Ranks the top 5 colleagues most likely to have context on a topic, based on authored records, decisions made, and entity mentions. Claude explains why each."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Memory Resurface"
+              desc="Shows what was decided or discussed on this same week 1, 2, 3, and 5 years ago. Hidden on orgs younger than a year."
+              can={['super_admin', 'admin', 'member']}
+            />
+          </div>
+        </section>
+
+        {/* Navigation */}
+        <section>
+          <SectionHeader>The sidebar · navigating memory</SectionHeader>
+          <div className="space-y-2">
+            <DocRow
+              title="Home"
+              desc="Daily briefing (Start My Day card). Three sentences of Claude-synthesised focus + what changed since your last visit."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Memory"
+              desc="Every record you can see. Filter chips for decisions, graph view, by type, by person, by tag."
+              can={['super_admin', 'admin', 'member', 'guest']}
+            />
+            <DocRow
+              title="Wiki"
+              desc="Auto-generated encyclopedia of your org. Topics and people pages built from memory clusters — always up to date, never stale."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Agents"
+              desc="Reusable Claude agents — ten seeded by default (onboarding, meeting synth, policy checker, etc.). Admins can create more; members can run the ones their dept has access to."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Policies"
+              desc="The org's living rulebook. Admins author + publish; members acknowledge. Pending acks surface on Home."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Tasks"
+              desc="Action items extracted from memories, meetings, and decisions. Scoped to you."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Brain Dump"
+              desc="Paste or dictate raw thinking, Claude parses it into structured memories before they're committed."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Time Machine"
+              desc="Scrub the last 24 months. See what the org 'knew' at any point — active decisions, memories that existed, what hadn't been reversed yet. Members see it scoped to their dept; admins see org-wide."
+              can={['super_admin', 'admin', 'member']}
+            />
+            <DocRow
+              title="Oracle"
+              desc="Deep research page for high-stakes questions. Structured dossier with citations."
+              can={['super_admin', 'admin', 'member']}
+            />
+          </div>
+        </section>
+
+        {/* Admin-only */}
+        <section>
+          <SectionHeader>Memory Cockpit · admin only</SectionHeader>
+          <p className="text-[11px] text-muted-foreground mb-2">
+            The org-wide control panel. Only visible to admins & super admins. Opens from the org pill in the top-left.
+          </p>
+          <div className="space-y-2">
+            <DocRow
+              title="Members"
+              desc="Invite, remove, change roles, assign departments. Bulk CSV invite supported. Member directory with activity metrics."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Self-healing dashboard"
+              desc="Detects stale policies, unresolved contradictions, knowledge gaps, and decisions with no documented context. Org health score + remediation checklist."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Decisions log + Blast Radius"
+              desc="Every decision made, by whom, when, what it superseded. Blast Radius: 'if we reverse this, what breaks?' — citation graph with impact score."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Onboarding Genie"
+              desc="Fill in a new hire's name + role + department. Claude reads org memory and writes a personalised first-week packet (decisions to know, people to meet, policies to ack, agents to try)."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Integrations"
+              desc="Configure Gmail, Calendar, Slack, SharePoint, Teams, Confluence, SAP connectors. Scope which departments see which sources."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Audit log"
+              desc="Every query, every access, every permission change. Searchable, exportable, retained per plan."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Departments"
+              desc="Build your Org → Department → Division → Team tree. Assign members, set visibility (org-wide vs dept-scoped) for each workspace."
+              can={['super_admin', 'admin']}
+              cannot={['member', 'guest']}
+            />
+            <DocRow
+              title="Plan & Billing"
+              desc="Upgrade, change seat count, manage SSO/SAML, SCIM provisioning, data residency."
+              can={['super_admin']}
+              cannot={['admin', 'member', 'guest']}
+            />
+          </div>
+        </section>
+
+        {/* Security */}
+        <section>
+          <SectionHeader>Security & access control</SectionHeader>
+          <div className="space-y-2 text-[11px] text-muted-foreground leading-relaxed">
+            <p>
+              <strong className="text-foreground">Two-tier RBAC.</strong> Every record has an
+              organisation and a visibility (<code>org_wide</code> or <code>dept_scoped</code>). Search,
+              chat, graph, and timeline all filter to records you can actually see — nothing leaks
+              through a Claude answer or a rerank.
+            </p>
+            <p>
+              <strong className="text-foreground">Admin bypass.</strong> Super admins and admins can
+              read any department within their org. Members see only their departments (including
+              ancestors/descendants). Guests see only what&apos;s explicitly shared.
+            </p>
+            <p>
+              <strong className="text-foreground">Audit everything.</strong> Queries, exports, permission
+              changes, logins, agent runs — all logged with IP, user agent, timestamp, and scope. Audit
+              log is immutable and admin-readable.
+            </p>
+            <p>
+              <strong className="text-foreground">Transfer protocol.</strong> When someone leaves, their
+              knowledge doesn&apos;t. Role transfer moves memory ownership to the successor; originals stay
+              linked for provenance. No black-box churn.
+            </p>
+            <p>
+              <strong className="text-foreground">On-prem available.</strong> Enterprise plan supports
+              on-premise Rabbit deployment. Zero data leaves your network; embeddings, LLM, and DB all
+              run on your servers.
+            </p>
+          </div>
+        </section>
+
+        {/* Shortcuts */}
+        <section>
+          <SectionHeader>Keyboard shortcuts</SectionHeader>
+          <div className="rounded-xl border divide-y text-[11px]">
+            {[
+              ['⌘K', 'Global search'],
+              ['⌘⇧K', 'Who should I ask?'],
+              ['⌘', 'Quick capture panel'],
+              ['G then M', 'Go to Memory'],
+              ['G then O', 'Go to Oracle'],
+              ['G then T', 'Go to Time Machine'],
+              ['?', 'Show shortcut list'],
+            ].map(([k, label]) => (
+              <div key={k} className="flex items-center justify-between px-3 py-1.5">
+                <span className="text-muted-foreground">{label}</span>
+                <kbd className="font-mono bg-muted px-1.5 py-0.5 rounded text-[10px]">{k}</kbd>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="pb-6 text-center">
+          <p className="text-[11px] text-muted-foreground">
+            Something unclear or missing? Use the feedback icon (pink) to ping us directly.
+          </p>
+        </div>
+      </div>
+    </ScrollArea>
   )
 }
