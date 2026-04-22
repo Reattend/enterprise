@@ -859,5 +859,30 @@ try {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
 }
 
+// ─── Exit Interview Agent ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS exit_interviews (
+      id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      departing_user_id TEXT NOT NULL REFERENCES users(id),
+      initiated_by_user_id TEXT NOT NULL REFERENCES users(id),
+      role_title TEXT,
+      status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'in_progress', 'completed', 'archived')),
+      questions TEXT NOT NULL DEFAULT '[]',
+      handoff_doc TEXT,
+      handoff_record_id TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      completed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS ei_org_idx ON exit_interviews(organization_id);
+    CREATE INDEX IF NOT EXISTS ei_departing_idx ON exit_interviews(departing_user_id);
+    CREATE INDEX IF NOT EXISTS ei_status_idx ON exit_interviews(status);
+  `)
+  console.log('✓ exit_interviews')
+} catch (e: any) {
+  console.error('exit_interviews migration:', e.message)
+}
+
 console.log('Database migration complete!')
 sqlite.close()

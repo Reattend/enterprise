@@ -31,6 +31,7 @@ import {
   Zap,
   BrainCircuit,
   Plug,
+  Map as MapIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -562,9 +563,23 @@ export function AppSidebar() {
         <div className="px-2 pb-2 flex flex-col gap-0.5">
           <Separator className="mb-2 bg-sidebar-border" />
 
-          {/* Integrations — placeholder until Nango self-host lands. Shows
-              connector roadmap + admin config location so the OAuth callback
-              URLs have a landing page. */}
+          {/* Legend — canonical feature catalog + shortcuts + glossary.
+              Accessible to every role. If something isn't here, it doesn't
+              exist yet — that's the contract. */}
+          <Link
+            href="/app/legend"
+            className={cn(
+              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
+              isActive('/app/legend')
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
+            )}
+          >
+            <MapIcon className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/legend') && 'text-primary')} />
+            <span>Legend</span>
+          </Link>
+
+          {/* Integrations — placeholder until Nango self-host lands. */}
           <Link
             href="/app/integrations"
             className={cn(

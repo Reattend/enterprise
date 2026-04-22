@@ -1209,3 +1209,32 @@ export const transferEvents = sqliteTable('transfer_events', {
   fromUserIdx: index('te_from_user_idx').on(table.fromUserId),
   toUserIdx: index('te_to_user_idx').on(table.toUserId),
 }))
+
+// ─── Exit Interview Agent ─────────────────────────────────
+// When someone gives notice, an admin kicks off an exit interview. Claude
+// pre-reads the departing person's memory footprint and writes 10-15 targeted
+// questions. The person answers over one or more sessions. Each answer becomes
+// a memory record. At completion, Claude synthesizes the answers into a
+// structured handoff doc (also stored as a record).
+export const exitInterviews = sqliteTable('exit_interviews', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  departingUserId: text('departing_user_id').notNull().references(() => users.id),
+  initiatedByUserId: text('initiated_by_user_id').notNull().references(() => users.id),
+  roleTitle: text('role_title'), // optional — free-text role/title of the person leaving
+  status: text('status', { enum: ['draft', 'in_progress', 'completed', 'archived'] }).notNull().default('draft'),
+  // JSON array of { id, topic, question, answer|null, answeredAt|null }. Single
+  // source of truth for the Q&A thread. No separate answers table.
+  questions: text('questions').notNull().default('[]'),
+  // Markdown handoff doc produced on completion. Null until then.
+  handoffDoc: text('handoff_doc'),
+  // Record ID of the saved handoff doc (so users can navigate to it like any
+  // other memory). Null until completion.
+  handoffRecordId: text('handoff_record_id'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  completedAt: text('completed_at'),
+}, (table) => ({
+  orgIdx: index('ei_org_idx').on(table.organizationId),
+  departingIdx: index('ei_departing_idx').on(table.departingUserId),
+  statusIdx: index('ei_status_idx').on(table.status),
+}))

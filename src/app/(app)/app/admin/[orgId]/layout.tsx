@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus } from 'lucide-react'
+import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus, GraduationCap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface OrgMeta {
@@ -23,6 +23,8 @@ const TABS = [
   { key: 'roles', label: 'Roles', icon: Briefcase, path: '/roles' },
   { key: 'decisions', label: 'Decisions', icon: Gavel, path: '/decisions' },
   { key: 'transfers', label: 'Transfers', icon: ArrowRightLeft, path: '/transfers' },
+  { key: 'exit-interviews', label: 'Exit interviews', icon: GraduationCap, path: '/exit-interviews' },
+  { key: 'handoff', label: 'Handoff', icon: ArrowRightLeft, path: '/handoff' },
   { key: 'onboarding-genie', label: 'Genie', icon: UserPlus, path: '/onboarding-genie' },
   { key: 'health', label: 'Self-healing', icon: Sparkles, path: '/health' },
   { key: 'audit', label: 'Audit log', icon: ScrollText, path: '/audit' },

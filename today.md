@@ -1,11 +1,17 @@
 # Reattend Enterprise — Session Handoff
 
-**Date saved:** 2026-04-22
-**Branch:** `main` (clean, fully pushed)
+**Date saved:** 2026-04-22 (late-evening sprint-G cycle)
+**Branch:** `main` — pushed after every sprint
 **Live at:** https://enterprise.reattend.com
-**Last commit:** `90c3c7a` Polish D2/D3: audit drill-down, search no-results, tablet breakpoint, RBAC test fix
+**Latest commits:**
+- Sprint G: Exit Interview Agent + Handoff Generator + Legend page (this sprint)
+- `d2f1804` Sprint F: integrations placeholder, DeepThink gone, capture deduped, Memory↔Wiki cross-links
+- `bcc7127` Sprint E: /app/ask + /app/landscape unified, killed stale Personal pages
+- `90c3c7a` Polish D2/D3, `2b7ca1b` Polish D1
+- `a606031` Topbar docs panel, `d9d2a60` Time Machine
+- `17f0a9f` Sprint C wow, `83c8e69` Sprint B wow, `252778e` Sprint A wow
 
-On resume: read this file. Everything you need to pick up is here.
+On resume: `git status` on `/Users/partha/Desktop/enterprise`, read this, continue.
 
 ---
 
@@ -17,31 +23,29 @@ On resume: read this file. Everything you need to pick up is here.
 | GitHub | `github.com/Reattend/enterprise` (public) |
 | Droplet IP | `167.99.158.143` (DigitalOcean) |
 | Droplet path | `/var/www/enterprise` |
-| Process manager | PM2 — app name `enterprise` |
-| Web server | nginx + certbot SSL in front of PM2 on localhost port |
-| Domain | `enterprise.reattend.com` → droplet IP |
-| DB | SQLite (`data/reattend.db`) via better-sqlite3 + Drizzle |
-| LLM answering | Claude (via `ANTHROPIC_API_KEY` on droplet) |
-| LLM triage/embeddings/rerank | Groq Llama 3.3 70B + Haiku rerank (via `GROQ_API_KEY`) |
-| Whisper | Groq whisper-large-v3-turbo for voice transcription |
-| Rabbit | **Not deployed.** Plan is Claude/Groq → Rabbit over time. |
-| Nango self-host | Deferred — Gmail/Slack/Calendar ingest still stubbed |
+| PM2 process | `enterprise` |
+| Web server | nginx + certbot SSL |
+| Domain | `enterprise.reattend.com` |
+| DB | SQLite (`data/reattend.db`) + Drizzle. Use `npx tsx src/lib/db/migrate.ts` for custom migrations (drizzle-kit migrate is a different thing) |
+| LLM (answers/synthesis) | Claude via `ANTHROPIC_API_KEY` |
+| LLM (triage/rerank/embeddings) | Groq Llama 3.3 70B + Haiku via `GROQ_API_KEY` |
+| Whisper | Groq whisper-large-v3-turbo |
+| Nango | **not deployed yet** — deferred to right before GA |
+| Rabbit | not deployed — see § 6 |
 
 ---
 
-## 2. Deploy process (exact commands)
+## 2. Deploy process
 
-Local → GitHub → droplet. Always in this order.
+Local → GitHub → droplet. Always this order.
 
 ```bash
-# 1. Commit
+# 1. Commit + push
 git add -A
-git commit -m "<msg>"
-
-# 2. Push
+git commit -m "…"
 git push origin main
 
-# 3. Deploy to droplet
+# 2. Deploy
 ssh root@167.99.158.143 "cd /var/www/enterprise && \
   git pull --ff-only && \
   rm -rf .next && \
@@ -52,242 +56,218 @@ ssh root@167.99.158.143 "cd /var/www/enterprise && \
     https://enterprise.reattend.com/app"
 ```
 
-Expected response: `HTTP 307 · <1s` (307 = auth redirect, healthy).
+Expected: `HTTP 307 · <1s`. **If schema changed locally** (added / modified tables), also run on droplet:
+```bash
+ssh root@167.99.158.143 "cd /var/www/enterprise && npx tsx src/lib/db/migrate.ts"
+```
 
-**Always `rm -rf .next` before build on the droplet** — incremental Next.js cache has bitten us more than once.
-
-SSH can drop mid-build on flaky WiFi. If the push succeeds but the droplet didn't rebuild, re-run from step 3. Use `run_in_background=true` for the SSH command in Claude Code to survive disconnects.
-
----
-
-## 3. What's shipped (chronological, with commit hashes)
-
-### Foundation — Sprints 1–9 (pre-deploy, from prior sessions)
-Full org/dept/team hierarchy, RBAC, decisions, transfers, policies, agents, wiki, self-healing. Documented in the ENTERPRISE.md file and the earlier `docs/progress.md`.
-
-### Post-deploy triage · `4f910f7`
-Killed `/app/projects` (conflict with Memory), simplified sidebar, seeded 10 default agents for new orgs, loosened invite-email domain restriction.
-
-### Sprint A — voice + expert routing · `252778e`
-- `src/components/enterprise/voice-recorder.tsx` — MediaRecorder + live waveform, 120s max
-- `src/app/api/records/voice/route.ts` — Groq Whisper → ingest pipeline. Has `?transcriptOnly=1` for brain-dump flow.
-- `src/app/api/enterprise/ask-experts/route.ts` — scores authored records ×3, decisions ×5, entity mentions ×2, recency ×1.5
-- `src/components/enterprise/ask-experts-dialog.tsx` — ⌘⇧K "Who should I ask?" with Claude explanations
-- `src/components/enterprise/reasoning-trace.tsx` — animated pipeline reveal
-- `src/app/api/ask/route.ts` emits `X-Trace` header with real pipeline metrics
-
-### Sprint B — daily briefing + oracle · `83c8e69`
-- `src/app/api/enterprise/start-my-day/route.ts` — delta-since-last-visit (localStorage anchor), Claude 3-4 sentence focus
-- `src/components/enterprise/start-my-day-card.tsx` — Home card, hidden on quiet days
-- `src/app/api/enterprise/resurface/route.ts` — same-week records from 1/2/3/5 years ago, hidden on young orgs
-- `src/app/api/ask/oracle/route.ts` — 150 FTS candidates → RBAC → Haiku rerank top 30 → Claude 5-section dossier (Situation/Evidence/Risks/Recommendations/Unknowns)
-- `src/app/(app)/app/oracle/page.tsx` — full page with 5-stage pipeline indicator + dossier renderer
-- Sidebar Oracle entry (Crown icon)
-
-### Sprint C — brain dump + blast radius + genie · `17f0a9f`
-- `src/app/api/enterprise/brain-dump/route.ts` — preview mode (Claude parses raw into decision/question/action/fact with source spans) + commit mode
-- `src/app/(app)/app/brain-dump/page.tsx` — textarea or mic with `?transcriptOnly=1`
-- `src/app/api/enterprise/decisions/[decisionId]/blast-radius/route.ts` — linked memories + policies + predecessors/successors + people + Claude narrative
-- `src/components/enterprise/blast-radius-dialog.tsx` — score = memories×1 + policies×4 + preds×3 + successors×5 + people×1, tiers contained/significant/systemic
-- `src/app/api/enterprise/onboarding-genie/route.ts` — walks dept ancestors+descendants, Claude writes personalised first-week packet
-- `src/app/(app)/app/admin/[orgId]/onboarding-genie/page.tsx` — form with DepartmentTreePicker
-- Sidebar Brain Dump (BrainCircuit icon)
-- "Blast" button wired into admin decisions list
-
-### Time Machine · `d9d2a60`
-- `src/app/api/enterprise/timeline/route.ts` — point-in-time state with `reversedAt` + supersession-chain semantics + 24-month sparkline
-- `src/app/(app)/app/timeline/page.tsx` — slider + playback (600ms/tick) + anchor filter (all/topic/person/dept) + animated metric cards
-- Sidebar Time Machine (History icon)
-
-### Enterprise docs panel · `a606031`
-- `src/components/app/topbar.tsx` — rewrote the BookOpen docs panel for Enterprise
-- 14-row role matrix (actions × super_admin/admin/member/guest)
-- Every feature doc row carries RolePill strip showing who can access it
-- "You are in this org as" banner at top shows current user's role
-- Sections: Capture, Recall, Sidebar, **Memory Cockpit (admin-only)**, Security, Shortcuts
-
-### Polish D1 — empty states + real notifications · `2b7ca1b`
-- `src/components/ui/empty-state.tsx` — reusable `<EmptyState>`
-- Rewrote three weak empty states: Members, Admin Decisions, Policies (non-author)
-- `src/lib/enterprise/notify.ts` — `notifyDepartmentMembers` (walks ancestor chain + includes org admins) and `notifyOrgMembers`
-- Decision-create → emits `decision_pending` to dept + ancestors + admins (excludes decider)
-- Policy-publish (first time only) → emits `todo` to every org member (for ack)
-- Fire-and-forget — notify failures don't block the response
-
-### Polish D2/D3 — audit drill-down + search + mobile + RBAC test · `90c3c7a`
-- Memory detail page: "History" button (admin-only) → `/app/admin/:orgId/audit?resourceId=X`
-- Audit page reads `?resourceId=` URL param, shows inline chip + clear-filter button
-- Search no-results → three routed CTAs (Chat / Oracle / Brain Dump) + type-filter clear
-- Mobile breakpoint widened 640 → 768 so tablet portrait gets drawer
-- Search-bar placeholder shortens on narrow screens
-- Fixed `test:rbac` teardown (swapped per-table deletes for `PRAGMA foreign_keys = OFF` window); all 36 assertions pass
+SSH can drop mid-build; use `run_in_background=true` in Claude Code's Bash tool, or reconnect and re-run from the `npm run build` step.
 
 ---
 
-## 4. Product surface at a glance
+## 3. Two client profiles (strategic targets — not F500 yet)
 
-### User-facing routes
-- `/app` — Home (StartMyDayCard + onboarding checklist + policy pending banner)
-- `/app/oracle` — deep-research Q&A
-- `/app/brain-dump` — textarea or voice → Claude-parsed structured memories
-- `/app/timeline` — Time Machine, 24-month scrubber
-- `/app/tasks` — action items (static page, not yet data-driven)
-- `/app/memories` + `/memories/[id]` — memory list/detail
-- `/app/wiki` — auto-generated topic + people pages
-- `/app/agents` — agent directory (10 seeded by default)
-- `/app/policies` — policies list with ack state
-- `/app/search` — global search (FTS + rerank)
-- `/app/chat` — conversational Q&A with `X-Trace` + `X-Sources`
+This is the single most important section to preserve.
 
-### Admin Cockpit (admin/super_admin only) — `/app/admin/:orgId/...`
-- `/` — cockpit home (onboarding checklist for new orgs)
-- `/members` — invite/remove/role-change, bulk CSV invite
-- `/departments` — tree editor
-- `/decisions` — decisions log + **Blast Radius** button
-- `/onboarding-genie` — new-hire packet generator
-- `/health` — self-healing dashboard (stale policies, contradictions, gaps)
-- `/audit` — audit log (filters + CSV export + `?resourceId=` drill-down)
-- `/policies` — author/publish policies
-- `/agents` — create/edit agents
-- `/compliance` — placeholder
-- `/sso` — placeholder
-- `/settings` — plan + SSO (super_admin only for billing)
-- `/transfers`, `/roles`, `/taxonomy` — enterprise admin surfaces
+### 3a. SaaS / startups up to 200 employees
+- **Live in:** Slack + Gmail + Google Calendar + Notion/Confluence + Google Drive.
+- **Ingestion plan:** Nango self-hosted on droplet OR managed Nango cloud. Configured per org by admin. Ships right before GA.
+- **Pricing model:** per-seat self-serve (~$25–40/seat/month). Founder-signed, 2–8 week sales cycle, SOC 2 Type II is sufficient.
+- **The pitch:** "Fast, memory-first AI companion for work. Better than Glean for your decisions, better than Notion AI for your history."
+- **What they'll ask first:** "Does Slack just work?" — they must be able to connect in 30 minutes and see value in 72 hours.
 
-### Role matrix (short form — docs panel in topbar has the full version)
+### 3b. Government & secure organisations
+- **Live in:** Paper, scanned PDFs, Word docs, SharePoint 2013, Teams, email, legacy mainframes. Cloud deployment is often a non-starter.
+- **Ingestion plan:** **Assisted onboarding.** We dispatch a human trainer who:
+  - Scans and uploads legacy documents manually (so OCR quality is mission-critical — budget for Tesseract + a pass over Nougat / DocLayNet / Amazon Textract).
+  - Runs regular training sessions teaching members how to capture memories, ask questions, acknowledge policies.
+  - Owns the department trees and initial configuration.
+- **Deployment:** on-prem Rabbit, airgapped if needed. No data leaves the network.
+- **Pricing:** enterprise licence + professional services. 12–18 month sales cycle.
+- **Compliance:** StateRAMP moderate (minimum), CJIS for any law-enforcement-adjacent data, IRS 1075 for tax, FERPA for education, HIPAA for Medicaid. 6–12 months of compliance paperwork before first sale lands.
+- **The pitch:** "Paper memory becomes digital, searchable, decision-aware, and survives every admin change. It literally cannot leak — runs on your servers."
+- **Why gov is year 2, not year 1:** no compliance paperwork is done. Build SMB adoption first to fund that.
 
-| Action | Super | Admin | Member | Guest |
-|---|---|---|---|---|
-| Ask / search org memory | ✓ | ✓ | ✓ scoped | ◐ |
-| Capture memory | ✓ | ✓ | ✓ | — |
-| See all departments | ✓ | ✓ | — | — |
-| Invite/remove members | ✓ | ✓ | — | — |
-| Publish policies | ✓ | ✓ | — | — |
-| Create agents | ✓ | ✓ | ◐ | — |
-| Audit log / self-heal | ✓ | ✓ | — | — |
-| Onboarding Genie | ✓ | ✓ | — | — |
-| Time Machine | ✓ | ✓ | ◐ | — |
-| Billing / SSO / transfer ownership | ✓ | — | — | — |
-
-Source of truth: `src/lib/enterprise/rbac.ts`.
+**Engineering implication of the dual ICP:**
+- Every feature must work with **manual + connector + OCR** input paths.
+- On-premise Rabbit is the moat for the gov track; Nango-based SaaS connectors are the moat for the SMB track. Design tenancy, config, and model routing so the same codebase serves both without forking.
 
 ---
 
-## 5. Next sprint (what's NOT done, in priority order)
+## 4. Everything Reattend Enterprise can do today
 
-### Tier 1 — blocks real usage (next session focus)
-1. **Gmail connector** (real) — OAuth, refresh token rotation, incremental sync. Deferred because it needs Nango self-host or direct OAuth infra.
-2. **Slack connector** (real) — same as above. These two unlock the SMB-200 ICP described in the strategy doc.
-3. **PDF / DOCX upload pipeline** — chunk + embed + index. Critical for state-gov ICP.
-4. **Agent execution runtime** — today agents are mostly metadata. Need a worker that actually runs them against a corpus + logs results.
-5. **Onboarding glitch diagnosis** — user flagged, never repro'd. Need steps.
+**There is a canonical feature catalog at `/app/legend` inside the app** (open in-app). Below is the short version of what's live.
 
-### Tier 2 — robustness
-6. Graph view perf — React Flow stutters past ~500 nodes; needs level-of-detail or clustering
-7. Notification system coverage — `mention`, `needs_review`, `suggestion` types still never emitted
-8. Audit retention UI — API exists, no admin screen
-9. More RBAC tests — current suite is record-level only; add API-surface tests (can `member` hit admin routes?)
+### Capture
+- **Brain Dump (Firehose)** — paste raw stream, Claude parses into decision / question / action / fact items with source spans; preview + commit selected items.
+- **Brain Dump (File)** — PDF / DOCX / image / audio / video up to 20MB via `/api/upload`.
+- **Brain Dump (Link)** — paste URL, saves as `[Link]` record, ingest enriches.
+- **Brain Dump (Voice)** — 120s MediaRecorder → Groq Whisper → transcript → back into Firehose.
+- **Quick capture drawer** — ⌘N keyboard shortcut, scoped single-memory with team/project picker.
+- **Scope picker in Firehose** — now has the same team/project dropdowns the drawer has (ported in Sprint F).
 
-### Tier 3 — polish
-10. Empty states we haven't touched yet (Wiki tabs sidebars could be stronger)
-11. Keyboard shortcuts page (we document them but don't have a `?` shortcut list)
-12. Graph perf + Time Machine prefetch
+### Recall
+- **/app/ask — Chat mode** (default) — streaming multi-turn Q&A with citations, X-Trace header, persistent chat threads.
+- **/app/ask — Oracle mode** — 150 candidates → Claude Haiku rerank top 30 → 5-section structured dossier (Situation / Evidence / Risks / Recommendations / Unknowns).
+- **Global search** (`⌘K`) — hybrid FTS + semantic, RBAC-filtered, with snippet highlighting + routed "no results" CTAs.
+- **Who Should I Ask** (`⌘⇧K`) — top 5 experts ranked by authored × 3 + decisions × 5 + entity × 2 + recency × 1.5, with Claude explanations.
+- **Memory Resurface** — records from same week 1/2/3/5 years ago, hidden on young orgs.
 
-### Tier 4 — enterprise hardening (quarter project each)
-- OCR pipeline for scanned docs (state-gov unlock)
-- Redaction + PII scrubbing
-- Legal hold + retention schedules
-- SOC 2 Type II prep
-- StateRAMP moderate prep (gov path)
-- On-prem Rabbit (deal-closer for gov/regulated)
+### Org knowledge
+- **/app/memories** — record list with filter chips, timeline/grid/list views.
+- **/app/wiki** — auto-encyclopedia with three lenses (Hierarchy / Topics / People), knowledge-at-risk flags, cross-linked to underlying memories.
+- **/app/landscape — Temporal** — Time Machine 24-month slider with playback + anchor filter + sparkline + animated metrics.
+- **/app/landscape — Causal** — React Flow graph of records + record_links edges (contradicts / leads_to / supersedes / related).
+- **/app/policies** — authored policies with ack state; admins publish → every org member gets `todo` notification; members ack.
+- **/app/agents** — 10 seeded Claude personas + Activity tab showing real jobQueue runs (triage, embed, link, project_suggest).
+- **/app/tasks** — action items extracted from memories.
+
+### Amnesia-specific (our actual moat)
+- **Decisions log** — context, rationale, status (active/superseded/reversed/archived), linked memories.
+- **Blast Radius simulator** — "if we reverse this, what breaks?" — linked memories + policies citing + predecessor/successor chain + people involved + Claude narrative + 0-50+ score.
+- **Onboarding Genie** — form → Claude reads dept memory → personalized first-week packet (markdown).
+- **Exit Interview Agent** — **NEW this sprint.** Admin starts → Claude pre-reads departing person's memory footprint → 10-15 targeted questions → departing person answers → Claude synthesizes handoff doc → saved as org-visible memory.
+- **Handoff Generator** — **NEW this sprint.** Admin picks outgoing + incoming → Claude reads outgoing person's authored memories + decisions → personalized handoff doc with [M#]/[D#] citations → saved as memory.
+- **Self-healing dashboard** — stale policies, unresolved contradictions, knowledge gaps.
+- **Transfer Protocol** — memory ownership moves with role succession.
+
+### Daily-use
+- **Start My Day** card on Home — Claude 3-4 sentence focus + delta since last visit (localStorage anchor).
+- **Reasoning trace** — animated pipeline replay on chat answers.
+- **Audit log** — admin-only, filters + CSV export + `?resourceId=` drill-down from memory detail.
+- **Memory Cockpit** — admin control panel with tabs for Members, Departments, Decisions, Transfers, **Exit interviews**, **Handoff**, Genie, Self-healing, Audit, Compliance, Taxonomy, SSO, Settings.
+- **Legend** (`/app/legend`) — **NEW this sprint.** All-user feature catalog, role-scoped, with keyboard shortcuts and glossary.
+
+### Security
+- Two-tier RBAC (org + department), record-level visibility (private/team/dept/org).
+- Real notification emission: decision_pending on create, todo on policy publish.
+- 36/36 RBAC assertions pass (`npm run test:rbac`).
 
 ---
 
-## 6. Strategy context (for LLM to frame decisions)
+## 5. Navigation map
 
-### ICPs (picked after F500 discussion)
-1. **SMB up to 200 employees** — Year 1 target. They live in Slack + Gmail + Notion + Drive. Short sales cycle (2-8 weeks), founder-signed, SOC 2 Type II is sufficient. We're ~70% there — biggest gap is real connectors.
-2. **US state government** — Year 2 target. Paper-heavy, admin turnover every 4 years = perfect fit for Transfer Protocol + Decision Log + FOIA-ready audit. 12-18 month sales cycle, on-prem is a deal-closer. Biggest gap is OCR/document ingest + StateRAMP/CJIS compliance paperwork.
-3. **F500** — Year 3+. Don't chase until we have 50+ SMB + 5+ gov reference customers.
+### Sidebar (all users see)
+- Home
+- Ask (Sparkles)
+- Capture (BrainCircuit)
+- Landscape (Network)
+- Memory (Brain)
+- Wiki (BookOpen)
+- Agents (Bot)
+- Policies (FileText)
+- Tasks (Zap)
+- — separator —
+- Legend (Map icon) — **NEW**
+- Integrations (Plug) — placeholder until Nango
+- Settings (Settings)
 
-### Rabbit strategy (critical — don't lose this)
-- Claude + Groq are **tutors, not competitors**. Every Q&A pair in prod becomes training data.
+### Admin cockpit tabs (admin + super_admin only)
+Overview · Members · Departments · Roles · Decisions · Transfers · **Exit interviews** (NEW) · **Handoff** (NEW) · Genie · Self-healing · Audit log · Compliance · Taxonomy · SSO · Settings.
+
+### Keyboard shortcuts
+- `⌘K` global search
+- `⌘⇧K` Who Should I Ask
+- `⌘N` Quick capture drawer
+- `G` then `M` / `W` / `A` / `L` / `P` navigate
+- `?` shortcut list
+
+---
+
+## 6. What's NOT done (explicit punch list)
+
+### Deferred to right before GA (per user)
+- **Nango self-host** on droplet — unlocks Gmail / Slack / Calendar / Notion / SharePoint.
+
+### Gov-track specific (year 2)
+- **OCR pipeline** — scanned PDFs → text, high accuracy. Budget: Tesseract for baseline, layer in Nougat / Amazon Textract. **This is mission-critical for the gov ICP.**
+- **Redaction + PII scrubbing** for sensitive docs.
+- **Legal hold + retention schedules** (7-50 years gov requirements).
+- **On-premise Rabbit** — the gov deal-closer. Train on (context, question, good_answer) triples from SMB production.
+- **StateRAMP / CJIS / FERPA / HIPAA** compliance paperwork.
+
+### Sprint H candidates (next)
+- Meeting Prep card on Home (15 min before calendar event).
+- Action-taking agents (draft Jira, send Slack, schedule follow-up).
+- Slack / Teams bot (ask inline).
+- Ambient browser extension ported for Enterprise.
+- Anonymous ask for HR.
+
+### Still unfixed
+- Onboarding glitch — needs user repro.
+- Graph perf past ~500 nodes (React Flow stutters).
+- Notification types `mention`, `needs_review`, `suggestion` defined but not emitted.
+- Agent chat routes (`/api/enterprise/agents/{id}/chat`) — survey suggested they don't exist; needs verification in live app.
+
+---
+
+## 7. Strategy one-pagers (don't lose these)
+
+### Rabbit training plan
+- Claude + Groq = tutors, not competitors.
+- Every Q&A pair in production becomes training data.
 - After 6 months with 20-50 pilots → 50-500k `(context, question, good_answer)` triples.
 - Train Rabbit on **three narrow tasks only**:
   1. Retrieval Q&A over memory corpus
   2. Triage / classification at capture
-  3. Structured extraction (Brain Dump, Onboarding Genie)
+  3. Structured extraction (Brain Dump, Onboarding Genie, Exit Interview, Handoff Generator)
 - Keep Claude as the **evaluator forever** — nightly regression suite.
 - Unit economics: Claude ≈ $5-15/seat/mo, Rabbit self-hosted ≈ $0.50-2/seat/mo. The margin flip is the moat.
-- On-prem Rabbit is the gov deal-closer — Claude/OpenAI can never claim "stays on your network."
 
-### F500 honest assessment (summary from earlier discussion)
-As a Series B demo: wins. As a product a Walmart/JPMorgan CIO would deploy today: **no, not yet.** Missing pieces are integrations, compliance, on-prem, HA, retention, audit integrity. What we have right is the architecture (memory-first, decision-centric, RBAC-scoped, AI-native). Execute; don't redesign.
+### Demo narrative that wins vs Glean
+1. Morning: Home + Start My Day card ("feels like a chief of staff")
+2. Reply to a customer email with inline memory surfacing ("reads my mind") ← Sprint H
+3. Ask a hard synthesis question; Oracle dossier pulls Slack thread + decision + policy ("like Glean but smarter")
+4. Agent drafts Jira ticket, sends Slack confirm ("actually works for me") ← Sprint H
+5. **The money demo**: "Priya gave notice Friday. Exit Interview Agent has her tribal knowledge captured; Handoff Generator built the packet; Onboarding Genie wrote Maya's first week." — this is the moment Glean physically cannot match.
+
+Steps 1, 3, 5 are already built. Steps 2, 4 are Sprint H.
 
 ---
 
-## 7. Key files / directories (if resuming blind)
+## 8. Open files / key paths
 
 ```
 src/
-  app/
-    (app)/app/                 # every authenticated page
-      admin/[orgId]/           # admin cockpit
-      memories/[id]/page.tsx   # memory detail (has History button now)
-      oracle/, brain-dump/, timeline/  # recent Sprint A-D features
-    api/
-      enterprise/              # all enterprise endpoints
-      ask/, ask/oracle/        # Q&A routes
-      records/voice/           # Whisper transcription
-      notifications/           # /count + GET/PUT
-  components/
-    app/sidebar.tsx            # nav items list + mobile drawer
-    app/topbar.tsx             # org pill + search + docs panel (RBAC-scoped)
-    enterprise/                # all enterprise-specific UI components
-    ui/empty-state.tsx         # reusable <EmptyState/>
-  lib/
-    db/schema.ts               # single source of truth for DB
-    enterprise/
-      rbac.ts                  # role matrix source of truth
-      rbac-records.ts          # record-level visibility filter
-      notify.ts                # notifyDepartmentMembers / notifyOrgMembers
-      index.ts                 # barrel file — add new enterprise exports here
-    ai/                        # llm, prompts, agents, cron jobs
+  app/(app)/app/
+    legend/page.tsx                            # NEW — feature catalog
+    ask/ (page + chat-view + oracle-view)      # unified Ask
+    landscape/ (page + temporal-view + causal-view) # unified Landscape
+    brain-dump/page.tsx                        # capture, Firehose/File/Link tabs
+    exit-interview/[id]/page.tsx               # NEW — participant session
+    admin/[orgId]/
+      exit-interviews/page.tsx                 # NEW — admin trigger + list
+      handoff/page.tsx                         # NEW — one-click handoff
+  app/api/enterprise/
+    exit-interviews/route.ts                   # NEW — POST create, GET list
+    exit-interviews/[id]/route.ts              # NEW — GET detail, PATCH answer/complete
+    handoff/route.ts                           # NEW — POST run
+  lib/db/
+    schema.ts        # exitInterviews table added
+    migrate.ts       # exit_interviews CREATE TABLE added
+  lib/enterprise/
+    notify.ts        # notifyDepartmentMembers + notifyOrgMembers
+    rbac.ts          # role matrix source of truth
 scripts/
-  test-rbac.ts                 # run with `npm run test:rbac` — all 36 pass
+  test-rbac.ts       # `npm run test:rbac` — 36/36 passing
 ```
 
 ---
 
-## 8. Open issues / footguns
-
-- **Onboarding glitch** still unresolved. Need repro steps from user.
-- **Personal Reattend is the upstream fork**; CLAUDE.md still references some personal patterns. If something looks weird, assume it's inherited from Personal and may not fit Enterprise semantics.
-- **Next.js dynamic server warnings** during build — pre-existing, expected, safe to ignore (they're informational about which routes can't be pre-rendered).
-- **`data/reattend.db` is the production DB** on the droplet. Never `rm -rf data/`. Backups aren't configured — that's a Tier 2 task.
-- **DNS flakes on `git push`** sometimes — just retry.
-
----
-
-## 9. How to resume
+## 9. Resume instructions
 
 ```bash
-# On the Mac, after reboot:
 cd /Users/partha/Desktop/enterprise
-git status       # should be clean on main
-git log --oneline -5   # confirm last commit is 90c3c7a
-
-# In a fresh Claude Code session, say:
-# "Read today.md"
-# Then say what you want to work on next.
+git status   # should be clean on main after push
+git log --oneline -5
 ```
 
-Suggested next move: **ship one real connector (Gmail via direct OAuth or Nango self-host)**. Everything else is sugar until ingest actually flows automatically. That unlocks SMB-200 demos.
+Then in a fresh Claude Code session: **"Read today.md"**. Mention what to work on next.
 
-Backup move: **onboarding glitch diagnosis + Tier 1 polish items (graph perf, more notification types)**.
+Suggested orders of operation from here:
+1. **Ship Sprint H** — Meeting Prep Card + action-taking agents + Slack bot. Completes the day-in-the-life demo.
+2. **Polish Exit Interview / Handoff with seed data** — populate the droplet demo org with realistic names, decisions, memories, then test the flows end-to-end before showing to pilots.
+3. **Nango ingestion** — one connector done completely (Slack recommended). Do this right before GA.
+4. **Gov-track groundwork** — OCR pipeline, StateRAMP paperwork start. Year 2 move.
 
-Backup to the backup: **start state-gov groundwork** — PDF/DOCX upload pipeline (chunk + embed + FTS index), because it's the single biggest capability gap for that ICP.
-
----
-
-*Generated 2026-04-22 at session end. State is self-consistent; `tsc --noEmit` passes; `npm run test:rbac` passes 36/36; site serves 307 on `/app` (healthy).*
+*Generated at sprint-G end. `npx tsc --noEmit` clean; `npm run test:rbac` 36/36 passing; site serves 307 on `/app` (healthy).*
