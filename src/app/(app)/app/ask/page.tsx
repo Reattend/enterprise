@@ -10,10 +10,12 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { Sparkles, Crown } from 'lucide-react'
+import { Sparkles, Crown, BookMarked } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ChatView } from './chat-view'
 import { OracleView } from './oracle-view'
+import { PromptLibraryDrawer } from '@/components/enterprise/prompt-library-drawer'
+import { useAppStore } from '@/stores/app-store'
 
 type Mode = 'chat' | 'oracle'
 
@@ -23,6 +25,8 @@ function AskInner() {
   const pathname = usePathname()
   const urlMode = (searchParams.get('mode') === 'oracle' ? 'oracle' : 'chat') as Mode
   const [mode, setMode] = useState<Mode>(urlMode)
+  const [libOpen, setLibOpen] = useState(false)
+  const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
 
   useEffect(() => { setMode(urlMode) }, [urlMode])
 
@@ -30,6 +34,14 @@ function AskInner() {
     setMode(next)
     const params = new URLSearchParams(searchParams.toString())
     params.set('mode', next)
+    router.replace(`${pathname}?${params.toString()}`)
+  }
+
+  // When a prompt is picked from the library, push it into the URL so the
+  // underlying ChatView / OracleView can pick it up as the initial question.
+  function usePrompt(body: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('q', body)
     router.replace(`${pathname}?${params.toString()}`)
   }
 
@@ -43,15 +55,32 @@ function AskInner() {
             <ModeButton active={mode === 'chat'} onClick={() => pick('chat')} icon={Sparkles} label="Chat" sub="Fast multi-turn" />
             <ModeButton active={mode === 'oracle'} onClick={() => pick('oracle')} icon={Crown} label="Oracle" sub="Deep dossier" />
           </div>
-          <span className="text-[10px] text-muted-foreground hidden sm:inline">
-            {mode === 'chat' ? 'Quick, conversational. ~2-3s.' : 'Structured research. ~20-40s.'}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLibOpen(true)}
+              className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs hover:bg-muted/60 transition-colors"
+              title="Team prompt library"
+            >
+              <BookMarked className="h-3 w-3" />
+              <span className="hidden sm:inline">Prompts</span>
+            </button>
+            <span className="text-[10px] text-muted-foreground hidden lg:inline">
+              {mode === 'chat' ? 'Quick, conversational. ~2-3s.' : 'Structured research. ~20-40s.'}
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden">
         {mode === 'chat' ? <ChatView /> : <OracleView />}
       </div>
+
+      <PromptLibraryDrawer
+        open={libOpen}
+        onOpenChange={setLibOpen}
+        orgId={activeOrgId}
+        onUse={usePrompt}
+      />
     </div>
   )
 }

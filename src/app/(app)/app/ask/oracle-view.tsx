@@ -35,7 +35,7 @@ type Dossier = {
 type OracleData = {
   question: string
   dossier: Dossier
-  sources: Array<{ id: string; title: string; type: string; date: string | null }>
+  sources: Array<{ id: string; title: string; type: string; date: string | null; passage: string | null }>
   meta: { candidatesScanned: number; accessibleFiltered: number; reranked: number; elapsedMs: number }
 }
 
@@ -246,19 +246,30 @@ Sources: ${data.sources.length} memories · ${(data.meta.elapsedMs / 1000).toFix
                 <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
                 Sources ({data.sources.length})
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+              <ul className="space-y-2">
                 {data.sources.map((s, i) => (
-                  <Link
-                    key={s.id}
-                    href={`/app/memories/${s.id}`}
-                    className="flex items-center gap-2 text-xs hover:text-primary transition-colors py-1"
-                  >
-                    <Badge variant="outline" className="text-[9px] h-4 px-1 shrink-0">[{i + 1}]</Badge>
-                    <Badge variant="secondary" className="text-[9px] h-4 px-1 capitalize">{s.type}</Badge>
-                    <span className="truncate">{s.title}</span>
-                  </Link>
+                  <li key={s.id} className="rounded-lg border bg-background/50 p-2.5">
+                    <Link
+                      href={`/app/memories/${s.id}`}
+                      className="flex items-center gap-2 text-xs hover:text-primary transition-colors"
+                    >
+                      <Badge variant="outline" className="text-[9px] h-4 px-1 shrink-0">[{i + 1}]</Badge>
+                      <Badge variant="secondary" className="text-[9px] h-4 px-1 capitalize">{s.type}</Badge>
+                      <span className="font-medium truncate flex-1">{s.title}</span>
+                      {s.date && (
+                        <span className="text-[10px] text-muted-foreground shrink-0">
+                          {new Date(s.date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </Link>
+                    {s.passage && (
+                      <p className="text-[11px] text-muted-foreground mt-1.5 pl-2 border-l-2 border-primary/30 leading-relaxed italic">
+                        &ldquo;{s.passage}&rdquo;
+                      </p>
+                    )}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </div>

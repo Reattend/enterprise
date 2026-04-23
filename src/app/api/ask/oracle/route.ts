@@ -48,6 +48,7 @@ interface OracleResponse {
     title: string
     type: string
     date: string | null
+    passage: string | null  // best-matching sentence/paragraph from the source
   }>
   meta: {
     candidatesScanned: number
@@ -210,6 +211,7 @@ BEGIN DOSSIER:`
         title: r.title,
         type: r.type,
         date: (r.occurredAt || r.createdAt) || null,
+        passage: extractBestPassage(question, r.content || r.summary || ''),
       })),
       meta: {
         candidatesScanned,
@@ -225,6 +227,36 @@ BEGIN DOSSIER:`
     console.error('[oracle]', err)
     return handleEnterpriseError(err)
   }
+}
+
+// Extract the paragraph from a memory that best overlaps the user's question.
+// Simple keyword-overlap scoring — fast, no extra LLM call. Returns null for
+// short/empty content. Trimmed to ~280 chars so the UI can surface a readable
+// snippet beside each source citation.
+function extractBestPassage(question: string, content: string): string | null {
+  if (!content || content.length < 60) return null
+  const stopwords = new Set(['the','a','an','and','or','but','of','to','in','is','are','was','were','be','for','on','with','as','by','at','it','this','that','which','who','what','how','we','our','their','they','has','have','had','will','would','should','can','could'])
+  const qTerms = question.toLowerCase().split(/\W+/)
+    .filter((w) => w.length > 2 && !stopwords.has(w))
+  if (qTerms.length === 0) return null
+
+  // Prefer paragraph (\n\n-separated) as the unit; fall back to sentences
+  const paragraphs = content.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 30)
+  const units = paragraphs.length > 1 ? paragraphs : content.split(/(?<=[.!?])\s+/).filter((s) => s.length > 30)
+  if (units.length === 0) return null
+
+  let best = ''
+  let bestScore = 0
+  for (const u of units) {
+    const ul = u.toLowerCase()
+    let score = 0
+    for (const t of qTerms) {
+      if (ul.includes(t)) score += 1
+    }
+    if (score > bestScore) { bestScore = score; best = u }
+  }
+  if (bestScore === 0) return null
+  return best.length > 280 ? best.slice(0, 280) + '…' : best
 }
 
 // Parse the five sections out of Claude's markdown-ish output. Falls back to

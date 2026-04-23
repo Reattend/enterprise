@@ -34,6 +34,7 @@ import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
 import { StartMyDayCard } from '@/components/enterprise/start-my-day-card'
 import { MemoryResurfaceCard } from '@/components/enterprise/memory-resurface-card'
 import { MeetingPrepCard } from '@/components/enterprise/meeting-prep-card'
+import { TrendingCard } from '@/components/enterprise/trending-card'
 
 type PendingPolicy = { policyId: string; title: string; category: string | null }
 type Decision = { id: string; title: string; status: string; createdAt: string; decidedAt: string }
@@ -135,6 +136,9 @@ export default function HomePage() {
 
       {/* Meeting Prep — next 8h of meetings with Claude-synthesized briefs */}
       <MeetingPrepCard orgId={activeEnterpriseOrgId} />
+
+      {/* Trending — hot records this week (hidden if no views) */}
+      <TrendingCard orgId={activeEnterpriseOrgId} />
 
       {/* Memory Resurface — "1 year ago today" moments */}
       <MemoryResurfaceCard orgId={activeEnterpriseOrgId} />

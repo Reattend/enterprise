@@ -10,6 +10,7 @@ import { InboxBanner } from '@/components/app/inbox-banner'
 import { OnboardingChecklist } from '@/components/app/onboarding-checklist'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
+import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
 import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
@@ -23,7 +24,7 @@ const FULL_BLEED_PATHS = ['/app', '/app/landscape']
 const NO_ORG_ALLOWED_PREFIXES = ['/app/admin/onboarding', '/app/settings']
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { sidebarCollapsed, enterpriseOrgs } = useAppStore()
+  const { sidebarCollapsed, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
   const pathname = usePathname()
   const router = useRouter()
   const isFullBleed = FULL_BLEED_PATHS.includes(pathname)
@@ -90,6 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       >
         <AppTopbar />
         <InboxBanner />
+        <AnnouncementBanner orgId={activeEnterpriseOrgId} />
         <PolicyPendingBanner />
         <OnboardingChecklist />
         <div className={cn(

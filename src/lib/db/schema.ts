@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, blob, index } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, blob, index, primaryKey } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
 // ─── Users ──────────────────────────────────────────────
@@ -99,6 +99,11 @@ export const records = sqliteTable('records', {
   //   - org        → everyone in the org
   // Explicit cross-dept/user sharing lives in record_shares.
   visibility: text('visibility', { enum: ['private', 'team', 'department', 'org'] }).notNull().default('team'),
+  // Verification cadence (Guru-style). Owner sets an interval — at expiry the
+  // record shows as Stale. Null means no cadence (never goes stale).
+  verifyEveryDays: integer('verify_every_days'), // 30 / 60 / 90 / null
+  lastVerifiedAt: text('last_verified_at'),      // ISO
+  verifiedByUserId: text('verified_by_user_id'),
   createdBy: text('created_by').notNull(), // user id or 'agent'
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -107,6 +112,7 @@ export const records = sqliteTable('records', {
   typeIdx: index('rec_type_idx').on(table.type),
   triageStatusIdx: index('rec_triage_status_idx').on(table.triageStatus),
   visibilityIdx: index('rec_visibility_idx').on(table.visibility),
+  lastVerifiedIdx: index('rec_last_verified_idx').on(table.lastVerifiedAt),
 }))
 
 // ─── Attachments ────────────────────────────────────────
@@ -1208,6 +1214,65 @@ export const transferEvents = sqliteTable('transfer_events', {
   orgIdx: index('te_org_idx').on(table.organizationId),
   fromUserIdx: index('te_from_user_idx').on(table.fromUserId),
   toUserIdx: index('te_to_user_idx').on(table.toUserId),
+}))
+
+// ─── Announcements ────────────────────────────────────────
+// Guru-style pinned banner. Admin creates; shows at top of every page for
+// all org members until dismissed (per-user) or expires. Plain text (with
+// markdown rendering on the client) — not policies, not memories.
+export const announcements = sqliteTable('announcements', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  createdByUserId: text('created_by_user_id').notNull().references(() => users.id),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  tone: text('tone', { enum: ['info', 'warning', 'success'] }).notNull().default('info'),
+  startsAt: text('starts_at').notNull().$defaultFn(() => new Date().toISOString()),
+  endsAt: text('ends_at'), // null = indefinite
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('ann_org_idx').on(table.organizationId),
+  activeIdx: index('ann_active_idx').on(table.active),
+}))
+
+// Per-user dismissals so dismissing doesn't hide the banner for everyone.
+export const announcementDismissals = sqliteTable('announcement_dismissals', {
+  announcementId: text('announcement_id').notNull().references(() => announcements.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  dismissedAt: text('dismissed_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.announcementId, table.userId] }),
+}))
+
+// ─── Record views ─────────────────────────────────────────
+// Fire-and-forget pings from the memory detail page. Feeds the Trending
+// widget on Home and admin analytics (most-viewed, reach per dept).
+export const recordViews = sqliteTable('record_views', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  recordId: text('record_id').notNull().references(() => records.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  viewedAt: text('viewed_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  recordIdx: index('rv_record_idx').on(table.recordId),
+  viewedIdx: index('rv_viewed_idx').on(table.viewedAt),
+}))
+
+// ─── Prompt library ───────────────────────────────────────
+// Team-shared prompts, discoverable in /app/ask. Org-scoped. Any member can
+// create; any member can run. Admin can delete (future).
+export const promptLibrary = sqliteTable('prompt_library', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  createdByUserId: text('created_by_user_id').notNull().references(() => users.id),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  tags: text('tags').default('[]'), // JSON
+  usageCount: integer('usage_count').notNull().default(0),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('pl_org_idx').on(table.organizationId),
 }))
 
 // ─── Calendar events (Meeting Prep) ───────────────────────

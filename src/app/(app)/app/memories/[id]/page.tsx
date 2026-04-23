@@ -39,6 +39,7 @@ import {
 } from 'lucide-react'
 import { RecordSharePanel } from '@/components/enterprise/record-share-panel'
 import { PromoteToDecisionDialog } from '@/components/enterprise/promote-to-decision-dialog'
+import { TrustBadge, computeTrustState } from '@/components/enterprise/trust-badge'
 import { useAppStore } from '@/stores/app-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -79,7 +80,50 @@ export default function MemoryDetailPage() {
 
   useEffect(() => {
     fetchRecord()
+    // Fire-and-forget view ping — feeds trending + admin analytics. Fails
+    // silently so it never blocks the page.
+    fetch(`/api/enterprise/records/${recordId}/view`, { method: 'POST' }).catch(() => {})
   }, [recordId])
+
+  async function verifyNow() {
+    try {
+      const res = await fetch(`/api/enterprise/records/${recordId}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify' }),
+      })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Verify failed')
+        return
+      }
+      const data = await res.json()
+      setRecord(data.record)
+      toast.success('Marked as verified')
+    } catch {
+      toast.error('Verify failed')
+    }
+  }
+
+  async function setCadence(days: number | null) {
+    try {
+      const res = await fetch(`/api/enterprise/records/${recordId}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'setCadence', cadenceDays: days }),
+      })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Could not set cadence')
+        return
+      }
+      const data = await res.json()
+      setRecord(data.record)
+      toast.success(days ? `Cadence: every ${days} days` : 'Cadence removed')
+    } catch {
+      toast.error('Could not set cadence')
+    }
+  }
 
   const fetchRecord = async () => {
     try {
@@ -265,7 +309,7 @@ export default function MemoryDetailPage() {
               <TypeIcon className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <Badge variant="secondary" className={`text-[10px] ${tc?.bg || ''} ${tc?.color || ''}`}>
                   {tc?.label || record.type}
                 </Badge>
@@ -274,6 +318,18 @@ export default function MemoryDetailPage() {
                     <Lock className="h-2.5 w-2.5" /> Locked
                   </Badge>
                 )}
+                <TrustBadge
+                  state={computeTrustState({
+                    verifyEveryDays: record.verifyEveryDays ?? record.verify_every_days,
+                    lastVerifiedAt: record.lastVerifiedAt ?? record.last_verified_at,
+                  })}
+                />
+                {/* Owner / admin verify controls */}
+                <VerificationControls
+                  record={record}
+                  onVerify={verifyNow}
+                  onSetCadence={setCadence}
+                />
               </div>
 
               {isEditing ? (
@@ -510,5 +566,60 @@ export default function MemoryDetailPage() {
         record={record}
       />
     </motion.div>
+  )
+}
+
+function VerificationControls({
+  record,
+  onVerify,
+  onSetCadence,
+}: {
+  record: any
+  onVerify: () => void
+  onSetCadence: (days: number | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const cadence: number | null = record?.verifyEveryDays ?? record?.verify_every_days ?? null
+  const lastVerified = record?.lastVerifiedAt ?? record?.last_verified_at
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors rounded-full border px-2 py-0.5"
+        title="Verification cadence"
+      >
+        <ShieldCheck className="h-2.5 w-2.5" />
+        {cadence ? `every ${cadence}d` : 'no cadence'}
+      </button>
+      {open && (
+        <div
+          className="absolute top-6 left-0 z-20 rounded-lg border bg-popover shadow-md p-2 text-xs w-56 space-y-2"
+          onMouseLeave={() => setOpen(false)}
+        >
+          <div className="font-semibold mb-1">Verification</div>
+          {lastVerified && (
+            <div className="text-[10px] text-muted-foreground">Last verified {new Date(lastVerified).toLocaleDateString()}</div>
+          )}
+          <button
+            onClick={() => { onVerify(); setOpen(false) }}
+            className="w-full text-left px-2 py-1 rounded hover:bg-muted text-emerald-600"
+          >
+            Mark verified now
+          </button>
+          <div className="pt-1 border-t">
+            <div className="text-[10px] text-muted-foreground mb-1">Cadence</div>
+            {[30, 60, 90, null].map((d) => (
+              <button
+                key={String(d)}
+                onClick={() => { onSetCadence(d); setOpen(false) }}
+                className={`w-full text-left px-2 py-1 rounded hover:bg-muted ${cadence === d ? 'bg-muted font-semibold' : ''}`}
+              >
+                {d ? `Every ${d} days` : 'No cadence (never stale)'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

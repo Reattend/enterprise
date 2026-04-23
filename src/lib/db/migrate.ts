@@ -859,6 +859,91 @@ try {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
 }
 
+// ─── Records: verification columns ───
+try {
+  const recCols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]
+  const hasVerify = recCols.some((c: any) => c.name === 'verify_every_days')
+  if (!hasVerify) {
+    sqlite.exec("ALTER TABLE records ADD COLUMN verify_every_days INTEGER;")
+    sqlite.exec("ALTER TABLE records ADD COLUMN last_verified_at TEXT;")
+    sqlite.exec("ALTER TABLE records ADD COLUMN verified_by_user_id TEXT;")
+    sqlite.exec("CREATE INDEX IF NOT EXISTS rec_last_verified_idx ON records(last_verified_at);")
+    console.log('✓ records verification columns added')
+  } else {
+    console.log('— records verification columns (already exist)')
+  }
+} catch (e: any) {
+  console.error('records verification migration:', e.message)
+}
+
+// ─── Announcements ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS announcements (
+      id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      created_by_user_id TEXT NOT NULL REFERENCES users(id),
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      tone TEXT NOT NULL DEFAULT 'info' CHECK(tone IN ('info', 'warning', 'success')),
+      starts_at TEXT NOT NULL DEFAULT (datetime('now')),
+      ends_at TEXT,
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS ann_org_idx ON announcements(organization_id);
+    CREATE INDEX IF NOT EXISTS ann_active_idx ON announcements(active);
+
+    CREATE TABLE IF NOT EXISTS announcement_dismissals (
+      announcement_id TEXT NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      dismissed_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (announcement_id, user_id)
+    );
+  `)
+  console.log('✓ announcements + announcement_dismissals')
+} catch (e: any) {
+  console.error('announcements migration:', e.message)
+}
+
+// ─── Record views ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS record_views (
+      id TEXT PRIMARY KEY,
+      record_id TEXT NOT NULL REFERENCES records(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      viewed_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS rv_record_idx ON record_views(record_id);
+    CREATE INDEX IF NOT EXISTS rv_viewed_idx ON record_views(viewed_at);
+  `)
+  console.log('✓ record_views')
+} catch (e: any) {
+  console.error('record_views migration:', e.message)
+}
+
+// ─── Prompt library ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS prompt_library (
+      id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      created_by_user_id TEXT NOT NULL REFERENCES users(id),
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      tags TEXT DEFAULT '[]',
+      usage_count INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS pl_org_idx ON prompt_library(organization_id);
+  `)
+  console.log('✓ prompt_library')
+} catch (e: any) {
+  console.error('prompt_library migration:', e.message)
+}
+
 // ─── Calendar events (Meeting Prep) ───
 try {
   sqlite.exec(`

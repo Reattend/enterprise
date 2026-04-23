@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus, GraduationCap } from 'lucide-react'
+import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus, GraduationCap, Megaphone, LineChart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface OrgMeta {
@@ -18,7 +18,9 @@ interface OrgMeta {
 
 const TABS = [
   { key: 'overview', label: 'Overview', icon: Gauge, path: '' },
+  { key: 'analytics', label: 'Analytics', icon: LineChart, path: '/analytics' },
   { key: 'members', label: 'Members', icon: Users, path: '/members' },
+  { key: 'announcements', label: 'Announcements', icon: Megaphone, path: '/announcements' },
   { key: 'departments', label: 'Departments', icon: Network, path: '/departments' },
   { key: 'roles', label: 'Roles', icon: Briefcase, path: '/roles' },
   { key: 'decisions', label: 'Decisions', icon: Gavel, path: '/decisions' },
