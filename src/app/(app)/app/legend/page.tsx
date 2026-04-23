@@ -132,6 +132,14 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
         status: 'live',
       },
       {
+        title: 'Anonymous Ask',
+        desc: 'Ask a sensitive question (HR / compliance / reporting) without attribution. Same RBAC applies — you still only see what you could already access — but your identity is stripped from the audit log. One-shot, no thread saved.',
+        icon: Shield,
+        href: '/app/anonymous-ask',
+        who: ['super_admin', 'admin', 'member', 'guest'],
+        status: 'live',
+      },
+      {
         title: 'Meeting Prep',
         desc: 'Home card showing the next 8h of meetings with a Claude-written brief: heads-up, related memories, open questions. Add meetings manually until calendar sync lands.',
         icon: Clock,
@@ -225,7 +233,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Agents',
-        desc: 'Purpose-built Claude agents — 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Deploy to Slack/Teams/web. Activity tab shows every system run.',
+        desc: 'Purpose-built Claude agents — 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Admins can click "Run now" to fire an agent over recent memory; output is saved as a new memory. Activity tab shows every system run.',
         icon: Bot,
         href: '/app/agents',
         who: ['super_admin', 'admin', 'member'],

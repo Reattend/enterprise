@@ -258,6 +258,9 @@ function AgentCard({ agent, onOpen, canAuthor, orgId }: { agent: Agent; onOpen: 
           )}
         </div>
         <div className="flex items-center gap-1.5">
+          {canAuthor && (
+            <AgentRunNowButton agentId={agent.id} />
+          )}
           {canAuthor && orgId && (
             <Button size="sm" variant="ghost" asChild>
               <Link href={`/app/admin/${orgId}/agents/${agent.id}/edit`}>Edit</Link>
@@ -270,6 +273,34 @@ function AgentCard({ agent, onOpen, canAuthor, orgId }: { agent: Agent; onOpen: 
         </div>
       </div>
     </Card>
+  )
+}
+
+function AgentRunNowButton({ agentId }: { agentId: string }) {
+  const [running, setRunning] = useState(false)
+  async function run() {
+    setRunning(true)
+    try {
+      const res = await fetch(`/api/enterprise/agents/${agentId}/run`, { method: 'POST' })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        // toast is imported at page level — bubble via throw
+        alert(b.error || 'Agent run failed')
+        return
+      }
+      const data = await res.json()
+      alert(`Ran over ${data.corpusSize} memories. Result saved to Memory.`)
+      if (data.recordId) {
+        window.open(`/app/memories/${data.recordId}`, '_blank')
+      }
+    } finally {
+      setRunning(false)
+    }
+  }
+  return (
+    <Button size="sm" variant="ghost" onClick={run} disabled={running} title="Run agent over recent memory — admin only">
+      {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+    </Button>
   )
 }
 

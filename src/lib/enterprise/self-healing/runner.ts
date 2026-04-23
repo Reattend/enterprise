@@ -4,8 +4,10 @@ import {
   records,
   workspaceOrgLinks,
   departments,
+  organizationMembers,
+  inboxNotifications,
 } from '../../db/schema'
-import { eq, inArray, and, isNull } from 'drizzle-orm'
+import { eq, inArray, and, isNull, desc } from 'drizzle-orm'
 import { detectStale, detectOrphaned, detectGaps, detectContradictions, detectRehashedDecisions } from './detectors'
 import type { Finding, FindingKind, FindingSeverity, ScanResult } from './types'
 import { SEVERITY_WEIGHT } from './types'
@@ -44,6 +46,18 @@ export async function runHealthScan(organizationId: string): Promise<ScanResult>
   const healthScore = computeScore(totalRecords, allFindings)
   const scannedAt = new Date().toISOString()
 
+  // Pull the previous org-level health row BEFORE we insert the new one so we
+  // can detect new contradictions (delta) and fire a single `suggestion`
+  // notification to admins — Guru-flavored "stale knowledge flagged" signal.
+  const [priorScan] = await db.select()
+    .from(knowledgeHealth)
+    .where(and(
+      eq(knowledgeHealth.organizationId, organizationId),
+      isNull(knowledgeHealth.departmentId),
+    ))
+    .orderBy(desc(knowledgeHealth.computedAt))
+    .limit(1)
+
   // Roll-up row for the org (departmentId = null)
   await db.insert(knowledgeHealth).values({
     organizationId,
@@ -57,6 +71,39 @@ export async function runHealthScan(organizationId: string): Promise<ScanResult>
     findings: JSON.stringify(allFindings.slice(0, 500)), // cap to keep row small
     computedAt: scannedAt,
   })
+
+  // Fire admin notifications for new contradictions. We only emit when the
+  // contradiction count *grew* since the previous scan, so repeat scans don't
+  // spam the inbox. Fire-and-forget; never block the scan.
+  const prevContradictions = priorScan?.contradictionsCount ?? 0
+  const newContradictions = byKind.contradiction - prevContradictions
+  if (newContradictions > 0 && workspaceIds.length > 0) {
+    try {
+      const admins = await db.select()
+        .from(organizationMembers)
+        .where(and(
+          eq(organizationMembers.organizationId, organizationId),
+          eq(organizationMembers.status, 'active'),
+        ))
+      const adminUserIds = admins
+        .filter((m) => m.role === 'super_admin' || m.role === 'admin')
+        .map((m) => m.userId)
+      const wsForNotify = workspaceIds[0]
+      for (const uid of adminUserIds) {
+        await db.insert(inboxNotifications).values({
+          workspaceId: wsForNotify,
+          userId: uid,
+          type: 'suggestion',
+          title: `${newContradictions} new contradiction${newContradictions === 1 ? '' : 's'} detected in org memory`,
+          body: 'Self-healing found new conflicts between decisions or policies. Open the dashboard to resolve.',
+          objectType: 'self_healing_scan',
+          objectId: organizationId,
+        })
+      }
+    } catch (err) {
+      console.warn('[self-healing] suggestion notify failed', err)
+    }
+  }
 
   // Per-department breakdown — groups findings by their departmentId (skips
   // findings that aren't department-scoped like some contradictions).

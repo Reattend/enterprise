@@ -10,7 +10,8 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { Sparkles, Crown, BookMarked } from 'lucide-react'
+import { Sparkles, Crown, BookMarked, Lock } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { ChatView } from './chat-view'
 import { OracleView } from './oracle-view'
@@ -56,6 +57,14 @@ function AskInner() {
             <ModeButton active={mode === 'oracle'} onClick={() => pick('oracle')} icon={Crown} label="Oracle" sub="Deep dossier" />
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href="/app/anonymous-ask"
+              className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs hover:bg-muted/60 transition-colors text-muted-foreground"
+              title="Ask without attribution (HR / compliance questions)"
+            >
+              <Lock className="h-3 w-3" />
+              <span className="hidden sm:inline">Anonymous</span>
+            </Link>
             <button
               onClick={() => setLibOpen(true)}
               className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs hover:bg-muted/60 transition-colors"
