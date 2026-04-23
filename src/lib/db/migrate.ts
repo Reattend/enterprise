@@ -859,6 +859,56 @@ try {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
 }
 
+// ─── Records: gov-track compliance columns ───
+try {
+  const cols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]
+  const hasLegalHold = cols.some((c: any) => c.name === 'legal_hold')
+  if (!hasLegalHold) {
+    sqlite.exec("ALTER TABLE records ADD COLUMN legal_hold INTEGER NOT NULL DEFAULT 0;")
+    sqlite.exec("ALTER TABLE records ADD COLUMN retention_until TEXT;")
+    sqlite.exec("ALTER TABLE records ADD COLUMN ocr_confidence REAL;")
+    console.log('✓ records legal_hold/retention_until/ocr_confidence added')
+  } else {
+    console.log('— records legal_hold columns (already exist)')
+  }
+} catch (e: any) {
+  console.error('records legal_hold migration:', e.message)
+}
+
+// ─── OCR jobs ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS ocr_jobs (
+      id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+      file_name TEXT NOT NULL,
+      file_size INTEGER NOT NULL,
+      mime_type TEXT NOT NULL,
+      source_hash TEXT,
+      language TEXT NOT NULL DEFAULT 'eng',
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'processing', 'completed', 'failed', 'needs_review')),
+      page_count INTEGER,
+      avg_confidence REAL,
+      redaction_count INTEGER DEFAULT 0,
+      extracted_text_length INTEGER,
+      result_record_id TEXT,
+      error_message TEXT,
+      created_by TEXT NOT NULL REFERENCES users(id),
+      batch_id TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      started_at TEXT,
+      completed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS ocr_org_idx ON ocr_jobs(organization_id);
+    CREATE INDEX IF NOT EXISTS ocr_status_idx ON ocr_jobs(status);
+    CREATE INDEX IF NOT EXISTS ocr_batch_idx ON ocr_jobs(batch_id);
+  `)
+  console.log('✓ ocr_jobs')
+} catch (e: any) {
+  console.error('ocr_jobs migration:', e.message)
+}
+
 // ─── Records: verification columns ───
 try {
   const recCols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]

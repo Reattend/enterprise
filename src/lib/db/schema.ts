@@ -104,6 +104,13 @@ export const records = sqliteTable('records', {
   verifyEveryDays: integer('verify_every_days'), // 30 / 60 / 90 / null
   lastVerifiedAt: text('last_verified_at'),      // ISO
   verifiedByUserId: text('verified_by_user_id'),
+  // Gov-track compliance fields. legalHold freezes the record against deletion
+  // and edit. retentionUntil is the earliest date the record can be purged
+  // (7/50/etc years for gov retention schedules). ocrConfidence 0-1 surfaces
+  // low-confidence scans for human review.
+  legalHold: integer('legal_hold', { mode: 'boolean' }).notNull().default(false),
+  retentionUntil: text('retention_until'), // ISO date — no deletion before this
+  ocrConfidence: real('ocr_confidence'),   // 0-1, null for non-OCR records
   createdBy: text('created_by').notNull(), // user id or 'agent'
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -1214,6 +1221,38 @@ export const transferEvents = sqliteTable('transfer_events', {
   orgIdx: index('te_org_idx').on(table.organizationId),
   fromUserIdx: index('te_from_user_idx').on(table.fromUserId),
   toUserIdx: index('te_to_user_idx').on(table.toUserId),
+}))
+
+// ─── OCR jobs ─────────────────────────────────────────────
+// One row per uploaded document in the OCR pipeline. Tracks status end-to-end
+// — pending / processing / completed / failed / needs_review. Produces zero
+// or one memory records (on success). Stores confidence + redaction count so
+// the admin OCR quality dashboard has real numbers, not theatre.
+export const ocrJobs = sqliteTable('ocr_jobs', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  fileName: text('file_name').notNull(),
+  fileSize: integer('file_size').notNull(),     // bytes
+  mimeType: text('mime_type').notNull(),
+  sourceHash: text('source_hash'),              // sha256 of original bytes
+  language: text('language').notNull().default('eng'),
+  status: text('status', { enum: ['pending', 'processing', 'completed', 'failed', 'needs_review'] }).notNull().default('pending'),
+  pageCount: integer('page_count'),
+  avgConfidence: real('avg_confidence'),        // 0-1
+  redactionCount: integer('redaction_count').default(0),
+  extractedTextLength: integer('extracted_text_length'),
+  resultRecordId: text('result_record_id'),     // memory record created on success
+  errorMessage: text('error_message'),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  batchId: text('batch_id'),                    // groups uploads from one batch
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+}, (table) => ({
+  orgIdx: index('ocr_org_idx').on(table.organizationId),
+  statusIdx: index('ocr_status_idx').on(table.status),
+  batchIdx: index('ocr_batch_idx').on(table.batchId),
 }))
 
 // ─── Announcements ────────────────────────────────────────
