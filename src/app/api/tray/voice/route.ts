@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
   const dup = await findExactDuplicate(workspaceId, transcript)
   if (dup.hit) {
     return NextResponse.json({
-      recordId: dup.existingId,
+      recordId: dup.existingRecordId,
       transcript,
       duplicate: true,
     })
