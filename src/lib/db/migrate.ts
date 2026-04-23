@@ -859,6 +859,21 @@ try {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
 }
 
+// ─── Audit log WORM columns ───
+try {
+  const cols = sqlite.prepare("PRAGMA table_info(audit_log)").all() as any[]
+  const hasHash = cols.some((c: any) => c.name === 'row_hash')
+  if (!hasHash) {
+    sqlite.exec("ALTER TABLE audit_log ADD COLUMN prev_hash TEXT;")
+    sqlite.exec("ALTER TABLE audit_log ADD COLUMN row_hash TEXT;")
+    console.log('✓ audit_log WORM columns added')
+  } else {
+    console.log('— audit_log WORM columns (already exist)')
+  }
+} catch (e: any) {
+  console.error('audit_log WORM migration:', e.message)
+}
+
 // ─── Records: gov-track compliance columns ───
 try {
   const cols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]

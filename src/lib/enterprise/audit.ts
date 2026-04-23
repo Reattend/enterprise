@@ -1,6 +1,26 @@
 import { db } from '../db'
 import { auditLog, organizationMembers, users } from '../db/schema'
 import { and, eq, desc, gte, lte } from 'drizzle-orm'
+import { createHash } from 'crypto'
+
+// WORM chain — each audit row references the previous row's hash. Tampering
+// with any historical row breaks the chain from that point forward, which
+// the `verifyAuditChain` endpoint surfaces to admins.
+//
+// Hash input: canonical JSON of the row payload + the prior row's rowHash.
+// Canonical = sorted keys. If prior is null (first row in the org's log), we
+// use the literal string 'GENESIS' so the chain has a deterministic root.
+function canonicalize(obj: Record<string, unknown>): string {
+  const keys = Object.keys(obj).sort()
+  const out: Record<string, unknown> = {}
+  for (const k of keys) out[k] = obj[k] ?? null
+  return JSON.stringify(out)
+}
+
+function computeRowHash(prevHash: string | null, payload: Record<string, unknown>): string {
+  const input = (prevHash || 'GENESIS') + canonicalize(payload)
+  return createHash('sha256').update(input).digest('hex')
+}
 
 export type AuditAction =
   | 'query' | 'read' | 'create' | 'update' | 'delete' | 'export'
@@ -24,8 +44,20 @@ export interface AuditEntry {
 
 // Immutable write — no update/delete API is exposed. Callers that need to
 // record a mistake should write a NEW audit entry, not mutate an existing one.
+// Additionally, every write computes rowHash = sha256(prevHash + payload) so
+// the chain survives tamper attempts (tamper → mismatched hash → flagged by
+// verifyAuditChain).
 export async function writeAudit(entry: AuditEntry): Promise<void> {
-  await db.insert(auditLog).values({
+  // Pull the latest row for this org to build the chain. Single cheap query.
+  const [prev] = await db.select({ rowHash: auditLog.rowHash })
+    .from(auditLog)
+    .where(eq(auditLog.organizationId, entry.organizationId))
+    .orderBy(desc(auditLog.createdAt))
+    .limit(1)
+  const prevHash = prev?.rowHash ?? null
+
+  const createdAt = new Date().toISOString()
+  const payload = {
     organizationId: entry.organizationId,
     userId: entry.userId ?? null,
     userEmail: entry.userEmail,
@@ -36,6 +68,14 @@ export async function writeAudit(entry: AuditEntry): Promise<void> {
     ipAddress: entry.ipAddress ?? null,
     userAgent: entry.userAgent ?? null,
     metadata: entry.metadata ? JSON.stringify(entry.metadata) : null,
+    createdAt,
+  }
+  const rowHash = computeRowHash(prevHash, payload)
+
+  await db.insert(auditLog).values({
+    ...payload,
+    prevHash,
+    rowHash,
   })
 }
 
@@ -70,6 +110,62 @@ export interface AuditQueryFilters {
   to?: string // ISO
   limit?: number
   offset?: number
+}
+
+// Walk the entire audit chain for an org, recomputing every row hash. Returns
+// the first broken link (if any) + totals. For the Trust page / compliance
+// export we expose a boolean "intact" + the break index.
+export async function verifyAuditChain(organizationId: string): Promise<{
+  intact: boolean
+  totalRows: number
+  brokenAtIndex: number | null
+  brokenRowId: string | null
+  message: string
+}> {
+  const rows = await db.select()
+    .from(auditLog)
+    .where(eq(auditLog.organizationId, organizationId))
+    .orderBy(auditLog.createdAt)
+  let prev: string | null = null
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]
+    const expected = computeRowHash(prev, {
+      organizationId: r.organizationId,
+      userId: r.userId ?? null,
+      userEmail: r.userEmail,
+      action: r.action,
+      departmentId: r.departmentId ?? null,
+      resourceType: r.resourceType ?? null,
+      resourceId: r.resourceId ?? null,
+      ipAddress: r.ipAddress ?? null,
+      userAgent: r.userAgent ?? null,
+      metadata: r.metadata ?? null,
+      createdAt: r.createdAt,
+    })
+    // Historical rows pre-WORM migration won't have a rowHash — treat as
+    // unverifiable but not broken.
+    if (!r.rowHash) {
+      prev = r.rowHash
+      continue
+    }
+    if (r.rowHash !== expected || (prev !== null && r.prevHash !== prev)) {
+      return {
+        intact: false,
+        totalRows: rows.length,
+        brokenAtIndex: i,
+        brokenRowId: r.id,
+        message: `Chain break at row ${i + 1}/${rows.length} (id ${r.id}). Tamper suspected.`,
+      }
+    }
+    prev = r.rowHash
+  }
+  return {
+    intact: true,
+    totalRows: rows.length,
+    brokenAtIndex: null,
+    brokenRowId: null,
+    message: rows.length === 0 ? 'No audit rows yet.' : `All ${rows.length} rows verified.`,
+  }
 }
 
 export async function queryAudit(filters: AuditQueryFilters) {

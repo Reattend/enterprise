@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ScrollText, Filter, AlertCircle, Eye, Edit, Trash2, Shield, Key, LogIn, PlusCircle, Search, X } from 'lucide-react'
+import { ScrollText, Filter, AlertCircle, Eye, Edit, Trash2, Shield, Key, LogIn, PlusCircle, Search, X, Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface AuditEntry {
@@ -63,6 +63,21 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
   const [resourceType, setResourceType] = useState('')
   const [resourceId, setResourceId] = useState<string>(searchParams.get('resourceId') || '')
   const [selected, setSelected] = useState<AuditEntry | null>(null)
+  const [verify, setVerify] = useState<{ running: boolean; result: any | null }>({ running: false, result: null })
+
+  async function runVerify() {
+    setVerify({ running: true, result: null })
+    try {
+      const res = await fetch(`/api/enterprise/compliance/verify-audit?orgId=${orgId}`)
+      if (!res.ok) {
+        setVerify({ running: false, result: { intact: false, message: 'Verification failed' } })
+        return
+      }
+      setVerify({ running: false, result: await res.json() })
+    } catch {
+      setVerify({ running: false, result: { intact: false, message: 'Network error' } })
+    }
+  }
 
   async function load() {
     setErr(null)
@@ -165,11 +180,23 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
               className="text-xs text-primary hover:underline"
               download
             >
-              Export CSV (tamper-evident)
+              Export CSV
             </a>
-            <span className="text-xs text-muted-foreground">· Immutable · retention applies</span>
+            <Button size="sm" variant="ghost" onClick={runVerify} disabled={verify.running} title="Verify the hash-chain integrity of the audit log">
+              {verify.running ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Shield className="h-3 w-3 mr-1" />}
+              Verify chain
+            </Button>
+            <span className="text-xs text-muted-foreground">· WORM hash-chained · retention applies</span>
           </div>
         </div>
+        {verify.result && (
+          <div className={`px-4 py-2 text-xs border-b flex items-center gap-2 ${verify.result.intact ? 'bg-emerald-500/5 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/5 text-red-600'}`}>
+            {verify.result.intact
+              ? <Check className="h-3.5 w-3.5" />
+              : <AlertCircle className="h-3.5 w-3.5" />}
+            <span>{verify.result.message}</span>
+          </div>
+        )}
         {filtered === null ? (
           <div className="p-4 text-sm text-muted-foreground">Loading…</div>
         ) : filtered.length === 0 ? (

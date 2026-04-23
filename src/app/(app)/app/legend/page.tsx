@@ -342,9 +342,25 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Audit log (admin)',
-        desc: 'Every query, access, role change, export, agent run — timestamped with actor, IP, resource. Searchable, CSV-exportable, retained per plan.',
+        desc: 'Every query, access, role change, export, agent run — timestamped with actor, IP, resource. Hash-chain WORM: every row sha256-linked to the prior row; a "Verify chain" button walks the log and surfaces tamper. Searchable, CSV-exportable, retained per plan.',
         icon: ScrollText,
         who: ['super_admin', 'admin'],
+        status: 'live',
+      },
+      {
+        title: 'GDPR data controls (every user)',
+        desc: 'In Settings → Data controls: download everything Reattend holds on you as JSON, or invoke right-to-erasure (irreversible). Erasure anonymises audit markers but keeps shared memory content for org continuity.',
+        icon: Shield,
+        href: '/app/settings',
+        who: ['super_admin', 'admin', 'member', 'guest'],
+        status: 'live',
+      },
+      {
+        title: 'Compliance page (public)',
+        desc: 'Public-facing compliance stance at /compliance — certifications roadmap (SOC 2 I Q1 post-launch, II Q2+, StateRAMP Y2), controls we actually have today, data residency, encryption specifics. Sales hands this to procurement.',
+        icon: Shield,
+        href: '/compliance',
+        who: ['super_admin', 'admin', 'member', 'guest'],
         status: 'live',
       },
       {

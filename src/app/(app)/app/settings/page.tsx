@@ -28,6 +28,8 @@ import {
   EyeOff,
   Chrome,
   Smartphone,
+  Download,
+  AlertTriangle,
   Puzzle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -618,6 +620,8 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          <DataControlsCard />
+
           <Card className="border-destructive/20">
             <CardHeader>
               <CardTitle className="text-base text-destructive flex items-center gap-2">
@@ -1201,5 +1205,138 @@ export default function SettingsPage() {
 
       </Tabs>
     </motion.div>
+  )
+}
+
+// Data controls — GDPR self-export + right-to-erasure. Both tied to the
+// authenticated user. The erase flow requires typing "ERASE <email>" as a
+// server-enforced anti-footgun.
+function DataControlsCard() {
+  const [exporting, setExporting] = useState(false)
+  const [erasing, setErasing] = useState(false)
+  const [showErase, setShowErase] = useState(false)
+  const [confirm, setConfirm] = useState('')
+  const [myEmail, setMyEmail] = useState('')
+
+  useEffect(() => {
+    fetch('/api/user')
+      .then((r) => r.json())
+      .then((d) => setMyEmail((d?.user?.email || '').toLowerCase()))
+      .catch(() => {})
+  }, [])
+
+  async function runExport() {
+    setExporting(true)
+    try {
+      const res = await fetch('/api/enterprise/compliance/export')
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Export failed')
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `reattend-data-export-${Date.now()}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Data export downloaded')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function runErase() {
+    setErasing(true)
+    try {
+      const res = await fetch('/api/enterprise/compliance/erase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm }),
+      })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        toast.error(b.error || 'Erasure failed')
+        return
+      }
+      toast.success('Account erased. Redirecting…')
+      setTimeout(() => { window.location.href = '/' }, 1500)
+    } finally {
+      setErasing(false)
+    }
+  }
+
+  const erasePhrase = myEmail ? `ERASE ${myEmail}` : 'ERASE <your email>'
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Shield className="h-4 w-4 text-primary" /> Data controls
+        </CardTitle>
+        <CardDescription>
+          GDPR-aligned controls for your personal data. Export everything Reattend holds on you, or
+          erase it. Erasure is irreversible and cryptographically audited.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+          <Download className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold">Download your data</div>
+            <p className="text-xs text-muted-foreground">
+              JSON bundle with every record you authored, chat thread, notification, policy ack,
+              audit entry referencing you, and view history.
+            </p>
+          </div>
+          <Button size="sm" onClick={runExport} disabled={exporting}>
+            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Download className="h-3.5 w-3.5 mr-1" />}
+            Export
+          </Button>
+        </div>
+
+        <div className="flex items-start gap-3 p-3 rounded-lg border border-destructive/20 bg-destructive/5">
+          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-destructive">Erase my personal data (GDPR Art. 17)</div>
+            <p className="text-xs text-muted-foreground">
+              Irreversibly removes your account, memberships, notifications, and authored tokens.
+              Memories you created stay (as org knowledge) but authorship is disconnected. Audit
+              entries are anonymised. A hashed marker is written for regulator verification.
+            </p>
+            {!showErase ? (
+              <Button size="sm" variant="destructive" className="mt-2" onClick={() => setShowErase(true)}>
+                Begin erasure
+              </Button>
+            ) : (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Type <code className="bg-background px-1 rounded">{erasePhrase}</code> to confirm (case insensitive).
+                </p>
+                <Input
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder={erasePhrase}
+                  className="border-destructive/30 font-mono text-xs"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={erasing || confirm.toLowerCase() !== erasePhrase.toLowerCase()}
+                    onClick={runErase}
+                  >
+                    {erasing ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
+                    {erasing ? 'Erasing…' : 'Erase permanently'}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => { setShowErase(false); setConfirm('') }}>Cancel</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

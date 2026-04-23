@@ -875,6 +875,11 @@ export const auditLog = sqliteTable('audit_log', {
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
   metadata: text('metadata'), // JSON — query text, old/new values, etc.
+  // WORM chain. Every audit row links to the previous one via sha256. A gap
+  // or a bad hash means tampering. prevHash is the previous row's rowHash;
+  // rowHash is sha256(prevHash || canonicalJson(thisRow)).
+  prevHash: text('prev_hash'),
+  rowHash: text('row_hash'),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 }, (table) => ({
   orgIdx: index('audit_org_idx').on(table.organizationId),
