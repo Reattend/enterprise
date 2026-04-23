@@ -1210,6 +1210,29 @@ export const transferEvents = sqliteTable('transfer_events', {
   toUserIdx: index('te_to_user_idx').on(table.toUserId),
 }))
 
+// ─── Calendar events (Meeting Prep) ───────────────────────
+// Lightweight event table so Meeting Prep Card has something to read. Source
+// field is 'manual' today (admin or user types it in) and 'nango' / 'ics'
+// later when real calendar sync ships. attendeeEmails is a JSON array of
+// email strings.
+export const calendarEvents = sqliteTable('calendar_events', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  workspaceId: text('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  startAt: text('start_at').notNull(), // ISO
+  endAt: text('end_at'),               // ISO, optional
+  attendeeEmails: text('attendee_emails').default('[]'), // JSON
+  location: text('location'),
+  description: text('description'),
+  source: text('source', { enum: ['manual', 'nango', 'ics'] }).notNull().default('manual'),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgIdx: index('ce_org_idx').on(table.organizationId),
+  startIdx: index('ce_start_idx').on(table.startAt),
+}))
+
 // ─── Exit Interview Agent ─────────────────────────────────
 // When someone gives notice, an admin kicks off an exit interview. Claude
 // pre-reads the departing person's memory footprint and writes 10-15 targeted

@@ -859,6 +859,31 @@ try {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
 }
 
+// ─── Calendar events (Meeting Prep) ───
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS calendar_events (
+      id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      workspace_id TEXT REFERENCES workspaces(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      start_at TEXT NOT NULL,
+      end_at TEXT,
+      attendee_emails TEXT DEFAULT '[]',
+      location TEXT,
+      description TEXT,
+      source TEXT NOT NULL DEFAULT 'manual' CHECK(source IN ('manual', 'nango', 'ics')),
+      created_by TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS ce_org_idx ON calendar_events(organization_id);
+    CREATE INDEX IF NOT EXISTS ce_start_idx ON calendar_events(start_at);
+  `)
+  console.log('✓ calendar_events')
+} catch (e: any) {
+  console.error('calendar_events migration:', e.message)
+}
+
 // ─── Exit Interview Agent ───
 try {
   sqlite.exec(`

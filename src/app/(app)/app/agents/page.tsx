@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Bot, Sparkles, Users as UsersIcon, Building2, Plus, Info, MessageSquare,
-  FileText, Gavel, Landmark, Loader2, Activity,
+  FileText, Gavel, Landmark, Loader2, Activity, Mail, Megaphone, Zap,
+  SendHorizonal, CalendarPlus, FileEdit, Ticket, LineChart, ArrowRight, Clock,
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -162,6 +163,42 @@ export default function AgentsPage() {
                   </div>
                 </div>
               </Card>
+
+              {/* Action agents — distinct from chat agents. These DO things
+                  (draft, send, create) instead of just answering. v1 is two
+                  live action agents + 6 coming-soon; real send-integrations
+                  land with Nango in Sprint P. */}
+              <section>
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 text-muted-foreground" />
+                  <h2 className="font-display text-xl">Action agents</h2>
+                  <span className="text-xs text-muted-foreground">· agents that DO things, not just answer</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ActionAgentCard
+                    icon={Mail}
+                    title="Draft email reply"
+                    desc="Paste an email thread. Claude drafts a memory-grounded reply. Copy out when happy."
+                    href="/app/compose/email-reply"
+                    status="live"
+                    tone="from-amber-500/10 to-orange-500/5 border-amber-500/20"
+                  />
+                  <ActionAgentCard
+                    icon={Megaphone}
+                    title="Draft team broadcast"
+                    desc="Pick a decision or name a topic. Claude drafts Slack + email versions of the announcement."
+                    href="/app/compose/broadcast"
+                    status="live"
+                    tone="from-violet-500/10 to-purple-500/5 border-violet-500/20"
+                  />
+                  <ActionAgentCard icon={SendHorizonal} title="Send to Slack channel" desc="Post a message to a channel. Needs Nango." status="soon" />
+                  <ActionAgentCard icon={Ticket} title="Create Linear / Jira ticket" desc="File a ticket from a decision or memory. Needs Nango." status="soon" />
+                  <ActionAgentCard icon={CalendarPlus} title="Schedule follow-up" desc="Book a calendar event off a decision. Needs Nango." status="soon" />
+                  <ActionAgentCard icon={FileEdit} title="Update Notion page" desc="Push memory content into an existing Notion doc. Needs Nango." status="soon" />
+                  <ActionAgentCard icon={FileText} title="Draft policy amendment" desc="Compose a delta against a published policy." status="soon" />
+                  <ActionAgentCard icon={LineChart} title="Weekly team report" desc="Auto-compile what's shipped, what's pending, what's stuck." status="soon" />
+                </div>
+              </section>
             </>
           )}
         </>
@@ -233,6 +270,54 @@ function AgentCard({ agent, onOpen, canAuthor, orgId }: { agent: Agent; onOpen: 
         </div>
       </div>
     </Card>
+  )
+}
+
+function ActionAgentCard({
+  icon: Icon, title, desc, href, status, tone,
+}: {
+  icon: any
+  title: string
+  desc: string
+  href?: string
+  status: 'live' | 'soon'
+  tone?: string
+}) {
+  const isLive = status === 'live'
+  const Wrapper: any = isLive && href ? Link : 'div'
+  const wrapperProps = isLive && href ? { href } : {}
+  return (
+    <Wrapper
+      {...wrapperProps}
+      className={cn(
+        'rounded-2xl border p-4 transition-all',
+        isLive
+          ? `bg-gradient-to-br ${tone || 'from-primary/5 to-transparent border-primary/20'} hover:shadow-sm cursor-pointer`
+          : 'bg-muted/20 border-border opacity-70',
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <div className={cn(
+          'h-9 w-9 rounded flex items-center justify-center shrink-0',
+          isLive ? 'bg-background/60 text-primary' : 'bg-muted/40 text-muted-foreground',
+        )}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-sm font-semibold">{title}</h3>
+            {!isLive && <Badge variant="outline" className="text-[9px] bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-500/30">Coming soon</Badge>}
+            {isLive && <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Live</Badge>}
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+          {isLive && (
+            <div className="mt-2 text-[11px] text-primary inline-flex items-center gap-1">
+              Open <ArrowRight className="h-3 w-3" />
+            </div>
+          )}
+        </div>
+      </div>
+    </Wrapper>
   )
 }
 

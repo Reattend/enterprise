@@ -33,6 +33,7 @@ import { useAppStore } from '@/stores/app-store'
 import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
 import { StartMyDayCard } from '@/components/enterprise/start-my-day-card'
 import { MemoryResurfaceCard } from '@/components/enterprise/memory-resurface-card'
+import { MeetingPrepCard } from '@/components/enterprise/meeting-prep-card'
 
 type PendingPolicy = { policyId: string; title: string; category: string | null }
 type Decision = { id: string; title: string; status: string; createdAt: string; decidedAt: string }
@@ -131,6 +132,9 @@ export default function HomePage() {
 
       {/* Start My Day — morning briefing (Claude-synthesized) */}
       <StartMyDayCard orgId={activeEnterpriseOrgId} />
+
+      {/* Meeting Prep — next 8h of meetings with Claude-synthesized briefs */}
+      <MeetingPrepCard orgId={activeEnterpriseOrgId} />
 
       {/* Memory Resurface — "1 year ago today" moments */}
       <MemoryResurfaceCard orgId={activeEnterpriseOrgId} />
