@@ -13,9 +13,9 @@ export const dynamic = 'force-dynamic'
 // sets/updates the verification cadence. Only the record owner or an admin
 // can verify — we want owner accountability, not group verification.
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   try {
-    const { id } = await params
+    const { recordId: id } = await params
     const { userId } = await requireAuth()
     const body = await req.json().catch(() => ({}))
     const cadenceDays = typeof body.cadenceDays === 'number' && [30, 60, 90].includes(body.cadenceDays)

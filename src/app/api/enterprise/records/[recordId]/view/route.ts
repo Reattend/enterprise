@@ -12,9 +12,9 @@ export const dynamic = 'force-dynamic'
 // if the user can't read the record they wouldn't get here anyway, and
 // falsely counting a blocked view is a minor metric-noise issue only.
 
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   try {
-    const { id } = await params
+    const { recordId: id } = await params
     const { userId } = await requireAuth()
 
     // Cheap existence check — avoid FK violations on deleted records
