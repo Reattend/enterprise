@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus, GraduationCap, Megaphone, LineChart, FileScan } from 'lucide-react'
+import { Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel, Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus, GraduationCap, Megaphone, LineChart, FileScan, Chrome } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface OrgMeta {
@@ -29,6 +29,7 @@ const TABS = [
   { key: 'handoff', label: 'Handoff', icon: ArrowRightLeft, path: '/handoff' },
   { key: 'onboarding-genie', label: 'Genie', icon: UserPlus, path: '/onboarding-genie' },
   { key: 'ocr', label: 'OCR', icon: FileScan, path: '/ocr' },
+  { key: 'extension', label: 'Extension', icon: Chrome, path: '/extension' },
   { key: 'health', label: 'Self-healing', icon: Sparkles, path: '/health' },
   { key: 'audit', label: 'Audit log', icon: ScrollText, path: '/audit' },
   { key: 'compliance', label: 'Compliance', icon: ShieldCheck, path: '/compliance' },

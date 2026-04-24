@@ -419,10 +419,10 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
         who: ['super_admin', 'admin', 'member'],
       },
       {
-        title: 'Ambient browser extension',
-        desc: 'Relevant memories surface on any page you visit — Gmail thread, Jira ticket, Salesforce record.',
+        title: 'Chrome extension (Sprint M)',
+        desc: 'Capture memory + ask questions from any tab. Floating pin + right-click menu + ambient related-memory card on whitelisted pages. Available on GitHub; Chrome Web Store pending.',
         icon: Glasses,
-        status: 'soon',
+        status: 'live',
         who: ['super_admin', 'admin', 'member'],
       },
     ],

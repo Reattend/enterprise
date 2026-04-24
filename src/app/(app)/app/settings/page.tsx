@@ -1095,6 +1095,24 @@ export default function SettingsPage() {
                 ))}
               </div>
 
+              {/* Chrome extension quick-start */}
+              <div className="rounded-xl border border-[#4F46E5]/25 bg-[#4F46E5]/5 p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-[#4F46E5]/15 flex items-center justify-center shrink-0">
+                    <Chrome className="h-4 w-4 text-[#4F46E5]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold">Chrome extension — setup in 60 seconds</h3>
+                    <ol className="text-xs text-muted-foreground mt-2 space-y-1 list-decimal list-inside">
+                      <li>Generate a key below with name &ldquo;Chrome Extension&rdquo;. Copy it (shown once).</li>
+                      <li>Install: <a className="text-primary hover:underline" target="_blank" rel="noreferrer" href="https://github.com/Reattend/enterprise-extension#install">github.com/Reattend/enterprise-extension</a> — load unpacked until Chrome Web Store release.</li>
+                      <li>Open the extension&apos;s options page, paste your token, set base URL to <code className="bg-background px-1 py-0.5 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : 'https://enterprise.reattend.com'}</code>.</li>
+                      <li>Pick which apps to track (or inherit your org&apos;s required list from admin policy).</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
               {/* Generate new key */}
               <div className="space-y-3 border-t pt-4">
                 <p className="text-sm font-medium">Generate a new key</p>
