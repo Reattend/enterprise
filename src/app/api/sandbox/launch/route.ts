@@ -272,13 +272,30 @@ async function cloneOrgData(srcOrgId: string, dstOrgId: string, sandboxUserId: s
   }
 
   // ─── Policies (+ versions, ack rows are skipped — fresh sandbox) ─────
+  // Order matters: insert policy first (currentVersionId null), then versions,
+  // then update the policy with the resolved currentVersionId. policyVersions
+  // has a FK to policies — inserting versions before the policy fails.
   const oldPolicies = await db.select().from(schema.policies).where(eq(schema.policies.organizationId, srcOrgId))
   const policyIdMap = new Map<string, string>()
   const versionIdMap = new Map<string, string>()
   for (const p of oldPolicies) {
     const newPolicyId = crypto.randomUUID()
     policyIdMap.set(p.id, newPolicyId)
-    // Versions
+    // 1. Insert the policy first with no currentVersionId
+    await db.insert(schema.policies).values({
+      id: newPolicyId,
+      organizationId: dstOrgId,
+      title: p.title,
+      slug: p.slug,
+      category: p.category,
+      iconName: p.iconName,
+      status: p.status,
+      currentVersionId: null,
+      effectiveDate: p.effectiveDate,
+      applicability: p.applicability,
+      createdBy: sandboxUserId,
+    })
+    // 2. Insert the versions; they FK back to the policy we just created
     const oldVersions = await db.select().from(schema.policyVersions).where(eq(schema.policyVersions.policyId, p.id))
     let newCurrentVersionId: string | null = null
     for (const v of oldVersions) {
@@ -299,19 +316,12 @@ async function cloneOrgData(srcOrgId: string, dstOrgId: string, sandboxUserId: s
         publishedByUserId: v.publishedByUserId ? sandboxUserId : null,
       })
     }
-    await db.insert(schema.policies).values({
-      id: newPolicyId,
-      organizationId: dstOrgId,
-      title: p.title,
-      slug: p.slug,
-      category: p.category,
-      iconName: p.iconName,
-      status: p.status,
-      currentVersionId: newCurrentVersionId,
-      effectiveDate: p.effectiveDate,
-      applicability: p.applicability,
-      createdBy: sandboxUserId,
-    })
+    // 3. Resolve currentVersionId on the policy now that versions exist
+    if (newCurrentVersionId) {
+      await db.update(schema.policies)
+        .set({ currentVersionId: newCurrentVersionId })
+        .where(eq(schema.policies.id, newPolicyId))
+    }
   }
 
   // ─── Agents ──────────────────────────────────────────────
