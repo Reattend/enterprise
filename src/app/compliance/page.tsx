@@ -104,10 +104,10 @@ const CONTROLS: Array<{
     title: 'AI model governance',
     icon: Network,
     items: [
-      'Default stack: Claude Sonnet for answering, Groq Llama 3.3 + Claude Haiku for triage + rerank.',
+      'Default stack: managed frontier AI for answering plus a fast model for triage and re-ranking.',
       'Every Q&A is ground-truthed against the customer\'s own memory — answers show citations and a passage from each source.',
       'No cross-customer data flow. Model calls send only the retrieved records + the question.',
-      'On-prem customers swap both models for Rabbit with no code path change.',
+      'On-prem customers swap the model stack for Rabbit with no code path change.',
     ],
   },
 ]

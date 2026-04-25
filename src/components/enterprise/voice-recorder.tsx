@@ -168,7 +168,7 @@ export function VoiceRecorder({
           <div className="text-center max-w-xs">
             <div className="text-sm font-medium">Tap to record</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Up to 2 minutes. Claude transcribes and triages automatically — no typing needed.
+              Up to 2 minutes. The AI transcribes and triages automatically — no typing needed.
             </p>
           </div>
         </>
@@ -213,7 +213,7 @@ export function VoiceRecorder({
           <div className="text-center max-w-xs">
             <div className="text-sm font-medium">Transcribing + triaging…</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Whisper is converting your voice to text. Claude's triaging the content. A few seconds.
+              Whisper is converting your voice to text. The AI is triaging the content. A few seconds.
             </p>
           </div>
         </>

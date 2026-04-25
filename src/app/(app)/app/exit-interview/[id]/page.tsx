@@ -3,7 +3,7 @@
 // Exit interview — participant session page. Admin view read-only.
 //
 // The departing user answers questions one at a time. Each save persists
-// immediately. On completion, Claude synthesizes a handoff doc and we
+// immediately. On completion, the AI synthesizes a handoff doc and we
 // redirect to the record detail.
 
 import { useEffect, useState } from 'react'
@@ -183,7 +183,7 @@ export default function ExitInterviewSessionPage() {
           </Badge>
           <h1 className="font-display text-3xl tracking-tight mt-2">Handoff doc ready</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Interview complete. Claude synthesized the answers into the handoff below.
+            Interview complete. The AI synthesized the answers into the handoff below.
           </p>
         </div>
 
@@ -222,7 +222,7 @@ export default function ExitInterviewSessionPage() {
         </div>
         <h1 className="font-display text-3xl tracking-tight">Capture what you know before you leave</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          Claude pre-read your memory footprint to write these questions. Answer in 2-5 sentences —
+          the AI pre-read your memory footprint to write these questions. Answer in 2-5 sentences —
           save as you go. We synthesize a handoff doc at the end for whoever takes over.
         </p>
       </div>
@@ -332,7 +332,7 @@ export default function ExitInterviewSessionPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm">Ready for Claude to synthesize?</div>
+              <div className="font-semibold text-sm">Ready for the AI to synthesize?</div>
               <div className="text-xs text-muted-foreground">
                 {answered}/{total} answers. Completion generates the handoff doc and saves it as a memory your successor can open on day one.
                 {answered < total && ' You can still complete with some questions skipped.'}

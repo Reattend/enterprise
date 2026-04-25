@@ -325,7 +325,7 @@ export default function BrainDumpPage() {
         </h1>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
           {mode === 'firehose' && 'Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts — you review and commit in one click.'}
-          {mode === 'file' && 'PDF, Word, image, or audio. Claude extracts the text, creates a memory, and links it to what you already know.'}
+          {mode === 'file' && 'PDF, Word, image, or audio. the AI extracts the text, creates a memory, and links it to what you already know.'}
           {mode === 'link' && 'Save any URL as a memory. The ingest job fetches the page title, extracts key content, and enriches it in the background.'}
         </p>
       </div>
@@ -422,7 +422,7 @@ export default function BrainDumpPage() {
                 {recording ? 'Stop' : 'Talk'}
               </button>
               <span className="text-[11px] text-muted-foreground">
-                {rawText.length} chars · Claude parses into structured items
+                {rawText.length} chars · the AI parses into structured items
               </span>
             </div>
             <Button
@@ -606,7 +606,7 @@ export default function BrainDumpPage() {
             <div>
               <div className="font-semibold">Created {result.created.length} memor{result.created.length === 1 ? 'y' : 'ies'}</div>
               <div className="text-xs text-muted-foreground">
-                Triage is running in the background — Claude will re-title and link them to related memories in ~30s.
+                Triage is running in the background — the AI will re-title and link them to related memories in ~30s.
               </div>
             </div>
           </div>

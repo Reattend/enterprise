@@ -3,8 +3,8 @@
 // Oracle Mode — the "deep research" surface.
 //
 // This is not a chat. You ask one hard question. We spend ~30 seconds
-// pulling 150 candidates, reranking 60 with Claude Haiku, then feeding 30
-// into a structured Claude call that produces a five-section dossier:
+// pulling 150 candidates, reranking 60 with the fast reranker, then feeding 30
+// into a structured AI call that produces a five-section dossier:
 // Situation / Evidence / Risks / Recommendations / Unknowns.
 //
 // The UI is minimal because the output is the product — we stay out of the
@@ -42,9 +42,9 @@ type OracleData = {
 const PIPELINE_STEPS = [
   { label: 'Scanning every memory you can see', min: 800 },
   { label: 'Filtering to the 150 most relevant', min: 1500 },
-  { label: 'Re-ranking with Claude Haiku', min: 3000 },
+  { label: 'Re-ranking', min: 3000 },
   { label: 'Cross-referencing decisions + policies', min: 2000 },
-  { label: 'Drafting the dossier with Claude', min: 10000 },
+  { label: 'Drafting the dossier', min: 10000 },
 ]
 
 export function OracleView() {

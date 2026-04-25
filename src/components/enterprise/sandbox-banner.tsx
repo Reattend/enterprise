@@ -38,7 +38,7 @@ export function SandboxBanner() {
       </div>
       <span className="text-muted-foreground leading-tight flex-1 min-w-0">
         You&apos;re in a demo org. Nothing persists, AI answers are scripted.
-        <span className="hidden sm:inline"> Your real deployment gets Claude Sonnet on your live memory.</span>
+        <span className="hidden sm:inline"> Your real deployment runs the live AI on your own memory.</span>
       </span>
       <Link
         href="/pricing"

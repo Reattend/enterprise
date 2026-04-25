@@ -110,7 +110,7 @@ export default function DraftBroadcastPage() {
         </div>
         <h1 className="font-display text-3xl tracking-tight">Draft a team broadcast</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          Pick a decision (or name a topic). Claude drafts a short Slack version
+          Pick a decision (or name a topic). the AI drafts a short Slack version
           and a longer email version, grounded in the decision&apos;s rationale.
           Copy out to wherever you&apos;re announcing.
         </p>
@@ -156,7 +156,7 @@ export default function DraftBroadcastPage() {
               disabled={running}
             />
             <p className="text-[11px] text-muted-foreground mt-1">
-              Claude pulls relevant memories about this topic to ground the draft.
+              The AI pulls relevant memories about this topic to ground the draft.
             </p>
           </div>
         )}

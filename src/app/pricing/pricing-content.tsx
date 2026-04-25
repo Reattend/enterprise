@@ -32,7 +32,7 @@ const TIERS: Tier[] = [
       { label: 'Onboarding Genie', included: true },
       { label: 'Exit Interview Agent + Handoff Generator', included: true },
       { label: 'Self-healing dashboard', included: true },
-      { label: 'Oracle Mode + Chat (Claude-powered)', included: true },
+      { label: 'Oracle Mode + Chat (AI-powered)', included: true },
       { label: 'Chrome extension + ambient surfacing', included: true },
       { label: 'Slack / Notion / MS Teams integrations', included: true },
       { label: 'OCR pipeline (basic — image-only)', included: true },
@@ -178,7 +178,7 @@ export default function PricingContent() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
           {[
             { icon: Brain, title: 'Decision graph + Blast Radius', desc: 'Every decision logged with rationale + alternatives. "If we reverse this, what breaks?" — calculated, not guessed.' },
-            { icon: GraduationCap, title: 'Exit Interview Agent', desc: 'Claude pre-reads the departing person\'s memory footprint, asks 10-15 targeted questions, writes the handoff doc.' },
+            { icon: GraduationCap, title: 'Exit Interview Agent', desc: 'The AI pre-reads the departing person\'s memory footprint, asks 10-15 targeted questions, writes the handoff doc.' },
             { icon: Building2, title: 'Onboarding Genie', desc: 'New hire form → personalized first-week packet (decisions to know, people to meet, policies to ack).' },
             { icon: FileScan, title: 'OCR pipeline', desc: 'Scanned PDF / image → Tesseract or Textract → PII redaction → searchable memory record.' },
             { icon: Shield, title: 'WORM audit log', desc: 'Every audit row sha256-linked to the prior. Tamper-detectable. Verify chain on demand.' },
@@ -202,7 +202,7 @@ export default function PricingContent() {
               { q: 'Per-seat — what counts as a seat?', a: 'Any active user with an org membership. Guests (read-only on explicit shares) don\'t count. Admins do.' },
               { q: 'On-prem — what does that actually mean?', a: 'The full stack runs inside your network: app, database, and the LLM (via on-prem Rabbit). Zero egress to Reattend. Customer manages updates on their cadence; we provide signed tarball releases.' },
               { q: 'How fast can we go live?', a: 'Team: 30 minutes (Slack + Notion connectors are 1-click). Enterprise dedicated: 1-2 weeks. Government on-prem with paper digitization: 6-12 weeks depending on legacy archive size.' },
-              { q: 'What about the LLM provider?', a: 'Default: Anthropic Claude (answering) + Groq Llama 3.3 (triage). Year-2 we ship on-prem Rabbit so the model lives on your hardware. You can swap at any time.' },
+              { q: 'What about the AI engine?', a: 'Cloud deployment uses our managed AI stack — frontier reasoning models for answering plus a fast model for triage. Year-2 we ship on-prem Rabbit so the model lives on your hardware. You can swap at any time.' },
             ].map((f) => (
               <div key={f.q}>
                 <h3 className="text-[14px] font-semibold text-[#1a1a2e]">{f.q}</h3>

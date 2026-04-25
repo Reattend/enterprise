@@ -845,13 +845,13 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Voice capture"
-              desc="Record up to 120s; Whisper transcribes, Claude enriches. Useful when typing is too slow (post-meeting debriefs)."
+              desc="Record up to 120s; Whisper transcribes, the AI enriches. Useful when typing is too slow (post-meeting debriefs)."
               can={['super_admin', 'admin', 'member']}
               cannot={['guest']}
             />
             <DocRow
               title="Brain Dump"
-              desc="Paste or dictate 1,000 words of raw thinking. Claude splits it into decisions, questions, action items, and facts — each saved as a separate memory."
+              desc="Paste or dictate 1,000 words of raw thinking. the AI splits it into decisions, questions, action items, and facts — each saved as a separate memory."
               can={['super_admin', 'admin', 'member']}
               cannot={['guest']}
             />
@@ -879,13 +879,13 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Oracle Mode"
-              desc="Deep-research mode for high-stakes questions. Scans 150 candidates, reranks top 30 with Claude, returns a 5-section dossier (Situation / Evidence / Risks / Recommendations / Unknowns). Slower (~20-40s)."
+              desc="Deep-research mode for high-stakes questions. Scans 150 candidates, reranks top 30, returns a 5-section dossier (Situation / Evidence / Risks / Recommendations / Unknowns). Slower (~20-40s)."
               can={['super_admin', 'admin', 'member']}
               cannot={['guest']}
             />
             <DocRow
               title="Who should I ask? (⌘⇧K)"
-              desc="Ranks the top 5 colleagues most likely to have context on a topic, based on authored records, decisions made, and entity mentions. Claude explains why each."
+              desc="Ranks the top 5 colleagues most likely to have context on a topic, based on authored records, decisions made, and entity mentions. the AI explains why each."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -902,7 +902,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
           <div className="space-y-2">
             <DocRow
               title="Home"
-              desc="Daily briefing (Start My Day card). Three sentences of Claude-synthesised focus + what changed since your last visit."
+              desc="Daily briefing (Start My Day card). Three sentences of AI-synthesised focus + what changed since your last visit."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -917,7 +917,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Agents"
-              desc="Reusable Claude agents — ten seeded by default (onboarding, meeting synth, policy checker, etc.). Admins can create more; members can run the ones their dept has access to."
+              desc="Reusable AI agents — ten seeded by default (onboarding, meeting synth, policy checker, etc.). Admins can create more; members can run the ones their dept has access to."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -932,7 +932,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Brain Dump"
-              desc="Paste or dictate raw thinking, Claude parses it into structured memories before they're committed."
+              desc="Paste or dictate raw thinking, the AI parses it into structured memories before they're committed."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -975,7 +975,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Onboarding Genie"
-              desc="Fill in a new hire's name + role + department. Claude reads org memory and writes a personalised first-week packet (decisions to know, people to meet, policies to ack, agents to try)."
+              desc="Fill in a new hire's name + role + department. the AI reads org memory and writes a personalised first-week packet (decisions to know, people to meet, policies to ack, agents to try)."
               can={['super_admin', 'admin']}
               cannot={['member', 'guest']}
             />
@@ -1014,7 +1014,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
               <strong className="text-foreground">Two-tier RBAC.</strong> Every record has an
               organisation and a visibility (<code>org_wide</code> or <code>dept_scoped</code>). Search,
               chat, graph, and timeline all filter to records you can actually see — nothing leaks
-              through a Claude answer or a rerank.
+              through an AI answer or a rerank.
             </p>
             <p>
               <strong className="text-foreground">Admin bypass.</strong> Super admins and admins can

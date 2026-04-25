@@ -114,7 +114,7 @@ export default function ExitInterviewsPage({ params }: { params: { orgId: string
         toast.error(b.error || 'Failed to start')
         return
       }
-      toast.success('Exit interview created — Claude pre-generated questions from their memory')
+      toast.success('Exit interview created — the AI pre-generated questions from their memory')
       setSelectedUserId(null)
       setRoleTitle('')
       await load()
@@ -143,7 +143,7 @@ export default function ExitInterviewsPage({ params }: { params: { orgId: string
         </div>
         <h1 className="font-display text-3xl tracking-tight">Catch the knowledge before it walks out</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          Pick the person leaving, name the role, and Claude pre-reads their memory footprint to
+          Pick the person leaving, name the role, and the AI pre-reads their memory footprint to
           write 10-15 targeted questions. They answer in one sitting; we synthesize a structured
           handoff doc their successor can read on day one.
         </p>
@@ -202,7 +202,7 @@ export default function ExitInterviewsPage({ params }: { params: { orgId: string
           <EmptyState
             icon={GraduationCap}
             title="No exit interviews yet"
-            description="When someone on the team gives notice, start one here. Claude does the question-writing; the departing person fills in answers; everyone else benefits."
+            description="When someone on the team gives notice, start one here. the AI does the question-writing; the departing person fills in answers; everyone else benefits."
           />
         ) : (
           <Card className="p-0 overflow-hidden">

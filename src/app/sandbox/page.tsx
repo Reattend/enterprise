@@ -45,7 +45,7 @@ const ROLES: RoleCard[] = [
   },
   {
     key: 'admin',
-    name: 'Vikram Rao',
+    name: 'Hiroshi Tanaka',
     title: 'Joint Secretary · Admin',
     tagline: 'Run the org. Member management, policy publishing, announcements.',
     sees: ['Cross-department view', 'Publish policies', 'Compose broadcasts', 'Exit interview agent'],
@@ -54,25 +54,25 @@ const ROLES: RoleCard[] = [
   },
   {
     key: 'dept_head',
-    name: 'Rajiv Sharma',
+    name: 'Adaeze Okonkwo',
     title: 'Director, International Taxation',
-    tagline: 'Own a department. BEPS treaty thread, EU delegation, 47 decisions authored.',
+    tagline: 'Run a department. Manage decisions, agents, members, and your dept\'s full memory graph.',
     sees: ['International Taxation memory', 'Meeting prep + prior context', 'Team members + agents', 'Verify & publish records'],
     icon: Building2,
     accent: 'from-blue-500/20 to-cyan-500/10 border-blue-500/30',
   },
   {
     key: 'member',
-    name: 'Priya Iyer',
+    name: 'Sofia Martinez',
     title: 'Deputy Director, Cross-Border Tax',
-    tagline: 'Work the day. Ask Oracle, meeting prep, prompts, personal memory.',
+    tagline: 'Work the day. Ask, meeting prep, prompts, personal memory.',
     sees: ['Department memory (read)', 'Ask Chat + Oracle', 'Personal inbox', 'Prompt library'],
     icon: User,
     accent: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30',
   },
   {
     key: 'guest',
-    name: 'Sanjay Verma',
+    name: 'Daniel Schwartz',
     title: 'External Legal Advisor · Guest',
     tagline: 'Scoped access. Only sees what\'s explicitly shared. No write access.',
     sees: ['Only explicitly shared records', 'No write, no delete', 'No policy acks', 'No admin surfaces'],
@@ -169,7 +169,7 @@ export default function SandboxLanding() {
             <strong className="text-[#1a1a2e]">AI runs in guided-demo mode in the sandbox.</strong> Ask Chat,
             Oracle, and the agents will serve <em>pre-canned scripted responses</em> that show what the real answer
             would look like on your org&apos;s data. Every sandbox session also gets a list of suggested questions
-            that trigger full demos. Your real deployment hits Claude Sonnet on your live memory graph.
+            that trigger full demos. Your real deployment runs the live AI on your own memory graph.
           </div>
         </motion.div>
 
@@ -243,7 +243,7 @@ export default function SandboxLanding() {
             <Shield className="h-3.5 w-3.5" /> Nothing you do persists beyond the session
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" /> Real deployment: Claude Sonnet on your live memory
+            <Sparkles className="h-3.5 w-3.5" /> Real deployment: live AI on your own memory
           </span>
         </motion.div>
 

@@ -51,7 +51,7 @@ export default function EnterpriseLanding() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-20">
           {[
             { icon: Building, title: 'Organizational Memory', desc: 'Every decision, meeting note, and policy — captured, linked, and indexed by time. Scrub through history, see what the org knew when, and what depends on what.' },
-            { icon: GraduationCap, title: 'Exit Interview Agent', desc: 'When someone gives notice, Claude reads their memory footprint and writes a structured handoff for their successor. Six weeks of ramp time saved.' },
+            { icon: GraduationCap, title: 'Exit Interview Agent', desc: 'When someone gives notice, the AI reads their memory footprint and writes a structured handoff for their successor. Six weeks of ramp time saved.' },
             { icon: Shield, title: 'Secure by Design', desc: 'Two-tier RBAC, hash-chain audit log, GDPR-grade controls, on-prem deployment with the LLM running on your hardware. Procurement-grade.' },
           ].map(f => (
             <div key={f.title} className="text-left p-6 rounded-2xl border border-neutral-200/60 bg-white/60 backdrop-blur-sm">

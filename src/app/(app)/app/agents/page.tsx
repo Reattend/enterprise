@@ -38,7 +38,7 @@ const TIER_META: Record<Agent['tier'], { label: string; desc: string; icon: type
   org: { label: 'Organization', desc: 'Available to everyone in the org', icon: Building2 },
   departmental: { label: 'Departmental', desc: 'Scoped to a department\'s knowledge', icon: UsersIcon },
   personal: { label: 'Personal', desc: 'Just for you', icon: Sparkles },
-  third_party: { label: 'Third-party', desc: 'Imported from OpenAI / Claude Projects / etc.', icon: Bot },
+  third_party: { label: 'Third-party', desc: 'Imported from external AI agent platforms', icon: Bot },
 }
 
 type Tab = 'agents' | 'activity'
@@ -158,7 +158,7 @@ export default function AgentsPage() {
                   <div className="flex-1">
                     <h3 className="text-sm font-medium">Third-party agents</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Coming soon: import OpenAI GPTs, Claude Projects, or connect your own LangGraph/CrewAI agents.
+                      Coming soon: import third-party AI agents and connect your own custom agent runtimes.
                     </p>
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export default function AgentsPage() {
                   <ActionAgentCard
                     icon={Mail}
                     title="Draft email reply"
-                    desc="Paste an email thread. Claude drafts a memory-grounded reply. Copy out when happy."
+                    desc="Paste an email thread. The AI drafts a memory-grounded reply. Copy out when happy."
                     href="/app/compose/email-reply"
                     status="live"
                     tone="from-amber-500/10 to-orange-500/5 border-amber-500/20"
@@ -186,7 +186,7 @@ export default function AgentsPage() {
                   <ActionAgentCard
                     icon={Megaphone}
                     title="Draft team broadcast"
-                    desc="Pick a decision or name a topic. Claude drafts Slack + email versions of the announcement."
+                    desc="Pick a decision or name a topic. The AI drafts Slack + email versions of the announcement."
                     href="/app/compose/broadcast"
                     status="live"
                     tone="from-violet-500/10 to-purple-500/5 border-violet-500/20"

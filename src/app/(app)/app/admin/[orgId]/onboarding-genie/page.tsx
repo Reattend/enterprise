@@ -3,7 +3,7 @@
 // Onboarding Genie — auto-compose a personalized first-week packet.
 //
 // Admin fills a short form: name, email, role title, department, start date.
-// Claude reads the org's memory and produces a markdown packet they can
+// the AI reads the org's memory and produces a markdown packet they can
 // copy-paste into an email, print as PDF, or (future) send directly.
 
 import { useEffect, useState } from 'react'
@@ -209,7 +209,7 @@ export default function OnboardingGeniePage({ params }: { params: { orgId: strin
 
           {/* Ground-truth reference sections — the admin can verify nothing was fabricated */}
           <details className="rounded-xl border bg-muted/20 p-3">
-            <summary className="text-xs font-medium cursor-pointer select-none">Source data (what Claude read)</summary>
+            <summary className="text-xs font-medium cursor-pointer select-none">Source data (what the AI read)</summary>
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Key decisions ({packet.sections.keyDecisions.length})</div>

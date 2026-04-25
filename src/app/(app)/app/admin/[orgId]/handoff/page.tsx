@@ -3,7 +3,7 @@
 // Handoff Generator — one-click personalized handoff doc.
 //
 // Admin picks outgoing + incoming person + optional scope ("Project Atlas",
-// "AP accounts", etc.). Claude reads the outgoing person's footprint and
+// "AP accounts", etc.). the AI reads the outgoing person's footprint and
 // writes a doc tuned for the successor. Saved as a memory.
 
 import { useEffect, useState } from 'react'
@@ -101,7 +101,7 @@ export default function HandoffPage({ params }: { params: { orgId: string } }) {
         </div>
         <h1 className="font-display text-3xl tracking-tight">One-click role handoff</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          Claude reads the outgoing person&apos;s authored memories and decisions, then writes a
+          the AI reads the outgoing person&apos;s authored memories and decisions, then writes a
           personalized handoff doc tuned for the successor. Use this when someone has already left
           or when you just need a fast overview of what they owned.
         </p>

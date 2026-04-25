@@ -45,7 +45,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     features: [
       {
         title: 'Brain Dump (Firehose)',
-        desc: 'Paste or talk through a stream-of-consciousness dump. Claude parses it into decisions, open questions, action items, and facts — you review and commit in one click.',
+        desc: 'Paste or talk through a stream-of-consciousness dump. the AI parses it into decisions, open questions, action items, and facts — you review and commit in one click.',
         icon: BrainCircuit,
         href: '/app/brain-dump',
         who: ['super_admin', 'admin', 'member'],
@@ -69,7 +69,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Voice capture',
-        desc: 'Tap the mic, speak for up to 2 minutes. Groq Whisper transcribes, Claude enriches. Works from Brain Dump or the ⌘N drawer.',
+        desc: 'Tap the mic, speak for up to 2 minutes. Whisper transcribes, the AI enriches. Works from Brain Dump or the ⌘N drawer.',
         icon: Mic,
         shortcut: '⌘N',
         who: ['super_admin', 'admin', 'member'],
@@ -100,7 +100,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Oracle mode',
-        desc: 'Deep-research mode. Scans 150 candidates, Claude Haiku reranks top 30, produces a structured 5-section dossier (Situation / Evidence / Risks / Recommendations / Unknowns). ~30s.',
+        desc: 'Deep-research mode. Scans 150 candidates, a fast reranker reduces to top 30, produces a structured 5-section dossier (Situation / Evidence / Risks / Recommendations / Unknowns). ~30s.',
         icon: Crown,
         href: '/app/ask?mode=oracle',
         who: ['super_admin', 'admin', 'member'],
@@ -141,7 +141,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Meeting Prep',
-        desc: 'Home card showing the next 8h of meetings with a Claude-written brief: heads-up, related memories, open questions. Add meetings manually until calendar sync lands.',
+        desc: 'Home card showing the next 8h of meetings with a AI-written brief: heads-up, related memories, open questions. Add meetings manually until calendar sync lands.',
         icon: Clock,
         href: '/app',
         who: ['super_admin', 'admin', 'member'],
@@ -233,7 +233,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Agents',
-        desc: 'Purpose-built Claude agents — 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Admins can click "Run now" to fire an agent over recent memory; output is saved as a new memory. Activity tab shows every system run.',
+        desc: 'Purpose-built AI agents — 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Admins can click "Run now" to fire an agent over recent memory; output is saved as a new memory. Activity tab shows every system run.',
         icon: Bot,
         href: '/app/agents',
         who: ['super_admin', 'admin', 'member'],
@@ -241,7 +241,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Draft email reply (action agent)',
-        desc: 'Paste an email thread; Claude writes a memory-grounded reply. Copy out to Gmail/Outlook. Real send via Slack/email connectors lands in Sprint P.',
+        desc: 'Paste an email thread; the AI writes a memory-grounded reply. Copy out to Gmail/Outlook. Real send via Slack/email connectors lands in Sprint P.',
         icon: Sparkles,
         href: '/app/compose/email-reply',
         who: ['super_admin', 'admin', 'member'],
@@ -249,7 +249,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Draft team broadcast (action agent)',
-        desc: 'Pick a decision or topic; Claude writes Slack + email versions of the announcement. Copy to your channel or inbox.',
+        desc: 'Pick a decision or topic; the AI writes Slack + email versions of the announcement. Copy to your channel or inbox.',
         icon: Sparkles,
         href: '/app/compose/broadcast',
         who: ['super_admin', 'admin', 'member'],
@@ -286,21 +286,21 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Onboarding Genie',
-        desc: 'New hire form → Claude reads the department\'s memory graph → personalized first-week packet (decisions to know, people to meet, policies to ack, agents to try). Markdown export.',
+        desc: 'New hire form → the AI reads the department\'s memory graph → personalized first-week packet (decisions to know, people to meet, policies to ack, agents to try). Markdown export.',
         icon: UserPlus,
         who: ['super_admin', 'admin'],
         status: 'live',
       },
       {
         title: 'Exit Interview Agent',
-        desc: 'When someone gives notice, Claude pre-reads their memory footprint and asks 10-15 targeted questions. Each answer becomes a memory. Output: a structured handoff doc their successor can follow on day one.',
+        desc: 'When someone gives notice, the AI pre-reads their memory footprint and asks 10-15 targeted questions. Each answer becomes a memory. Output: a structured handoff doc their successor can follow on day one.',
         icon: GraduationCap,
         who: ['super_admin', 'admin'],
         status: 'live',
       },
       {
         title: 'Handoff Generator',
-        desc: 'One click: "Maya is taking over Project Atlas from Raj." Pulls Raj\'s authored memories, decisions made, relationships, and policies touched. Claude writes a personalized handoff doc.',
+        desc: 'One click: "Maya is taking over Project Atlas from Raj." Pulls Raj\'s authored memories, decisions made, relationships, and policies touched. the AI writes a personalized handoff doc.',
         icon: ArrowRightLeft,
         who: ['super_admin', 'admin'],
         status: 'live',
@@ -327,7 +327,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     features: [
       {
         title: 'Start My Day',
-        desc: 'Daily briefing on Home. 3-4 sentences of Claude-synthesized focus + what shifted since your last visit.',
+        desc: 'Daily briefing on Home. 3-4 sentences of AI-synthesized focus + what shifted since your last visit.',
         icon: Sparkles,
         href: '/app',
         who: ['super_admin', 'admin', 'member'],
@@ -446,7 +446,7 @@ const GLOSSARY: Array<{ term: string; desc: string }> = [
   { term: 'Memory',   desc: 'Any unit of institutional knowledge — a meeting note, a decision, a lesson learned, an insight. The core record type.' },
   { term: 'Decision', desc: 'A memory elevated to a load-bearing choice — with context, rationale, outcome, and a status (active / superseded / reversed / archived).' },
   { term: 'Policy',   desc: 'An org-level rule requiring acknowledgment. Authored by admins, acked by members, versioned.' },
-  { term: 'Agent',    desc: 'A Claude persona with a system prompt + knowledge scope. "Policy Helper" answers only from policies; "Decision Historian" knows your decision graph.' },
+  { term: 'Agent',    desc: 'An AI persona with a system prompt + knowledge scope. "Policy Helper" answers only from policies; "Decision Historian" knows your decision graph.' },
   { term: 'Department', desc: 'A node in your Org → Division → Team hierarchy. RBAC is department-level: HR sees HR, Engineering sees Engineering, admins see all.' },
   { term: 'Visibility', desc: 'Per-record access control: private (you only), team (workspace), department, or org-wide. Cross-dept sharing via explicit grants.' },
   { term: 'Transfer',   desc: 'Role succession: when someone leaves, memory ownership moves to the incoming person. Originals stay linked for provenance.' },

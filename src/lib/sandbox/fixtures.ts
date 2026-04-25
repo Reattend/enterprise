@@ -426,8 +426,8 @@ For the best experience, click one of the suggested questions below. They each t
 
 On a live deployment, Reattend would:
 1. Retrieve the 150 most relevant memories from your org
-2. Have Claude Haiku rerank them down to the top 30
-3. Have Claude Sonnet write a grounded, cited answer in under 3 seconds
+2. Re-rank them down to the top 30 with our fast reranker
+3. Synthesize a grounded, cited answer in under 3 seconds
 4. Show you every source that informed a claim
 
 ---FOLLOWUPS---
@@ -479,7 +479,7 @@ export function matchSandboxQuestion(question: string): string | null {
 
 // ─── Brain Dump fixture ──────────────────────────────────────────
 // The parse endpoint returns a preview: items[] in {kind, title, summary}
-// shape. Canned preview matches what Claude would extract from the dump in
+// shape. Canned preview matches what the AI would extract from the dump in
 // the demo script.
 
 export const SANDBOX_BRAIN_DUMP = {
@@ -720,7 +720,7 @@ You're running Oracle in the sandbox, where it serves a fixed set of deep-resear
 
 ## Evidence
 
-Ask any of these three questions to see Oracle render a full 5-section dossier with source citations and passage highlights — the same thing your real org would see, except here the answer is pre-rendered from scripted fixtures. Real deployment runs on Claude Sonnet over 150 retrieved candidates reranked down to 30.
+Ask any of these three questions to see Oracle render a full 5-section dossier with source citations and passage highlights — the same thing your real org would see, except here the answer is pre-rendered from scripted fixtures. Real deployment runs our deep-research engine over 150 retrieved candidates reranked down to 30.
 
 ## Risks
 

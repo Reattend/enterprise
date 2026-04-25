@@ -131,10 +131,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Start My Day — morning briefing (Claude-synthesized) */}
+      {/* Start My Day — morning briefing (AI-synthesized) */}
       <StartMyDayCard orgId={activeEnterpriseOrgId} />
 
-      {/* Meeting Prep — next 8h of meetings with Claude-synthesized briefs */}
+      {/* Meeting Prep — next 8h of meetings with AI-synthesized briefs */}
       <MeetingPrepCard orgId={activeEnterpriseOrgId} />
 
       {/* Trending — hot records this week (hidden if no views) */}

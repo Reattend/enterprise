@@ -178,7 +178,7 @@ export function MeetingPrepCard({ orgId }: { orgId: string }) {
                   {b && b !== 'loading' && (
                     <div className="px-4 py-3 space-y-3">
                       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                        <Sparkles className="h-2.5 w-2.5" /> Claude brief
+                        <Sparkles className="h-2.5 w-2.5" /> AI brief
                       </div>
                       <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-sm prose-headings:font-semibold prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-li:my-0 text-sm">
                         <ReactMarkdown>{b.brief}</ReactMarkdown>
