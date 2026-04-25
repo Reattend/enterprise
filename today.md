@@ -1,9 +1,9 @@
 # Reattend Enterprise — Session Handoff
 
-**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox)
+**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox + hardening)
 **Branch:** `main` — pushed
 **Live at:** https://enterprise.reattend.com · public sandbox at https://enterprise.reattend.com/sandbox
-**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox)
+**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox + hardening)
 **Sprints remaining before launch:** O proper (UI/UX polish — interactive with user), P (Nango), Q (infra), R (billing), then launch
 
 ---
@@ -75,6 +75,65 @@ Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git p
 - Settings API keys tab exposed (was stranded — `b7b29c5` fix)
 - Extension repo (`enterprise_extension`): ambient corner card, policy sync via `chrome.alarms`, `loadPolicy/savePolicy/onPolicyChanged`
 - 5 sprint-M extension files modified, build verified
+
+### Sprint O-a hardening · `4f6f93a` + `90bdc2b` — RBAC + isolation + diversity + AI vendor cleanup
+
+After the initial sandbox shipped, four issues surfaced that needed fixes:
+
+1. **RBAC was being bypassed** in two places. The launch endpoint had been
+   adding the sandbox visitor as `workspace_members.role='owner'` on every
+   cloned workspace (defeating Rule 4 team-visibility), and re-attributing
+   every record's `createdBy` to the sandbox user (triggering Rule 2
+   "creator always sees their own"). Fix: clone the demo's users as ghost
+   authors with new ids, build a `userIdMap`, rewrite `createdBy` /
+   `decidedByUserId` / `publishedByUserId` / `verifiedByUserId` /
+   `ownerUserId` etc. to point at ghosts. Sandbox visitor is just a member,
+   not the author of everything. Workspace memberships are now scoped per
+   role: super_admin/admin skip workspace_members entirely (Rule 1
+   short-circuits), dept_head/member only get workspaces in their
+   accessible dept tree, guest gets zero. **Empirically verified on the
+   live DB**: Adaeze (dept_head) sees only Tax Treaty Team + Transfer
+   Pricing Team (the 2 leaf workspaces under International Taxation
+   Division), Daniel (guest) has 0 workspace + 0 dept memberships.
+
+2. **Scoped-dept hint pointed at the root.** Initial regex
+   `/taxation|finance/i` matched "Ministry of Finance" first → all depts
+   were descendants → all workspaces accessible. Now we use priority
+   regexes anchored on `/^international taxation/`, `/^direct taxes/`,
+   `/^department of revenue/` and reject parent_id=null roots.
+
+3. **Personal workspace required.** `requireAuth()` throws if the user has
+   no `workspace_members` row. Guests (with no enterprise workspace_members
+   under the new RBAC scoping) would fail at the door. Fix: each sandbox
+   visitor also gets a personal-type workspace (not linked to any org), so
+   requireAuth has something to find.
+
+4. **Cross-org isolation belt-and-suspenders.** API layer already enforces
+   via `getOrgContext` / `requireOrgAuth`. Added middleware check: sandbox
+   sessions hitting `/app/admin/<seg>/*` where `seg` isn't a UUID get
+   redirected to `/app`, and `/app/admin/onboarding` (no-op for sandbox)
+   redirects too.
+
+5. **Persona diversity.** Replaced 5 Indian-only personas with a 5-ethnicity
+   mix:
+
+   | Role         | Persona             | Background          |
+   |--------------|---------------------|---------------------|
+   | super_admin  | Aarti Mehta         | Indian              |
+   | admin        | Hiroshi Tanaka      | Japanese            |
+   | dept_head    | Adaeze Okonkwo      | Nigerian            |
+   | member       | Sofia Martinez      | Latina              |
+   | guest        | Daniel Schwartz     | Jewish/European     |
+
+   Dept_head card tagline rewritten to be role-generic (was Rajiv-specific
+   "BEPS treaty thread, EU delegation, 47 decisions authored").
+
+6. **AI vendor cleanup.** Stripped Claude / Sonnet / Haiku / Anthropic /
+   Groq / Llama from every user-facing string — sandbox copy, fixtures,
+   pricing, compliance, all agent / capture / oracle / handoff / brain-dump
+   / onboarding-genie / start-my-day / topbar surfaces. Replaced with "the
+   AI" / "AI-synthesized" / "managed frontier AI" / "fast reranker". 22
+   files touched. Internal `//` developer comments left intact.
 
 ### Sprint O-a · `557520c` + `6effd82` — Public sandbox with scripted AI
 
@@ -216,13 +275,16 @@ Tell next session: "Read today.md and pick up Sprint O proper (UI/UX polish — 
 ## Sandbox quick reference
 
 - Public URL: https://enterprise.reattend.com/sandbox
-- 5 named personas mapped to roles: Aarti (super_admin), Vikram (admin), Rajiv (dept_head), Priya (member), Sanjay (guest)
+- 5 named personas, mixed ethnicities: Aarti Mehta (super_admin), Hiroshi Tanaka (admin), Adaeze Okonkwo (dept_head), Sofia Martinez (member), Daniel Schwartz (guest)
 - API: `POST /api/sandbox/launch` body `{ role }` returns `{ ticket, sandboxOrgId, personaName, personaTitle, role }`
 - Auto-cleanup: `*/10 * * * *` cron curls `localhost:3000/api/sandbox/cleanup`, drops sandbox-prefixed orgs older than 1h
 - Sandbox marker: user email ends in `@sandbox.reattend.local`; org slug starts with `sandbox-`
 - AI in sandbox: every endpoint detects the email and serves fixtures from `src/lib/sandbox/fixtures.ts` — never hits the LLM
 - Suggested guided-demo questions live in `SANDBOX_SUGGESTIONS` and surface as violet chips in `/app/ask`
+- RBAC verified end-to-end: super_admin/admin see everything via Rule 1, dept_head sees only the International Taxation Division leaf workspaces (Tax Treaty Team + Transfer Pricing Team), member same scope but role='member', guest sees nothing in the org (zero workspace_members + zero dept_members), only their personal workspace
+- Middleware blocks sandbox sessions from `/app/admin/<non-uuid>/*` and `/app/admin/onboarding`
+- Demo authorship preserved via ghost-user clones (records keep "created by Vikram Singh" etc., not the sandbox visitor)
 
 ---
 
-*Generated end of Sprint O-a (sandbox). Next: Sprint O proper (UI/UX polish) — interactive with user.*
+*Generated end of Sprint O-a (sandbox + hardening). Next: Sprint O proper (UI/UX polish) — interactive with user.*
