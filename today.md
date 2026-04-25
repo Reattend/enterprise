@@ -1,10 +1,10 @@
 # Reattend Enterprise — Session Handoff
 
-**Last updated:** 2026-04-25 (end of Sprint N)
+**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox)
 **Branch:** `main` — pushed
-**Live at:** https://enterprise.reattend.com
-**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N
-**Sprints remaining before launch:** O (UI/UX polish), P (Nango), Q (infra), R (billing), then launch
+**Live at:** https://enterprise.reattend.com · public sandbox at https://enterprise.reattend.com/sandbox
+**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox)
+**Sprints remaining before launch:** O proper (UI/UX polish — interactive with user), P (Nango), Q (infra), R (billing), then launch
 
 ---
 
@@ -76,7 +76,19 @@ Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git p
 - Extension repo (`enterprise_extension`): ambient corner card, policy sync via `chrome.alarms`, `loadPolicy/savePolicy/onPolicyChanged`
 - 5 sprint-M extension files modified, build verified
 
-### Sprint N (current) — Demo org + runbook + landing
+### Sprint O-a · `557520c` + `6effd82` — Public sandbox with scripted AI
+
+- `/sandbox` public landing page — 5 role cards (Aarti Mehta · Super Admin, Vikram Rao · Admin, Rajiv Sharma · Director, Priya Iyer · Member, Sanjay Verma · Guest)
+- `POST /api/sandbox/launch` — clones the seeded `demo-mof` org per visitor (new id, slug `sandbox-{8char}`), creates a synthetic user `sb-{suffix}@sandbox.reattend.local`, issues a 60s SSO ticket the browser trades for a session cookie via the existing `sso-ticket` CredentialsProvider
+- `cloneOrgData()` helper: shallow id-remapped copy of departments (two-pass for parent_id), workspaces + workspace_org_links, department_members (sandbox user added per role), records, decisions, policies + policy_versions (policy first, then versions, then patch currentVersionId — fixed FK violation), agents, announcements, prompt_library, calendar_events, exit_interviews, ocr_jobs
+- `GET /api/sandbox/cleanup` — drops sandbox-prefixed orgs older than 1 hour and their workspaces, records, and synthetic users. Wired to a `*/10 * * * *` cron on the droplet via `crontab` curling localhost
+- `src/lib/sandbox/{detect,fixtures}.ts` — sandbox detection by `@sandbox.reattend.local` email suffix; fixtures library with 9 chat answers (BEPS, Rajiv-leaves, Vendor-X, stale, reversed, contradictions, ramp, exit-questions, tomorrow, trending), 4 oracle dossiers (BEPS, Rajiv, Vendor-X, generic fallback), brain-dump preview, onboarding-genie packet, handoff markdown, compose email, morning brief
+- AI endpoints short-circuit to fixtures when sandbox session: `/api/ask`, `/api/ask/oracle`, `/api/enterprise/{brain-dump, onboarding-genie, handoff, compose, start-my-day, exit-interviews}`. Streaming chat protocol matches the live endpoint (X-Sources header included)
+- `SandboxBanner` component at top of app shell — surfaces "you're in sandbox, nothing persists, AI is scripted" + pricing CTA when email matches
+- Ask `chat-view.tsx` renders 6 violet guided-demo question chips for sandbox users with the label "Guided demo — click any question to see a scripted answer"
+- Home hero swapped: primary CTA is now "Try the sandbox", secondary "Sign up". Header has a "Try sandbox" link
+
+### Sprint N — Demo org + runbook + landing
 - Seeder extended: 1 completed exit interview with handoff doc, 6 OCR jobs (mixed statuses), 1 announcement, ~80 record views (trending), 6 prompts, 3 calendar events, 15 records with verification cadence
 - `docs/demo-script.md` — 12-min runbook with 5 money moments + 7 backup beats + objection handling
 - `home-content.tsx`: replaced DeepThink card with Exit Interview Agent
@@ -197,8 +209,20 @@ git log --oneline -5           # last 5 sprints visible
 npm run test:rbac              # 36/36 passing
 ```
 
-Tell next session: "Read today.md and pick up Sprint O." It will know.
+Tell next session: "Read today.md and pick up Sprint O proper (UI/UX polish — interactive)." It will know.
 
 ---
 
-*Generated end of Sprint N. Next: Sprint O (UI/UX polish) — the bonfire before Nango.*
+## Sandbox quick reference
+
+- Public URL: https://enterprise.reattend.com/sandbox
+- 5 named personas mapped to roles: Aarti (super_admin), Vikram (admin), Rajiv (dept_head), Priya (member), Sanjay (guest)
+- API: `POST /api/sandbox/launch` body `{ role }` returns `{ ticket, sandboxOrgId, personaName, personaTitle, role }`
+- Auto-cleanup: `*/10 * * * *` cron curls `localhost:3000/api/sandbox/cleanup`, drops sandbox-prefixed orgs older than 1h
+- Sandbox marker: user email ends in `@sandbox.reattend.local`; org slug starts with `sandbox-`
+- AI in sandbox: every endpoint detects the email and serves fixtures from `src/lib/sandbox/fixtures.ts` — never hits the LLM
+- Suggested guided-demo questions live in `SANDBOX_SUGGESTIONS` and surface as violet chips in `/app/ask`
+
+---
+
+*Generated end of Sprint O-a (sandbox). Next: Sprint O proper (UI/UX polish) — interactive with user.*
