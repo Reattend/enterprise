@@ -67,6 +67,18 @@ const SUGGESTED = [
   'Prepare me for my next meeting',
 ]
 
+// Sandbox-only: the guided demo questions that map 1:1 to canned fixtures
+// on the server. When the user's email is @sandbox.reattend.local, we swap
+// these in so visitors hit the scripted responses immediately.
+const SANDBOX_SUGGESTED = [
+  'What did we decide about the BEPS treaty position, and what depends on that decision?',
+  'If Rajiv left tomorrow, what would we lose?',
+  'What did the org know about Vendor X on March 3, 2025?',
+  'Which of our active policies are stale and why?',
+  'Which decisions have we reversed this year, and why?',
+  'What should I prepare before tomorrow\'s BEPS sync with the EU delegation?',
+]
+
 // Matches follow-ups heading from AI responses. Covers:
 //   ---FOLLOWUPS---, Follow-up questions:, Follow-ups:, FOLLOWUPS, followups:
 // We look for the heading on its own line (or preceded by blank line) so we
@@ -97,6 +109,7 @@ export function ChatView() {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
   const [userName, setUserName] = useState('')
+  const [isSandbox, setIsSandbox] = useState(false)
   const [chatId, setChatId] = useState<string | null>(null)
   // Track which message's sources are expanded (collapsed by default)
   const [openSourceIds, setOpenSourceIds] = useState<Set<string>>(new Set())
@@ -138,7 +151,10 @@ export function ChatView() {
   // Load user name once
   useEffect(() => {
     fetch('/api/user').then(r => r.json()).then(d => {
-      if (d.user) setUserName(d.user.name?.split(' ')[0] || d.user.email?.split('@')[0] || '')
+      if (d.user) {
+        setUserName(d.user.name?.split(' ')[0] || d.user.email?.split('@')[0] || '')
+        setIsSandbox((d.user.email || '').toLowerCase().endsWith('@sandbox.reattend.local'))
+      }
     }).catch(() => {})
   }, [])
 
@@ -462,18 +478,31 @@ export function ChatView() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="flex flex-wrap gap-2 justify-center"
+                  className="flex flex-col items-center gap-3"
                 >
-                  {SUGGESTED.map(p => (
-                    <button
-                      key={p}
-                      onClick={() => sendMessage(p)}
-                      className="flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full border border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border transition-all backdrop-blur-sm"
-                    >
-                      <Sparkles className="h-3 w-3 text-primary/60" />
-                      {p}
-                    </button>
-                  ))}
+                  {isSandbox && (
+                    <p className="text-[11px] text-muted-foreground/70 font-medium">
+                      <Sparkles className="h-3 w-3 inline mr-1 text-violet-500" />
+                      Guided demo — click any question to see a scripted answer
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {(isSandbox ? SANDBOX_SUGGESTED : SUGGESTED).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => sendMessage(p)}
+                        className={cn(
+                          'flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full border transition-all backdrop-blur-sm max-w-[420px] text-left',
+                          isSandbox
+                            ? 'border-violet-500/30 bg-violet-500/5 text-violet-900 dark:text-violet-100 hover:bg-violet-500/10 hover:border-violet-500/50'
+                            : 'border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border'
+                        )}
+                      >
+                        <Sparkles className={cn('h-3 w-3 shrink-0', isSandbox ? 'text-violet-500' : 'text-primary/60')} />
+                        <span className="leading-tight">{p}</span>
+                      </button>
+                    ))}
+                  </div>
                 </motion.div>
 
                 <motion.div

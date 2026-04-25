@@ -12,6 +12,8 @@ import {
   filterToAccessibleRecords,
 } from '@/lib/enterprise'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { matchSandboxQuestion, SANDBOX_CHAT, SANDBOX_CHAT_FALLBACK } from '@/lib/sandbox/fixtures'
 
 const AI_QUERY_LIMIT = 20
 
@@ -397,6 +399,35 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'question is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // ─── Sandbox short-circuit ─────────────────────────────
+    // Sandbox sessions never hit the LLM. We match the question to a fixture
+    // and stream its canned answer. The X-Sources header matches the live
+    // endpoint's shape so the UI renders normally.
+    if (isSandboxEmail(userEmail)) {
+      const fixtureId = matchSandboxQuestion(question)
+      const fx = (fixtureId && SANDBOX_CHAT[fixtureId]) || SANDBOX_CHAT_FALLBACK
+      const encoder = new TextEncoder()
+      const fullText = `${fx.answer}`
+      // Stream in small chunks so the UI animates the typing effect
+      const stream = new ReadableStream({
+        async start(controller) {
+          const chunkSize = 24
+          for (let i = 0; i < fullText.length; i += chunkSize) {
+            controller.enqueue(encoder.encode(fullText.slice(i, i + chunkSize)))
+            await new Promise((r) => setTimeout(r, 18))
+          }
+          controller.close()
+        },
+      })
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'X-Sources': JSON.stringify(fx.sources),
+          'X-Sandbox': '1',
+        },
       })
     }
 

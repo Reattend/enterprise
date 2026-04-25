@@ -7,6 +7,8 @@ import { getAskLLM } from '@/lib/ai/llm'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import { auditForAllUserOrgs, extractRequestMeta } from '@/lib/enterprise'
 import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { SANDBOX_BRAIN_DUMP } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +52,29 @@ export async function POST(req: NextRequest) {
       items?: DumpItem[]
       workspaceId?: string
       projectId?: string
+    }
+
+    // Sandbox: preview-only; commit path is a no-op that reports success.
+    if (isSandboxEmail(userEmail)) {
+      if (commit === true) {
+        return NextResponse.json({
+          committed: [],
+          rejected: [],
+          meta: { sandbox: true, message: 'Brain dump commit is a no-op in the sandbox — nothing persists.' },
+        })
+      }
+      return NextResponse.json({
+        preview: {
+          items: SANDBOX_BRAIN_DUMP.items.map((i) => ({
+            kind: i.kind,
+            title: i.title,
+            detail: i.summary,
+            sourceSpan: null,
+          })),
+          rejectedReason: null,
+        },
+        meta: SANDBOX_BRAIN_DUMP.meta,
+      })
     }
 
     if (commit === true) {

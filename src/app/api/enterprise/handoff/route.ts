@@ -9,6 +9,8 @@ import {
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
 import { enqueueJob } from '@/lib/jobs/worker'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { SANDBOX_HANDOFF_DOC } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +41,15 @@ export async function POST(req: NextRequest) {
     }
     const auth = await requireOrgAuth(req, orgId, 'org.members.manage')
     if (isAuthResponse(auth)) return auth
+
+    // Sandbox: return the pre-built handoff markdown.
+    if (isSandboxEmail(auth.userEmail)) {
+      return NextResponse.json({
+        markdown: SANDBOX_HANDOFF_DOC,
+        record: null,
+        meta: { sandbox: true, fromUserId, toUserId, scope: scope || 'full' },
+      })
+    }
 
     // Validate both users are in the org
     const memberships = await db.select()

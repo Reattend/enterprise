@@ -10,6 +10,8 @@ import {
   pendingPoliciesForUser,
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { SANDBOX_START_MY_DAY } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,12 +27,40 @@ export const dynamic = 'force-dynamic'
 // habit cards don't need live numbers.
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, session } = await requireAuth()
+    const userEmail = session?.user?.email || ''
     const orgId = req.nextUrl.searchParams.get('orgId')
     const sinceParam = req.nextUrl.searchParams.get('since')
     if (!orgId) return NextResponse.json({ error: 'orgId required' }, { status: 400 })
 
     const sinceIso = sinceParam || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+    // Sandbox: canned morning briefing. Same response shape as live.
+    if (isSandboxEmail(userEmail)) {
+      return NextResponse.json({
+        since: sinceIso,
+        user: { name: session?.user?.name || null, email: userEmail },
+        counts: {
+          newMemories: 7,
+          newDecisions: 2,
+          reversals: 0,
+          supersessions: 1,
+          pendingAcks: 1,
+          incomingTransfers: 0,
+        },
+        focus: `${SANDBOX_START_MY_DAY.headline}\n\n${SANDBOX_START_MY_DAY.focus}`,
+        highlights: {
+          memories: [
+            { id: 'sb-m1', title: 'Vendor X Secretary escalation — Apr 18', type: 'decision', summary: 'Priya re-escalated the data residency concern to Secretary level.', by: 'Priya Iyer', createdAt: new Date().toISOString() },
+            { id: 'sb-m2', title: 'Data Residency Policy v1.2 flagged stale', type: 'insight', summary: 'Self-healing flagged this policy — last verified 14 months ago.', by: 'Self-Healing', createdAt: new Date().toISOString() },
+            { id: 'sb-m3', title: 'BEPS reservation clock — 23 days to go', type: 'note', summary: 'Apr 14, 2026 review deadline approaching.', by: 'System', createdAt: new Date().toISOString() },
+          ],
+          decisions: [],
+          pendingPolicies: [{ id: 'sb-p1', title: 'GDPR Data Subject Rights Policy v1.3', category: 'Compliance' }],
+        },
+        meta: { sandbox: true },
+      })
+    }
 
     // ── Workspaces in scope ───────────────────────────────
     const wsLinkRows = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })

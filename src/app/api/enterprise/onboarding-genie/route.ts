@@ -8,6 +8,8 @@ import {
   hasOrgPermission,
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { SANDBOX_ONBOARDING_GENIE } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +39,8 @@ interface PacketResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, session } = await requireAuth()
+    const userEmail = session?.user?.email || ''
     const body = await req.json()
     const { orgId, departmentId, roleTitle, name, startDate, email } = body as {
       orgId?: string
@@ -52,6 +55,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         error: 'orgId, departmentId, roleTitle, name required',
       }, { status: 400 })
+    }
+
+    // Sandbox: serve a pre-built packet; the UI renders it identically.
+    if (isSandboxEmail(userEmail)) {
+      const p = SANDBOX_ONBOARDING_GENIE.packet
+      const markdown = [
+        `# ${p.headline}`,
+        '',
+        p.summary,
+        '',
+        '## Read these',
+        ...p.readThese.map((r) => `- ${r}`),
+        '',
+        '## People to meet',
+        ...p.peopleToMeet.map((m) => `- **${m.name}** — ${m.role}. ${m.context}`),
+        '',
+        '## Agents to try',
+        ...p.agentsToTry.map((a) => `- ${a}`),
+        '',
+        '## Watch out for',
+        ...p.watchOutFor.map((w) => `- ${w}`),
+      ].join('\n')
+      return NextResponse.json({
+        markdown,
+        sections: {
+          overview: p.summary,
+          keyDecisions: [],
+          policies: [],
+          peopleToMeet: p.peopleToMeet.map((m, i) => ({ id: `sb-p${i}`, name: m.name, email: '', role: 'member', title: m.role })),
+          suggestedAgents: [],
+        },
+        meta: { generatedAt: new Date().toISOString(), department: 'International Taxation', roleTitle, name, sandbox: true },
+      })
     }
 
     const ctx = await getOrgContext(userId, orgId)

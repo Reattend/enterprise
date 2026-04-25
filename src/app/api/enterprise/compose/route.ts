@@ -11,6 +11,8 @@ import {
   filterToAccessibleWorkspaces,
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { SANDBOX_COMPOSE } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,11 +39,25 @@ interface BaseBody {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, session } = await requireAuth()
+    const userEmail = session?.user?.email || ''
     const body = await req.json() as Partial<BaseBody> & Record<string, any>
 
     const { kind, orgId } = body
     if (!kind || !orgId) return NextResponse.json({ error: 'kind + orgId required' }, { status: 400 })
+
+    // Sandbox: return a scripted compose draft. Shape matches real response.
+    if (isSandboxEmail(userEmail)) {
+      return NextResponse.json({
+        draft: {
+          subject: SANDBOX_COMPOSE.subject,
+          body: SANDBOX_COMPOSE.body,
+          tone: SANDBOX_COMPOSE.tone,
+        },
+        sources: [{ id: 'demo-compose-1', title: 'BEPS sync Feb 12, 2026 — minutes', type: 'meeting' }],
+        meta: { sandbox: true, kind },
+      })
+    }
 
     const orgCtx = await getOrgContext(userId, orgId)
     if (!orgCtx || !hasOrgPermission(orgCtx, 'org.read')) {

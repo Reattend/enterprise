@@ -11,6 +11,7 @@ import { OnboardingChecklist } from '@/components/app/onboarding-checklist'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
 import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
+import { SandboxBanner } from '@/components/enterprise/sandbox-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
 import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
@@ -90,6 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         className="flex flex-col min-h-screen overflow-x-hidden"
       >
         <AppTopbar />
+        <SandboxBanner />
         <InboxBanner />
         <AnnouncementBanner orgId={activeEnterpriseOrgId} />
         <PolicyPendingBanner />

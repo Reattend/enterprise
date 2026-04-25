@@ -18,9 +18,14 @@ export default function EnterpriseLanding() {
             <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
           </div>
         </Link>
-        <Link href="/login" className="text-[13px] font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">
-          Sign in &rarr;
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/sandbox" className="text-[13px] font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">
+            Try sandbox
+          </Link>
+          <Link href="/login" className="text-[13px] font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">
+            Sign in &rarr;
+          </Link>
+        </div>
       </nav>
 
       <main className="relative z-10 max-w-3xl mx-auto px-8 pt-16 pb-24 text-center">
@@ -34,11 +39,11 @@ export default function EnterpriseLanding() {
             Decisions, context, and institutional knowledge - captured, linked, and never lost. Even when people leave.
           </p>
           <div className="flex items-center justify-center gap-4 mt-10">
-            <Link href="/register" className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#1a1a2e] text-white text-[14px] font-semibold rounded-full hover:bg-[#2d2b55] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
-              Get started <ArrowRight className="h-4 w-4" />
+            <Link href="/sandbox" className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#1a1a2e] text-white text-[14px] font-semibold rounded-full hover:bg-[#2d2b55] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+              Try the sandbox <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/login" className="inline-flex items-center gap-2 px-7 py-3.5 border border-neutral-200 text-[14px] font-semibold text-neutral-600 rounded-full hover:border-neutral-300 hover:bg-white transition-all">
-              Sign in
+            <Link href="/register" className="inline-flex items-center gap-2 px-7 py-3.5 border border-neutral-200 text-[14px] font-semibold text-neutral-600 rounded-full hover:border-neutral-300 hover:bg-white transition-all">
+              Sign up
             </Link>
           </div>
         </motion.div>

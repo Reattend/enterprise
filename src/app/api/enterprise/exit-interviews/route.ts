@@ -8,6 +8,7 @@ import {
   handleEnterpriseError,
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,6 +102,28 @@ export async function POST(req: NextRequest) {
 
     const auth = await requireOrgAuth(req, orgId, 'org.members.manage')
     if (isAuthResponse(auth)) return auth
+
+    // Sandbox: echo a canned interview row without hitting the LLM.
+    // The seeder already creates one completed interview visible in the list
+    // view — this path covers the "generate another" button.
+    if (isSandboxEmail(auth.userEmail)) {
+      return NextResponse.json({
+        interview: {
+          id: 'sandbox-preview',
+          departingUserId,
+          roleTitle: roleTitle || 'Director, International Taxation',
+          status: 'pending',
+          questions: [
+            { id: 'q1', text: 'The BEPS Pillar Two position has 3 active dependencies. If the Council renegotiates, what\'s the order to update the downstream policies, and who should be in each room?', memoryCount: 12 },
+            { id: 'q2', text: 'You\'ve flagged the BEPS submission form bug three times. What\'s the workaround you use, and what breaks for a new hire who tries to submit blind?', memoryCount: 3 },
+            { id: 'q3', text: 'Tuesday 9am Brussels call — who are the three counterparts, what\'s the cadence, and what\'s usually on the agenda?', memoryCount: 18 },
+            { id: 'q4', text: 'Vendor X compliance review — you owned this through February. What\'s your read, and which way should it land?', memoryCount: 7 },
+            { id: 'q5', text: 'If you could only do one handoff task before leaving, which and why?', memoryCount: 0 },
+          ],
+          meta: { sandbox: true },
+        },
+      })
+    }
 
     // Validate departing user is in this org
     const membership = await db.select()

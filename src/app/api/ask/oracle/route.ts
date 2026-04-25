@@ -12,6 +12,8 @@ import {
 } from '@/lib/enterprise'
 import { getAskLLM } from '@/lib/ai/llm'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
+import { isSandboxEmail } from '@/lib/sandbox/detect'
+import { matchSandboxQuestion, SANDBOX_ORACLE } from '@/lib/sandbox/fixtures'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,6 +70,48 @@ export async function POST(req: NextRequest) {
 
     if (!orgId || !question || question.trim().length < 5) {
       return NextResponse.json({ error: 'orgId + question (min 5 chars) required' }, { status: 400 })
+    }
+
+    // ─── Sandbox short-circuit ─────────────────────────────
+    // Return a pre-built dossier in the real shape so the UI renders it
+    // exactly like a live Oracle answer. Falls back to the 'beps' dossier
+    // when the question doesn't match a specific fixture.
+    if (isSandboxEmail(userEmail)) {
+      const fxId = matchSandboxQuestion(question) || 'sandbox_default'
+      const fx = SANDBOX_ORACLE[fxId] || SANDBOX_ORACLE.sandbox_default || SANDBOX_ORACLE.beps
+      const raw = fx.dossier
+      // Parse the 5-section markdown — headings are `## Name`
+      const pullSection = (name: string): string => {
+        const re = new RegExp(`##\\s*${name}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i')
+        const m = re.exec(raw)
+        return m ? m[1].trim() : ''
+      }
+      const dossier = {
+        situation: pullSection('Situation'),
+        evidence: pullSection('Evidence'),
+        risks: pullSection('Risks'),
+        recommendations: pullSection('Recommendations'),
+        unknowns: pullSection('Unknowns'),
+      }
+      const sources = fx.sources.map((s) => ({
+        id: s.id,
+        title: s.title,
+        type: s.type,
+        date: null as string | null,
+        passage: s.passage || null,
+      }))
+      return NextResponse.json({
+        question,
+        dossier,
+        sources,
+        meta: {
+          candidatesScanned: 150,
+          accessibleFiltered: 98,
+          reranked: 30,
+          elapsedMs: Date.now() - t0,
+        },
+        sandbox: true,
+      })
     }
 
     // Audit — Oracle queries are high-signal, worth logging prominently
