@@ -1,15 +1,15 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Pricing - Free Forever | Reattend',
-  description: 'Reattend is free forever. 20 AI queries/day, 10 DeepThink sessions, unlimited memories, Notion integration. Pro and Teams coming soon.',
+  title: 'Pricing · Reattend Enterprise',
+  description: 'Three plans, one product: Team ($25/seat), Enterprise (custom), Government (on-prem). Same memory engine, same RBAC.',
   alternates: {
-    canonical: 'https://reattend.com/pricing',
+    canonical: 'https://enterprise.reattend.com/pricing',
   },
   openGraph: {
-    title: 'Reattend Pricing - Free Forever',
-    description: 'Free forever. 20 AI queries/day, unlimited memories, DeepThink included. Pro and Teams coming soon.',
-    url: 'https://reattend.com/pricing',
+    title: 'Reattend Enterprise Pricing',
+    description: 'Team / Enterprise / Government — pick by deployment + scale.',
+    url: 'https://enterprise.reattend.com/pricing',
   },
 }
 

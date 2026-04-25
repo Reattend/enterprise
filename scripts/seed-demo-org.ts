@@ -870,6 +870,239 @@ for (const ask of askSeeds) {
 }
 console.log(`Seeded ${askSeeds.length} ask-history rows`)
 
+// Resolve workspace ids actually in this org — needed by several later steps
+const orgWorkspaces = db.prepare(
+  `SELECT workspace_id FROM workspace_org_links WHERE organization_id = ?`
+).all(orgId) as Array<{ workspace_id: string }>
+const primaryWorkspaceId = orgWorkspaces[0]?.workspace_id || ''
+
+// ─── Step 13: exit interview + handoff doc ─────────────────────────────────
+// Pick a departing person from the offboarded slice — the last member in
+// the array was flagged offboarded earlier. Generate a completed interview
+// with a rich handoff doc that's also saved as a memory (so the "Priya
+// quits Friday" money demo has real data backing it).
+const departing = members[members.length - 1]
+if (departing && primaryWorkspaceId) {
+  const interviewId = uuid()
+  const handoffRecordId = uuid()
+  const handoffMarkdown = `## Summary
+Rajiv (${departing.name || departing.email}) is leaving after 4 years in the International Taxation directorate. Single most important thing: the BEPS treaty renegotiation thread is mid-flight and has no clear successor.
+
+## Active Projects
+- **BEPS renegotiation (EU counterparts)** — current state: draft position paper circulating, EU response expected in 6 weeks. Contact: Meera Venkat (JS International Tax). Next action: file counter-proposal by May 15.
+- **Transfer-pricing desk refresh** — current state: new APA process signed off; rollout owner TBD.
+- **Q2 compliance review** — current state: methodology locked, data collection pending from four field offices.
+
+## Relationships to Preserve
+- **Meera Venkat** (JS International Tax) — key counterpart on all cross-border cases
+- **Priya Sharma** (CBDT) — treaty partner liaison; meets bi-weekly
+- **Arjun Kapoor** (Legal) — fast-turnaround legal reviews; bypass normal queue with his OK
+
+## Tribal Knowledge
+- The "informal" meeting on Tuesday mornings at 9 is where all cross-border decisions actually get made. Not on any official calendar.
+- Ministry of External Affairs gets advance copy of any treaty-adjacent memo — courtesy, not protocol.
+
+## Gotchas & Failure Modes
+- The BEPS intake form has a known bug: if "year" is left blank it silently maps to 2020. Legal rejected 14 filings last quarter for this.
+- APA data feeds from the CBDT portal timeout on files > 40 MB. Split before uploading.
+
+## Open Loops
+- Treaty position on digital services tax — deferred last October, never revisited. The EU will raise this within 3 months.
+- Whether to publicly respond to the OECD consultation draft — internal disagreement between Revenue and Legal; has sat unresolved for 8 weeks.
+
+## First Week Checklist
+1. Meet Meera, Priya, and Arjun — introduce yourself as Rajiv's successor
+2. Read the BEPS position paper (attached via Memory) and the 3 most recent cross-border decisions
+3. Attend the Tuesday 9am informal — it's not optional
+4. Fix the intake form bug OR put a warning banner on it — pick one
+5. Schedule a kick-the-tires call with EU counterparts for the first week of next month`
+
+recordInsert.run(
+  handoffRecordId,
+  primaryWorkspaceId,
+  `Exit handoff · ${departing.name || departing.email} (Director, International Taxation)`,
+  handoffMarkdown.slice(0, 240),
+  handoffMarkdown,
+  JSON.stringify(['exit-handoff', 'handoff', 'international-taxation']),
+  departing.userId,
+  daysAgoIso(2),
+  daysAgoIso(2),
+)
+// Override type + source for the handoff record
+db.prepare(`UPDATE records SET type = 'context', source = 'exit-interview', visibility = 'org' WHERE id = ?`)
+  .run(handoffRecordId)
+
+const interviewQs = [
+  { id: uuid(), topic: 'projects',         question: 'BEPS renegotiation came up in 14 of your memories — what\'s the current state and who should own it?', answer: 'Draft position paper with EU; expected response in 6 weeks. Recommend Meera Venkat as owner.', answeredAt: daysAgoIso(3) },
+  { id: uuid(), topic: 'relationships',    question: 'Who are the top 3 external counterparts your successor must know?', answer: 'Meera (EU), Priya (CBDT), Arjun (Legal).', answeredAt: daysAgoIso(3) },
+  { id: uuid(), topic: 'tribal_knowledge', question: 'Anything about "how decisions actually get made" here that isn\'t documented?', answer: 'Tuesday 9am informal is the real forum. MEA gets courtesy advance copies of treaty memos.', answeredAt: daysAgoIso(3) },
+  { id: uuid(), topic: 'gotchas',          question: 'What\'s the most surprising failure mode your successor wouldn\'t see coming?', answer: 'BEPS intake form silently maps blank year to 2020. Cost us 14 filings last quarter.', answeredAt: daysAgoIso(3) },
+  { id: uuid(), topic: 'open_loops',       question: 'Decisions you deferred that will come back?', answer: 'Digital services tax position — EU will raise it within 3 months.', answeredAt: daysAgoIso(3) },
+]
+
+db.prepare(`INSERT INTO exit_interviews
+  (id, organization_id, departing_user_id, initiated_by_user_id, role_title, status, questions, handoff_doc, handoff_record_id, created_at, completed_at)
+  VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?)`).run(
+  interviewId,
+  orgId,
+  departing.userId,
+  creator.id,
+  'Director, International Taxation',
+  JSON.stringify(interviewQs),
+  handoffMarkdown,
+  handoffRecordId,
+  daysAgoIso(5),
+  daysAgoIso(2),
+)
+console.log(`Seeded 1 completed exit interview + handoff doc`)
+} // end exit-interview block
+
+// ─── Step 14: OCR jobs ─────────────────────────────────────────────────────
+// Mix of completed / needs_review / failed so the quality dashboard has a
+// realistic distribution. Gov demo has at least one high-confidence scan,
+// one flagged for re-review, one with heavy PII redactions.
+if (primaryWorkspaceId) {
+  const ocrJobInsert = db.prepare(`INSERT INTO ocr_jobs
+    (id, organization_id, workspace_id, file_name, file_size, mime_type, source_hash, language, status, page_count, avg_confidence, redaction_count, extracted_text_length, result_record_id, error_message, created_by, batch_id, created_at, started_at, completed_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const batchId = uuid()
+  const ocrFixtures = [
+    { file: 'vendor-contract-acme-2024.pdf',        status: 'completed',    confidence: 0.94, redactions: 0,  pages: 12, bytes: 1_800_000, created: 14, msg: null },
+    { file: 'field-office-report-blr-q3.pdf',        status: 'completed',    confidence: 0.89, redactions: 3,  pages: 8,  bytes: 2_400_000, created: 9,  msg: null },
+    { file: 'legacy-hiring-memo-2011-scan.jpg',      status: 'completed',    confidence: 0.76, redactions: 11, pages: 1,  bytes: 520_000,   created: 7,  msg: null },
+    { file: 'compliance-audit-v2-faded.pdf',         status: 'needs_review', confidence: 0.42, redactions: 2,  pages: 6,  bytes: 1_100_000, created: 5,  msg: 'Confidence below 0.7 threshold — re-scan at higher DPI recommended.' },
+    { file: 'handwritten-minutes-may-24.jpg',        status: 'needs_review', confidence: 0.38, redactions: 0,  pages: 1,  bytes: 680_000,   created: 3,  msg: 'Tesseract couldn\'t parse handwritten sections. Flag for manual transcription.' },
+    { file: 'damaged-pdf-photo.png',                 status: 'failed',       confidence: 0.0,  redactions: 0,  pages: 0,  bytes: 280_000,   created: 2,  msg: 'Image too degraded; 87% of pixels are noise.' },
+  ]
+  for (const j of ocrFixtures) {
+    const jobId = uuid()
+    let resultRecordId: string | null = null
+    if (j.status === 'completed') {
+      // Create a sanitized memory that the job links to, matching the OCR worker's output shape
+      resultRecordId = uuid()
+      recordInsert.run(
+        resultRecordId,
+        primaryWorkspaceId,
+        j.file.replace(/\.[^.]+$/, ''),
+        `Extracted from scanned document. ${j.redactions > 0 ? `${j.redactions} PII token${j.redactions === 1 ? '' : 's'} redacted.` : 'No PII detected.'}`,
+        `[Extracted via OCR · confidence ${Math.round(j.confidence * 100)}%]\n\n${j.redactions > 0 ? `[REDACTED:${j.redactions} fields removed from transcript]` : ''}\n\n(Content truncated — demo seed. Real run would contain the full text.)`,
+        JSON.stringify(['ocr', 'scanned-doc']),
+        creator.id,
+        daysAgoIso(j.created),
+        daysAgoIso(j.created),
+      )
+      db.prepare(`UPDATE records SET type = 'context', source = 'ocr', visibility = 'department', ocr_confidence = ? WHERE id = ?`)
+        .run(j.confidence, resultRecordId)
+    }
+    ocrJobInsert.run(
+      jobId, orgId, primaryWorkspaceId, j.file, j.bytes, j.file.endsWith('.pdf') ? 'application/pdf' : j.file.endsWith('.png') ? 'image/png' : 'image/jpeg',
+      uuid().replace(/-/g, ''), 'eng', j.status, j.pages, j.confidence, j.redactions,
+      j.confidence > 0 ? Math.round(j.pages * 1800 * j.confidence) : null,
+      resultRecordId, j.msg, creator.id, batchId,
+      daysAgoIso(j.created),
+      j.status === 'failed' ? daysAgoIso(j.created) : daysAgoIso(j.created),
+      j.status === 'failed' ? daysAgoIso(j.created) : daysAgoIso(j.created - 0.01),
+    )
+  }
+  console.log(`Seeded ${ocrFixtures.length} OCR jobs (${ocrFixtures.filter((j) => j.status === 'completed').length} completed, ${ocrFixtures.filter((j) => j.status === 'needs_review').length} needs review, ${ocrFixtures.filter((j) => j.status === 'failed').length} failed)`)
+}
+
+// ─── Step 15: announcement ─────────────────────────────────────────────────
+db.prepare(`INSERT INTO announcements
+  (id, organization_id, created_by_user_id, title, body, tone, starts_at, ends_at, active, created_at)
+  VALUES (?, ?, ?, ?, ?, 'info', ?, NULL, 1, ?)`).run(
+  uuid(), orgId, creator.id,
+  'Q2 compliance review kicks off Monday',
+  'Department heads — please confirm your team\'s data-handling acknowledgments are up to date by end of week. The compliance dashboard on /admin shows any gaps. Flag blockers to the CISO channel.',
+  daysAgoIso(1), daysAgoIso(1),
+)
+console.log(`Seeded 1 pinned announcement`)
+
+// ─── Step 16: record views (drives the Trending widget) ────────────────────
+// Scatter views across the most recent 15 records so "Trending this week"
+// has something to render. Active members are the viewers.
+const recentRecords = db.prepare(`SELECT id FROM records WHERE workspace_id IN (
+  SELECT workspace_id FROM workspace_org_links WHERE organization_id = ?
+) ORDER BY created_at DESC LIMIT 15`).all(orgId) as Array<{ id: string }>
+const viewInsert = db.prepare(`INSERT INTO record_views (id, record_id, user_id, viewed_at) VALUES (?, ?, ?, ?)`)
+let totalViews = 0
+for (const r of recentRecords) {
+  // Each record gets 1-8 views randomly
+  const n = 1 + Math.floor(Math.random() * 8)
+  for (let i = 0; i < n; i++) {
+    const viewer = activeMembers[Math.floor(Math.random() * activeMembers.length)]
+    if (!viewer) continue
+    viewInsert.run(uuid(), r.id, viewer.userId, daysAgoIso(Math.floor(Math.random() * 7)))
+    totalViews += 1
+  }
+}
+console.log(`Seeded ${totalViews} record views across ${recentRecords.length} records`)
+
+// ─── Step 17: prompt library ───────────────────────────────────────────────
+const promptInsert = db.prepare(`INSERT INTO prompt_library
+  (id, organization_id, created_by_user_id, title, body, tags, usage_count, created_at, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+const prompts = [
+  { title: 'Summarize this customer\'s history',     body: 'Summarize everything we know about [CUSTOMER NAME]: open decisions, past complaints, relationship owner, current ARR tier, outstanding commitments.', tags: ['sales', 'customer'], uses: 24 },
+  { title: 'Draft a renewal email',                  body: 'Draft a renewal email to [CUSTOMER] referencing their last contract decision and any open commitments. Formal tone, CC finance.', tags: ['sales', 'renewal'], uses: 18 },
+  { title: 'Pre-meeting brief',                      body: 'Prepare me for my [10am / 2pm / next] meeting with [PERSON or TEAM]. Last 3 memories touching this topic, any open decisions, any policy that applies.', tags: ['meeting', 'prep'], uses: 31 },
+  { title: 'Expense policy check',                   body: 'Is [expense description] permissible under our current travel + expense policy? Cite the clause. If borderline, tell me what approval is needed.', tags: ['finance', 'policy'], uses: 12 },
+  { title: 'Decision alternatives',                  body: 'For decision [DECISION TITLE], what alternatives were considered and why were they rejected? Cite the decision log.', tags: ['decisions', 'research'], uses: 8 },
+  { title: 'Onboarding checklist',                   body: 'Generate a first-week onboarding checklist for a new [ROLE] in [DEPARTMENT]. Pull relevant policies, key decisions, people to meet.', tags: ['onboarding', 'hr'], uses: 6 },
+]
+for (const p of prompts) {
+  promptInsert.run(uuid(), orgId, creator.id, p.title, p.body, JSON.stringify(p.tags), p.uses, daysAgoIso(20 + Math.floor(Math.random() * 30)), daysAgoIso(2 + Math.floor(Math.random() * 10)))
+}
+console.log(`Seeded ${prompts.length} prompt library entries`)
+
+// ─── Step 18: calendar events (for Meeting Prep card) ──────────────────────
+if (primaryWorkspaceId) {
+  const calInsert = db.prepare(`INSERT INTO calendar_events
+    (id, organization_id, workspace_id, title, start_at, end_at, attendee_emails, location, description, source, created_by, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', ?, ?)`)
+  const nowMs = Date.now()
+  const fromNow = (minutes: number) => new Date(nowMs + minutes * 60_000).toISOString()
+  const meetingSeeds = [
+    { title: 'BEPS cross-border sync with EU',       in: 12,  dur: 30, attendees: 3, loc: 'Video · Zoom',  desc: 'Quarterly treaty renegotiation sync.' },
+    { title: 'Q2 compliance review kickoff',          in: 120, dur: 60, attendees: 6, loc: 'Room 204',      desc: 'Department heads walk through compliance scorecards.' },
+    { title: 'Vendor contract renewal — Acme Corp',   in: 260, dur: 45, attendees: 2, loc: 'Video · Teams', desc: 'Renegotiate master terms; legal + procurement on call.' },
+  ]
+  for (const m of meetingSeeds) {
+    const attendeeEmails = activeMembers.slice(0, m.attendees).map((x) => x.email)
+    calInsert.run(
+      uuid(), orgId, primaryWorkspaceId, m.title,
+      fromNow(m.in), fromNow(m.in + m.dur),
+      JSON.stringify(attendeeEmails), m.loc, m.desc, creator.id, now(),
+    )
+  }
+  console.log(`Seeded ${meetingSeeds.length} upcoming calendar events (Meeting Prep card has data)`)
+}
+
+// ─── Step 19: verification cadence on 15% of records ───────────────────────
+// Set verifyEveryDays + lastVerifiedAt on a sampling of records so Trust
+// badges (Verified / Unverified / Stale) render realistically in lists.
+const recordsForVerify = db.prepare(`SELECT id, created_at FROM records WHERE workspace_id IN (
+  SELECT workspace_id FROM workspace_org_links WHERE organization_id = ?
+) ORDER BY RANDOM() LIMIT 15`).all(orgId) as Array<{ id: string; created_at: string }>
+const verifyUpdate = db.prepare(`UPDATE records SET verify_every_days = ?, last_verified_at = ?, verified_by_user_id = ? WHERE id = ?`)
+let verified = 0, stale = 0, unverified = 0
+for (const r of recordsForVerify) {
+  const cadence = [30, 60, 90][Math.floor(Math.random() * 3)]
+  // 60% verified recently, 25% stale (last-verified older than cadence), 15% unverified (null)
+  const roll = Math.random()
+  if (roll < 0.6) {
+    verifyUpdate.run(cadence, daysAgoIso(Math.floor(Math.random() * cadence / 2)), creator.id, r.id)
+    verified += 1
+  } else if (roll < 0.85) {
+    verifyUpdate.run(cadence, daysAgoIso(cadence + 15 + Math.floor(Math.random() * 30)), creator.id, r.id)
+    stale += 1
+  } else {
+    verifyUpdate.run(cadence, null, null, r.id)
+    unverified += 1
+  }
+}
+console.log(`Applied verification cadence: ${verified} verified · ${stale} stale · ${unverified} unverified`)
+
 console.log(`\n✓ Demo org seeded. URL: http://localhost:3000/app/admin/${orgId}`)
 console.log(`  Slug:   ${DEMO_SLUG}`)
 console.log(`  Name:   ${DEMO_NAME}`)

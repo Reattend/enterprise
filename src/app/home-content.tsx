@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, Shield, Lock, Building, Brain } from 'lucide-react'
+import { ArrowRight, Shield, Lock, Building, Brain, GraduationCap } from 'lucide-react'
 
 export default function EnterpriseLanding() {
   return (
@@ -45,9 +45,9 @@ export default function EnterpriseLanding() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-20">
           {[
-            { icon: Building, title: 'Organizational Memory', desc: 'Every decision, meeting note, and policy - captured and linked into a knowledge graph that grows smarter over time.' },
-            { icon: Brain, title: 'DeepThink', desc: "An AI that knows your organization's history. Surfaces patterns, contradictions, and blind spots across departments." },
-            { icon: Shield, title: 'Secure by Design', desc: 'Role-based access. Audit trail on every query. On-premise deployment available. Your data never leaves your control.' },
+            { icon: Building, title: 'Organizational Memory', desc: 'Every decision, meeting note, and policy — captured, linked, and indexed by time. Scrub through history, see what the org knew when, and what depends on what.' },
+            { icon: GraduationCap, title: 'Exit Interview Agent', desc: 'When someone gives notice, Claude reads their memory footprint and writes a structured handoff for their successor. Six weeks of ramp time saved.' },
+            { icon: Shield, title: 'Secure by Design', desc: 'Two-tier RBAC, hash-chain audit log, GDPR-grade controls, on-prem deployment with the LLM running on your hardware. Procurement-grade.' },
           ].map(f => (
             <div key={f.title} className="text-left p-6 rounded-2xl border border-neutral-200/60 bg-white/60 backdrop-blur-sm">
               <f.icon className="h-6 w-6 text-neutral-400 mb-3" />
