@@ -44,9 +44,14 @@ const ROLE_LABELS: Record<string, { name: string; title: string }> = {
 const VALID_ROLES = new Set(['super_admin', 'admin', 'dept_head', 'member', 'guest'])
 
 // Identifies the dept the dept_head/member personas land in. Has to match
-// something in the demo seed; "International Taxation" is the demo's
-// most decision-rich department.
-const SCOPED_DEPT_HINT = /taxation|finance/i
+// something narrow in the demo seed — NOT the root ministry. We try the
+// most decision-rich subtree first ("International Taxation"), then fall
+// back to anything containing "Tax" (skipping the ministry root).
+const SCOPED_DEPT_HINTS: RegExp[] = [
+  /^international taxation/i,
+  /^direct taxes/i,
+  /^department of revenue/i,
+]
 
 export async function POST(req: NextRequest) {
   try {
@@ -224,8 +229,18 @@ async function cloneOrgData(args: CloneArgs) {
   }
 
   // ─── Pick a "scoped dept" for dept_head / member personas ──
-  // International Taxation tree if found, else first dept.
-  const scopedDeptOld = oldDepts.find((d) => SCOPED_DEPT_HINT.test(d.name)) || oldDepts[0]
+  // We try each hint in priority order. Whatever lands, it MUST not be the
+  // root ministry — if a non-leaf dept is matched, we still want a contained
+  // subtree. Falls back to the first non-root leaf-ish dept.
+  let scopedDeptOld: typeof oldDepts[number] | undefined
+  for (const re of SCOPED_DEPT_HINTS) {
+    scopedDeptOld = oldDepts.find((d) => d.parentId !== null && re.test(d.name))
+    if (scopedDeptOld) break
+  }
+  if (!scopedDeptOld) {
+    // Fall back to a non-root dept if available
+    scopedDeptOld = oldDepts.find((d) => d.parentId !== null) || oldDepts[0]
+  }
   const scopedDeptId = scopedDeptOld ? deptIdMap.get(scopedDeptOld.id)! : null
 
   // Compute the set of accessible department ids for this role
