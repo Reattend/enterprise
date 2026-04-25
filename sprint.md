@@ -1,8 +1,8 @@
 # Reattend Enterprise — Sprint Roadmap
 
-**Last updated:** 2026-04-23 (start of Sprint H)
+**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox + hardening)
 **First client:** **Government / secure org** (gov track is priority, SMB second)
-**Launch target:** ~5 focused weeks from now if execution is tight
+**Launch target:** ~3 focused weeks from now if execution is tight (Sprints O proper, P, Q, R remain)
 
 ---
 
@@ -13,30 +13,68 @@
   2. **SaaS / startups up to 200 employees** — second client set. Cloud-native, Nango-connected. Slack / Notion / MS Teams first; Google deferred until post-CASA.
 - **Amnesia is the wedge.** Decisions, Exit Interviews, Handoffs, Time Machine, Self-healing — these are the spine of every demo.
 - **Nango + connectors are LAST** before launch. UI/UX polish is the sprint immediately before Nango ("the bonfire").
-- **Claude + Groq now, Rabbit later.** Every production Q&A pair is future training data. Rabbit replacement is year 2.
+- **Managed AI now, on-prem Rabbit later.** Every production Q&A pair is future training data. Rabbit replacement is year 2.
 
 ---
 
-## Where we are right now (done before Sprint H)
+## Where we are right now
 
-Foundations + Sprints A-G shipped and live at https://enterprise.reattend.com:
-- Org hierarchy, RBAC, Decisions, Transfers, Policies, Agents (10 seeded), Wiki
-- Sprint A: voice capture, Ask Experts, reasoning trace
-- Sprint B: Start My Day, Memory Resurface, Oracle Mode
-- Sprint C: Brain Dump, Blast Radius, Onboarding Genie
-- Sprint D1-D3: polish (empty states, notifications, audit drill-down, mobile, RBAC tests)
-- Time Machine
-- Sprint E: unified /app/ask (Chat+Oracle), unified /app/landscape (Temporal+Causal)
-- Sprint F: integrations placeholder, DeepThink killed, capture deduped, Memory↔Wiki cross-links
-- Sprint G: **Exit Interview Agent**, **Handoff Generator**, **Legend page**
+**✅ Shipped & live at https://enterprise.reattend.com**
 
-Full feature catalog lives at `/app/legend` and in `today.md`.
+Foundations + Sprints A through O-a:
+- Org hierarchy, RBAC (8-rule record visibility, two-tier roles), Decisions, Transfers, Policies, Agents (10 seeded), Wiki
+- **Sprint A** — voice capture, Ask Experts, reasoning trace
+- **Sprint B** — Start My Day, Memory Resurface, Oracle Mode
+- **Sprint C** — Brain Dump, Blast Radius, Onboarding Genie
+- **Sprint D1-D3** — polish (empty states, notifications, audit drill-down, mobile, RBAC tests)
+- Time Machine (point-in-time scrubbing)
+- **Sprint E** — unified `/app/ask` (Chat + Oracle), unified `/app/landscape` (Temporal + Causal)
+- **Sprint F** — integrations placeholder, DeepThink killed, capture deduped, Memory ↔ Wiki cross-links
+- **Sprint G** — Exit Interview Agent, Handoff Generator, Legend page
+- **Sprint H** — Meeting Prep + Action Agents (Draft Email Reply, Draft Team Broadcast)
+- **Sprint I** — Glean + Guru polish: Trust badges, Verification cadence, Announcements, Trending, Admin analytics, Prompt library, Oracle passage highlighting
+- **Sprint J** — Notifications + Agent runtime + Anonymous Ask
+- **Sprint K** — Enterprise-grade OCR (Tesseract + pdf-parse, PII redaction, batch upload, quality dashboard) — gov track hero
+- **Sprint L** — Compliance pack: WORM audit log (sha256 chain), GDPR self-export + erasure, public `/compliance` page, StateRAMP + CJIS docs
+- **Sprint M** — Chrome extension policy + ambient corner card; `/api/tray/*` endpoints
+- **Sprint N** — Demo org seeder + 12-min demo runbook + landing/pricing refresh
+- **Sprint O-a** — **Public sandbox with 5 role personas + scripted AI fixtures** + RBAC hardening + isolation guards + persona diversity + AI-vendor cleanup from user-facing copy
+
+Full feature catalog lives at `/app/legend` and in `today.md`. Recent commits since Sprint H are tracked in `today.md`.
 
 ---
 
-# PRE-LAUNCH SPRINTS
+# REMAINING PRE-LAUNCH SPRINTS
 
-## Sprint H — Meeting Prep + Action Agents · ~3 hours · STARTING NOW
+> Sprints H through O-a are shipped. The detailed scopes for each are kept below for reference, but the load-bearing sprints from here are **O proper → P → Q → R**.
+
+---
+
+## ➡️ Sprint O proper — UI/UX polish · ~2 days · **NEXT** (interactive with user)
+
+**Goal:** "AI tool" → "AI product." Every pixel considered. The user has explicitly said this sprint is interactive — don't run autonomously.
+
+**Deliverables:**
+- Spacing + typography audit — consistent rhythm across every page
+- Color palette review — semantic stability (fuchsia=capture, violet=decisions, emerald=ack, amber=warning, red=destructive)
+- Loading states everywhere — skeletons, spinners, progressive reveal
+- Error boundaries — react errors render a useful card, never a white page
+- Animation timing — framer motion standardized to 150/250/400ms buckets
+- Mobile/tablet final pass — every route tested at 375px / 768px / 1024px
+- Accessibility — keyboard nav through every flow, screen-reader labels, focus rings, color contrast AA+
+- Empty states on every surface — no blank screens
+- Toast consistency — green = success, red = error, blue = info
+- Dark mode full review
+- Lighthouse 90+ on Home, Ask, Legend, Landscape
+- Microcopy review
+
+**Unlocks:** Demo doesn't lose the executive at "wait, the spacing is weird here."
+
+---
+
+# REFERENCE — completed sprints (kept for context)
+
+## ✅ Sprint H — Meeting Prep + Action Agents
 
 **Goal:** Close the day-in-the-life demo. Completes the "AI that works FOR me" beat.
 
@@ -53,7 +91,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint I — Glean + Guru polish pack · ~1.5 days
+## ✅ Sprint I — Glean + Guru polish pack · ~1.5 days
 
 **Goal:** Steal category-validated UX patterns. Addresses "why not Glean?" objection.
 
@@ -72,7 +110,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint J — Notifications coverage + Agent runtime · ~1.5 days
+## ✅ Sprint J — Notifications coverage + Agent runtime · ~1.5 days
 
 **Goal:** Close the defined-but-never-emitted notification types. Agents do things, not just answer.
 
@@ -89,7 +127,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint K — Enterprise-grade OCR · ~2-3 days · **GOV TRACK HERO**
+## ✅ Sprint K — Enterprise-grade OCR · ~2-3 days · **GOV TRACK HERO**
 
 **Goal:** Paper-to-memory at legal-grade accuracy. **This is our first-client unlock.**
 
@@ -110,7 +148,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint L — Compliance pack · ~2 days
+## ✅ Sprint L — Compliance pack · ~2 days
 
 **Goal:** Unblock enterprise + gov procurement checklists.
 
@@ -128,7 +166,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint M — Chrome extension (Enterprise port) · ~1.5 days
+## ✅ Sprint M — Chrome extension (Enterprise port) · ~1.5 days
 
 **Goal:** Ambient capture + surfacing without any server-side OAuth or CASA.
 
@@ -145,7 +183,7 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 
 ---
 
-## Sprint N — Demo org + seed data + runbook · ~1 day
+## ✅ Sprint N — Demo org + seed data + runbook · ~1 day
 
 **Goal:** Pilots + sales demos land in a product that looks already-used.
 
@@ -157,28 +195,6 @@ Full feature catalog lives at `/app/legend` and in `today.md`.
 - 3-min video walkthrough recording
 
 **Unlocks:** You can hand the droplet URL to any prospect and they see a live, used product.
-
----
-
-## Sprint O — **UI/UX polish (the bonfire before Nango)** · ~2 days
-
-**Goal:** "AI tool" → "AI product." Every pixel considered.
-
-**Deliverables:**
-- **Spacing + typography audit** — consistent rhythm across every page
-- **Color palette review** — semantic stability (fuchsia=capture, violet=decisions, emerald=ack, amber=warning, red=destructive)
-- **Loading states everywhere** — skeletons, spinners, progressive reveal
-- **Error boundaries** — react errors render a useful card, never a white page
-- **Animation timing** — framer motion standardized to 150/250/400ms buckets
-- **Mobile/tablet final pass** — every route tested at 375px / 768px / 1024px
-- **Accessibility pass** — keyboard nav through every flow, screen-reader labels, focus rings, color contrast AA+
-- **Empty states on every surface** — no blank screens anywhere
-- **Toast consistency** — green = success, red = error, blue = info
-- **Dark mode full review** — every component checked in both themes
-- **Performance** — Lighthouse 90+ on Home, Ask, Legend, Landscape
-- **Microcopy review** — every button, every empty-state paragraph, every error message
-
-**Unlocks:** Demo doesn't lose the executive at "wait, the spacing is weird here." Worth more than a new feature.
 
 ---
 
