@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'Reattend privacy policy. Your memories are private by default and never used to train AI models. Industry-standard encryption for data at rest and in transit.',
+  title: 'Privacy Policy · Reattend Enterprise',
+  description: 'How Reattend Enterprise handles customer data. Per-org isolation, no cross-customer data flow, no training on customer content, on-premise deployment available.',
   alternates: {
-    canonical: 'https://reattend.com/privacy',
+    canonical: 'https://enterprise.reattend.com/privacy',
   },
 }
 

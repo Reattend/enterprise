@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Check, Building2, Shield, Sparkles, Users, GraduationCap, Brain, FileText, FileScan } from 'lucide-react'
+import { LegalFooter } from '@/components/enterprise/legal-footer'
 
 interface Tier {
   id: 'team' | 'enterprise' | 'government'
@@ -218,6 +219,8 @@ export default function PricingContent() {
           </p>
         </div>
       </main>
+
+      <LegalFooter />
     </div>
   )
 }

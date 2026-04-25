@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions',
-  description: 'Reattend terms and conditions. Read our terms of service for using the AI memory platform.',
+  title: 'Terms & Conditions · Reattend Enterprise',
+  description: 'Reattend Enterprise terms of service. Account use, subscriptions, customer content ownership, AI features, on-prem deployment, cancellation, and governing law.',
   alternates: {
-    canonical: 'https://reattend.com/terms',
+    canonical: 'https://enterprise.reattend.com/terms',
   },
 }
 

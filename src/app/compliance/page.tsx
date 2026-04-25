@@ -4,6 +4,7 @@ import {
   Shield, CheckCircle2, Clock, AlertTriangle, Lock, FileText, Database,
   Globe2, Eye, KeyRound, Network, Award, Scale, BookOpen,
 } from 'lucide-react'
+import { LegalFooter } from '@/components/enterprise/legal-footer'
 
 export const metadata: Metadata = {
   title: 'Compliance · Reattend Enterprise',
@@ -237,6 +238,8 @@ export default function CompliancePage() {
           Last reviewed: {new Date().toISOString().slice(0, 10)} · Questions? <a className="text-primary hover:underline" href="mailto:trust@reattend.com">trust@reattend.com</a>
         </div>
       </div>
+
+      <LegalFooter />
     </div>
   )
 }

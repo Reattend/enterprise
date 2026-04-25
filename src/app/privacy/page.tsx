@@ -1,357 +1,333 @@
-import React from 'react'
-import { Metadata } from 'next'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import Link from 'next/link'
+import Image from 'next/image'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy - Reattend',
-  description: 'How Reattend handles your data. We never sell your data or train AI on your content. Full deletion control. GDPR compliant.',
-  alternates: { canonical: 'https://reattend.com/privacy' },
-}
+// Privacy policy for Reattend Enterprise. Self-contained — does NOT import
+// the legacy Personal Reattend Navbar/Footer. UI is intentionally minimal;
+// a polish pass lands in Sprint O. Content tracks the data-handling claims
+// in the Chrome Web Store submission (data declarations + permission
+// justifications) and the controls advertised on /compliance.
 
-const sections = [
-  { id: 'information-we-collect', label: 'Information We Collect' },
-  { id: 'how-we-use', label: 'How We Use Your Information' },
-  { id: 'what-we-dont-do', label: 'What We Do NOT Do' },
-  { id: 'ai-processing', label: 'AI Processing' },
-  { id: 'data-sharing', label: 'Data Sharing' },
-  { id: 'third-party-integrations', label: 'Third-Party Integrations' },
-  { id: 'storage-security', label: 'Storage and Security' },
-  { id: 'data-retention', label: 'Data Retention' },
-  { id: 'your-rights', label: 'Your Rights' },
-  { id: 'cookies', label: 'Cookies' },
-  { id: 'childrens-privacy', label: "Children's Privacy" },
-  { id: 'changes', label: 'Changes to This Policy' },
-  { id: 'contact', label: 'Contact Us' },
-]
+const LAST_UPDATED = 'April 25, 2026'
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] overflow-x-hidden">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-[#FAFAFA] relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-neutral-200/40 via-neutral-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <Navbar />
-
-      {/* Hero header */}
-      <div className="px-5 pt-16 pb-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4F46E5]/8 text-[#4F46E5] text-[13px] font-semibold mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />
-          Legal
-        </div>
-        <h1 className="text-[36px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.1] text-[#1a1a2e] mb-3">
-          Privacy <span className="text-[#4F46E5]">Policy</span>
-        </h1>
-        <p className="text-gray-400 text-[14px]">Last updated: February 27, 2026 &nbsp;&middot;&nbsp; Reattend Technologies Private Limited</p>
-      </div>
-
-      <main className="max-w-[1100px] mx-auto px-5 pb-24">
-        <div className="flex gap-10 items-start">
-
-          {/* Sticky TOC */}
-          <aside className="hidden lg:block w-[220px] shrink-0">
-            <div className="sticky top-24 bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-2xl p-5">
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Contents</p>
-              <nav className="space-y-1">
-                {sections.map((s) => (
-                  <a
-                    key={s.id}
-                    href={`#${s.id}`}
-                    className="block text-[12px] text-gray-500 hover:text-[#4F46E5] py-1 transition-colors leading-snug"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </aside>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl p-8 md:p-10">
-              <p className="text-[15px] text-gray-600 leading-relaxed mb-10">
-                At Reattend Technologies Private Limited (&ldquo;Reattend&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), your privacy is
-                fundamental to our product. This Privacy Policy explains what information we collect, how
-                we use it, and your rights regarding your data.
-              </p>
-
-              <div className="space-y-10 divide-y divide-gray-100">
-
-                <section id="information-we-collect" className="pt-10 first:pt-0">
-                  <h2 className="text-[20px] font-bold mb-5 text-[#1a1a2e]">1. Information We Collect</h2>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Account Information</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    When you create an account, we collect your email address. If you choose to set a display
-                    name or upload an avatar, we store that as well.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Memories and Content</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    We store the memories, notes, files, and other content you create or upload to the Service
-                    (&ldquo;Your Content&rdquo;). This includes text, images, documents, and any metadata generated by our
-                    AI enrichment pipeline (tags, summaries, action items, connections).
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Desktop App &amp; Chrome Extension Data</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    Our optional desktop app and Chrome extension capture content from your screen or browser
-                    to build your memory. Specifically:
-                  </p>
-                  <ul className="space-y-2.5 ml-5 mb-5">
-                    {[
-                      { label: 'Page text:', text: 'The extension reads text content from web pages you visit in productivity apps (email, docs, chat, project management). It does not capture content from social media, shopping, or entertainment sites.' },
-                      { label: 'Writing detection:', text: 'When you type in text fields (composing emails, writing documents, chat messages), the extension captures your typed text to remember your decisions and ideas.' },
-                      { label: 'Text selections:', text: 'When you explicitly right-click and select "Save to Reattend," the selected text is captured.' },
-                      { label: 'Screen capture (desktop app only):', text: 'The desktop app uses screen OCR to read visible text. It skips sensitive apps (password managers, banking, terminals).' },
-                    ].map((item) => (
-                      <li key={item.label} className="text-[15px] text-gray-600 leading-relaxed list-disc">
-                        <strong className="text-[#1a1a2e]">{item.label}</strong> {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    All captured content is sent to your Reattend account via encrypted HTTPS and processed
-                    through our AI pipeline to determine what is worth remembering. Most captured content is
-                    automatically filtered out and never stored. You can disable passive capture at any time
-                    in the extension or app settings.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Usage Data</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    We collect anonymous usage data to improve the Service, including pages visited, features
-                    used, and general interaction patterns. We do not track individual browsing behavior
-                    across third-party websites.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Technical Data</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We automatically collect certain technical information such as your IP address, browser
-                    type, operating system, and device information for security and performance purposes.
-                  </p>
-                </section>
-
-                <section id="how-we-use" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">2. How We Use Your Information</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">We use your information to:</p>
-                  <ul className="space-y-2 ml-5">
-                    {[
-                      'Provide, maintain, and improve the Service.',
-                      'Process your memories through our AI enrichment pipeline (tagging, summarization, linking).',
-                      'Send you transactional emails (verification codes, workspace invitations, billing notifications).',
-                      'Respond to your support requests.',
-                      'Detect and prevent fraud, abuse, and security incidents.',
-                      'Comply with legal obligations.',
-                    ].map((item) => (
-                      <li key={item} className="text-[15px] text-gray-600 leading-relaxed list-disc">{item}</li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section id="what-we-dont-do" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">3. What We Do NOT Do</h2>
-                  <div className="space-y-3 rounded-2xl bg-emerald-50/50 border border-emerald-100 p-5">
-                    {[
-                      { bold: 'We do not sell your data.', text: 'Your information is never sold to third parties.' },
-                      { bold: 'We do not train AI on your data.', text: 'Your Content is never used to train machine learning models.' },
-                      { bold: 'We do not show you ads.', text: 'We have no advertising business.' },
-                      { bold: 'We do not share your memories.', text: 'Your Content is private by default and only visible to you and team workspace members you explicitly invite.' },
-                    ].map((item) => (
-                      <div key={item.bold} className="flex items-start gap-2.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
-                        <p className="text-[15px] text-gray-600 leading-relaxed">
-                          <strong className="text-[#1a1a2e]">{item.bold}</strong> {item.text}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section id="ai-processing" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">4. AI Processing</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    Our Service uses AI (powered by third-party language models) to enrich your memories with
-                    tags, summaries, action items, and connection suggestions. When processing your memories:
-                  </p>
-                  <ul className="space-y-2 ml-5">
-                    {[
-                      'Your Content is sent to AI providers solely for the purpose of generating enrichments.',
-                      'We use API-based processing, which means your data is not used for model training by our AI providers.',
-                      'AI-generated outputs are stored alongside your memories within your account.',
-                    ].map((item) => (
-                      <li key={item} className="text-[15px] text-gray-600 leading-relaxed list-disc">{item}</li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section id="data-sharing" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">5. Data Sharing</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    We share your information only in the following circumstances:
-                  </p>
-                  <ul className="space-y-2 ml-5">
-                    {[
-                      { label: 'Team workspaces:', text: 'Content in a team workspace is visible to all members of that workspace.' },
-                      { label: 'Service providers:', text: 'We use third-party services for email delivery, AI processing, and hosting infrastructure. These providers process data on our behalf under strict contractual obligations.' },
-                      { label: 'Legal requirements:', text: 'We may disclose your information if required by law, court order, or governmental request.' },
-                    ].map((item) => (
-                      <li key={item.label} className="text-[15px] text-gray-600 leading-relaxed list-disc">
-                        <strong className="text-[#1a1a2e]">{item.label}</strong> {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section id="third-party-integrations" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">6. Third-Party Integrations</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    Reattend offers optional integrations with third-party services (Slack, Gmail, Google Calendar,
-                    and others). When you connect an integration, Reattend accesses only the data necessary to
-                    provide the memory-syncing functionality you have enabled.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Slack</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    When you connect Slack, Reattend requests the following permissions:
-                  </p>
-                  <ul className="space-y-2 ml-5 mb-4">
-                    {[
-                      { label: 'channels:read, channels:history:', text: 'Read messages from channels you are a member of, so they can be synced into your Reattend memory.' },
-                      { label: 'users:read:', text: 'Resolve Slack user IDs to display names for richer memory context.' },
-                      { label: 'chat:write, im:write:', text: 'Send you confirmation DMs when you save a message via the shortcut or slash command.' },
-                      { label: 'commands:', text: 'Enable the /reattend slash command for saving notes and searching your memory from within Slack.' },
-                    ].map((item) => (
-                      <li key={item.label} className="text-[15px] text-gray-600 leading-relaxed list-disc">
-                        <strong className="text-[#1a1a2e]">{item.label}</strong> {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    Reattend only reads messages from channels you explicitly select in the integration settings.
-                    Message content is stored in your Reattend account and is not shared with third parties
-                    beyond our AI enrichment pipeline. When you disconnect Slack or uninstall the Reattend app
-                    from your Slack workspace, your connection is immediately revoked and no new data is synced.
-                    You can delete previously synced Slack messages from your Reattend account at any time.
-                  </p>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    Reattend&apos;s use of data obtained through Slack APIs complies with the{' '}
-                    <a href="https://api.slack.com/developer-policy" target="_blank" rel="noopener noreferrer" className="text-[#4F46E5] hover:underline">
-                      Slack API Terms of Service
-                    </a>.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Gmail</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    When you connect Gmail, Reattend reads email threads from senders in your configured
-                    domain whitelist. Subject lines, sender/recipient names, and message bodies are stored as
-                    memory items. Reattend never sends emails, modifies your inbox, or accesses attachments
-                    beyond their text content. OAuth tokens are stored encrypted and used only for sync.
-                    You can revoke access at any time via your Google Account settings or the Reattend
-                    integrations page.
-                  </p>
-
-                  <h3 className="text-[15px] font-semibold mb-2 text-[#1a1a2e]">Google Calendar</h3>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-5">
-                    When you connect Google Calendar, Reattend reads your calendar events (title, description,
-                    attendees, time) to build meeting context in your memory. Reattend never creates, modifies,
-                    or deletes calendar events. Access can be revoked at any time.
-                  </p>
-
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    In all cases, integration data is scoped to your Reattend workspace, processed through our
-                    AI enrichment pipeline under the same terms as other content, and subject to all the
-                    protections described in this Privacy Policy.
-                  </p>
-                </section>
-
-                <section id="storage-security" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">7. Data Storage and Security</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    Your data is stored on secure, SOC 2-certified infrastructure with AES-256 encryption at
-                    rest and TLS 1.3 in transit. We use isolated databases per workspace to ensure complete
-                    data separation between accounts. We regularly review and update our security practices.
-                  </p>
-                </section>
-
-                <section id="data-retention" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">8. Data Retention</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We retain your data for as long as your account is active. If you delete your account,
-                    we will delete your personal information and Content within 30 days, except where we are
-                    required to retain it for legal or compliance purposes.
-                  </p>
-                </section>
-
-                <section id="your-rights" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">9. Your Rights</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">You have the right to:</p>
-                  <ul className="space-y-2 ml-5">
-                    {[
-                      { label: 'Access', text: 'your personal data and Content at any time through the Service.' },
-                      { label: 'Export', text: 'your data in standard formats.' },
-                      { label: 'Correct', text: 'inaccurate information in your account.' },
-                      { label: 'Delete', text: 'your account and all associated data by contacting us.' },
-                      { label: 'Object', text: 'to processing of your data for specific purposes.' },
-                    ].map((item) => (
-                      <li key={item.label} className="text-[15px] text-gray-600 leading-relaxed list-disc">
-                        <strong className="text-[#1a1a2e]">{item.label}</strong> {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section id="cookies" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">10. Cookies</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We use essential cookies to maintain your session and workspace preferences. We do not
-                    use third-party tracking cookies or advertising cookies.
-                  </p>
-                </section>
-
-                <section id="childrens-privacy" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">11. Children&apos;s Privacy</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    The Service is not intended for users under the age of 18. We do not knowingly collect
-                    personal information from children. If we become aware that we have collected data from
-                    a child, we will promptly delete it.
-                  </p>
-                </section>
-
-                <section id="changes" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">12. Changes to This Policy</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We may update this Privacy Policy from time to time. We will notify you of material
-                    changes via email or through the Service. Your continued use of the Service after changes
-                    take effect constitutes acceptance of the updated policy.
-                  </p>
-                </section>
-
-                <section id="contact" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">13. Contact Us</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-4">
-                    If you have any questions about this Privacy Policy or your data, please contact us:
-                  </p>
-                  <div className="rounded-xl bg-[#4F46E5]/5 border border-[#4F46E5]/10 p-5 space-y-2">
-                    <p className="text-[14px] text-[#1a1a2e] font-semibold">Reattend Technologies Private Limited</p>
-                    <p className="text-[14px] text-gray-600">
-                      Privacy inquiries:{' '}
-                      <a href="mailto:pb@reattend.ai" className="text-[#4F46E5] hover:underline">pb@reattend.ai</a>
-                    </p>
-                    <p className="text-[14px] text-gray-600">
-                      General contact:{' '}
-                      <a href="mailto:anjan@reattend.ai" className="text-[#4F46E5] hover:underline">anjan@reattend.ai</a>
-                    </p>
-                  </div>
-                </section>
-
-              </div>
-            </div>
+      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-5xl mx-auto">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8" unoptimized />
+          <div>
+            <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
+            <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
           </div>
+        </Link>
+        <div className="flex items-center gap-6 text-[13px]">
+          <Link href="/pricing" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Pricing</Link>
+          <Link href="/compliance" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          <Link href="/login" className="font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">Sign in &rarr;</Link>
         </div>
+      </nav>
+
+      <main className="relative z-10 max-w-3xl mx-auto px-8 pt-12 pb-24">
+        <header className="mb-12">
+          <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">Legal</p>
+          <h1 className="text-[42px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.1] text-[#1a1a2e] mb-3">
+            Privacy Policy
+          </h1>
+          <p className="text-[14px] text-neutral-500">Last updated: {LAST_UPDATED} · Reattend Technologies Private Limited</p>
+        </header>
+
+        <article className="prose prose-neutral max-w-none">
+          <p className="text-[15px] text-neutral-600 leading-relaxed mb-8">
+            Reattend Enterprise (&ldquo;Reattend,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is operated by Reattend Technologies
+            Private Limited. This Privacy Policy explains what information we collect from customer
+            organizations and their authorized users, how we use it, who we share it with, and the rights
+            available to you. It applies to enterprise.reattend.com, the Reattend Enterprise web app, the
+            Reattend Enterprise Chrome extension, the public sandbox at <code>/sandbox</code>, and any
+            customer-deployed on-premise instance running our software.
+          </p>
+
+          <Section title="1. Who is the controller of your data">
+            <p>
+              For customer organizations that deploy Reattend Enterprise on our SaaS infrastructure,
+              Reattend Technologies Private Limited acts as the data <em>processor</em> and the customer
+              organization is the <em>controller</em> of the content their users put into the system.
+              For customers running an on-premise deployment, Reattend has no access to customer data;
+              the customer is the sole controller and operator.
+            </p>
+            <p>
+              For visitors of our public marketing pages (home, pricing, compliance, the sandbox), and
+              for the holders of personal Reattend accounts created directly on enterprise.reattend.com,
+              Reattend Technologies Private Limited is the controller of the limited data described
+              below.
+            </p>
+          </Section>
+
+          <Section title="2. What we collect">
+            <SubSection title="Account information">
+              <p>
+                When a user signs up or is invited into a Reattend organization, we collect their email
+                address and display name. If the user signs in via Google we additionally receive their
+                Google profile name and avatar URL. Passwords are never stored in plaintext; we use
+                one-way hashes (bcrypt) for any password-based credentials.
+              </p>
+            </SubSection>
+
+            <SubSection title="Authentication credentials">
+              <p>
+                We issue session cookies (for the web app), short-lived SSO tickets (60-second JWTs used
+                during single sign-on handoff and the sandbox launch flow), and long-lived API tokens
+                (for the Chrome extension and any programmatic access). These are scoped to a single
+                user inside a single organization. Users can revoke their API tokens at any time from
+                their settings page.
+              </p>
+            </SubSection>
+
+            <SubSection title="Organizational content">
+              <p>
+                The substance of the product: memory records, decisions, policies, agents, exit
+                interviews, handoff documents, OCR-processed documents, prompt library entries,
+                announcements, and the metadata generated about them (tags, summaries, embeddings,
+                links to related records). All of this is content that the customer organization or
+                its authorized users explicitly create or upload. Each record is stored against a
+                single organization and is gated by the eight record-visibility rules described on
+                our <Link href="/compliance">compliance page</Link>.
+              </p>
+            </SubSection>
+
+            <SubSection title="Chrome extension capture data">
+              <p>
+                The Reattend Enterprise Chrome extension ships with two surfaces that touch web page
+                content. We describe them precisely because a Chrome Web Store reviewer (and any
+                privacy-conscious customer admin) will want exact mechanics.
+              </p>
+              <ul>
+                <li>
+                  <strong>User-invoked capture.</strong> Only when the user explicitly clicks the
+                  toolbar popup&apos;s Save buttons, the floating R-pin on a whitelisted page, or one of
+                  the right-click context menu items, the extension reads the title, URL, any text
+                  selection, and (truncated to 4,000 characters) the visible text of the active tab.
+                  This payload is sent to the customer&apos;s configured Reattend Enterprise instance to
+                  become a memory record. Nothing is captured automatically; nothing is sent on tabs
+                  the user did not explicitly invoke.
+                </li>
+                <li>
+                  <strong>Ambient related-memory lookup.</strong> Only on pages whose hostname is in
+                  the user&apos;s whitelist or the org admin&apos;s required/recommended-domain policy, the
+                  extension sends the page&apos;s URL, title, and a 400-character excerpt to the
+                  customer&apos;s Reattend instance to look up related memories. The lookup is read-only
+                  on the server (it does not create a record) and the user can disable ambient
+                  surfacing entirely from extension settings or have the org admin disable it
+                  globally for the org. On non-whitelisted pages the content script returns
+                  immediately at the very first runtime check with zero DOM access and zero network
+                  traffic.
+                </li>
+              </ul>
+              <p>
+                The extension never observes keystrokes, mouse movement, scroll position, or page
+                interaction. It does not track browsing history beyond the explicit cases above. It
+                contains no third-party analytics SDK and no remote-loaded code.
+              </p>
+            </SubSection>
+
+            <SubSection title="Sandbox usage">
+              <p>
+                The public sandbox at <code>/sandbox</code> creates a synthetic temporary user
+                (<code>sb-XXXXXXXX@sandbox.reattend.local</code>) and a cloned demo organization for
+                each visitor. Sandbox sessions last up to one hour; cloned orgs are automatically
+                deleted by a cron that runs every ten minutes. We may retain anonymous aggregated
+                usage statistics (e.g., total sandbox launches per role) for product improvement; no
+                personal information is collected from sandbox visitors and no calls are made to AI
+                providers — every AI feature in the sandbox returns canned fixtures.
+              </p>
+            </SubSection>
+
+            <SubSection title="Operational telemetry">
+              <p>
+                We log technical metadata required to run a secure service: source IP address, browser
+                type, request paths, response codes, latencies, and error stack traces. This data is
+                used solely to operate, debug, and secure the service. We do not perform behavioral
+                profiling, ad targeting, or cross-site tracking. Server logs are retained for 30 days
+                unless a security incident requires longer retention.
+              </p>
+            </SubSection>
+
+            <SubSection title="Audit log">
+              <p>
+                For Enterprise and Government plans, every privileged action inside an organization
+                (record creation, decision authorship, policy publication, member invites, role
+                changes, exports, deletions) is appended to a tamper-evident, hash-chained audit log
+                inside the customer&apos;s organization. The customer org&apos;s admins control retention and
+                can verify the chain on demand from <code>/admin/&lt;orgId&gt;/audit</code>.
+              </p>
+            </SubSection>
+          </Section>
+
+          <Section title="3. How we use the data">
+            <ul>
+              <li>To operate the service: authenticate users, render the UI, retrieve the records they ask for.</li>
+              <li>To run the AI features the customer has explicitly enabled: triage, classification, search reranking, structured answer generation, exit-interview question writing, handoff drafting, etc. Each AI call sends only the records retrieved for the asking user (and the question / prompt) — the model never sees records the user does not have permission to read.</li>
+              <li>To send transactional email: account verification codes, organization invitations, billing receipts. We do not send marketing email without explicit opt-in.</li>
+              <li>To detect and prevent fraud, abuse, security incidents, or violations of our Terms of Service.</li>
+              <li>To comply with legal obligations and respond to lawful requests from authorities (with notice to the customer where lawfully permitted).</li>
+            </ul>
+          </Section>
+
+          <Section title="4. What we do NOT do">
+            <ul>
+              <li><strong>We do not sell customer data.</strong> Ever. To anyone. There is no advertising business.</li>
+              <li><strong>We do not train AI models on customer content.</strong> Customer memory records, decisions, exit interviews, and OCR documents are never used as training data for any general-purpose model. AI providers we route requests through contractually agree to the same restriction (see &ldquo;Sub-processors&rdquo; below).</li>
+              <li><strong>We do not commingle customer data.</strong> Every record is tagged with its organization id and gated by org-scoped retrieval. The model literally never receives memories from another customer&apos;s organization.</li>
+              <li><strong>We do not share content between users inside an organization beyond what RBAC explicitly allows.</strong> Eight record-visibility rules (creator, private, team, department, org-wide, explicit shares, admin override, non-enterprise fallback) are enforced at the database query layer.</li>
+              <li><strong>We do not perform cross-site tracking</strong> on visitors of our marketing pages or on whitelisted pages observed by the extension.</li>
+            </ul>
+          </Section>
+
+          <Section title="5. Sub-processors">
+            <p>
+              For the SaaS deployment, we route AI inference through managed AI providers under
+              contracts that prohibit retention or training on the inference payload. We use cloud
+              infrastructure providers for hosting, email-delivery providers for transactional email,
+              error-tracking providers for stack traces, and payment processors for billing. The full
+              list is published at <code>/subprocessors</code> (link in the footer); customer
+              organizations on the Enterprise plan are notified at least 30 days before any new
+              sub-processor is added.
+            </p>
+            <p>
+              Customers who require zero third-party data flow can deploy Reattend Enterprise
+              <strong> on-premise</strong>, including the AI inference engine. In that configuration
+              no customer data ever leaves the customer&apos;s network and Reattend has no operational
+              access to the deployment.
+            </p>
+          </Section>
+
+          <Section title="6. International transfers">
+            <p>
+              The SaaS instance currently runs in a single region. Customer organizations that require
+              data residency in a specific jurisdiction (EU, UK, India, or a US state-cloud) should
+              contact us before signing — we will document the residency commitment in the order form
+              and route their tenant accordingly. For customers under GDPR scope, transfers outside
+              the EEA rely on Standard Contractual Clauses incorporated into our DPA.
+            </p>
+          </Section>
+
+          <Section title="7. Retention">
+            <p>
+              Customer content is retained for the life of the organization&apos;s account, plus 30 days
+              after termination during which the customer can request a full export. After that
+              window we permanently delete the organization&apos;s data from primary storage; encrypted
+              backups are rotated within 90 additional days.
+            </p>
+            <p>
+              Server logs: 30 days. Audit log: customer-controlled, configurable per organization.
+              Sandbox orgs: 1 hour. Email-verification OTPs: minutes (single-use). API tokens: until
+              the user revokes them.
+            </p>
+          </Section>
+
+          <Section title="8. Your rights">
+            <p>
+              Depending on your jurisdiction (GDPR, UK GDPR, CCPA/CPRA, India DPDP Act, etc.) you have
+              the right to access, correct, export, restrict, and delete the personal information we
+              hold about you. Most of these rights are self-serviceable inside the app:
+            </p>
+            <ul>
+              <li><strong>Access &amp; export:</strong> <code>/app/settings</code> &rarr; Data controls &rarr; Export — produces a JSON bundle of everything we hold for your user account, on demand.</li>
+              <li><strong>Right to erasure:</strong> <code>/app/settings</code> &rarr; Data controls &rarr; Delete account — typed-confirmation hard-delete of your user account and the records you authored, with an immutable audit-log entry recording the request.</li>
+              <li><strong>Correction:</strong> profile fields are editable in settings; for content fields, the org owns the edit/delete authority via RBAC.</li>
+              <li><strong>Withdrawal of consent:</strong> revoke API tokens, disconnect integrations, or close your account at any time.</li>
+            </ul>
+            <p>
+              Organization-scope requests (e.g., a regulator-verified erasure of a former employee&apos;s
+              data, or an org-wide SQL export) should be addressed to the customer organization&apos;s
+              admin first; if you cannot reach them, contact us at <a href="mailto:privacy@reattend.ai">privacy@reattend.ai</a> and
+              we will respond within 30 days.
+            </p>
+          </Section>
+
+          <Section title="9. Security">
+            <p>
+              All traffic uses HTTPS with modern TLS. Data at rest is encrypted on the underlying
+              storage layer. Authentication uses NextAuth.js with JWT session cookies and an
+              SSO-ticket exchange for handoff flows. Two-tier RBAC (organization role plus
+              department role) is enforced at the database query layer for every retrieval path.
+              Every privileged write is appended to a sha256-chained audit log that customers can
+              verify on demand. We are tracking SOC 2 Type I (timeline disclosed on{' '}
+              <Link href="/compliance">/compliance</Link>); StateRAMP Moderate and CJIS addendum
+              packs are available for government customers on request.
+            </p>
+          </Section>
+
+          <Section title="10. Cookies">
+            <p>
+              We use a single first-party session cookie (<code>next-auth.session-token</code>) plus
+              a per-user workspace-id cookie used to remember the active organization. We do not
+              set advertising cookies, third-party analytics cookies, or cross-site tracking cookies.
+              The marketing pages are static and embed no third-party trackers.
+            </p>
+          </Section>
+
+          <Section title="11. Children's privacy">
+            <p>
+              Reattend Enterprise is built for organizations and is not intended for users under 16.
+              We do not knowingly collect data from children. If you believe a child has created an
+              account, contact us and we will delete it.
+            </p>
+          </Section>
+
+          <Section title="12. Changes to this policy">
+            <p>
+              We may update this Privacy Policy as the product evolves. Material changes will be
+              notified to organization admins by email at least 30 days in advance, and the
+              &ldquo;Last updated&rdquo; date at the top of this page will reflect the latest revision.
+              Continued use of the service after the effective date constitutes acceptance.
+            </p>
+          </Section>
+
+          <Section title="13. Contact">
+            <p>
+              <strong>Reattend Technologies Private Limited</strong><br />
+              Privacy questions: <a href="mailto:privacy@reattend.ai">privacy@reattend.ai</a><br />
+              Security disclosures: <a href="mailto:security@reattend.ai">security@reattend.ai</a><br />
+              General contact: <a href="mailto:pb@reattend.ai">pb@reattend.ai</a>
+            </p>
+          </Section>
+        </article>
       </main>
 
-      <Footer />
+      <footer className="relative z-10 border-t border-neutral-200/60 bg-white/40 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-neutral-500">
+          <p>&copy; {new Date().getFullYear()} Reattend Technologies Private Limited.</p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="hover:text-[#1a1a2e] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#1a1a2e] transition-colors">Terms &amp; Conditions</Link>
+            <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-10 pt-10 border-t border-neutral-200/60 first:border-t-0 first:pt-0 first:mt-0">
+      <h2 className="text-[20px] font-bold tracking-tight text-[#1a1a2e] mb-4">{title}</h2>
+      <div className="text-[15px] text-neutral-600 leading-relaxed space-y-4 [&>ul]:space-y-2 [&>ul]:pl-5 [&>ul>li]:list-disc [&_code]:bg-neutral-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[13px] [&_a]:text-[#4F46E5] [&_a]:underline-offset-2 hover:[&_a]:underline">
+        {children}
+      </div>
+    </section>
+  )
+}
+
+function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-5">
+      <h3 className="text-[15px] font-semibold text-[#1a1a2e] mb-2">{title}</h3>
+      <div className="text-[15px] text-neutral-600 leading-relaxed space-y-3 [&>ul]:space-y-2 [&>ul]:pl-5 [&>ul>li]:list-disc">
+        {children}
+      </div>
     </div>
   )
 }

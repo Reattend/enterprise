@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowRight, Shield, Lock, Building, Brain, GraduationCap } from 'lucide-react'
+import { LegalFooter } from '@/components/enterprise/legal-footer'
 
 export default function EnterpriseLanding() {
   return (
@@ -67,6 +68,8 @@ export default function EnterpriseLanding() {
           <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> On-premise available</span>
         </motion.div>
       </main>
+
+      <LegalFooter />
     </div>
   )
 }

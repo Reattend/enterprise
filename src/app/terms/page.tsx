@@ -1,290 +1,328 @@
-import React from 'react'
 import Link from 'next/link'
-import { Metadata } from 'next'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import Image from 'next/image'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service - Reattend',
-  description: 'Reattend Terms of Service. Account usage, subscriptions, billing, content ownership, AI features, data privacy, and cancellation policies.',
-  alternates: { canonical: 'https://reattend.com/terms' },
-}
+// Terms & Conditions for Reattend Enterprise. Self-contained — does NOT
+// import the legacy Personal Reattend Navbar/Footer. UI is intentionally
+// minimal; a polish pass lands in Sprint O. Content is calibrated against
+// the Privacy Policy and the controls advertised on /compliance.
 
-const sections = [
-  { id: 'acceptance', label: 'Acceptance of Terms' },
-  { id: 'account', label: 'Account Registration' },
-  { id: 'use', label: 'Use of the Service' },
-  { id: 'billing', label: 'Subscriptions and Billing' },
-  { id: 'trial', label: 'Free Trial' },
-  { id: 'cancellation', label: 'Cancellation and Refunds' },
-  { id: 'content', label: 'Your Content' },
-  { id: 'teams', label: 'Team Workspaces' },
-  { id: 'ai', label: 'AI-Powered Features' },
-  { id: 'privacy', label: 'Privacy' },
-  { id: 'ip', label: 'Intellectual Property' },
-  { id: 'liability', label: 'Limitation of Liability' },
-  { id: 'warranties', label: 'Disclaimer of Warranties' },
-  { id: 'termination', label: 'Termination' },
-  { id: 'modifications', label: 'Modifications to Terms' },
-  { id: 'governing-law', label: 'Governing Law' },
-  { id: 'contact', label: 'Contact Us' },
-]
+const LAST_UPDATED = 'April 25, 2026'
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] overflow-x-hidden">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-[#FAFAFA] relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-neutral-200/40 via-neutral-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <Navbar />
-
-      {/* Hero header */}
-      <div className="px-5 pt-16 pb-10 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4F46E5]/8 text-[#4F46E5] text-[13px] font-semibold mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />
-          Legal
-        </div>
-        <h1 className="text-[36px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.1] text-[#1a1a2e] mb-3">
-          Terms &amp; <span className="text-[#4F46E5]">Conditions</span>
-        </h1>
-        <p className="text-gray-400 text-[14px]">Last updated: February 18, 2026 &nbsp;&middot;&nbsp; Reattend Technologies Private Limited</p>
-      </div>
-
-      <main className="max-w-[1100px] mx-auto px-5 pb-24">
-        <div className="flex gap-10 items-start">
-
-          {/* Sticky TOC */}
-          <aside className="hidden lg:block w-[220px] shrink-0">
-            <div className="sticky top-24 bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-2xl p-5">
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Contents</p>
-              <nav className="space-y-1">
-                {sections.map((s) => (
-                  <a
-                    key={s.id}
-                    href={`#${s.id}`}
-                    className="block text-[12px] text-gray-500 hover:text-[#4F46E5] py-1 transition-colors leading-snug"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </aside>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_2px_16px_rgba(0,0,0,0.04)] rounded-2xl p-8 md:p-10">
-              <p className="text-[15px] text-gray-600 leading-relaxed mb-10">
-                These Terms and Conditions (&ldquo;Terms&rdquo;) govern your use of the Reattend platform (&ldquo;Service&rdquo;),
-                operated by Reattend Technologies Private Limited (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;). By accessing
-                or using the Service, you agree to be bound by these Terms.
-              </p>
-
-              <div className="space-y-10 divide-y divide-gray-100">
-
-                <section id="acceptance" className="pt-10 first:pt-0">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">1. Acceptance of Terms</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    By creating an account or using the Service, you confirm that you are at least 18 years
-                    old and agree to comply with these Terms. If you do not agree, you must not use the Service.
-                  </p>
-                </section>
-
-                <section id="account" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">2. Account Registration</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    You must provide a valid email address to create an account. You are responsible for
-                    maintaining the security of your account credentials and for all activities that occur
-                    under your account. You must notify us immediately at{' '}
-                    <a href="mailto:pb@reattend.ai" className="text-[#4F46E5] hover:underline">pb@reattend.ai</a>{' '}
-                    or{' '}
-                    <a href="mailto:anjan@reattend.ai" className="text-[#4F46E5] hover:underline">anjan@reattend.ai</a>{' '}
-                    if you suspect unauthorized access to your account.
-                  </p>
-                </section>
-
-                <section id="use" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">3. Use of the Service</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    You agree to use the Service only for lawful purposes. You must not:
-                  </p>
-                  <ul className="space-y-2 ml-5">
-                    {[
-                      'Use the Service to store, transmit, or distribute any illegal, harmful, or offensive content.',
-                      'Attempt to gain unauthorized access to any part of the Service or its systems.',
-                      'Interfere with or disrupt the integrity or performance of the Service.',
-                      'Reverse-engineer, decompile, or disassemble any aspect of the Service.',
-                      'Use the Service for any purpose that competes with Reattend.',
-                      'Share your account credentials with third parties.',
-                    ].map((item) => (
-                      <li key={item} className="text-[15px] text-gray-600 leading-relaxed list-disc">{item}</li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section id="billing" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">4. Subscriptions and Billing</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    The Service offers free and paid subscription plans. Paid plans are billed on a monthly
-                    or annual basis, as selected at the time of purchase. By subscribing to a paid plan,
-                    you authorize us to charge your payment method on a recurring basis until you cancel.
-                  </p>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    All billing is handled by Paddle, our authorized reseller and Merchant of Record.
-                    Prices may change with 30 days notice. Any changes will not affect your current billing cycle.
-                  </p>
-                </section>
-
-                <section id="trial" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">5. Free Trial</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    New users may activate a 60-day free trial of all Pro features from inside their
-                    dashboard. No credit card is required during the trial. If you do not subscribe before
-                    the trial ends, your account automatically reverts to the Free Forever plan.
-                    Your memories and data are never deleted.
-                  </p>
-                </section>
-
-                <section id="cancellation" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">6. Cancellation and Refunds</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    You may cancel your subscription at any time through your account settings. Upon
-                    cancellation, you retain access to paid features until the end of your current
-                    billing period.
-                  </p>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    Refunds for duplicate charges or billing errors are handled by Paddle. Please refer to
-                    our{' '}
-                    <Link href="/refund" className="text-[#4F46E5] hover:underline">Refund Policy</Link>{' '}
-                    for full details.
-                  </p>
-                </section>
-
-                <section id="content" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">7. Your Content</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    You retain full ownership of all content you upload or create on the Service
-                    (&ldquo;Your Content&rdquo;). By using the Service, you grant us a limited license to process
-                    Your Content solely for the purpose of providing and improving the Service.
-                  </p>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We do not use Your Content to train AI models. Your memories and data are private by default.
-                  </p>
-                </section>
-
-                <section id="teams" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">8. Team Workspaces</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    If you create or join a team workspace, the workspace administrator controls access and
-                    permissions. The administrator may add or remove members, change roles, and manage
-                    shared content. You acknowledge that content shared in a team workspace is visible to
-                    all workspace members you explicitly invite.
-                  </p>
-                </section>
-
-                <section id="ai" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">9. AI-Powered Features</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    The Service uses artificial intelligence to enrich, tag, and connect your memories.
-                    While we strive for accuracy, AI-generated content (summaries, tags, action items)
-                    may contain errors. You are responsible for reviewing AI-generated outputs before
-                    acting on them.
-                  </p>
-                </section>
-
-                <section id="privacy" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">10. Privacy</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    Your use of the Service is also governed by our{' '}
-                    <Link href="/privacy" className="text-[#4F46E5] hover:underline">Privacy Policy</Link>,
-                    which explains how we collect, use, and protect your information.
-                  </p>
-                </section>
-
-                <section id="ip" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">11. Intellectual Property</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    The Service, including its design, code, features, and branding, is owned by
-                    Reattend Technologies Private Limited and protected by intellectual property laws.
-                    You may not copy, modify, or distribute any part of the Service without our
-                    written consent.
-                  </p>
-                </section>
-
-                <section id="liability" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">12. Limitation of Liability</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    To the maximum extent permitted by law, Reattend Technologies Private Limited shall
-                    not be liable for any indirect, incidental, special, consequential, or punitive damages
-                    arising from your use of the Service. Our total liability shall not exceed the amount
-                    you paid us in the 12 months preceding the claim.
-                  </p>
-                </section>
-
-                <section id="warranties" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">13. Disclaimer of Warranties</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    The Service is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo; without warranties of any kind,
-                    either express or implied, including but not limited to warranties of merchantability,
-                    fitness for a particular purpose, or non-infringement.
-                  </p>
-                </section>
-
-                <section id="termination" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">14. Termination</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We may suspend or terminate your account if you violate these Terms or engage in
-                    conduct that we determine is harmful to the Service or other users. You may delete
-                    your account at any time by contacting us at{' '}
-                    <a href="mailto:pb@reattend.ai" className="text-[#4F46E5] hover:underline">pb@reattend.ai</a>.
-                  </p>
-                </section>
-
-                <section id="modifications" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">15. Modifications to Terms</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    We reserve the right to update these Terms at any time. We will notify you of material
-                    changes via email or through the Service. Your continued use of the Service after
-                    changes take effect constitutes acceptance of the updated Terms.
-                  </p>
-                </section>
-
-                <section id="governing-law" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">16. Governing Law</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed">
-                    These Terms shall be governed by and construed in accordance with the laws of India,
-                    where Reattend Technologies Private Limited is incorporated. Any disputes arising
-                    from these Terms shall be resolved through good-faith negotiation or, if necessary,
-                    through binding arbitration under applicable Indian law.
-                  </p>
-                </section>
-
-                <section id="contact" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">17. Contact Us</h2>
-                  <p className="text-[15px] text-gray-600 leading-relaxed mb-4">
-                    If you have any questions about these Terms, please contact us:
-                  </p>
-                  <div className="rounded-xl bg-[#4F46E5]/5 border border-[#4F46E5]/10 p-5 space-y-2">
-                    <p className="text-[14px] text-[#1a1a2e] font-semibold">Reattend Technologies Private Limited</p>
-                    <p className="text-[14px] text-gray-600">
-                      Legal inquiries:{' '}
-                      <a href="mailto:pb@reattend.ai" className="text-[#4F46E5] hover:underline">pb@reattend.ai</a>
-                    </p>
-                    <p className="text-[14px] text-gray-600">
-                      General contact:{' '}
-                      <a href="mailto:anjan@reattend.ai" className="text-[#4F46E5] hover:underline">anjan@reattend.ai</a>
-                    </p>
-                  </div>
-                </section>
-
-              </div>
-            </div>
+      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-5xl mx-auto">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8" unoptimized />
+          <div>
+            <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
+            <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
           </div>
+        </Link>
+        <div className="flex items-center gap-6 text-[13px]">
+          <Link href="/pricing" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Pricing</Link>
+          <Link href="/compliance" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          <Link href="/login" className="font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">Sign in &rarr;</Link>
         </div>
+      </nav>
+
+      <main className="relative z-10 max-w-3xl mx-auto px-8 pt-12 pb-24">
+        <header className="mb-12">
+          <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">Legal</p>
+          <h1 className="text-[42px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.1] text-[#1a1a2e] mb-3">
+            Terms &amp; Conditions
+          </h1>
+          <p className="text-[14px] text-neutral-500">Last updated: {LAST_UPDATED} · Reattend Technologies Private Limited</p>
+        </header>
+
+        <article className="prose prose-neutral max-w-none">
+          <p className="text-[15px] text-neutral-600 leading-relaxed mb-8">
+            These Terms &amp; Conditions (the &ldquo;Terms&rdquo;) govern access to and use of Reattend Enterprise
+            (the &ldquo;Service&rdquo;), including enterprise.reattend.com, the Reattend Enterprise web app, the
+            Reattend Enterprise Chrome extension, the public sandbox at <code>/sandbox</code>, any
+            related APIs, and customer-deployed on-premise instances of the Reattend Enterprise
+            software (collectively, the &ldquo;Service&rdquo;). The Service is provided by Reattend Technologies
+            Private Limited (&ldquo;Reattend,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;).
+          </p>
+          <p className="text-[15px] text-neutral-600 leading-relaxed mb-8">
+            By creating an account, accepting an organization invitation, deploying the on-premise
+            distribution, or otherwise using the Service, you (&ldquo;Customer,&rdquo; &ldquo;you,&rdquo; or &ldquo;your&rdquo;) agree
+            to these Terms and to our <Link href="/privacy">Privacy Policy</Link>. Customers under an
+            executed master services agreement or order form take precedence over these Terms where
+            the two conflict.
+          </p>
+
+          <Section title="1. Acceptance of terms">
+            <p>
+              By using the Service you confirm that (a) you are at least 16 years old and have the
+              legal capacity to enter a binding contract, (b) if you are using the Service on behalf
+              of an organization, you have the authority to bind that organization, and (c) the
+              organization on whose behalf you act has not been suspended or terminated from the
+              Service.
+            </p>
+          </Section>
+
+          <Section title="2. Account registration and authentication">
+            <p>
+              You are responsible for maintaining the confidentiality of your credentials, including
+              email-based one-time codes, SSO sessions, and any API tokens you mint. You agree to
+              notify us promptly of any unauthorized access. We are not liable for losses arising
+              from credentials you have shared, leaked, or failed to revoke.
+            </p>
+            <p>
+              Organization administrators may invite, suspend, change roles for, or remove members of
+              their organization. Members agree that the organization controls the lifecycle of their
+              access to organization-scoped content.
+            </p>
+          </Section>
+
+          <Section title="3. Plans and subscriptions">
+            <p>
+              The Service is offered under three plan families:
+            </p>
+            <ul>
+              <li><strong>Team</strong> — per-seat subscription billed monthly or annually, self-serve sign-up.</li>
+              <li><strong>Enterprise</strong> — quote-only annual contract. Includes dedicated tenant, customer-success contact, security review participation, and DPA.</li>
+              <li><strong>Government</strong> — quote-only annual contract with on-premise deployment, trainer-assisted onboarding, and compliance addenda (StateRAMP, CJIS, etc.) on request.</li>
+            </ul>
+            <p>
+              Current pricing is published at <Link href="/pricing">/pricing</Link>. We may revise
+              pricing at the start of any renewal term with at least 30 days&apos; notice; any change
+              applies only to renewals after the notice period.
+            </p>
+          </Section>
+
+          <Section title="4. Free trial and the public sandbox">
+            <p>
+              Where offered, the Team plan includes a 30-day free trial requiring no credit card.
+              The public sandbox at <code>/sandbox</code> is a read-only-feeling demo seeded with
+              synthetic Ministry-of-Finance content; sandbox sessions last up to one hour and are
+              automatically deleted. Sandbox visitors are not customers, do not create binding
+              accounts, and the AI features in the sandbox return canned scripted responses.
+            </p>
+          </Section>
+
+          <Section title="5. Billing, taxes, and refunds">
+            <p>
+              Subscription fees are billed in advance. The Team plan is billed via our payment
+              processor; Enterprise and Government plans are billed by invoice. All fees are
+              exclusive of applicable taxes (GST, VAT, sales tax) which the Customer is responsible
+              for paying.
+            </p>
+            <p>
+              For Team-plan subscribers, you may cancel at any time from billing settings; access
+              continues to the end of the prepaid period. We do not offer pro-rated refunds for
+              partial periods. Annual subscriptions are non-refundable except where required by law.
+              Enterprise and Government cancellations are governed by the executed order form.
+            </p>
+          </Section>
+
+          <Section title="6. Customer content and ownership">
+            <p>
+              Customer Content (memory records, decisions, policies, agents, exit interviews, OCR
+              uploads, prompts, announcements, and any related metadata you create or upload)
+              remains the Customer&apos;s property. The Customer grants Reattend a limited, worldwide,
+              non-exclusive license to host, store, copy, transmit, and display Customer Content
+              solely as needed to operate, maintain, and improve the Service for that Customer&apos;s
+              benefit, and to perform AI inference at the Customer&apos;s request.
+            </p>
+            <p>
+              The Customer represents that it has the rights and authorizations needed to upload its
+              Customer Content, including any third-party intellectual property and any personal
+              information about its employees, contractors, and counterparts.
+            </p>
+            <p>
+              <strong>We do not train AI models on Customer Content.</strong> The AI providers we
+              route inference through contractually agree to the same restriction.
+            </p>
+          </Section>
+
+          <Section title="7. Acceptable use">
+            <p>
+              You will not, and will not permit any user to:
+            </p>
+            <ul>
+              <li>Use the Service to violate any applicable law, regulation, or third-party right (including IP, privacy, and export-control laws).</li>
+              <li>Upload material that infringes copyright, trademark, trade secret, or any contractual confidentiality obligation, unless you have the right to do so.</li>
+              <li>Attempt to bypass authentication, RBAC, rate limits, or audit-logging mechanisms.</li>
+              <li>Reverse-engineer, decompile, or extract the source of the Service except where law expressly permits.</li>
+              <li>Use the Service to build a competing product, or to scrape, mine, or aggregate data across multiple customer organizations.</li>
+              <li>Send spam, malware, phishing payloads, or any content that is illegal in the user&apos;s or organization&apos;s jurisdiction.</li>
+            </ul>
+          </Section>
+
+          <Section title="8. Organization administration and RBAC">
+            <p>
+              Organization administrators have privileged powers including the ability to publish
+              policies, invite or remove members, change roles, view the audit log, configure the
+              Chrome extension domain policy, run agents, and export or erase organization-scoped
+              data. Organizations agree that these powers are theirs to exercise responsibly. Reattend
+              implements the eight record-visibility rules described on <Link href="/compliance">/compliance</Link>;
+              within those constraints the organization is the sole controller of access decisions.
+            </p>
+          </Section>
+
+          <Section title="9. AI features and outputs">
+            <p>
+              The Service includes AI-generated content (chat answers, Oracle dossiers, brain-dump
+              parsing, exit-interview questions, handoff drafts, blast-radius narratives, agent
+              outputs, etc.). AI outputs are inherently probabilistic; they may be incorrect or
+              inconsistent and must not be relied upon as a substitute for professional legal,
+              medical, financial, or regulatory advice. Every AI answer in the product cites the
+              source memories the answer is grounded in — always check the citations before acting
+              on a recommendation.
+            </p>
+          </Section>
+
+          <Section title="10. Privacy">
+            <p>
+              Our handling of personal information is governed by our <Link href="/privacy">Privacy Policy</Link>,
+              which forms part of these Terms. Customers under GDPR, UK GDPR, CCPA/CPRA, or India
+              DPDP scope may request our standard Data Processing Addendum.
+            </p>
+          </Section>
+
+          <Section title="11. Intellectual property">
+            <p>
+              The Service, including its source code, models, prompts, system prompts, fine-tunes,
+              UI, documentation, and all underlying intellectual property, is owned by Reattend or
+              its licensors. Subject to your compliance with these Terms and timely payment of fees,
+              we grant you a limited, non-exclusive, non-transferable, revocable license to use the
+              Service for your internal business purposes during the subscription term.
+            </p>
+            <p>
+              On-premise customers receive an additional license to run the Service binary inside
+              their network for the term of the agreement, governed by the executed order form.
+            </p>
+          </Section>
+
+          <Section title="12. Confidentiality">
+            <p>
+              Each party agrees to protect the other&apos;s confidential information using the same care
+              it uses for its own confidential information of similar sensitivity, and to use
+              confidential information only as needed to perform under these Terms. Customer Content
+              is the Customer&apos;s confidential information.
+            </p>
+          </Section>
+
+          <Section title="13. Service levels and support">
+            <p>
+              For the Team plan we target a 99.5% monthly uptime on the SaaS infrastructure. Enterprise
+              plan customers receive a 99.9% target plus a documented incident-response SLA in their
+              order form. On-premise deployments are operated by the Customer; we provide patches,
+              security advisories, and named-engineer escalation as agreed in the order form.
+            </p>
+          </Section>
+
+          <Section title="14. Disclaimer of warranties">
+            <p>
+              EXCEPT AS EXPRESSLY STATED, THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT
+              WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED
+              WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
+              UNINTERRUPTED OPERATION, OR ACCURACY OF AI OUTPUTS.
+            </p>
+          </Section>
+
+          <Section title="15. Limitation of liability">
+            <p>
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, NEITHER PARTY WILL BE LIABLE FOR ANY INDIRECT,
+              INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR LOSS OF PROFITS, REVENUE,
+              GOODWILL, OR DATA, ARISING OUT OF OR RELATED TO THESE TERMS OR THE SERVICE, EVEN IF
+              ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. EACH PARTY&apos;S AGGREGATE LIABILITY UNDER
+              THESE TERMS IS LIMITED TO THE FEES PAID OR PAYABLE BY THE CUSTOMER UNDER THE
+              APPLICABLE SUBSCRIPTION IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO
+              THE CLAIM. THE LIMITATIONS IN THIS SECTION DO NOT APPLY TO BREACHES OF CONFIDENTIALITY,
+              INDEMNIFICATION OBLIGATIONS, OR FEES OWED.
+            </p>
+          </Section>
+
+          <Section title="16. Indemnification">
+            <p>
+              Each party will defend and indemnify the other against third-party claims (a) alleging
+              that the indemnifying party&apos;s materials infringe such third party&apos;s intellectual
+              property rights, or (b) arising from the indemnifying party&apos;s breach of these Terms,
+              subject to standard procedural conditions (prompt notice, reasonable cooperation, and
+              control of defense and settlement).
+            </p>
+          </Section>
+
+          <Section title="17. Termination">
+            <p>
+              Either party may terminate these Terms for material breach by the other if the breach
+              is not cured within thirty (30) days of written notice. We may suspend access without
+              prior notice if your use poses an imminent security or legal risk. On termination, the
+              Customer&apos;s access ceases at the end of the prepaid period (or immediately for material
+              breach by the Customer). The Customer has thirty (30) days post-termination to request
+              an export of its content; after that we permanently delete the content as described in
+              the <Link href="/privacy">Privacy Policy</Link>.
+            </p>
+          </Section>
+
+          <Section title="18. Modifications">
+            <p>
+              We may update these Terms as the product evolves. Material changes will be notified to
+              organization admins by email at least 30 days in advance. The &ldquo;Last updated&rdquo; date at
+              the top of this page reflects the latest revision. Continued use after the effective
+              date constitutes acceptance.
+            </p>
+          </Section>
+
+          <Section title="19. Governing law and dispute resolution">
+            <p>
+              These Terms are governed by the laws of India, without regard to conflict-of-laws
+              principles. Disputes will be submitted to the exclusive jurisdiction of the courts of
+              Bengaluru, India, except that either party may seek injunctive relief in any court of
+              competent jurisdiction to protect its intellectual property or confidential information.
+              Customers under a separately executed master services agreement may have different
+              governing-law and venue terms.
+            </p>
+          </Section>
+
+          <Section title="20. General">
+            <p>
+              These Terms constitute the entire agreement between the parties on this subject, and
+              supersede all prior or contemporaneous communications. If any provision is held
+              unenforceable, the remainder will continue in full force. Failure to enforce a right
+              is not a waiver. You may not assign these Terms without our written consent; we may
+              assign in connection with a merger, acquisition, or sale of substantially all our
+              assets.
+            </p>
+          </Section>
+
+          <Section title="21. Contact">
+            <p>
+              <strong>Reattend Technologies Private Limited</strong><br />
+              General contact: <a href="mailto:pb@reattend.ai">pb@reattend.ai</a><br />
+              Privacy: <a href="mailto:privacy@reattend.ai">privacy@reattend.ai</a><br />
+              Security: <a href="mailto:security@reattend.ai">security@reattend.ai</a>
+            </p>
+          </Section>
+        </article>
       </main>
 
-      <Footer />
+      <footer className="relative z-10 border-t border-neutral-200/60 bg-white/40 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-neutral-500">
+          <p>&copy; {new Date().getFullYear()} Reattend Technologies Private Limited.</p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="hover:text-[#1a1a2e] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#1a1a2e] transition-colors">Terms &amp; Conditions</Link>
+            <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          </div>
+        </div>
+      </footer>
     </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-10 pt-10 border-t border-neutral-200/60 first:border-t-0 first:pt-0 first:mt-0">
+      <h2 className="text-[20px] font-bold tracking-tight text-[#1a1a2e] mb-4">{title}</h2>
+      <div className="text-[15px] text-neutral-600 leading-relaxed space-y-4 [&>ul]:space-y-2 [&>ul]:pl-5 [&>ul>li]:list-disc [&_code]:bg-neutral-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[13px] [&_a]:text-[#4F46E5] [&_a]:underline-offset-2 hover:[&_a]:underline">
+        {children}
+      </div>
+    </section>
   )
 }

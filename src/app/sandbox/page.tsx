@@ -20,6 +20,7 @@ import {
   ArrowRight, Loader2, Crown, Briefcase, Building2, User, UserCheck,
   Sparkles, Shield, Clock, Bot,
 } from 'lucide-react'
+import { LegalFooter } from '@/components/enterprise/legal-footer'
 
 type RoleKey = 'super_admin' | 'admin' | 'dept_head' | 'member' | 'guest'
 
@@ -267,6 +268,8 @@ export default function SandboxLanding() {
           )}
         </AnimatePresence>
       </main>
+
+      <LegalFooter />
     </div>
   )
 }
