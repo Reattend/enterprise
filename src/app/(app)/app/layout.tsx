@@ -18,7 +18,10 @@ import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
 
-const FULL_BLEED_PATHS = ['/app', '/app/landscape']
+// Routes that get a full-bleed canvas (no padding) so the page can paint
+// to the edges. Home was here in older versions but the redesigned cards
+// look better with the standard p-4 sm:p-6 padding.
+const FULL_BLEED_PATHS = ['/app/landscape']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.

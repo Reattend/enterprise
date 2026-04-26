@@ -136,6 +136,32 @@ export async function GET(req: NextRequest) {
     }
     reachByDepartment.sort((a, b) => b.recordCount - a.recordCount)
 
+    // Memory mix — count by record type (decision/meeting/idea/insight/etc).
+    // Powers the donut on the home dashboard. Capped at 8 buckets server-side.
+    let memoriesByType: Array<{ type: string; count: number }> = []
+    if (orgWsIds.length > 0) {
+      const typeRows = await db.select({
+        type: schema.records.type,
+        count: sql<number>`cast(count(*) as integer)`,
+      })
+        .from(schema.records)
+        .where(inArray(schema.records.workspaceId, orgWsIds))
+        .groupBy(schema.records.type)
+      memoriesByType = typeRows
+        .map((r) => ({ type: r.type, count: r.count }))
+        .sort((a, b) => b.count - a.count)
+    }
+
+    // Decision status mix — active / superseded / reversed / archived
+    const decisionStatusRows = await db.select({
+      status: schema.decisions.status,
+      count: sql<number>`cast(count(*) as integer)`,
+    })
+      .from(schema.decisions)
+      .where(eq(schema.decisions.organizationId, orgId))
+      .groupBy(schema.decisions.status)
+    const decisionsByStatus = decisionStatusRows.map((r) => ({ status: r.status, count: r.count }))
+
     return NextResponse.json({
       windowDays: days,
       totals: {
@@ -149,6 +175,8 @@ export async function GET(req: NextRequest) {
       },
       mostViewed,
       reachByDepartment: reachByDepartment.slice(0, 10),
+      memoriesByType,
+      decisionsByStatus,
     })
   } catch (err) {
     return handleEnterpriseError(err)

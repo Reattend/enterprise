@@ -26,6 +26,10 @@ import {
   Loader2,
   ChevronRight,
   Clock,
+  Users,
+  Database,
+  CheckCircle2,
+  TrendingUp,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,6 +43,20 @@ import { TrendingCard } from '@/components/enterprise/trending-card'
 type PendingPolicy = { policyId: string; title: string; category: string | null }
 type Decision = { id: string; title: string; status: string; createdAt: string; decidedAt: string }
 type MemoryRow = { id: string; title: string; type: string; createdAt: string; summary: string | null }
+type HomeAnalytics = {
+  totals: {
+    activeMembers: number
+    memories: number
+    recentMemories: number
+    decisions: number
+    policies: number
+    staleMemories: number
+  }
+  memoriesByType: Array<{ type: string; count: number }>
+  decisionsByStatus: Array<{ status: string; count: number }>
+  reachByDepartment: Array<{ deptId: string; name: string; recordCount: number }>
+  activityLast7Days: Array<{ date: string; count: number }>
+}
 
 export default function HomePage() {
   const { activeEnterpriseOrgId, hasHydratedStore, enterpriseOrgs, captureOpen, setCaptureOpen } = useAppStore()
@@ -46,6 +64,7 @@ export default function HomePage() {
   const [pending, setPending] = useState<PendingPolicy[]>([])
   const [recentDecisions, setRecentDecisions] = useState<Decision[]>([])
   const [recentRecords, setRecentRecords] = useState<MemoryRow[]>([])
+  const [analytics, setAnalytics] = useState<HomeAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
 
   const activeOrg = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)
@@ -57,10 +76,11 @@ export default function HomePage() {
     setLoading(true)
     ;(async () => {
       try {
-        const [pendRes, decRes, recRes] = await Promise.all([
+        const [pendRes, decRes, recRes, anaRes] = await Promise.all([
           fetch(`/api/enterprise/policies/pending?orgId=${activeEnterpriseOrgId}`),
           fetch(`/api/enterprise/organizations/${activeEnterpriseOrgId}/decisions?limit=5`),
           fetch('/api/records?limit=6'),
+          fetch(`/api/enterprise/analytics/home?orgId=${activeEnterpriseOrgId}`),
         ])
         if (!cancelled) {
           if (pendRes.ok) {
@@ -74,6 +94,10 @@ export default function HomePage() {
           if (recRes.ok) {
             const d = await recRes.json()
             setRecentRecords((d.records || []).slice(0, 6))
+          }
+          if (anaRes.ok) {
+            const d = await anaRes.json()
+            setAnalytics(d as HomeAnalytics)
           }
         }
       } finally {
@@ -131,6 +155,12 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* At a glance — pulse strip of org-wide stats. Visible to every
+          member; admin-only Analytics page has the deep dives. */}
+      {analytics && (
+        <AtAGlance analytics={analytics} />
+      )}
+
       {/* Start My Day — morning briefing (AI-synthesized) */}
       <StartMyDayCard orgId={activeEnterpriseOrgId} />
 
@@ -179,7 +209,7 @@ export default function HomePage() {
         {/* Main column */}
         <div className="lg:col-span-2 space-y-4">
           {/* Recent memories */}
-          <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="px-4 py-3 border-b flex items-center gap-2 bg-muted/10">
               <Brain className="h-3.5 w-3.5 text-muted-foreground" />
               <h2 className="text-sm font-semibold">Recent memories</h2>
@@ -217,7 +247,7 @@ export default function HomePage() {
           </div>
 
           {/* Recent decisions */}
-          <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="px-4 py-3 border-b flex items-center gap-2 bg-muted/10">
               <Gavel className="h-3.5 w-3.5 text-muted-foreground" />
               <h2 className="text-sm font-semibold">Recent decisions</h2>
@@ -266,7 +296,7 @@ function QuickActions({ orgId }: { orgId: string }) {
     { label: 'Download briefing', href: `/api/enterprise/organizations/${orgId}/decisions/briefing?format=markdown`, icon: FileText, color: 'text-emerald-500', external: true },
   ]
   return (
-    <div className="rounded-2xl border bg-card overflow-hidden">
+    <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="px-4 py-2.5 border-b bg-muted/10">
         <h2 className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Quick actions</h2>
       </div>
@@ -289,6 +319,292 @@ function QuickActions({ orgId }: { orgId: string }) {
         })}
       </div>
     </div>
+  )
+}
+
+// ── At-a-glance section ────────────────────────────────────────────────────
+// Four stat tiles + a 7-day activity sparkline + memory-mix donut + top
+// departments by record volume + a decision-status segmented bar. All SVG,
+// no chart-library dependency. Hidden gracefully when the API returns
+// nothing or the org is empty.
+function AtAGlance({ analytics }: { analytics: HomeAnalytics }) {
+  const { totals, memoriesByType, decisionsByStatus, reachByDepartment, activityLast7Days } = analytics
+  const showCharts = totals.memories > 0 || totals.decisions > 0
+  return (
+    <div className="space-y-4">
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatTile
+          icon={Users}
+          label="Active members"
+          value={totals.activeMembers}
+          accent="text-blue-600 dark:text-blue-400 bg-blue-500/10"
+        />
+        <StatTile
+          icon={Database}
+          label="Memories"
+          value={totals.memories}
+          sub={totals.recentMemories > 0 ? `+${totals.recentMemories} in 30 days` : undefined}
+          accent="text-violet-600 dark:text-violet-400 bg-violet-500/10"
+        />
+        <StatTile
+          icon={Gavel}
+          label="Decisions"
+          value={totals.decisions}
+          accent="text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+        />
+        <StatTile
+          icon={AlertTriangle}
+          label="Stale"
+          value={totals.staleMemories}
+          sub={totals.staleMemories > 0 ? 'past verify cadence' : 'all current'}
+          accent={totals.staleMemories > 0 ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10' : 'text-slate-500 bg-slate-500/10'}
+        />
+      </div>
+
+      {/* Charts row */}
+      {showCharts && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          {/* Memory mix donut */}
+          <div className="rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="h-3.5 w-3.5 text-muted-foreground" />
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Memory mix</h3>
+              <span className="text-[10px] text-muted-foreground/60 ml-auto">{totals.memories} total</span>
+            </div>
+            {memoriesByType.length === 0 ? (
+              <EmptyChart label="No memories yet" />
+            ) : (
+              <Donut series={memoriesByType.map((m) => ({ key: m.type, label: m.type, value: m.count }))} />
+            )}
+          </div>
+
+          {/* Activity bars (7 days) */}
+          <div className="rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ingestion · last 7d</h3>
+              <span className="text-[10px] text-muted-foreground/60 ml-auto">
+                {activityLast7Days.reduce((s, d) => s + d.count, 0)} memories
+              </span>
+            </div>
+            <ActivityBars data={activityLast7Days} />
+          </div>
+
+          {/* Reach by department horizontal bars */}
+          <div className="rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Reach by department</h3>
+            </div>
+            {reachByDepartment.length === 0 ? (
+              <EmptyChart label="No populated departments" />
+            ) : (
+              <ReachBars data={reachByDepartment} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Decision status segmented bar */}
+      {totals.decisions > 0 && decisionsByStatus.length > 0 && (
+        <div className="rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-3">
+            <Gavel className="h-3.5 w-3.5 text-muted-foreground" />
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Decision status</h3>
+            <span className="text-[10px] text-muted-foreground/60 ml-auto">{totals.decisions} total</span>
+          </div>
+          <DecisionStatusBar data={decisionsByStatus} total={totals.decisions} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StatTile({ icon: Icon, label, value, sub, accent }: {
+  icon: typeof Users
+  label: string
+  value: number
+  sub?: string
+  accent: string
+}) {
+  return (
+    <div className="rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md transition-shadow flex items-start gap-3">
+      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${accent}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">{label}</div>
+        <div className="text-2xl font-bold tracking-tight leading-none">{value.toLocaleString()}</div>
+        {sub && <div className="text-[10px] text-muted-foreground mt-1.5 truncate">{sub}</div>}
+      </div>
+    </div>
+  )
+}
+
+const TYPE_PALETTE: Record<string, string> = {
+  decision:   '#7c3aed',
+  meeting:    '#2563eb',
+  idea:       '#f59e0b',
+  insight:    '#10b981',
+  context:    '#64748b',
+  tasklike:   '#ef4444',
+  note:       '#94a3b8',
+  transcript: '#ec4899',
+}
+const FALLBACK_PALETTE = ['#6366f1', '#0ea5e9', '#14b8a6', '#f97316', '#8b5cf6', '#84cc16']
+
+function colorFor(key: string, idx: number): string {
+  return TYPE_PALETTE[key] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length]
+}
+
+// SVG donut. Series sums and renders proportional arc slices. Any series past
+// the 6th is collapsed into an "Other" bucket so the donut stays readable.
+function Donut({ series }: { series: Array<{ key: string; label: string; value: number }> }) {
+  const collapsed = (() => {
+    if (series.length <= 6) return series
+    const top = series.slice(0, 5)
+    const rest = series.slice(5)
+    const otherTotal = rest.reduce((s, x) => s + x.value, 0)
+    return [...top, { key: 'other', label: 'Other', value: otherTotal }]
+  })()
+  const total = collapsed.reduce((s, x) => s + x.value, 0)
+  if (total === 0) return <EmptyChart label="No data" />
+
+  const size = 140
+  const stroke = 18
+  const r = (size - stroke) / 2
+  const circumference = 2 * Math.PI * r
+  let offset = 0
+
+  return (
+    <div className="flex items-center gap-4">
+      <svg width={size} height={size} className="shrink-0 -rotate-90">
+        {collapsed.map((s, idx) => {
+          const fraction = s.value / total
+          const arcLength = fraction * circumference
+          const dasharray = `${arcLength} ${circumference - arcLength}`
+          const dashoffset = -offset
+          offset += arcLength
+          return (
+            <circle
+              key={s.key}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={colorFor(s.key, idx)}
+              strokeWidth={stroke}
+              strokeDasharray={dasharray}
+              strokeDashoffset={dashoffset}
+            />
+          )
+        })}
+      </svg>
+      <ul className="flex-1 min-w-0 space-y-1.5">
+        {collapsed.map((s, idx) => {
+          const pct = total > 0 ? Math.round((s.value / total) * 100) : 0
+          return (
+            <li key={s.key} className="flex items-center gap-2 text-[12px]">
+              <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: colorFor(s.key, idx) }} />
+              <span className="capitalize text-foreground/80 truncate flex-1">{s.label}</span>
+              <span className="font-semibold tabular-nums">{s.value}</span>
+              <span className="text-muted-foreground tabular-nums w-9 text-right">{pct}%</span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function ActivityBars({ data }: { data: Array<{ date: string; count: number }> }) {
+  const max = Math.max(1, ...data.map((d) => d.count))
+  const labels = data.map((d) => new Date(d.date + 'T00:00:00Z').toLocaleDateString(undefined, { weekday: 'short' }))
+  return (
+    <div>
+      <div className="flex items-end gap-1.5 h-[120px]">
+        {data.map((d, i) => {
+          const heightPct = (d.count / max) * 100
+          return (
+            <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+              <div className="flex-1 w-full flex items-end">
+                <div
+                  className="w-full rounded-t bg-gradient-to-t from-violet-500 to-fuchsia-500"
+                  style={{ height: `${Math.max(4, heightPct)}%` }}
+                  title={`${d.count} memor${d.count === 1 ? 'y' : 'ies'} · ${d.date}`}
+                />
+              </div>
+              <span className="text-[9px] text-muted-foreground">{labels[i]}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ReachBars({ data }: { data: Array<{ deptId: string; name: string; recordCount: number }> }) {
+  const max = Math.max(1, ...data.map((d) => d.recordCount))
+  return (
+    <ul className="space-y-2">
+      {data.map((d, i) => {
+        const pct = (d.recordCount / max) * 100
+        return (
+          <li key={d.deptId} className="space-y-1">
+            <div className="flex items-baseline justify-between gap-2 text-[12px]">
+              <span className="truncate text-foreground/80">{d.name}</span>
+              <span className="font-semibold tabular-nums shrink-0">{d.recordCount}</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${pct}%`, backgroundColor: FALLBACK_PALETTE[i % FALLBACK_PALETTE.length] }}
+              />
+            </div>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  active:     '#10b981',
+  superseded: '#f59e0b',
+  reversed:   '#ef4444',
+  archived:   '#64748b',
+}
+
+function DecisionStatusBar({ data, total }: { data: Array<{ status: string; count: number }>; total: number }) {
+  if (total === 0) return null
+  return (
+    <div>
+      <div className="h-3 rounded-full overflow-hidden flex bg-muted">
+        {data.map((s) => (
+          <div
+            key={s.status}
+            style={{ width: `${(s.count / total) * 100}%`, backgroundColor: STATUS_COLORS[s.status] || '#94a3b8' }}
+            title={`${s.status}: ${s.count}`}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
+        {data.map((s) => (
+          <div key={s.status} className="flex items-center gap-1.5 text-[12px]">
+            <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: STATUS_COLORS[s.status] || '#94a3b8' }} />
+            <span className="capitalize text-foreground/80">{s.status}</span>
+            <span className="font-semibold tabular-nums">{s.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function EmptyChart({ label }: { label: string }) {
+  return (
+    <div className="h-[120px] flex items-center justify-center text-[12px] text-muted-foreground">{label}</div>
   )
 }
 
