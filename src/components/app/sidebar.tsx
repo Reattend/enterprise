@@ -8,13 +8,8 @@ import { motion } from 'framer-motion'
 import {
   Home,
   Sparkles,
-  Brain,
-  Gavel,
-  Network,
   Bot,
-  FileText,
   Settings,
-  Plus,
   LogOut,
   User,
   UserPlus,
@@ -23,15 +18,15 @@ import {
   PanelLeft,
   MessageSquare,
   Building2,
-  Activity,
   Check,
-  Search,
-  Users,
   BookOpen,
-  Zap,
-  BrainCircuit,
-  Plug,
-  Map as MapIcon,
+  // Sprint O sidebar refresh
+  ListFilterPlus,    // Capture
+  Database,          // Memories
+  Proportions,       // Landscape
+  Columns4,          // Policies
+  BookmarkCheck,     // Tasks
+  HatGlasses,        // Agents (just-above-Settings, distinct)
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -60,21 +55,19 @@ import { useAppStore } from '@/stores/app-store'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
-// Reattend Enterprise primary nav.
-// Chat + Capture are primary buttons (above the nav). Search is in the topbar.
-// Nav (trimmed for Enterprise): Home · Tasks · Memory · Wiki · Agents · Policies.
-// Decisions + Graph are now filter-chip views inside Memory, not top-level links.
-// My team, Projects, and legacy Personal nav have been removed.
+// Reattend Enterprise primary nav (Sprint O sidebar refresh).
+// Chat is a gradient button above the nav (replaces the older "Ask" label).
+// Control Room is a separate gradient button on top of the sidebar.
+// Search is in the topbar; Legend + Integrations have moved out of the
+// sidebar into the topbar; Agents is a distinct button just above Settings.
 const navItems = [
   { href: '/app', icon: Home, label: 'Home', exact: true },
-  { href: '/app/ask', icon: Sparkles, label: 'Ask' },
-  { href: '/app/brain-dump', icon: BrainCircuit, label: 'Capture' },
-  { href: '/app/landscape', icon: Network, label: 'Landscape' },
-  { href: '/app/memories', icon: Brain, label: 'Memory' },
+  { href: '/app/brain-dump', icon: ListFilterPlus, label: 'Capture' },
+  { href: '/app/memories', icon: Database, label: 'Memories' },
+  { href: '/app/landscape', icon: Proportions, label: 'Landscape' },
   { href: '/app/wiki', icon: BookOpen, label: 'Wiki' },
-  { href: '/app/agents', icon: Bot, label: 'Agents' },
-  { href: '/app/policies', icon: FileText, label: 'Policies' },
-  { href: '/app/tasks', icon: Zap, label: 'Tasks' },
+  { href: '/app/policies', icon: Columns4, label: 'Policies' },
+  { href: '/app/tasks', icon: BookmarkCheck, label: 'Tasks' },
 ]
 
 interface UserInfo {
@@ -269,21 +262,39 @@ export function AppSidebar() {
           <Separator className="bg-sidebar-border" />
 
           <div className="px-2 pt-2 flex flex-col gap-1.5 items-center">
+            {(() => {
+              const active = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
+              const href = active && (active.role === 'super_admin' || active.role === 'admin')
+                ? `/app/admin/${active.orgId}`
+                : '/app'
+              return (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={href}
+                      className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+                    >
+                      <Building2 className="h-3.5 w-3.5" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Control Room</TooltipContent>
+                </Tooltip>
+              )
+            })()}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href="/app/ask"
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded transition-colors',
-                    pathname.startsWith('/app/ask')
-                      ? 'bg-primary text-primary-foreground'
-                      : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
+                    'bg-[#1a1a2e] text-white hover:bg-[#2d2b55]',
+                    pathname.startsWith('/app/ask') && 'ring-2 ring-primary/30',
                   )}
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <MessageSquare className="h-3.5 w-3.5" />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Ask</TooltipContent>
+              <TooltipContent side="right">Chat</TooltipContent>
             </Tooltip>
           </div>
 
@@ -314,47 +325,22 @@ export function AppSidebar() {
           </ScrollArea>
 
           <div className="px-2 pb-2 flex flex-col gap-1">
-            {/* Enterprise cockpit shortcut in collapsed mode */}
-            {enterpriseOrgs.length > 0 && (() => {
-              const active = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
-              const isAdminRole = active.role === 'super_admin' || active.role === 'admin'
-              if (!isAdminRole) return null
-              const inAdminRoute = pathname.startsWith('/app/admin')
-              return (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={`/app/admin/${active.orgId}`}
-                      className={cn(
-                        'flex items-center justify-center rounded-md px-2 py-2 transition-colors',
-                        inAdminRoute
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-primary/10 text-primary hover:bg-primary/20',
-                      )}
-                    >
-                      <Activity className="h-4 w-4" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    {active.orgName} · Memory cockpit
-                  </TooltipContent>
-                </Tooltip>
-              )
-            })()}
-
-            {enterpriseOrgs.length === 0 && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href="/app/admin/onboarding"
-                    className="flex items-center justify-center rounded-md px-2 py-2 text-primary hover:bg-primary/10"
-                  >
-                    <Building2 className="h-4 w-4" />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Set up organization</TooltipContent>
-              </Tooltip>
-            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/app/agents"
+                  className={cn(
+                    'flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
+                    isActive('/app/agents')
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  <HatGlasses className="h-4 w-4" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Agents</TooltipContent>
+            </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -448,8 +434,7 @@ export function AppSidebar() {
         {/* Header: Logo + Collapse */}
         <div className="flex items-center gap-2 p-3">
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1">
-            <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 dark:hidden" />
-            <Image src="/white_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 hidden dark:block" />
+            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md" unoptimized />
             <div className="flex flex-col min-w-0 leading-tight">
               <span className="text-[15px] font-bold text-sidebar-foreground tracking-tight">Reattend</span>
               <span className="text-[9px] uppercase tracking-wider text-primary font-semibold">Enterprise</span>
@@ -470,36 +455,25 @@ export function AppSidebar() {
 
         <Separator className="bg-sidebar-border" />
 
-        {/* Enterprise identity — primary, above nav. The ONLY identity in
-            Reattend Enterprise. No personal/team workspace concepts here. */}
-        <div className="px-2 pt-2">
-          <EnterpriseSidebarSection
+        {/* Sprint O sidebar refresh — two stacked gradient buttons:
+            Control Room (admin pivot) + Chat (renamed from Ask).
+            Org switching + identity moved into the topbar. */}
+        <div className="px-2 pt-3 flex flex-col gap-2">
+          <ControlRoomButton
             orgs={enterpriseOrgs}
             activeOrgId={activeEnterpriseOrgId}
-            setActiveOrgId={setActiveEnterpriseOrgId}
             currentPathname={pathname}
-            variant="primary"
           />
-        </div>
-
-        <Separator className="mt-2 bg-sidebar-border" />
-
-        {/* Quick action — Ask. Capture lives in the nav (→ /app/brain-dump)
-            and is also reachable by ⌘N (drawer). We used to double up with a
-            "Capture memory" button here; removed so there's a single canonical
-            entry point per action. */}
-        <div className="px-2 pt-2 flex flex-col gap-1.5">
           <Link
             href="/app/ask"
             className={cn(
-              'w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded transition-colors',
-              pathname.startsWith('/app/ask')
-                ? 'bg-primary text-primary-foreground'
-                : 'border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15',
+              'w-full h-9 text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 rounded-md transition-all',
+              'bg-[#1a1a2e] text-white shadow-sm hover:bg-[#2d2b55]',
+              pathname.startsWith('/app/ask') && 'ring-2 ring-primary/30',
             )}
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            Ask
+            <MessageSquare className="h-3.5 w-3.5" />
+            Chat
           </Link>
         </div>
 
@@ -558,39 +532,24 @@ export function AppSidebar() {
           )}
         </ScrollArea>
 
-        {/* Bottom section — settings + profile. Integrations + desktop install
-            are now behind Admin → Integrations (org-level config). */}
+        {/* Bottom section — Agents, Settings, profile. Legend + Integrations
+            moved to the topbar in Sprint O. */}
         <div className="px-2 pb-2 flex flex-col gap-0.5">
           <Separator className="mb-2 bg-sidebar-border" />
 
-          {/* Legend — canonical feature catalog + shortcuts + glossary.
-              Accessible to every role. If something isn't here, it doesn't
-              exist yet — that's the contract. */}
+          {/* Agents — distinct, just above Settings. Org admins manage and
+              run agents from here; members can run dept-scoped ones. */}
           <Link
-            href="/app/legend"
+            href="/app/agents"
             className={cn(
               'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
-              isActive('/app/legend')
+              isActive('/app/agents')
                 ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                 : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
             )}
           >
-            <MapIcon className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/legend') && 'text-primary')} />
-            <span>Legend</span>
-          </Link>
-
-          {/* Integrations — placeholder until Nango self-host lands. */}
-          <Link
-            href="/app/integrations"
-            className={cn(
-              'flex items-center gap-3 rounded px-3 py-1.5 text-[13px] transition-colors',
-              isActive('/app/integrations')
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
-            )}
-          >
-            <Plug className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/integrations') && 'text-primary')} />
-            <span>Integrations</span>
+            <HatGlasses className={cn('h-3.5 w-3.5 shrink-0', isActive('/app/agents') && 'text-primary')} />
+            <span>Agents</span>
           </Link>
 
           {/* Settings */}
@@ -609,22 +568,22 @@ export function AppSidebar() {
 
           <Separator className="my-1.5 bg-sidebar-border" />
 
-          {/* Personal usage quota removed — enterprise billing is org-level,
-              not per-user. See Admin → Settings → Plan. */}
-
-          {/* User profile */}
+          {/* User profile + role pill (active org's role) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-2 px-2 h-10"
+                className="w-full justify-start gap-2 px-2 h-12"
               >
                 <Avatar className="h-7 w-7">
                   {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt={displayName} />}
                   <AvatarFallback className="text-xs bg-primary/10 text-primary">{initials}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col items-start text-left flex-1 min-w-0">
-                  <span className="text-sm font-medium truncate">{displayName}</span>
+                <div className="flex flex-col items-start text-left flex-1 min-w-0 gap-0.5">
+                  <div className="flex items-center gap-1.5 w-full">
+                    <span className="text-sm font-medium truncate flex-1 min-w-0">{displayName}</span>
+                    <UserRolePill role={enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)?.role} />
+                  </div>
                   <span className="text-[10px] text-muted-foreground truncate w-full">{displayEmail}</span>
                 </div>
               </Button>
@@ -741,8 +700,7 @@ function MobileOverlay({
         {/* Header */}
         <div className="flex items-center gap-2 p-3 border-b border-sidebar-border shrink-0">
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1" onClick={close}>
-            <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 dark:hidden" />
-            <Image src="/white_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 hidden dark:block" />
+            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md" unoptimized />
             <span className="text-[15px] font-bold tracking-tight">Reattend</span>
           </Link>
           <button
@@ -753,30 +711,29 @@ function MobileOverlay({
           </button>
         </div>
 
-        {/* Quick action — Ask only. Capture is in the nav below. */}
+        {/* Quick action — Chat (renamed from Ask in Sprint O). */}
         <div className="px-2 pt-2 pb-1 flex flex-col gap-1.5 shrink-0">
           <Link
             href="/app/ask"
             onClick={close}
-            className="w-full h-8 text-[13px] font-medium inline-flex items-center justify-center gap-1.5 rounded border border-primary/40 text-primary bg-primary/10 hover:bg-primary/15 transition-colors"
+            className="w-full h-9 text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 rounded-md bg-[#1a1a2e] text-white hover:bg-[#2d2b55] transition-colors"
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            Ask
+            <MessageSquare className="h-3.5 w-3.5" />
+            Chat
           </Link>
         </div>
 
-        {/* Nav */}
+        {/* Nav — matches the desktop sidebar order + icons */}
         <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
           {navLink('/app', Home, 'Home')}
-          {navLink('/app/ask', Sparkles, 'Ask')}
-          {navLink('/app/brain-dump', BrainCircuit, 'Capture')}
-          {navLink('/app/landscape', Network, 'Landscape')}
-          {navLink('/app/memories', Brain, 'Memory')}
+          {navLink('/app/brain-dump', ListFilterPlus, 'Capture')}
+          {navLink('/app/memories', Database, 'Memories')}
+          {navLink('/app/landscape', Proportions, 'Landscape')}
           {navLink('/app/wiki', BookOpen, 'Wiki')}
-          {navLink('/app/agents', Bot, 'Agents')}
-          {navLink('/app/policies', FileText, 'Policies')}
-          {navLink('/app/tasks', Zap, 'Tasks')}
+          {navLink('/app/policies', Columns4, 'Policies')}
+          {navLink('/app/tasks', BookmarkCheck, 'Tasks')}
           <div className="my-2 h-px bg-sidebar-border" />
+          {navLink('/app/agents', HatGlasses, 'Agents')}
           {navLink('/app/settings', Settings, 'Settings')}
         </div>
       </div>
@@ -784,133 +741,89 @@ function MobileOverlay({
   )
 }
 
-// ─── Enterprise section in sidebar ──────────────────────────────────────────
-// Shown to every authenticated user:
-//   - If they belong to zero orgs: a single "Set up organization" CTA
-//   - If they belong to 1+ orgs: the active org card with a Cockpit link
-//     (for admins/super_admins) and a switcher if they belong to more than one
-function EnterpriseSidebarSection({
+// ─── Control Room button (Sprint O sidebar refresh) ────────────────────────
+// Single gradient button that pivots the user into the org admin surface.
+// For non-admin members it routes to their org Home (org-scoped admin
+// surfaces are gated server-side anyway, so this is just the friendly
+// landing). Org switching has moved to the topbar.
+function ControlRoomButton({
   orgs,
   activeOrgId,
-  setActiveOrgId,
   currentPathname,
 }: {
   orgs: import('@/stores/app-store').EnterpriseOrgMembership[]
   activeOrgId: string | null
-  setActiveOrgId: (id: string | null) => void
   currentPathname: string
-  variant?: 'primary' | 'secondary'
 }) {
   const active = orgs.find((o) => o.orgId === activeOrgId) ?? orgs[0]
-  const isAdmin = active && (active.role === 'super_admin' || active.role === 'admin')
   const inAdminRoute = currentPathname.startsWith('/app/admin')
 
   if (orgs.length === 0) {
     return (
       <Link
         href="/app/admin/onboarding"
-        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm border border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors"
+        className={cn(
+          'w-full h-10 inline-flex items-center justify-center gap-2 rounded-md text-[13px] font-semibold transition-all',
+          'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white shadow-sm hover:opacity-90',
+        )}
       >
-        <Building2 className="h-4 w-4 text-primary shrink-0" />
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-[13px] font-medium text-primary">Set up organization</span>
-          <span className="text-[10px] text-muted-foreground">Nothing happens until you do</span>
-        </div>
+        <Building2 className="h-3.5 w-3.5" />
+        Set up organization
       </Link>
     )
   }
 
+  if (!active) return null
+
+  const href = (active.role === 'super_admin' || active.role === 'admin')
+    ? `/app/admin/${active.orgId}`
+    : '/app'
+
   return (
-    <>
-      {active && (
-        <div className="rounded border border-border bg-sidebar-accent/40 p-2.5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-7 w-7 rounded bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center shrink-0">
-              {active.orgName[0]?.toUpperCase() ?? 'O'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-semibold truncate">{active.orgName}</div>
-              <div className="text-[10px] text-muted-foreground capitalize">
-                {active.role.replace('_', ' ')} · {active.orgPlan}
-              </div>
-            </div>
-            {orgs.length >= 2 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="h-6 w-6 flex items-center justify-center rounded hover:bg-sidebar-accent/60 text-muted-foreground">
-                    <ChevronsUpDownLocal />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Switch organization</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {orgs.map((o) => (
-                    <DropdownMenuItem
-                      key={o.orgId}
-                      className="cursor-pointer"
-                      onClick={() => setActiveOrgId(o.orgId)}
-                    >
-                      <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm truncate">{o.orgName}</div>
-                        <div className="text-[10px] text-muted-foreground capitalize">{o.role.replace('_', ' ')}</div>
-                      </div>
-                      {o.orgId === activeOrgId && <Check className="h-3.5 w-3.5 text-primary" />}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-
-          {isAdmin && (
-            <Link
-              href={`/app/admin/${active.orgId}`}
-              className={cn(
-                'flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors',
-                inAdminRoute
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-primary/90 text-white hover:bg-primary',
-              )}
-            >
-              <Activity className="h-3.5 w-3.5" />
-              <span>Memory cockpit</span>
-            </Link>
-          )}
-
-          {isAdmin && (
-            <div className="grid grid-cols-2 gap-1 mt-1">
-              <Link
-                href={`/app/admin/${active.orgId}/members`}
-                className="text-[11px] text-center px-1.5 py-1 rounded hover:bg-sidebar-accent/50 text-muted-foreground hover:text-foreground"
-              >
-                Members
-              </Link>
-              <Link
-                href={`/app/admin/${active.orgId}/health`}
-                className="text-[11px] text-center px-1.5 py-1 rounded hover:bg-sidebar-accent/50 text-muted-foreground hover:text-foreground"
-              >
-                Self-healing
-              </Link>
-            </div>
-          )}
-
-          {!isAdmin && (
-            <div className="text-[11px] text-muted-foreground px-1 py-0.5">
-              You are a {active.role.replace('_', ' ')} in this organization.
-            </div>
-          )}
-        </div>
+    <Link
+      href={href}
+      className={cn(
+        'w-full h-10 inline-flex items-center justify-center gap-2 rounded-md text-[13px] font-semibold transition-all',
+        'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white shadow-sm hover:opacity-90',
+        inAdminRoute && 'ring-2 ring-fuchsia-300/50',
       )}
-    </>
+    >
+      <Building2 className="h-3.5 w-3.5" />
+      Control Room
+    </Link>
   )
 }
 
-function ChevronsUpDownLocal() {
+// ─── Role pill ──────────────────────────────────────────────────────────────
+// Shown next to the user's name in the sidebar profile button. Color-codes
+// the active org's role so the user can tell at a glance whether they are
+// looking at the product through admin lenses or guest lenses.
+function UserRolePill({ role }: { role?: string }) {
+  if (!role) return null
+  const cfg = roleStyle(role)
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m7 15 5 5 5-5" />
-      <path d="m7 9 5-5 5 5" />
-    </svg>
+    <span
+      className={cn(
+        'inline-flex items-center px-1.5 py-0 h-4 rounded-full text-[9px] font-bold uppercase tracking-wider shrink-0 border',
+        cfg.bg, cfg.text, cfg.border,
+      )}
+      title={`Role: ${role.replace('_', ' ')}`}
+    >
+      {cfg.label}
+    </span>
   )
+}
+
+function roleStyle(role: string): { label: string; bg: string; text: string; border: string } {
+  switch (role) {
+    case 'super_admin':
+      return { label: 'Super', bg: 'bg-emerald-500/15', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500/30' }
+    case 'admin':
+      return { label: 'Admin', bg: 'bg-violet-500/15', text: 'text-violet-600 dark:text-violet-400', border: 'border-violet-500/30' }
+    case 'guest':
+      return { label: 'Guest', bg: 'bg-blue-500/15', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-500/30' }
+    case 'member':
+    default:
+      return { label: 'Member', bg: 'bg-slate-500/15', text: 'text-slate-600 dark:text-slate-300', border: 'border-slate-500/30' }
+  }
 }

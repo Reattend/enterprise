@@ -29,6 +29,8 @@ import {
   BookOpen,
   Building2,
   Search,
+  Plug,            // Integrations icon (now in topbar)
+  Map as MapIcon,  // Legend icon (now in topbar)
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -225,19 +227,60 @@ export function AppTopbar() {
           <Menu className="h-4 w-4" />
         </button>
 
-        {/* Left: org identity pill — compact. */}
+        {/* Left: org selector — always a dropdown trigger so the active org +
+            switcher live in one control instead of a pill + a separate chevron
+            button. Single-org users still see the trigger; clicking it opens
+            the same dropdown with just one entry. */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           {hasEnterprise && activeEnterpriseOrg && (
-            <Link
-              href={`/app/admin/${activeEnterpriseOrg.orgId}`}
-              className="inline-flex items-center gap-1.5 px-2 py-1 rounded hover:bg-muted/60 transition-colors text-[12px]"
-              title="Open Memory Cockpit"
-            >
-              <div className="h-4 w-4 rounded bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center">
-                {(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}
-              </div>
-              <span className="font-medium text-foreground truncate max-w-[140px]">{activeEnterpriseOrg.orgName}</span>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-flex items-center gap-2 px-2.5 h-9 rounded-md border border-border bg-background hover:bg-muted/40 transition-colors text-[13px] max-w-[260px]">
+                  <div className="h-5 w-5 rounded bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center shrink-0">
+                    {(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex flex-col items-start min-w-0 leading-tight">
+                    <span className="font-semibold text-foreground truncate max-w-[160px]">{activeEnterpriseOrg.orgName}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{activeEnterpriseOrg.role.replace('_', ' ')}</span>
+                  </div>
+                  <ChevronsUpDown className="h-3 w-3 text-muted-foreground shrink-0 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-72">
+                <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {enterpriseOrgs.length >= 2 ? 'Organizations' : 'Organization'}
+                </div>
+                {enterpriseOrgs.map((o) => (
+                  <DropdownMenuItem
+                    key={o.orgId}
+                    onClick={() => {
+                      useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)
+                    }}
+                    className="cursor-pointer py-2"
+                  >
+                    <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
+                      {o.orgName[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm truncate block">{o.orgName}</span>
+                      <span className="text-[10px] text-muted-foreground capitalize">
+                        {o.role.replace('_', ' ')} · {o.orgPlan}
+                      </span>
+                    </div>
+                    {o.orgId === activeEnterpriseOrgId && (
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href={`/app/admin/${activeEnterpriseOrg.orgId}`}>
+                    <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                    Open Memory Cockpit
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 
@@ -256,52 +299,9 @@ export function AppTopbar() {
           </button>
         </div>
 
-        {/* Org switcher (only for multi-org users) */}
-        {hasEnterprise && enterpriseOrgs.length >= 2 && activeEnterpriseOrg && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="h-8 w-8 flex items-center justify-center rounded hover:bg-muted/60 text-muted-foreground" title="Switch organization">
-                <ChevronsUpDown className="h-3.5 w-3.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <div className="px-2 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                Switch organization
-              </div>
-              {enterpriseOrgs.map((o) => (
-                <DropdownMenuItem
-                  key={o.orgId}
-                  onClick={() => {
-                    useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)
-                    if ((o.role === 'super_admin' || o.role === 'admin')) {
-                      router.push(`/app/admin/${o.orgId}`)
-                    }
-                  }}
-                  className="cursor-pointer"
-                >
-                  <div className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
-                    {o.orgName[0]?.toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm truncate block">{o.orgName}</span>
-                    <span className="text-[10px] text-muted-foreground capitalize">
-                      {o.role.replace('_', ' ')} · {o.orgPlan}
-                    </span>
-                  </div>
-                  {o.orgId === activeEnterpriseOrgId && (
-                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
         {/* Right: Action icons */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Plan badge — Enterprise billing lives under admin/settings (org-level),
-              not a per-user subscription. Kept the pill as a quick admin jump
-              when the user has an org; hidden on tablet and below. */}
+          {/* Plan badge */}
           {activeEnterpriseOrg && (
             <Link
               href={`/app/admin/${activeEnterpriseOrg.orgId}/settings`}
@@ -311,7 +311,31 @@ export function AppTopbar() {
             </Link>
           )}
 
-          {/* Who Should I Ask? (⌘⇧K) — the "org knowledge router" */}
+          {/* Integrations — moved out of sidebar in Sprint O */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            asChild
+            title="Integrations"
+          >
+            <Link href="/app/integrations">
+              <Plug className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </Button>
+
+          {/* Legend — moved out of sidebar in Sprint O */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            asChild
+            title="Legend"
+          >
+            <Link href="/app/legend">
+              <MapIcon className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </Button>
+
+          {/* Who Should I Ask? (⌘⇧K) */}
           <Button
             variant="ghost"
             size="icon-sm"
@@ -342,7 +366,7 @@ export function AppTopbar() {
               if (!inboxPanelOpen) fetchNotifications()
             }}
           >
-            <Bell className="h-4 w-4 text-amber-500" />
+            <Bell className="h-4 w-4 text-muted-foreground" />
             {globalUnreadCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold">
                 {globalUnreadCount > 9 ? '9+' : globalUnreadCount}
@@ -359,8 +383,9 @@ export function AppTopbar() {
               setInboxPanelOpen(false)
               setDocsOpen(false)
             }}
+            title="Send feedback"
           >
-            <MessageCircle className="h-4 w-4 text-pink-500" />
+            <MessageCircle className="h-4 w-4 text-muted-foreground" />
           </Button>
 
           {/* Guide / Docs */}
@@ -374,7 +399,7 @@ export function AppTopbar() {
             }}
             title="Reattend Guide"
           >
-            <BookOpen className="h-4 w-4 text-sky-500" />
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
           </Button>
 
           {/* Theme toggle */}
@@ -382,9 +407,10 @@ export function AppTopbar() {
             variant="ghost"
             size="icon-sm"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title="Toggle theme"
           >
-            <Sun className="h-4 w-4 text-amber-500 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 text-indigo-400 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-4 w-4 text-muted-foreground rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 text-muted-foreground rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
         </div>
       </header>
