@@ -3,3 +3,7 @@ node_modules/
 data/
 .env*.local
 tsconfig.tsbuildinfo
+# macOS
+.DS_Store
+# Local agent state (Claude Code background tasks)
+.claude/

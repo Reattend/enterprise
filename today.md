@@ -1,10 +1,10 @@
 # Reattend Enterprise — Session Handoff
 
-**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox + hardening)
+**Last updated:** 2026-04-26 (end of Sprint O-b · sidebar + topbar refresh + legal pages + extension submission)
 **Branch:** `main` — pushed
 **Live at:** https://enterprise.reattend.com · public sandbox at https://enterprise.reattend.com/sandbox
-**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox + hardening)
-**Sprints remaining before launch:** O proper (UI/UX polish — interactive with user), P (Nango), Q (infra), R (billing), then launch
+**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox + hardening), O-b (legal pages + sidebar/topbar refresh + extension submission)
+**Sprints remaining before launch:** rest of O (UI/UX polish — interactive with user), P (Nango), Q (infra), R (billing), then launch
 
 ---
 
@@ -134,6 +134,64 @@ After the initial sandbox shipped, four issues surfaced that needed fixes:
    / onboarding-genie / start-my-day / topbar surfaces. Replaced with "the
    AI" / "AI-synthesized" / "managed frontier AI" / "fast reranker". 22
    files touched. Internal `//` developer comments left intact.
+
+### Sprint O-b · `ae8023c` + `4621449` + `9fb3422` — Legal pages, extension submission, sidebar/topbar refresh
+
+**Legal pages (ae8023c)**
+- `/privacy` rewritten for Enterprise: 13 sections calibrated against the
+  Chrome Web Store data declarations (data categories, sub-processors,
+  retention, GDPR/CCPA/DPDP rights with self-serve paths, no-AI-training
+  pledge, single-cookie disclosure)
+- `/terms` rewritten: 21 sections covering acceptance, three plan tiers,
+  customer-content ownership, acceptable use, RBAC admin powers, AI-output
+  disclaimers, IP, confidentiality, SLA targets, warranties + 12-month-fee
+  liability cap, indemnification, termination + 30-day export window,
+  governing law (India / Bengaluru courts)
+- New `LegalFooter` component on home, pricing, sandbox, compliance,
+  privacy, terms (and now support) — copyright + Privacy/Terms/Compliance
+  links
+- Both pages self-contained (no Personal Reattend Navbar/Footer
+  dependency); canonicals updated `reattend.com → enterprise.reattend.com`
+
+**Chrome extension submitted to Web Store**
+- Voice removed entirely from the extension surface (popup tab + offscreen
+  doc + permission tab + captureVoice helper). Three escalating attempts
+  at MV3 mic capture (popup-direct → offscreen doc → dedicated permission
+  tab) all failed because Chrome auto-dismisses the prompt when the popup
+  closes. Per user call, dropped the feature for v0.1.0; server-side
+  /api/tray/voice endpoint stays for future clients
+- Lucide icons + new toolbar icons baked into dist/public/
+- Submitted as Reattend Enterprise v0.1.0 with `/support` (new) as the
+  Support URL. Listing copy + permission justifications + data
+  declarations all line up with the privacy policy
+
+**Sprint O-b sidebar + topbar refresh (9fb3422)**
+- Sidebar: replaced the multi-element org Cockpit block with a single
+  fuchsia→pink **Control Room** gradient button (admins → /app/admin/<org>;
+  others → /app)
+- Renamed the "Ask" sidebar button to **Chat** (same /app/ask route, dark
+  navy-violet styling, MessageSquare icon)
+- Reshuffled nav: Home → Capture (ListFilterPlus) → Memories (Database) →
+  Landscape (Proportions) → Wiki (BookOpen) → Policies (Columns4) → Tasks
+  (BookmarkCheck). Removed "Ask" from the menu (covered by the Chat button)
+- Moved Legend + Integrations out of the sidebar into the topbar
+- Added a distinct **Agents** link (HatGlasses) just above Settings
+- New `UserRolePill` next to the user's name in the profile button:
+  emerald=Super, violet=Admin, blue=Guest, slate=Member
+- Logo swap from `black_logo.svg` / `white_logo.svg` → `/icon-128.png`
+  (single rounded image). Same swap in mobile drawer; favicon updated via
+  `src/app/icon.png` + layout.tsx metadata
+- Topbar: org pill + chevron switcher merged into one DropdownMenu
+  trigger (avatar + name + role + ChevronsUpDown). Multi-org users get
+  every entry in the dropdown plus a "Open Memory Cockpit" link
+- Topbar: added **Plug** (Integrations) + **MapIcon** (Legend) icon
+  buttons after the plan badge
+- All topbar action icons monochrome `text-muted-foreground` (Bell,
+  MessageCircle, BookOpen, Sun, Moon were colored before; color is now
+  reserved for status — notification dot, plan pill, role pill)
+- Lucide bumped 0.441 → 1.0.0 to get HatGlasses, ListFilterPlus,
+  Proportions, Columns4, BookmarkCheck. 1.0.0 is the only version with
+  both the new icons AND the brand icons we use elsewhere (Chrome, Slack)
 
 ### Sprint O-a · `557520c` + `6effd82` — Public sandbox with scripted AI
 
