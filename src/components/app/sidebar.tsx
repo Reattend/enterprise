@@ -230,10 +230,6 @@ export function AppSidebar() {
     signOut({ callbackUrl: '/login' })
   }
 
-  const handleNewChat = () => {
-    router.push('/app')
-  }
-
   if (sidebarCollapsed) {
     return (
       <TooltipProvider delayDuration={0}>
@@ -508,9 +504,12 @@ export function AppSidebar() {
               </div>
               <div className="flex flex-col gap-0.5">
                 {recentChats.slice(0, 6).map((chat) => {
-                  const chatUrl = `/app?chat=${chat.id}`
+                  // Chat threads live at /app/ask (chat-view), not /app
+                  // (home dashboard). Pointing at /app would dump the user
+                  // onto the home page with no thread visible.
+                  const chatUrl = `/app/ask?chat=${chat.id}`
                   const isActiveChatUrl = typeof window !== 'undefined'
-                    ? window.location.pathname === '/app' && new URLSearchParams(window.location.search).get('chat') === chat.id
+                    ? window.location.pathname === '/app/ask' && new URLSearchParams(window.location.search).get('chat') === chat.id
                     : false
                   return (
                     <button

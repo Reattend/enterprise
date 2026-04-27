@@ -198,7 +198,11 @@ export function ChatView() {
         const data = await res.json()
         if (data.chat?.id) {
           setChatId(data.chat.id)
-          window.history.replaceState(null, '', `/app?chat=${data.chat.id}`)
+          // Push the chat id into the URL bar so refresh / share / browser
+          // back all land on the same thread. The chat surface lives at
+          // /app/ask, NOT /app — pointing at /app silently navigates the
+          // user to the home dashboard on refresh.
+          window.history.replaceState(null, '', `/app/ask?chat=${data.chat.id}`)
           upsertRecentChat({ id: data.chat.id, title: firstQuestion.slice(0, 60), updatedAt: new Date().toISOString() })
           return data.chat.id
         }
@@ -370,7 +374,7 @@ export function ChatView() {
     setMessages([])
     setChatId(null)
     setOpenSourceIds(new Set())
-    window.history.replaceState(null, '', '/app')
+    window.history.replaceState(null, '', '/app/ask')
   }
 
   const toggleSources = (msgId: string) => {
