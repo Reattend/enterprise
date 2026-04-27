@@ -1,14 +1,13 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { SyncStatusCard } from '@/components/enterprise/sync-status-card'
 import { ReasoningTrace, type TraceData } from '@/components/enterprise/reasoning-trace'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  Brain, Lightbulb, CheckSquare, Sparkles, ArrowUp,
+  Sparkles, ArrowUp,
   BookOpen, RefreshCw, ChevronDown, ChevronRight,
   ThumbsUp, ThumbsDown, Share2, Copy, Check,
-  MessageSquare, Zap, FileText,
+  Bot, Crown,
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -16,6 +15,19 @@ import ReactMarkdown from 'react-markdown'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
 import { useSearchParams } from 'next/navigation'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+type ChatModel = 'chat' | 'deepthink'
+
+const MODEL_META: Record<ChatModel, { label: string; sub: string; icon: typeof Bot }> = {
+  chat:      { label: 'Chat',      sub: 'Fast streaming · ~2s',         icon: Bot },
+  deepthink: { label: 'Deepthink', sub: 'Structured dossier · ~30s',    icon: Crown },
+}
 
 const TYPE_COLORS: Record<string, string> = {
   decision: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
@@ -28,42 +40,10 @@ const TYPE_COLORS: Record<string, string> = {
   transcript: 'bg-pink-500/15 text-pink-600 dark:text-pink-400',
 }
 
-const CAPABILITY_CARDS = [
-  {
-    icon: Brain,
-    label: 'Synthesize',
-    description: 'Connect dots across your meetings and notes',
-    prompt: 'Synthesize the key insights and themes from my recent memories',
-    gradient: 'from-violet-500/20 to-purple-500/10',
-    border: 'border-violet-500/20 hover:border-violet-500/40',
-    iconBg: 'bg-violet-500/20 text-violet-400',
-  },
-  {
-    icon: FileText,
-    label: 'Draft',
-    description: 'Create emails, briefs, and updates from your notes',
-    prompt: 'Draft a status update email based on my recent meetings and decisions',
-    gradient: 'from-amber-500/20 to-orange-500/10',
-    border: 'border-amber-500/20 hover:border-amber-500/40',
-    iconBg: 'bg-amber-500/20 text-amber-400',
-  },
-  {
-    icon: Zap,
-    label: 'Prepare',
-    description: 'Get ready for your next meeting or call',
-    prompt: 'What should I know before my next meeting? Summarize relevant context.',
-    gradient: 'from-emerald-500/20 to-teal-500/10',
-    border: 'border-emerald-500/20 hover:border-emerald-500/40',
-    iconBg: 'bg-emerald-500/20 text-emerald-400',
-  },
-]
-
 const SUGGESTED = [
   'What decisions did I make this week?',
   'Summarize my recent meetings',
   'Draft a status update from my notes',
-  'What risks should I flag before Friday?',
-  'Who has open action items?',
   'Prepare me for my next meeting',
 ]
 
@@ -115,6 +95,14 @@ export function ChatView() {
   const [openSourceIds, setOpenSourceIds] = useState<Set<string>>(new Set())
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  // Default the model from the URL so legacy `?mode=oracle` links still
+  // land in Deepthink. Plain `?mode=chat` (or no param) keeps Chat.
+  const [model, setModel] = useState<ChatModel>(() => {
+    if (typeof window === 'undefined') return 'chat'
+    const m = new URLSearchParams(window.location.search).get('mode')
+    if (m === 'oracle' || m === 'deepthink') return 'deepthink'
+    return 'chat'
+  })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { upsertRecentChat } = useAppStore()
@@ -233,6 +221,46 @@ export function ChatView() {
     setStreaming(true)
 
     const firstQuestion = messages.length === 0 ? question.trim() : messages.find(m => m.role === 'user')?.content || question.trim()
+
+    // ── Deepthink branch — hit the structured-dossier endpoint and render
+    // the response as a single styled message (Situation / Evidence / Risks
+    // / Recommendations / Unknowns). Does not stream, so the UI shows the
+    // typing-dots indicator until the dossier lands.
+    if (model === 'deepthink') {
+      try {
+        const orgId = useAppStore.getState().activeEnterpriseOrgId
+        const res = await fetch('/api/ask/oracle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orgId, question: question.trim() }),
+        })
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}))
+          throw new Error(j.error || 'Deepthink request failed')
+        }
+        const data = await res.json() as {
+          dossier: { situation: string; evidence: string; risks: string; recommendations: string; unknowns: string }
+          sources: Array<{ id: string; title: string; type: string; date?: string | null; passage?: string | null }>
+        }
+        const md = renderDossierMarkdown(data.dossier)
+        const sources: Source[] = (data.sources || []).map((s) => ({
+          id: s.id,
+          title: s.title,
+          type: s.type,
+        }))
+        const finalMessages = nextMessages.map((m) =>
+          m.id === aiId ? { ...m, content: md, sources } : m
+        )
+        setMessages(finalMessages)
+        await saveChat(finalMessages, chatId, firstQuestion)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Deepthink failed.'
+        setMessages((prev) => prev.map((m) => (m.id === aiId ? { ...m, content: msg } : m)))
+      } finally {
+        setStreaming(false)
+      }
+      return
+    }
 
     try {
       const history = messages.map(m => ({
@@ -400,127 +428,136 @@ export function ChatView() {
   }
 
   const isChat = messages.length > 0
+  const suggestions = isSandbox ? SANDBOX_SUGGESTED : SUGGESTED
+
+  // Reusable input bar JSX. Identical in empty + active states so the
+  // user perceives it as one persistent surface that just slides down.
+  const inputBar = (
+    <div className="relative rounded-3xl border border-border bg-background shadow-sm focus-within:border-foreground/30 focus-within:shadow-md transition-all">
+      <textarea
+        ref={textareaRef}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Ask AI anything"
+        rows={1}
+        disabled={streaming}
+        className="w-full bg-transparent border-none outline-none resize-none text-[15px] placeholder:text-muted-foreground/50 min-h-[44px] max-h-[200px] px-5 pt-4 pb-2 leading-relaxed disabled:opacity-50"
+        onInput={(e) => {
+          const el = e.currentTarget
+          el.style.height = 'auto'
+          el.style.height = Math.min(el.scrollHeight, 200) + 'px'
+        }}
+      />
+      <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-1">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full bg-muted hover:bg-muted/70 px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors"
+              title="Choose model"
+            >
+              {(() => {
+                const I = MODEL_META[model].icon
+                return <I className="h-3.5 w-3.5" />
+              })()}
+              {MODEL_META[model].label}
+              <ChevronDown className="h-3 w-3 opacity-60" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-64">
+            {(['chat', 'deepthink'] as const).map((m) => {
+              const meta = MODEL_META[m]
+              const I = meta.icon
+              return (
+                <DropdownMenuItem
+                  key={m}
+                  onClick={() => setModel(m)}
+                  className="cursor-pointer flex items-start gap-2 py-2"
+                >
+                  <I className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium">{meta.label}</div>
+                    <div className="text-[11px] text-muted-foreground">{meta.sub}</div>
+                  </div>
+                  {model === m && <Check className="h-3.5 w-3.5 text-primary" />}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <button
+          onClick={() => sendMessage(input)}
+          disabled={!input.trim() || streaming}
+          className={cn(
+            'h-8 w-8 rounded-full flex items-center justify-center transition-all shrink-0',
+            input.trim() && !streaming
+              ? 'bg-foreground text-background hover:bg-foreground/90'
+              : 'bg-muted text-muted-foreground/40 cursor-not-allowed',
+          )}
+          title="Send"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0 relative">
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(139,92,246,0.10),transparent)]" />
+    <div className="flex flex-col h-full min-h-0 bg-background">
+      {!isChat ? (
+        // Empty state — centered hero, chatbox, and suggestion chips. White
+        // bg, no gradient. The chatbox is fully usable here; submitting will
+        // transition the surface into the active state.
+        <div className="flex-1 overflow-y-auto px-6 py-10 flex items-start justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="w-full max-w-2xl mt-12 md:mt-20 space-y-8"
+          >
+            <h1 className="text-center text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              {agent ? agent.name : 'What can I help with?'}
+            </h1>
+            {agent && agent.description && (
+              <p className="text-center text-sm text-muted-foreground -mt-4">{agent.description}</p>
+            )}
 
-      <div className="relative flex-1 overflow-y-auto min-h-0">
-        <AnimatePresence mode="wait">
-          {!isChat ? (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center justify-center min-h-full p-6"
-            >
-              <div className="w-full max-w-2xl space-y-8">
-                <div className="text-center space-y-2">
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="flex justify-center mb-5"
+            {inputBar}
+
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground">
+                {isSandbox ? 'Guided demo questions' : 'Examples of queries:'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => sendMessage(p)}
+                    className={cn(
+                      'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors',
+                      isSandbox
+                        ? 'border-violet-500/30 bg-violet-500/5 text-violet-900 dark:text-violet-100 hover:bg-violet-500/10'
+                        : 'border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                    )}
                   >
-                    <Image src="/black_logo.svg" alt="Reattend" width={64} height={64} className="h-16 w-16 dark:hidden" />
-                    <Image src="/white_logo.svg" alt="Reattend" width={64} height={64} className="h-16 w-16 hidden dark:block" />
-                  </motion.div>
-                  <motion.h1
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="font-display text-4xl tracking-tight"
-                  >
-                    {agent ? agent.name : <>Hello{userName ? `, ${userName}` : ''}</>}
-                  </motion.h1>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-muted-foreground text-base max-w-xl mx-auto"
-                  >
-                    {agent
-                      ? (agent.description || 'Purpose-built AI agent for your org.')
-                      : 'Ask anything — I\'ll answer from your memories.'}
-                  </motion.p>
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-                >
-                  {CAPABILITY_CARDS.map(({ icon: Icon, label, description, prompt, gradient, border, iconBg }) => (
-                    <motion.button
-                      key={label}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => sendMessage(prompt)}
-                      className={cn(
-                        'group text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer backdrop-blur-sm hover:shadow-lg',
-                        `bg-gradient-to-br ${gradient}`, border,
-                      )}
-                    >
-                      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', iconBg)}>
-                        <Icon className="h-[18px] w-[18px]" />
-                      </div>
-                      <p className="text-sm font-semibold leading-tight mb-1">{label}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
-                    </motion.button>
-                  ))}
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex flex-col items-center gap-3"
-                >
-                  {isSandbox && (
-                    <p className="text-[11px] text-muted-foreground/70 font-medium">
-                      <Sparkles className="h-3 w-3 inline mr-1 text-violet-500" />
-                      Guided demo — click any question to see a scripted answer
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {(isSandbox ? SANDBOX_SUGGESTED : SUGGESTED).map(p => (
-                      <button
-                        key={p}
-                        onClick={() => sendMessage(p)}
-                        className={cn(
-                          'flex items-center gap-1.5 text-xs px-3.5 py-2 rounded-full border transition-all backdrop-blur-sm max-w-[420px] text-left',
-                          isSandbox
-                            ? 'border-violet-500/30 bg-violet-500/5 text-violet-900 dark:text-violet-100 hover:bg-violet-500/10 hover:border-violet-500/50'
-                            : 'border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border'
-                        )}
-                      >
-                        <Sparkles className={cn('h-3 w-3 shrink-0', isSandbox ? 'text-violet-500' : 'text-primary/60')} />
-                        <span className="leading-tight">{p}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 }}
-                  className="max-w-md mx-auto w-full"
-                >
-                  <SyncStatusCard />
-                </motion.div>
+                    {p}
+                    <ChevronRight className="h-3 w-3 opacity-50" />
+                  </button>
+                ))}
               </div>
-            </motion.div>
-          ) : (
+            </div>
+          </motion.div>
+        </div>
+      ) : (
+        // Active state — scrolling thread on top, sticky input bar at bottom.
+        <>
+          <div className="flex-1 overflow-y-auto">
             <motion.div
-              key="chat"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-32"
+              className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-6"
             >
               {messages.map((msg, idx) => (
                 <motion.div
@@ -705,61 +742,47 @@ export function ChatView() {
               ))}
               <div ref={messagesEndRef} />
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </div>
 
-      {/* Input bar — outside scroll container, always at bottom */}
-      <div className="relative shrink-0 p-4 bg-gradient-to-t from-background via-background/95 to-transparent pt-6 z-10 border-t border-border/10">
-        <div className="max-w-4xl mx-auto space-y-2">
-          {isChat && (
-            <div className="flex justify-center">
-              <button
-                onClick={startNewChat}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full hover:bg-muted/50"
-              >
-                <RefreshCw className="h-3 w-3" /> New chat
-              </button>
-            </div>
-          )}
-          <div className="relative rounded-2xl border border-border/60 bg-card/90 backdrop-blur-md shadow-lg transition-all duration-200">
-            <div className="flex items-end gap-3 p-3 pl-4">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isChat ? 'Ask a follow-up...' : 'Ask me anything about your memories...'}
-                rows={1}
-                disabled={streaming}
-                className="flex-1 bg-transparent border-none outline-none resize-none text-sm placeholder:text-muted-foreground/40 min-h-[28px] max-h-[160px] py-1 leading-relaxed disabled:opacity-50"
-                style={{ height: 'auto' }}
-                onInput={e => {
-                  const el = e.currentTarget
-                  el.style.height = 'auto'
-                  el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-                }}
-              />
-              <button
-                onClick={() => sendMessage(input)}
-                disabled={!input.trim() || streaming}
-                className={cn(
-                  'h-8 w-8 rounded-xl flex items-center justify-center transition-all shrink-0 mb-0.5',
-                  input.trim() && !streaming
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/25'
-                    : 'bg-muted/50 text-muted-foreground/40 cursor-not-allowed'
-                )}
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
+          {/* Sticky input bar — always glued to the bottom of the chat
+              column once a thread is active. The user can keep asking
+              follow-ups without losing scroll position. */}
+          <div className="shrink-0 border-t border-border bg-background">
+            <div className="max-w-4xl mx-auto px-4 py-3 space-y-2">
+              <div className="flex justify-center">
+                <button
+                  onClick={startNewChat}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full hover:bg-muted/50"
+                >
+                  <RefreshCw className="h-3 w-3" /> New chat
+                </button>
+              </div>
+              {inputBar}
+              <p className="text-center text-[10px] text-muted-foreground/40">
+                Enter to send · Shift+Enter for new line
+              </p>
             </div>
           </div>
-          <p className="text-center text-[10px] text-muted-foreground/30">
-            Enter to send · Shift+Enter for new line
-          </p>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
+}
+
+// Convert an Oracle dossier into a single markdown blob for the chat
+// stream. Section headings mirror the Oracle UI; the Source list is
+// rendered separately by the message-component's sources block.
+function renderDossierMarkdown(d: { situation: string; evidence: string; risks: string; recommendations: string; unknowns: string }): string {
+  const sections: Array<[string, string]> = [
+    ['Situation', d.situation],
+    ['Evidence', d.evidence],
+    ['Risks', d.risks],
+    ['Recommendations', d.recommendations],
+    ['Unknowns', d.unknowns],
+  ]
+  return sections
+    .filter(([, body]) => body && body.trim().length > 0)
+    .map(([heading, body]) => `## ${heading}\n\n${body.trim()}`)
+    .join('\n\n')
 }
 
