@@ -467,7 +467,7 @@ export default function MemoriesPage() {
         })}
         <div className="mx-2 h-4 w-px bg-border" />
         <Link
-          href="/app/landscape?mode=causal"
+          href="/app/landscape?mode=board"
           className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
         >
           <Network className="h-3 w-3" /> Graph view

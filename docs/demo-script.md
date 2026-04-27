@@ -81,7 +81,7 @@
 
 ### 4. Time Machine (60 seconds) — "see what we knew, when"
 
-**Open:** `/app/landscape?mode=temporal`
+**Open:** `/app/landscape?mode=rewind`
 
 **Drag the slider** to ~12 months ago. Then **click Play**.
 

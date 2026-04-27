@@ -1,6 +1,6 @@
 'use client'
 
-// Time Machine — scrub the org through time.
+// Rewind — scrub the org through time.
 //
 // Drag the slider to any past month. The page re-fetches the org's state as
 // of that instant and animates the counts + visible memories + active
@@ -51,7 +51,7 @@ function buildTicks(months: number): Date[] {
 
 const RANGE_MONTHS = 24
 
-export function TemporalView() {
+export function RewindView() {
   const { activeEnterpriseOrgId, hasHydratedStore } = useAppStore()
   const ticks = useMemo(() => buildTicks(RANGE_MONTHS), [])
   const [index, setIndex] = useState(RANGE_MONTHS) // start at "now"
@@ -139,19 +139,18 @@ export function TemporalView() {
     >
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700 text-[11px] font-medium uppercase tracking-wider mb-2">
-            <History className="h-3 w-3" /> Time Machine
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700 dark:text-amber-400 text-[11px] font-medium uppercase tracking-wider mb-2">
+            <History className="h-3 w-3" /> Rewind
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Scrub the org through time</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Drag the slider or press play. See what the organization looked like on any past month —
-            which decisions were active, what memories existed, how knowledge has grown.
+            Drag the slider or press play. See what the organization looked like on any past month: which decisions were active, what memories existed, how knowledge has grown.
           </p>
         </div>
       </div>
 
       {/* Slider */}
-      <div className="rounded-2xl border bg-card p-5 space-y-4 relative overflow-hidden">
+      <div className="rounded-2xl border bg-card p-5 space-y-4 relative overflow-hidden shadow-sm">
         {/* Sparkline behind the slider */}
         <div className="flex items-end gap-0.5 h-12 -mb-4 opacity-30">
           {state?.monthlyCounts.map((m, i) => (
@@ -174,32 +173,33 @@ export function TemporalView() {
             max={ticks.length - 1}
             value={index}
             onChange={(e) => setIndex(parseInt(e.target.value))}
-            className="w-full accent-amber-500"
+            className="w-full accent-amber-500 cursor-pointer"
           />
           <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-1">
             <span>{ticks[0].toLocaleString(undefined, { month: 'short', year: 'numeric' })}</span>
             <span className="text-sm font-bold text-foreground tabular-nums">
               <Calendar className="h-3 w-3 inline mr-1 text-amber-500" />
               {at.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
-              {index === ticks.length - 1 && <span className="ml-1 text-[10px] text-amber-600">(today)</span>}
+              {index === ticks.length - 1 && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(today)</span>}
             </span>
             <span>{ticks[ticks.length - 1].toLocaleString(undefined, { month: 'short', year: 'numeric' })}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={togglePlay}
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
+            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
           >
             {playing ? <PauseCircle className="h-3.5 w-3.5" /> : <PlayCircle className="h-3.5 w-3.5" />}
             {playing ? 'Pause' : 'Play'}
           </button>
           <button
             onClick={() => { setIndex(0); setPlaying(false); if (playTimerRef.current) clearInterval(playTimerRef.current) }}
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
+            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
+            title="Restart from the beginning"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> Rewind
+            <RotateCcw className="h-3.5 w-3.5" /> Restart
           </button>
           <div className="flex-1" />
           <select
@@ -237,7 +237,7 @@ export function TemporalView() {
       {/* What was active at that moment */}
       {state && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="px-4 py-3 border-b bg-muted/20 flex items-center gap-2">
               <Gavel className="h-3.5 w-3.5 text-violet-500" />
               <div className="text-sm font-semibold">Decisions active at {at.toLocaleString(undefined, { month: 'short', year: 'numeric' })}</div>
@@ -272,7 +272,7 @@ export function TemporalView() {
             )}
           </div>
 
-          <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="px-4 py-3 border-b bg-muted/20 flex items-center gap-2">
               <Sparkles className="h-3.5 w-3.5 text-blue-500" />
               <div className="text-sm font-semibold">Most recent memories as of then</div>
@@ -320,7 +320,7 @@ export function TemporalView() {
           <FileText className="h-3 w-3 inline mr-1" />
           {state.counts.publishedPolicies} polic{state.counts.publishedPolicies === 1 ? 'y' : 'ies'} already published as of{' '}
           <strong className="text-foreground">{at.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</strong>.
-          Every number is a real historical query — the schema supports point-in-time state.
+          Every number on this page is a real historical query against the org&apos;s point-in-time state.
         </div>
       )}
     </motion.div>

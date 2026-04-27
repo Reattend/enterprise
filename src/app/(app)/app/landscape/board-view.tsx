@@ -117,7 +117,7 @@ function edgeStyle(kind: string) {
   return { stroke: 'hsl(var(--border))', strokeWidth: 1, animated: false }
 }
 
-export function CausalView() {
+export function BoardView() {
   const [nodes, setNodes] = useState<GraphNode[] | null>(null)
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [err, setErr] = useState<string | null>(null)
@@ -267,15 +267,14 @@ export function CausalView() {
       {/* Header (hidden in fullscreen) */}
       {!fullscreen && (
         <div className="flex-shrink-0">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-1">
-            <Network className="h-3.5 w-3.5" />
-            Memory graph
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/10 to-indigo-500/10 text-violet-700 dark:text-violet-400 text-[11px] font-medium uppercase tracking-wider mb-2">
+            <Network className="h-3 w-3" /> Board
           </div>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <h1 className="font-display text-3xl tracking-tight">The shape of your memory</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Every record clustered by type, linked by relationships the AI inferred — drag between handles to create new links.
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                Every record clustered by type, linked by inferred relationships. Drag between handles to create new links.
                 <span className="inline-flex items-center gap-1 ml-2">
                   <kbd className="text-[10px] font-mono bg-muted rounded px-1">⌘F</kbd> fullscreen ·
                   <kbd className="text-[10px] font-mono bg-muted rounded px-1 ml-1">/</kbd> search ·
@@ -306,7 +305,7 @@ export function CausalView() {
               <Network className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
               <div className="font-medium mb-1">No memories yet</div>
               <p className="text-sm text-muted-foreground max-w-xs">
-                Capture some memories and the graph will render the relationships as the AI finds them.
+                Capture a few memories and the graph will render the relationships as soon as they&apos;re inferred.
               </p>
             </div>
           </div>
