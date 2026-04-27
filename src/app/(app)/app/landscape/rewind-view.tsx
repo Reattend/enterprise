@@ -13,7 +13,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   History, Loader2, Calendar, Gavel, FileText, Sparkles, ArrowRight,
   PlayCircle, PauseCircle, RotateCcw,
@@ -67,7 +67,10 @@ export function RewindView() {
   useEffect(() => {
     if (!activeEnterpriseOrgId || !hasHydratedStore) return
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => { fetchState() }, 150)
+    // 250ms is the sweet spot for slider scrubbing — long enough to coalesce
+    // a fast drag into one fetch, short enough that releasing the slider
+    // feels instantaneous.
+    debounceRef.current = setTimeout(() => { fetchState() }, 250)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, anchor, value, activeEnterpriseOrgId, hasHydratedStore])
@@ -133,9 +136,10 @@ export function RewindView() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-5xl mx-auto space-y-5"
+      transition={{ duration: 0.2 }}
+      className="space-y-5 w-full"
     >
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
@@ -151,16 +155,18 @@ export function RewindView() {
 
       {/* Slider */}
       <div className="rounded-2xl border bg-card p-5 space-y-4 relative overflow-hidden shadow-sm">
-        {/* Sparkline behind the slider */}
-        <div className="flex items-end gap-0.5 h-12 -mb-4 opacity-30">
-          {state?.monthlyCounts.map((m, i) => (
+        {/* Sparkline behind the slider — always reserves 32px of height so
+            the surrounding layout doesn't shift between fetches when bars
+            re-render. */}
+        <div className="flex items-end gap-0.5 h-8 -mb-3 opacity-25 pointer-events-none">
+          {(state?.monthlyCounts ?? []).map((m, i) => (
             <div
               key={m.month}
               className={cn(
-                'flex-1 bg-amber-500 rounded-t transition-all',
-                i <= index - (RANGE_MONTHS + 1 - state.monthlyCounts.length) && 'bg-amber-600',
+                'flex-1 bg-amber-500 rounded-t',
+                i <= index - (RANGE_MONTHS + 1 - (state?.monthlyCounts.length ?? 0)) && 'bg-amber-600',
               )}
-              style={{ height: `${(m.records / sparkMax) * 100}%` }}
+              style={{ height: `${Math.max(2, (m.records / sparkMax) * 100)}%` }}
               title={`${m.month}: ${m.records} memories`}
             />
           ))}
@@ -248,26 +254,20 @@ export function RewindView() {
               </div>
             ) : (
               <div className="divide-y">
-                <AnimatePresence mode="wait">
-                  {state.activeDecisions.map((d) => (
-                    <motion.div
-                      key={d.id}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 8 }}
-                      transition={{ duration: 0.2 }}
-                      className="px-4 py-2.5 text-xs flex items-start gap-2"
-                    >
-                      <Gavel className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">{d.title}</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                          Decided {new Date(d.decidedAt).toLocaleDateString()}
-                        </div>
+                {state.activeDecisions.map((d) => (
+                  <div
+                    key={d.id}
+                    className="px-4 py-2.5 text-xs flex items-start gap-2"
+                  >
+                    <Gavel className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{d.title}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        Decided {new Date(d.decidedAt).toLocaleDateString()}
                       </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -283,31 +283,22 @@ export function RewindView() {
               </div>
             ) : (
               <div className="divide-y">
-                <AnimatePresence mode="wait">
-                  {state.topRecords.map((r) => (
-                    <motion.div
-                      key={r.id}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link
-                        href={`/app/memories/${r.id}`}
-                        className="block px-4 py-2.5 text-xs hover:bg-muted/30 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className={cn('rounded px-1 py-0.5 text-[9px] uppercase tracking-wide', typeBadge(r.type))}>{r.type}</span>
-                          <span className="truncate font-medium flex-1">{r.title}</span>
-                          <ArrowRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-                        </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                          Captured {new Date(r.createdAt).toLocaleDateString()}
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {state.topRecords.map((r) => (
+                  <Link
+                    key={r.id}
+                    href={`/app/memories/${r.id}`}
+                    className="block px-4 py-2.5 text-xs hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={cn('rounded px-1 py-0.5 text-[9px] uppercase tracking-wide', typeBadge(r.type))}>{r.type}</span>
+                      <span className="truncate font-medium flex-1">{r.title}</span>
+                      <ArrowRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      Captured {new Date(r.createdAt).toLocaleDateString()}
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
@@ -328,27 +319,31 @@ export function RewindView() {
 }
 
 function AnimatedMetric({ label, value, tone }: { label: string; value: number; tone: 'blue' | 'violet' | 'red' | 'yellow' }) {
-  const tones: Record<string, string> = {
-    blue: 'text-blue-600 bg-blue-500/10',
-    violet: 'text-violet-600 bg-violet-500/10',
-    red: 'text-red-600 bg-red-500/10',
-    yellow: 'text-yellow-600 bg-yellow-500/10',
+  const tones: Record<string, { dot: string; text: string }> = {
+    blue:   { dot: 'bg-blue-500',   text: 'text-blue-600 dark:text-blue-400' },
+    violet: { dot: 'bg-violet-500', text: 'text-violet-600 dark:text-violet-400' },
+    red:    { dot: 'bg-red-500',    text: 'text-red-600 dark:text-red-400' },
+    yellow: { dot: 'bg-yellow-500', text: 'text-yellow-600 dark:text-yellow-400' },
   }
+  const t = tones[tone]
   return (
-    <div className="rounded-xl border bg-card p-3">
-      <div className={cn('inline-flex h-5 w-5 rounded items-center justify-center text-[10px] font-bold', tones[tone])}>
-        {value > 99 ? '99+' : value}
+    <div className="rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-shadow min-h-[88px]">
+      <div className="flex items-center gap-1.5">
+        <span className={cn('h-1.5 w-1.5 rounded-full', t.dot)} />
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">{label}</span>
       </div>
+      {/* Simple cross-fade on value change — no scale bump. The key prop drives
+          a single quick fade on each new fetch, far calmer than the old scale
+          1.15 → 1 animation that fired on every cluster of metrics simultaneously. */}
       <motion.div
         key={value}
-        initial={{ scale: 1.15, color: 'var(--primary)' }}
-        animate={{ scale: 1, color: '' }}
-        transition={{ duration: 0.2 }}
-        className="text-3xl font-bold tabular-nums mt-1"
+        initial={{ opacity: 0.5 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.18 }}
+        className={cn('text-3xl font-bold tabular-nums mt-1.5', t.text)}
       >
         {value.toLocaleString()}
       </motion.div>
-      <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</div>
     </div>
   )
 }

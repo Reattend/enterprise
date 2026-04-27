@@ -40,7 +40,7 @@ function LandscapeInner() {
   }
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto px-1 pt-1">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="inline-flex items-center rounded-full border bg-card p-0.5 shadow-sm">
           <ModeButton active={mode === 'rewind'} onClick={() => pick('rewind')} icon={History} label="Rewind" sub="Scrub through time" />
