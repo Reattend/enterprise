@@ -18,7 +18,6 @@ import {
   ArrowRight, Brain, GraduationCap, ShieldCheck, Lock,
   Sparkles, Network, Gavel, Clock, Users, Zap,
 } from 'lucide-react'
-import { BrainParticles } from '@/components/landing/brain-particles'
 import { TrustStrip } from '@/components/landing/trust-strip'
 
 export default function EnterpriseLanding() {
@@ -44,7 +43,6 @@ export default function EnterpriseLanding() {
       <Hero />
       <TrustStrip />
       <FeatureTriplet />
-      <Showcase />
       <FinalCTA />
       <DarkFooter />
     </div>
@@ -87,23 +85,24 @@ function Nav() {
 function Hero() {
   return (
     <section className="relative">
-      <div className="max-w-6xl mx-auto px-6 pt-24 md:pt-32 pb-24 md:pb-36 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+      <div className="max-w-6xl mx-auto px-6 pt-24 md:pt-32 pb-16 md:pb-20">
+        {/* Top: eyebrow + headline + subhead + CTAs (left-aligned) */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-[820px]"
         >
           <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-amber-300/80 mb-6">
             What is Reattend Enterprise?
           </p>
-          <h1 className="text-[48px] md:text-[68px] leading-[1.02] font-bold tracking-[-0.035em] text-white">
-            Your organization&apos;s
-            <br />
+          <h1 className="text-[48px] md:text-[72px] leading-[1.02] font-bold tracking-[-0.035em] text-white">
+            Your organization&apos;s{' '}
             <span className="bg-gradient-to-r from-amber-200 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent">
               memory, preserved.
             </span>
           </h1>
-          <p className="text-[17px] md:text-[18px] text-neutral-400 mt-7 max-w-[560px] leading-[1.55]">
+          <p className="text-[17px] md:text-[19px] text-neutral-400 mt-7 max-w-[640px] leading-[1.55]">
             Decisions, context, and institutional knowledge. Captured, linked, and never lost. Even when people leave the room, the team, or the company.
           </p>
           <div className="flex flex-wrap items-center gap-3 mt-10">
@@ -128,19 +127,92 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Brain particles. Mobile drops the canvas to save battery. */}
+        {/* Big product preview below the hero text — Linear-style.
+            Floats on a wide gradient halo so the dark card pops against
+            the dawn-horizon background. */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.4, delay: 0.2 }}
-          className="relative h-[460px] md:h-[560px] hidden md:block"
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-20 md:mt-28"
         >
-          {/* Soft halo behind the cluster */}
-          <div className="absolute inset-x-12 inset-y-12 -z-10 rounded-full bg-[radial-gradient(circle,rgba(244,114,182,0.18),rgba(168,85,247,0.10)_40%,transparent_70%)] blur-2xl" />
-          <BrainParticles className="absolute inset-0 w-full h-full" />
+          <div className="absolute -inset-x-8 -inset-y-2 md:-inset-x-16 md:-inset-y-4 rounded-[40px] bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.20),rgba(244,114,182,0.18)_30%,rgba(168,85,247,0.16)_55%,transparent_75%)] blur-3xl -z-10" />
+          <ProductPreview />
         </motion.div>
       </div>
     </section>
+  )
+}
+
+// Stylized product preview — a fake browser frame containing four stat
+// tiles, a chat-style answer with sources, and an SVG donut for the
+// memory mix. Replaces the brain-particle visual; this version actually
+// shows what the product looks like, à la Linear.
+function ProductPreview() {
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0c0c14] via-[#09090f] to-[#0c0816] overflow-hidden shadow-[0_50px_180px_-50px_rgba(0,0,0,0.95)]">
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-black/30">
+        <span className="h-2.5 w-2.5 rounded-full bg-rose-500/60" />
+        <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
+        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
+        <span className="ml-3 text-[11px] text-neutral-500 font-mono">enterprise.reattend.com / app</span>
+      </div>
+
+      <div className="grid grid-cols-12 gap-4 p-6 md:p-8">
+        {[
+          { icon: Users, label: 'Active members', value: '142' },
+          { icon: Brain, label: 'Memories', value: '8,492', sub: '+128 this week' },
+          { icon: Gavel, label: 'Decisions', value: '317', sub: '4 reversed YTD' },
+          { icon: Clock, label: 'Stale', value: '12', sub: 'past verify' },
+        ].map((t) => (
+          <div key={t.label} className="col-span-6 md:col-span-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <t.icon className="h-3.5 w-3.5 text-fuchsia-400/80" />
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-500">{t.label}</span>
+            </div>
+            <div className="text-2xl font-bold text-white tabular-nums">{t.value}</div>
+            {t.sub && <div className="text-[11px] text-neutral-500 mt-1">{t.sub}</div>}
+          </div>
+        ))}
+
+        <div className="col-span-12 md:col-span-7 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
+          <div className="text-[10px] uppercase tracking-wider font-semibold text-fuchsia-400/80 mb-3">Ask · Chat</div>
+          <div className="text-sm text-neutral-300 leading-[1.6]">
+            <span className="text-neutral-500">You</span> · What did we decide about the BEPS treaty position last quarter, and what depends on it?
+          </div>
+          <div className="mt-3 pl-3 border-l-2 border-fuchsia-500/40 text-sm text-neutral-300 leading-[1.6]">
+            In Q3 the Director of International Taxation locked the treaty position aligning with OECD pillar two. Three downstream artifacts depend on this decision: the safe-harbor margin worksheet (Jan 25), the transfer-pricing memo to subsidiaries (Feb 9), and the auditor briefing pack (March 11). Reversing now would invalidate all three.
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {['Decision · BEPS treaty position', 'Memo · Safe-harbor margins', 'Briefing · Q3 audit'].map((s) => (
+              <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-neutral-400">{s}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-span-12 md:col-span-5 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
+          <div className="text-[10px] uppercase tracking-wider font-semibold text-violet-400/80 mb-3">Memory mix</div>
+          <div className="flex items-center gap-5">
+            <DonutMock />
+            <ul className="flex-1 space-y-2 text-[12px]">
+              {[
+                { label: 'Decisions', pct: 32, color: 'bg-violet-500' },
+                { label: 'Meetings',  pct: 28, color: 'bg-blue-500' },
+                { label: 'Insights',  pct: 22, color: 'bg-emerald-500' },
+                { label: 'Notes',     pct: 18, color: 'bg-amber-500' },
+              ].map((s) => (
+                <li key={s.label} className="flex items-center gap-2 text-neutral-400">
+                  <span className={`h-2 w-2 rounded-sm ${s.color}`} />
+                  <span className="flex-1">{s.label}</span>
+                  <span className="font-semibold tabular-nums text-neutral-200">{s.pct}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -286,105 +358,6 @@ function FeatureGlyph({ kind }: { kind: 'graph' | 'wave' | 'shield' }) {
         })}
       </g>
     </svg>
-  )
-}
-
-function Showcase() {
-  return (
-    <section className="relative py-28 md:py-36">
-      <div className="max-w-6xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-[640px] mx-auto mb-16"
-        >
-          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-fuchsia-400/80 mb-4">
-            The product
-          </p>
-          <h2 className="text-[36px] md:text-[48px] font-bold tracking-[-0.03em] leading-[1.05] text-white">
-            One graph. Every memory. Indexed by time.
-          </h2>
-          <p className="text-[15px] text-neutral-400 mt-5 leading-[1.6]">
-            Decisions surface automatically from meetings. Policies stay current with verification cadences. Every memory links to the people, departments, and questions it answers. Ask anything; cite everything.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
-        >
-          <div className="absolute -inset-2 rounded-[28px] bg-gradient-to-br from-violet-500/25 via-fuchsia-500/15 to-amber-300/15 blur-3xl -z-10" />
-          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0c0c14] via-[#09090f] to-[#0c0816] overflow-hidden shadow-[0_40px_140px_-40px_rgba(0,0,0,0.9)]">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-black/30">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-500/60" />
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
-              <span className="ml-3 text-[11px] text-neutral-500 font-mono">enterprise.reattend.com / app</span>
-            </div>
-
-            <div className="grid grid-cols-12 gap-4 p-6 md:p-8">
-              {[
-                { icon: Users, label: 'Active members', value: '142' },
-                { icon: Brain, label: 'Memories', value: '8,492', sub: '+128 this week' },
-                { icon: Gavel, label: 'Decisions', value: '317', sub: '4 reversed YTD' },
-                { icon: Clock, label: 'Stale', value: '12', sub: 'past verify' },
-              ].map((t) => (
-                <div key={t.label} className="col-span-6 md:col-span-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <t.icon className="h-3.5 w-3.5 text-fuchsia-400/80" />
-                    <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-500">{t.label}</span>
-                  </div>
-                  <div className="text-2xl font-bold text-white tabular-nums">{t.value}</div>
-                  {t.sub && <div className="text-[11px] text-neutral-500 mt-1">{t.sub}</div>}
-                </div>
-              ))}
-
-              <div className="col-span-12 md:col-span-7 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-fuchsia-400/80 mb-3">Ask · Chat</div>
-                <div className="text-sm text-neutral-300 leading-[1.6]">
-                  <span className="text-neutral-500">You</span> · What did we decide about the BEPS treaty position last quarter, and what depends on it?
-                </div>
-                <div className="mt-3 pl-3 border-l-2 border-fuchsia-500/40 text-sm text-neutral-300 leading-[1.6]">
-                  In Q3 the Director of International Taxation locked the treaty position aligning with OECD pillar two. Three downstream artifacts depend on this decision: the safe-harbor margin worksheet (Jan 25), the transfer-pricing memo to subsidiaries (Feb 9), and the auditor briefing pack (March 11). Reversing now would invalidate all three.
-                </div>
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {['Decision · BEPS treaty position', 'Memo · Safe-harbor margins', 'Briefing · Q3 audit'].map((s) => (
-                    <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-neutral-400">{s}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="col-span-12 md:col-span-5 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-violet-400/80 mb-3">Memory mix</div>
-                <div className="flex items-center gap-5">
-                  <DonutMock />
-                  <ul className="flex-1 space-y-2 text-[12px]">
-                    {[
-                      { label: 'Decisions', pct: 32, color: 'bg-violet-500' },
-                      { label: 'Meetings',  pct: 28, color: 'bg-blue-500' },
-                      { label: 'Insights',  pct: 22, color: 'bg-emerald-500' },
-                      { label: 'Notes',     pct: 18, color: 'bg-amber-500' },
-                    ].map((s) => (
-                      <li key={s.label} className="flex items-center gap-2 text-neutral-400">
-                        <span className={`h-2 w-2 rounded-sm ${s.color}`} />
-                        <span className="flex-1">{s.label}</span>
-                        <span className="font-semibold tabular-nums text-neutral-200">{s.pct}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
   )
 }
 
