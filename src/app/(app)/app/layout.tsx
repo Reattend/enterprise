@@ -18,13 +18,11 @@ import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
 
-// Routes that get a full-bleed canvas (no padding). None right now —
-// /app/landscape used to be full-bleed for the React Flow graph but its
-// non-fullscreen layout already calc()s its own height, and the Rewind
-// view benefits from the standard p-4 sm:p-6 wrapper for breathing room.
-// Pages that genuinely need to paint edge to edge can set the array
-// explicitly here.
-const FULL_BLEED_PATHS: string[] = []
+// Routes that get a full-bleed canvas (no padding) so the page can manage
+// its own height end-to-end. /app/ask needs this because its chatbox is
+// pinned to the bottom and the standard p-4 sm:p-6 + overflow-y-auto
+// wrapper would let the input drift mid-page.
+const FULL_BLEED_PATHS: string[] = ['/app/ask']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.

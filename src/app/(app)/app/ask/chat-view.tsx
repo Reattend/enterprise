@@ -506,59 +506,54 @@ export function ChatView() {
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      {!isChat ? (
-        // Empty state — centered hero, chatbox, and suggestion chips. White
-        // bg, no gradient. The chatbox is fully usable here; submitting will
-        // transition the surface into the active state.
-        <div className="flex-1 overflow-y-auto px-6 py-10 flex items-start justify-center">
+      {/* Scroll region — empty-state hero + suggestions when no messages,
+          chat thread when there are. The chatbox below is glued to the
+          bottom in both states (image 3 spec). */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        {!isChat ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="w-full max-w-2xl mt-12 md:mt-20 space-y-8"
+            className="min-h-full flex items-center justify-center px-6 py-10"
           >
-            <h1 className="text-center text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              {agent ? agent.name : 'What can I help with?'}
-            </h1>
-            {agent && agent.description && (
-              <p className="text-center text-sm text-muted-foreground -mt-4">{agent.description}</p>
-            )}
-
-            {inputBar}
-
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground">
-                {isSandbox ? 'Guided demo questions' : 'Examples of queries:'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {suggestions.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => sendMessage(p)}
-                    className={cn(
-                      'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors',
-                      isSandbox
-                        ? 'border-violet-500/30 bg-violet-500/5 text-violet-900 dark:text-violet-100 hover:bg-violet-500/10'
-                        : 'border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-muted/50',
-                    )}
-                  >
-                    {p}
-                    <ChevronRight className="h-3 w-3 opacity-50" />
-                  </button>
-                ))}
+            <div className="w-full max-w-2xl space-y-8">
+              <h1 className="text-center text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                {agent ? agent.name : 'What can I help with?'}
+              </h1>
+              {agent && agent.description && (
+                <p className="text-center text-sm text-muted-foreground -mt-4">{agent.description}</p>
+              )}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground text-center">
+                  {isSandbox ? 'Guided demo questions' : 'Examples of queries:'}
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {suggestions.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => sendMessage(p)}
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors',
+                        isSandbox
+                          ? 'border-violet-500/30 bg-violet-500/5 text-violet-900 dark:text-violet-100 hover:bg-violet-500/10'
+                          : 'border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                      )}
+                    >
+                      {p}
+                      <ChevronRight className="h-3 w-3 opacity-50" />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
-        </div>
-      ) : (
-        // Active state — scrolling thread on top, sticky input bar at bottom.
-        <>
-          <div className="flex-1 overflow-y-auto">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-6"
-            >
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-6"
+          >
               {messages.map((msg, idx) => (
                 <motion.div
                   key={msg.id}
@@ -742,29 +737,30 @@ export function ChatView() {
               ))}
               <div ref={messagesEndRef} />
             </motion.div>
-          </div>
+          )}
+      </div>
 
-          {/* Sticky input bar — always glued to the bottom of the chat
-              column once a thread is active. The user can keep asking
-              follow-ups without losing scroll position. */}
-          <div className="shrink-0 border-t border-border bg-background">
-            <div className="max-w-4xl mx-auto px-4 py-3 space-y-2">
-              <div className="flex justify-center">
-                <button
-                  onClick={startNewChat}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full hover:bg-muted/50"
-                >
-                  <RefreshCw className="h-3 w-3" /> New chat
-                </button>
-              </div>
-              {inputBar}
-              <p className="text-center text-[10px] text-muted-foreground/40">
-                Enter to send · Shift+Enter for new line
-              </p>
+      {/* Sticky chatbox — always glued to the bottom of the chat surface,
+          in both empty and active states. The user can ask, scroll the
+          answer, then keep typing without losing the input bar. */}
+      <div className="shrink-0 border-t border-border bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-3 space-y-2">
+          {isChat && (
+            <div className="flex justify-center">
+              <button
+                onClick={startNewChat}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full hover:bg-muted/50"
+              >
+                <RefreshCw className="h-3 w-3" /> New chat
+              </button>
             </div>
-          </div>
-        </>
-      )}
+          )}
+          {inputBar}
+          <p className="text-center text-[10px] text-muted-foreground/40">
+            Enter to send · Shift+Enter for new line
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
