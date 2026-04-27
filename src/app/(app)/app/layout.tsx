@@ -81,7 +81,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [orgsLoaded, enterpriseOrgs.length, pathname, router])
 
   return (
-    <div className="min-h-screen bg-background enterprise-shell">
+    // h-screen (not min-h-screen) — locks the shell to exactly the viewport
+    // so children with flex-1 inherit a definite height. Pages that need to
+    // scroll past viewport do so via the inner content wrapper's
+    // overflow-y-auto (set when not full-bleed). Pages that pin a footer
+    // surface (e.g. the Ask chatbox) rely on this lock to keep `shrink-0`
+    // children glued to the bottom of the visible area.
+    <div className="h-screen bg-background enterprise-shell overflow-hidden">
       <StoreHydrator />
       <KeyboardShortcuts />
       <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
@@ -92,7 +98,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         initial={false}
         animate={{ marginLeft: isMobile ? 0 : (sidebarCollapsed ? 64 : 240) }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
-        className="flex flex-col min-h-screen overflow-x-hidden"
+        className="flex flex-col h-screen overflow-x-hidden"
       >
         <AppTopbar />
         <SandboxBanner />
