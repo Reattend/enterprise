@@ -114,7 +114,28 @@ function OrgOnboardingContent() {
         throw new Error(body.error || 'request failed')
       }
       const data = await res.json()
-      router.push(`/app/admin/${data.organization.id}/departments`)
+      const newOrg = data.organization
+      // Push the freshly-created org into the zustand store BEFORE
+      // navigating. Without this, the app layout's redirect effect sees
+      // an empty enterpriseOrgs array and bounces the user back to
+      // /app/admin/onboarding, then the onboarding page (which fetches
+      // its own list) bounces them forward to the cockpit — visible as
+      // the "glitch loop" the user reported.
+      const store = useAppStore.getState()
+      store.setEnterpriseOrgs([
+        ...store.enterpriseOrgs,
+        {
+          orgId: newOrg.id,
+          orgName: newOrg.name,
+          orgSlug: newOrg.slug,
+          orgPlan: newOrg.plan,
+          orgDeployment: newOrg.deployment,
+          role: 'super_admin',
+        },
+      ])
+      store.setActiveEnterpriseOrgId(newOrg.id)
+      // Skip the /departments waystation — go straight to the cockpit.
+      router.replace(`/app/admin/${newOrg.id}`)
     } catch (e) {
       setError((e as Error).message)
     } finally {

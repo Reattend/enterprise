@@ -7,7 +7,6 @@ import { AppSidebar } from '@/components/app/sidebar'
 import { AppTopbar } from '@/components/app/topbar'
 import { QuickCapture } from '@/components/app/quick-capture'
 import { InboxBanner } from '@/components/app/inbox-banner'
-import { OnboardingChecklist } from '@/components/app/onboarding-checklist'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
 import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
@@ -65,11 +64,39 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // The sidebar fetches `enterpriseOrgs` on mount. We give it one tick before
-  // deciding to redirect, so we don't bounce users who are still loading.
+  // The sidebar fetches `enterpriseOrgs` on mount and the result lands in
+  // the zustand store. The previous version of this layout relied on a
+  // 400ms `setTimeout` to wait for that, which raced on slow networks: if
+  // the timeout fired before the fetch returned, `enterpriseOrgs.length`
+  // was still 0 → layout redirected to /app/admin/onboarding → the
+  // onboarding page saw the populated store a moment later and bounced
+  // back to /app/admin/<orgId>. Net effect: refreshing any page from any
+  // route landed the user on the cockpit instead of where they were.
+  //
+  // Replaced with our own fetch, gated by a real loaded flag. Only after
+  // the response resolves do we consider running the redirect.
   useEffect(() => {
-    const t = setTimeout(() => setOrgsLoaded(true), 400)
-    return () => clearTimeout(t)
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/enterprise/organizations')
+        if (cancelled) return
+        if (res.ok) {
+          const data = await res.json()
+          const memberships = (data.organizations ?? []) as Array<{
+            orgId: string; orgName: string; orgSlug: string; orgPlan: string; orgDeployment: string; role: 'super_admin' | 'admin' | 'member' | 'guest'
+          }>
+          // Mirror sidebar's hydration so all consumers share the same source.
+          useAppStore.getState().setEnterpriseOrgs(memberships)
+          if (memberships.length > 0 && !useAppStore.getState().activeEnterpriseOrgId) {
+            useAppStore.getState().setActiveEnterpriseOrgId(memberships[0].orgId)
+          }
+        }
+      } finally {
+        if (!cancelled) setOrgsLoaded(true)
+      }
+    })()
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -105,7 +132,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <InboxBanner />
         <AnnouncementBanner orgId={activeEnterpriseOrgId} />
         <PolicyPendingBanner />
-        <OnboardingChecklist />
         <div className={cn(
           'flex-1 overflow-hidden flex flex-col',
           !isFullBleed && 'p-4 sm:p-6 overflow-y-auto'

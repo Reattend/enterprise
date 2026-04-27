@@ -505,7 +505,22 @@ interface ChecklistItem {
 }
 
 function OnboardingChecklist({ data, orgId }: { data: OverviewData; orgId: string }) {
-  const [dismissed, setDismissed] = useState(false)
+  // Dismissal is persisted per-org in localStorage so "Skip" actually skips
+  // for good — not just until the next render. Each org keeps its own flag
+  // so an admin in Org A skipping doesn't hide it in Org B.
+  const storageKey = `cockpit_setup_dismissed_${orgId}`
+  const [dismissed, setDismissedState] = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setDismissedState(window.localStorage.getItem(storageKey) === '1')
+  }, [storageKey])
+  function setDismissed(v: boolean) {
+    setDismissedState(v)
+    if (typeof window !== 'undefined') {
+      if (v) window.localStorage.setItem(storageKey, '1')
+      else window.localStorage.removeItem(storageKey)
+    }
+  }
 
   const items: ChecklistItem[] = [
     {
@@ -574,10 +589,10 @@ function OnboardingChecklist({ data, orgId }: { data: OverviewData; orgId: strin
           </div>
           <button
             onClick={() => setDismissed(true)}
-            className="h-7 w-7 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
-            title="Hide until next page load"
+            className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title="Hide this panel for this org. You can bring it back from settings."
           >
-            ×
+            Skip for now
           </button>
         </div>
       </div>
