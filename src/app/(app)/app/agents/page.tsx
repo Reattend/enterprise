@@ -99,19 +99,21 @@ export default function AgentsPage() {
         <>
           {/* Builder CTA */}
           {canAuthor && activeOrgId && (
-            <div className="flex items-center justify-between rounded-2xl border bg-gradient-to-br from-primary/5 to-transparent p-4">
-              <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-primary mt-0.5" />
+            <div className="flex items-center justify-between rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-violet-500/5 via-fuchsia-500/5 to-transparent p-5 hover:from-violet-500/10 hover:via-fuchsia-500/10 transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-md ring-2 ring-violet-500/30 shrink-0">
+                  <Sparkles className="h-5 w-5 text-white" strokeWidth={2.25} />
+                </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium">Build a custom agent</div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Name, system prompt, knowledge scope, and a live test chat — all in one page.
+                  <div className="text-[15px] font-semibold tracking-tight">Build a custom agent</div>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    Name, system prompt, knowledge scope, and a live test chat. All in one page.
                   </p>
                 </div>
               </div>
-              <Button size="sm" asChild>
+              <Button asChild className="rounded-full h-9 px-5 shadow-sm">
                 <Link href={`/app/admin/${activeOrgId}/agents/new`}>
-                  <Plus className="h-3.5 w-3.5 mr-1" /> New agent
+                  <Plus className="h-4 w-4 mr-1" /> New agent
                 </Link>
               </Button>
             </div>
@@ -213,8 +215,29 @@ export default function AgentsPage() {
   )
 }
 
+// Eight vibrant gradients keyed off a deterministic hash of the agent's id.
+// Each agent gets a distinct visual identity so the page reads like a roster
+// of characters instead of a list of grey rectangles.
+const AGENT_PALETTE: Array<{ from: string; to: string; ring: string }> = [
+  { from: 'from-violet-500',  to: 'to-fuchsia-500', ring: 'ring-violet-500/30' },
+  { from: 'from-amber-500',   to: 'to-orange-600',  ring: 'ring-amber-500/30' },
+  { from: 'from-emerald-500', to: 'to-teal-600',    ring: 'ring-emerald-500/30' },
+  { from: 'from-blue-500',    to: 'to-indigo-600',  ring: 'ring-blue-500/30' },
+  { from: 'from-rose-500',    to: 'to-pink-600',    ring: 'ring-rose-500/30' },
+  { from: 'from-cyan-500',    to: 'to-blue-600',    ring: 'ring-cyan-500/30' },
+  { from: 'from-lime-500',    to: 'to-emerald-600', ring: 'ring-lime-500/30' },
+  { from: 'from-purple-500',  to: 'to-indigo-600',  ring: 'ring-purple-500/30' },
+]
+
+function paletteFor(seed: string): typeof AGENT_PALETTE[number] {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0
+  return AGENT_PALETTE[Math.abs(h) % AGENT_PALETTE.length]
+}
+
 function AgentCard({ agent, onOpen, canAuthor, orgId }: { agent: Agent; onOpen: () => void; canAuthor: boolean; orgId: string | null }) {
   const Icon = ICONS[agent.iconName ?? 'Bot'] ?? Bot
+  const palette = useMemo(() => paletteFor(agent.id), [agent.id])
   const scopeLabel = useMemo(() => {
     const s = agent.scopeConfig
     if (!s || Object.keys(s).length === 0) return 'All accessible memory'
@@ -227,52 +250,71 @@ function AgentCard({ agent, onOpen, canAuthor, orgId }: { agent: Agent; onOpen: 
   }, [agent.scopeConfig])
 
   return (
-    <Card className="p-4 hover:border-primary/40 transition-colors group h-full">
-      <div className="flex items-start gap-3 mb-3">
-        <div className={cn('h-9 w-9 rounded bg-muted flex items-center justify-center shrink-0', agent.color)}>
-          <Icon className="h-4 w-4" />
+    <div className="rounded-2xl border bg-card p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all group h-full flex flex-col">
+      <div className="flex items-start gap-4 mb-4">
+        <div className={cn(
+          'h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br shadow-md ring-2',
+          palette.from, palette.to, palette.ring,
+        )}>
+          <Icon className="h-7 w-7 text-white drop-shadow-sm" strokeWidth={2.25} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-medium">{agent.name}</h3>
+            <h3 className="font-semibold text-base text-foreground tracking-tight">{agent.name}</h3>
             {agent.usageCount > 100 && (
-              <Badge variant="outline" className="text-[10px]">Popular</Badge>
+              <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30">Popular</Badge>
+            )}
+            {agent.status === 'draft' && (
+              <Badge variant="outline" className="text-[10px]">Draft</Badge>
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{agent.description}</p>
+          {agent.description && (
+            <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed line-clamp-2">{agent.description}</p>
+          )}
         </div>
       </div>
-      <div className="text-[11px] text-muted-foreground mb-3 pb-3 border-b border-border">
-        <div className="truncate"><span className="text-muted-foreground/70">Scope:</span> {scopeLabel}</div>
+
+      <div className="text-[11px] text-muted-foreground space-y-1 mb-4 flex-1">
+        <div className="flex gap-1.5">
+          <span className="text-muted-foreground/60 shrink-0">Scope</span>
+          <span className="text-foreground/80 truncate">{scopeLabel}</span>
+        </div>
         {agent.usageCount > 0 && (
-          <div className="mt-1"><span className="text-muted-foreground/70">Used:</span> {agent.usageCount} times</div>
+          <div className="flex gap-1.5">
+            <span className="text-muted-foreground/60 shrink-0">Used</span>
+            <span className="text-foreground/80">{agent.usageCount.toLocaleString()} time{agent.usageCount === 1 ? '' : 's'}</span>
+          </div>
         )}
       </div>
-      <div className="flex items-center justify-between gap-2">
+
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
         <div className="flex items-center gap-1 flex-wrap">
           {agent.deploymentTargets.map((d) => (
             <Badge key={d} variant="outline" className="text-[10px] capitalize">{d}</Badge>
           ))}
-          {agent.status === 'draft' && (
-            <Badge variant="outline" className="text-[10px] h-4 px-1">Draft</Badge>
-          )}
         </div>
         <div className="flex items-center gap-1.5">
-          {canAuthor && (
-            <AgentRunNowButton agentId={agent.id} />
-          )}
+          {canAuthor && <AgentRunNowButton agentId={agent.id} />}
           {canAuthor && orgId && (
-            <Button size="sm" variant="ghost" asChild>
+            <Button
+              size="sm"
+              asChild
+              className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 h-8 rounded-full"
+            >
               <Link href={`/app/admin/${orgId}/agents/${agent.id}/edit`}>Edit</Link>
             </Button>
           )}
-          <Button size="sm" variant="outline" onClick={onOpen}>
-            <MessageSquare className="h-3.5 w-3.5 mr-1" />
+          <Button
+            size="sm"
+            onClick={onOpen}
+            className="bg-foreground text-background hover:bg-foreground/90 h-8 rounded-full px-4"
+          >
+            <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
             Chat
           </Button>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 
@@ -284,7 +326,6 @@ function AgentRunNowButton({ agentId }: { agentId: string }) {
       const res = await fetch(`/api/enterprise/agents/${agentId}/run`, { method: 'POST' })
       if (!res.ok) {
         const b = await res.json().catch(() => ({}))
-        // toast is imported at page level — bubble via throw
         alert(b.error || 'Agent run failed')
         return
       }
@@ -297,11 +338,42 @@ function AgentRunNowButton({ agentId }: { agentId: string }) {
       setRunning(false)
     }
   }
+  // Labeled pill instead of a bare lightning icon — the user shouldn't have to
+  // hover to figure out what it does. "Run now" admin-fires the agent against
+  // recent memory; the result lands as a new memory record.
   return (
-    <Button size="sm" variant="ghost" onClick={run} disabled={running} title="Run agent over recent memory — admin only">
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={run}
+      disabled={running}
+      className="h-8 rounded-full px-3 gap-1.5 text-amber-600 dark:text-amber-400 border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300"
+      title="Trigger this agent over the org's recent memory; result saves as a new memory record"
+    >
       {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+      <span className="hidden sm:inline">Run now</span>
     </Button>
   )
+}
+
+// Per-card vibrant gradient for action-agent avatars. Live ones get full
+// color; "soon" ones desaturate. Maps the tone hints used by the existing
+// callers so the Email / Broadcast cards keep their amber / violet feel.
+const ACTION_PALETTE: Record<string, { from: string; to: string }> = {
+  amber:  { from: 'from-amber-500',  to: 'to-orange-600' },
+  violet: { from: 'from-violet-500', to: 'to-fuchsia-500' },
+  emerald:{ from: 'from-emerald-500', to: 'to-teal-600' },
+  sky:    { from: 'from-sky-500',    to: 'to-blue-600' },
+  rose:   { from: 'from-rose-500',   to: 'to-pink-600' },
+  default:{ from: 'from-slate-500',  to: 'to-slate-600' },
+}
+
+function actionPaletteFor(tone?: string): typeof ACTION_PALETTE[string] {
+  if (!tone) return ACTION_PALETTE.default
+  for (const key of Object.keys(ACTION_PALETTE)) {
+    if (tone.includes(key)) return ACTION_PALETTE[key]
+  }
+  return ACTION_PALETTE.default
 }
 
 function ActionAgentCard({
@@ -315,34 +387,38 @@ function ActionAgentCard({
   tone?: string
 }) {
   const isLive = status === 'live'
+  const palette = actionPaletteFor(tone)
   const Wrapper: any = isLive && href ? Link : 'div'
   const wrapperProps = isLive && href ? { href } : {}
   return (
     <Wrapper
       {...wrapperProps}
       className={cn(
-        'rounded-2xl border p-4 transition-all',
+        'rounded-2xl border bg-card p-5 transition-all flex flex-col',
         isLive
-          ? `bg-gradient-to-br ${tone || 'from-primary/5 to-transparent border-primary/20'} hover:shadow-sm cursor-pointer`
-          : 'bg-muted/20 border-border opacity-70',
+          ? 'shadow-sm hover:shadow-lg hover:-translate-y-0.5 cursor-pointer'
+          : 'opacity-60',
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <div className={cn(
-          'h-9 w-9 rounded flex items-center justify-center shrink-0',
-          isLive ? 'bg-background/60 text-primary' : 'bg-muted/40 text-muted-foreground',
+          'h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ring-2',
+          isLive
+            ? `bg-gradient-to-br ${palette.from} ${palette.to} ring-foreground/10`
+            : 'bg-muted text-muted-foreground ring-transparent',
         )}>
-          <Icon className="h-4 w-4" />
+          <Icon className={cn('h-5 w-5', isLive ? 'text-white drop-shadow-sm' : '')} strokeWidth={2.25} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-sm font-semibold">{title}</h3>
-            {!isLive && <Badge variant="outline" className="text-[9px] bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-500/30">Coming soon</Badge>}
-            {isLive && <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Live</Badge>}
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-[15px] font-semibold tracking-tight">{title}</h3>
+            {isLive
+              ? <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">Live</Badge>
+              : <Badge variant="outline" className="text-[9px] bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-500/30">Coming soon</Badge>}
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+          <p className="text-[13px] text-muted-foreground leading-relaxed">{desc}</p>
           {isLive && (
-            <div className="mt-2 text-[11px] text-primary inline-flex items-center gap-1">
+            <div className="mt-3 text-[12px] font-medium text-primary inline-flex items-center gap-1">
               Open <ArrowRight className="h-3 w-3" />
             </div>
           )}
