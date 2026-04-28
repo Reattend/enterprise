@@ -1,78 +1,85 @@
 'use client'
 
-// Reattend Enterprise — landing page.
+// Reattend Enterprise — landing page (light theme).
 //
-// Dark, premium, Linear-quality. Warm dawn horizon at the top of the
-// hero (yellow → pink → fuchsia bloom) bleeds into a near-black body.
-// Sand-pouring brain animation on the hero right side. A trust strip
-// of customer logos. Three feature panels with their own glyph art.
-// A stylized product preview block and a final CTA. Animations are
-// minimal and tasteful — fade + 8px slide on whileInView, nothing
-// bouncy. Ambient gradient orbs are restrained: one warm horizon,
-// one cool aside, no further visual noise.
+// Inspiration: reflexai.com. Soft cream-violet background, calm
+// typography, a warm violet bloom at the top of the hero, and a
+// clean product preview on the right. The other sections below the
+// hero use a light treatment too so the page reads as one piece;
+// we'll iterate on them one at a time.
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
-  ArrowRight, Brain, GraduationCap, ShieldCheck, Lock,
-  Sparkles, Network, Gavel, Clock, Users, Zap,
+  ArrowRight, Brain, GraduationCap, ShieldCheck, Sparkles,
+  ChevronDown, Building2, Users, FileText, Briefcase,
+  Network, Gavel, Clock,
 } from 'lucide-react'
 import { TrustStrip } from '@/components/landing/trust-strip'
 
 export default function EnterpriseLanding() {
   return (
-    <div className="min-h-screen bg-[#08080c] text-neutral-200 overflow-hidden selection:bg-fuchsia-500/30 selection:text-white antialiased">
-      {/* Warm dawn horizon — visible only at the very top, fades quickly. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_60%_at_50%_-20%,rgba(251,191,36,0.18),rgba(244,114,182,0.14)_30%,rgba(168,85,247,0.10)_55%,transparent_75%)]" />
+    <div className="min-h-screen bg-[#fafaff] text-[#1a1a2e] overflow-hidden selection:bg-violet-300/40 antialiased">
+      {/* Soft violet bloom at the top of the page — sets the tone for the
+          hero without overpowering the rest of the content below. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[760px] -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_70%_at_50%_-15%,rgba(167,139,250,0.28),rgba(196,181,253,0.18)_30%,rgba(216,180,254,0.10)_55%,transparent_75%)]" />
       </div>
-      {/* Cool aside accent down the page */}
-      <div className="pointer-events-none absolute right-0 top-[50%] -translate-y-1/2 w-[600px] h-[700px] -z-10 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.10),transparent_60%)]" />
-      {/* Subtle grid texture */}
+      {/* Subtle grain so the cream background has texture instead of feeling flat */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-[0.025]"
         style={{
           backgroundImage:
-            'linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            'linear-gradient(to right, rgba(15,23,42,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.6) 1px, transparent 1px)',
           backgroundSize: '72px 72px',
         }}
       />
 
       <Nav />
       <Hero />
-      <TrustStrip />
-      <FeatureTriplet />
-      <FinalCTA />
-      <DarkFooter />
+      <TrustStripLight />
+      <PlaceholderRest />
     </div>
   )
 }
 
+// ─── Nav ────────────────────────────────────────────────────────────────
+
+const SOLUTIONS_ITEMS: Array<{ icon: typeof Building2; title: string; desc: string; href: string }> = [
+  { icon: Building2, title: 'For Government',     desc: 'On-prem, OCR, retention by statute.',         href: '/pricing' },
+  { icon: Briefcase, title: 'For SaaS Teams',     desc: 'Slack + Notion ingest, agents, exit interviews.', href: '/pricing' },
+  { icon: Users,     title: 'For HR & People Ops', desc: 'Onboarding genie, handoff agent, exits.',     href: '/pricing' },
+  { icon: FileText,  title: 'For Compliance',     desc: 'WORM audit log, DPA, GDPR / CCPA / DPDP.',    href: '/compliance' },
+]
+
 function Nav() {
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#08080c]/70 border-b border-white/[0.05]">
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#fafaff]/85 border-b border-[#1a1a2e]/[0.06]">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 rounded-md" unoptimized />
           <div className="leading-tight">
-            <div className="text-[14px] font-semibold tracking-tight text-white">Reattend</div>
-            <div className="text-[9px] font-semibold text-fuchsia-400/80 uppercase tracking-[0.22em]">Enterprise</div>
+            <div className="text-[14px] font-semibold tracking-tight text-[#1a1a2e]">Reattend</div>
+            <div className="text-[9px] font-semibold text-violet-600/80 uppercase tracking-[0.22em]">Enterprise</div>
           </div>
         </Link>
-        <div className="hidden md:flex items-center gap-8 text-[13px] text-neutral-400">
-          <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-          <Link href="/sandbox" className="hover:text-white transition-colors">Sandbox</Link>
-          <Link href="/compliance" className="hover:text-white transition-colors">Compliance</Link>
-          <Link href="/support" className="hover:text-white transition-colors">Support</Link>
+
+        <div className="hidden md:flex items-center gap-7 text-[13px] text-neutral-600">
+          <Link href="/pricing" className="hover:text-[#1a1a2e] transition-colors">Pricing</Link>
+          <SolutionsDropdown />
+          <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          <Link href="/support" className="hover:text-[#1a1a2e] transition-colors">Support</Link>
         </div>
+
         <div className="flex items-center gap-3">
-          <Link href="/login" className="text-[13px] font-medium text-neutral-300 hover:text-white transition-colors">
+          <Link href="/login" className="text-[13px] font-medium text-neutral-600 hover:text-[#1a1a2e] transition-colors">
             Sign in
           </Link>
           <Link
             href="/sandbox"
-            className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full text-[13px] font-semibold text-[#0c0816] bg-white hover:bg-neutral-200 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full text-[13px] font-semibold text-white bg-violet-600 hover:bg-violet-700 transition-colors shadow-[0_8px_30px_-12px_rgba(124,58,237,0.5)]"
           >
             Try free
           </Link>
@@ -82,410 +89,331 @@ function Nav() {
   )
 }
 
-function Hero() {
+function SolutionsDropdown() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  // Close on outside click and on Escape so the menu doesn't stick around.
+  useEffect(() => {
+    if (!open) return
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
-    <section className="relative">
-      <div className="max-w-6xl mx-auto px-6 pt-24 md:pt-32 pb-16 md:pb-20">
-        {/* Top: eyebrow + headline + subhead + CTAs (left-aligned) */}
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1 hover:text-[#1a1a2e] transition-colors"
+        aria-expanded={open}
+      >
+        Solutions
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Dropdown panel — slides down from beneath the nav item. The
+          `pt-3` spacer keeps a hover-tolerant gap between trigger and
+          panel so the menu doesn't close as the cursor moves down. */}
+      {open && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-[820px]"
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute left-1/2 -translate-x-1/2 top-full pt-3 w-[460px] z-50"
         >
-          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-amber-300/80 mb-6">
-            What is Reattend Enterprise?
-          </p>
-          <h1 className="text-[48px] md:text-[72px] leading-[1.02] font-bold tracking-[-0.035em] text-white">
-            Your organization&apos;s{' '}
-            <span className="bg-gradient-to-r from-amber-200 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent">
-              memory, preserved.
-            </span>
-          </h1>
-          <p className="text-[17px] md:text-[19px] text-neutral-400 mt-7 max-w-[640px] leading-[1.55]">
-            Decisions, context, and institutional knowledge. Captured, linked, and never lost. Even when people leave the room, the team, or the company.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 mt-10">
-            <Link
-              href="/sandbox"
-              className="group inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-[#0c0816] bg-white hover:bg-neutral-100 transition-colors shadow-[0_18px_60px_-18px_rgba(255,255,255,0.4)]"
-            >
-              Try the sandbox
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-neutral-200 border border-white/15 hover:border-white/30 hover:bg-white/[0.04] transition-all"
-            >
-              Sign up free
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-[12px] text-neutral-500">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400/80" /> SOC 2 in-flight</span>
-            <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-sky-400/80" /> On-premise option</span>
-            <span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-fuchsia-400/80" /> No card required</span>
-          </div>
-        </motion.div>
-
-        {/* Big product preview below the hero text — Linear-style.
-            Floats on a wide gradient halo so the dark card pops against
-            the dawn-horizon background. */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mt-20 md:mt-28"
-        >
-          <div className="absolute -inset-x-8 -inset-y-2 md:-inset-x-16 md:-inset-y-4 rounded-[40px] bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.20),rgba(244,114,182,0.18)_30%,rgba(168,85,247,0.16)_55%,transparent_75%)] blur-3xl -z-10" />
-          <ProductPreview />
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-// Stylized product preview — a fake browser frame containing four stat
-// tiles, a chat-style answer with sources, and an SVG donut for the
-// memory mix. Replaces the brain-particle visual; this version actually
-// shows what the product looks like, à la Linear.
-function ProductPreview() {
-  return (
-    <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0c0c14] via-[#09090f] to-[#0c0816] overflow-hidden shadow-[0_50px_180px_-50px_rgba(0,0,0,0.95)]">
-      {/* Browser chrome */}
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-black/30">
-        <span className="h-2.5 w-2.5 rounded-full bg-rose-500/60" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
-        <span className="ml-3 text-[11px] text-neutral-500 font-mono">enterprise.reattend.com / app</span>
-      </div>
-
-      <div className="grid grid-cols-12 gap-4 p-6 md:p-8">
-        {[
-          { icon: Users, label: 'Active members', value: '142' },
-          { icon: Brain, label: 'Memories', value: '8,492', sub: '+128 this week' },
-          { icon: Gavel, label: 'Decisions', value: '317', sub: '4 reversed YTD' },
-          { icon: Clock, label: 'Stale', value: '12', sub: 'past verify' },
-        ].map((t) => (
-          <div key={t.label} className="col-span-6 md:col-span-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <t.icon className="h-3.5 w-3.5 text-fuchsia-400/80" />
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-500">{t.label}</span>
-            </div>
-            <div className="text-2xl font-bold text-white tabular-nums">{t.value}</div>
-            {t.sub && <div className="text-[11px] text-neutral-500 mt-1">{t.sub}</div>}
-          </div>
-        ))}
-
-        <div className="col-span-12 md:col-span-7 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-          <div className="text-[10px] uppercase tracking-wider font-semibold text-fuchsia-400/80 mb-3">Ask · Chat</div>
-          <div className="text-sm text-neutral-300 leading-[1.6]">
-            <span className="text-neutral-500">You</span> · What did we decide about the BEPS treaty position last quarter, and what depends on it?
-          </div>
-          <div className="mt-3 pl-3 border-l-2 border-fuchsia-500/40 text-sm text-neutral-300 leading-[1.6]">
-            In Q3 the Director of International Taxation locked the treaty position aligning with OECD pillar two. Three downstream artifacts depend on this decision: the safe-harbor margin worksheet (Jan 25), the transfer-pricing memo to subsidiaries (Feb 9), and the auditor briefing pack (March 11). Reversing now would invalidate all three.
-          </div>
-          <div className="flex flex-wrap gap-2 mt-4">
-            {['Decision · BEPS treaty position', 'Memo · Safe-harbor margins', 'Briefing · Q3 audit'].map((s) => (
-              <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-neutral-400">{s}</span>
-            ))}
-          </div>
-        </div>
-
-        <div className="col-span-12 md:col-span-5 rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-          <div className="text-[10px] uppercase tracking-wider font-semibold text-violet-400/80 mb-3">Memory mix</div>
-          <div className="flex items-center gap-5">
-            <DonutMock />
-            <ul className="flex-1 space-y-2 text-[12px]">
-              {[
-                { label: 'Decisions', pct: 32, color: 'bg-violet-500' },
-                { label: 'Meetings',  pct: 28, color: 'bg-blue-500' },
-                { label: 'Insights',  pct: 22, color: 'bg-emerald-500' },
-                { label: 'Notes',     pct: 18, color: 'bg-amber-500' },
-              ].map((s) => (
-                <li key={s.label} className="flex items-center gap-2 text-neutral-400">
-                  <span className={`h-2 w-2 rounded-sm ${s.color}`} />
-                  <span className="flex-1">{s.label}</span>
-                  <span className="font-semibold tabular-nums text-neutral-200">{s.pct}%</span>
-                </li>
+          <div className="rounded-2xl border border-[#1a1a2e]/[0.08] bg-white shadow-[0_24px_60px_-20px_rgba(124,58,237,0.25)] p-2">
+            <div className="grid grid-cols-2 gap-1">
+              {SOLUTIONS_ITEMS.map((s) => (
+                <Link
+                  key={s.title}
+                  href={s.href}
+                  onClick={() => setOpen(false)}
+                  className="group flex items-start gap-3 rounded-xl p-3 hover:bg-violet-50 transition-colors"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shrink-0">
+                    <s.icon className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-semibold text-[#1a1a2e] group-hover:text-violet-700 transition-colors">
+                      {s.title}
+                    </div>
+                    <div className="text-[11px] text-neutral-500 leading-snug mt-0.5">{s.desc}</div>
+                  </div>
+                </Link>
               ))}
-            </ul>
+            </div>
+            <div className="border-t border-[#1a1a2e]/[0.06] mt-2 pt-2 px-3 pb-1.5 flex items-center justify-between text-[11px] text-neutral-500">
+              <span>Not sure which fits?</span>
+              <Link href="/sandbox" className="text-violet-600 hover:underline font-semibold">
+                Try the sandbox →
+              </Link>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      )}
     </div>
   )
 }
 
-const FEATURES: Array<{
-  icon: typeof Brain
-  title: string
-  desc: string
-  glyph: 'graph' | 'wave' | 'shield'
-}> = [
-  {
-    icon: Brain,
-    title: 'Organizational Memory',
-    desc: 'Every decision, meeting, policy, and exit interview lives in one graph. Time-indexed so you can scrub the org back to any month and see what was active, what was reversed, and who knew what.',
-    glyph: 'graph',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Exit Interview Agent',
-    desc: 'When someone gives notice, the AI reads their memory footprint and writes a structured handoff for their successor. Six weeks of ramp time saved per departure.',
-    glyph: 'wave',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Secure by Design',
-    desc: 'Two-tier RBAC, hash-chained audit log, GDPR-grade controls. On-prem deployment with the AI running entirely on your hardware. Procurement-grade from day one.',
-    glyph: 'shield',
-  },
-]
+// ─── Hero ───────────────────────────────────────────────────────────────
 
-function FeatureTriplet() {
+function Hero() {
   return (
-    <section className="relative py-28 md:py-36">
-      <div className="max-w-6xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.6 }}
-          className="max-w-[680px] mb-16"
-        >
-          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-fuchsia-400/80 mb-4">
-            What we do
-          </p>
-          <h2 className="text-[36px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.06] text-white">
-            The memory layer your{' '}
-            <span className="bg-gradient-to-r from-amber-200 to-fuchsia-300 bg-clip-text text-transparent">
-              org has been missing.
-            </span>
-          </h2>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.55, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="relative bg-[#0a0a10] p-8 group hover:bg-[#0d0d14] transition-colors"
-            >
-              {/* Glyph art */}
-              <div className="relative h-32 mb-6 -mx-2">
-                <FeatureGlyph kind={f.glyph} />
-              </div>
-              <div className="flex items-center gap-2 mb-3">
-                <f.icon className="h-4 w-4 text-fuchsia-400/80" strokeWidth={2.25} />
-                <h3 className="text-[18px] font-semibold text-white">{f.title}</h3>
-              </div>
-              <p className="text-[14px] text-neutral-400 leading-[1.6]">{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// Per-feature glyph art — small SVG dot motifs that echo the brain hero
-// without dominating the card. Each one suggests its feature visually:
-// graph (network nodes), wave (flowing dots), shield (concentric ring).
-function FeatureGlyph({ kind }: { kind: 'graph' | 'wave' | 'shield' }) {
-  if (kind === 'graph') {
-    return (
-      <svg viewBox="0 0 220 110" className="absolute inset-0 w-full h-full text-violet-400/80">
-        {/* Edges */}
-        <g stroke="currentColor" strokeWidth="0.6" opacity="0.4">
-          <line x1="40" y1="30" x2="100" y2="55" />
-          <line x1="40" y1="30" x2="80" y2="80" />
-          <line x1="100" y1="55" x2="160" y2="35" />
-          <line x1="100" y1="55" x2="140" y2="85" />
-          <line x1="160" y1="35" x2="200" y2="70" />
-          <line x1="80" y1="80" x2="140" y2="85" />
-          <line x1="140" y1="85" x2="200" y2="70" />
-        </g>
-        {/* Nodes */}
-        {[
-          [40, 30, 4], [100, 55, 5], [160, 35, 4], [80, 80, 3], [140, 85, 5], [200, 70, 4],
-        ].map(([x, y, r], i) => (
-          <circle key={i} cx={x} cy={y} r={r} fill="currentColor" opacity="0.85" />
-        ))}
-        {/* Sand grains scattered */}
-        {Array.from({ length: 30 }).map((_, i) => {
-          const x = (i * 53) % 220
-          const y = ((i * 37) % 110)
-          return <circle key={`g${i}`} cx={x} cy={y} r="0.7" fill="currentColor" opacity="0.25" />
-        })}
-      </svg>
-    )
-  }
-  if (kind === 'wave') {
-    return (
-      <svg viewBox="0 0 220 110" className="absolute inset-0 w-full h-full text-amber-300/80">
-        {/* Three flowing rows of dots */}
-        {[28, 55, 82].map((y, row) => (
-          <g key={y}>
-            {Array.from({ length: 22 }).map((_, i) => {
-              const x = i * 10 + 6
-              const offset = Math.sin((i + row * 2) * 0.5) * 6
-              const r = 1 + (i % 5 === 0 ? 1.5 : 0)
-              const opacity = 0.25 + (1 - row * 0.25) * 0.55
-              return <circle key={i} cx={x} cy={y + offset} r={r} fill="currentColor" opacity={opacity} />
-            })}
-          </g>
-        ))}
-      </svg>
-    )
-  }
-  // shield
-  return (
-    <svg viewBox="0 0 220 110" className="absolute inset-0 w-full h-full text-emerald-300/80">
-      <g fill="currentColor">
-        {Array.from({ length: 6 }).map((_, ringIdx) => {
-          const radius = 12 + ringIdx * 12
-          const dotCount = 8 + ringIdx * 4
-          const opacity = 0.7 - ringIdx * 0.1
-          return Array.from({ length: dotCount }).map((_, i) => {
-            const angle = (i / dotCount) * Math.PI * 2
-            const x = 110 + Math.cos(angle) * radius
-            const y = 55 + Math.sin(angle) * radius * 0.7
-            return <circle key={`${ringIdx}-${i}`} cx={x} cy={y} r={ringIdx === 0 ? 2 : 1} opacity={opacity} />
-          })
-        })}
-      </g>
-    </svg>
-  )
-}
-
-function DonutMock() {
-  const segments = [
-    { pct: 32, color: '#a78bfa' },
-    { pct: 28, color: '#60a5fa' },
-    { pct: 22, color: '#34d399' },
-    { pct: 18, color: '#fbbf24' },
-  ]
-  const r = 36
-  const circumference = 2 * Math.PI * r
-  let offset = 0
-  return (
-    <svg width="110" height="110" className="-rotate-90 shrink-0">
-      <circle cx="55" cy="55" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="14" />
-      {segments.map((s, i) => {
-        const length = (s.pct / 100) * circumference
-        const dasharray = `${length} ${circumference - length}`
-        const dashoffset = -offset
-        offset += length
-        return (
-          <circle
-            key={i}
-            cx="55"
-            cy="55"
-            r={r}
-            fill="none"
-            stroke={s.color}
-            strokeWidth="14"
-            strokeDasharray={dasharray}
-            strokeDashoffset={dashoffset}
-          />
-        )
-      })}
-    </svg>
-  )
-}
-
-function FinalCTA() {
-  return (
-    <section className="relative py-24 md:py-32">
-      <div className="max-w-4xl mx-auto px-6">
+    <section className="relative">
+      <div className="max-w-6xl mx-auto px-6 pt-20 md:pt-28 pb-24 md:pb-32 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl overflow-hidden"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.18),transparent_55%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(217,70,239,0.18),transparent_60%)]" />
-          <div className="relative border border-white/10 rounded-3xl px-8 py-16 md:px-16 md:py-20 text-center backdrop-blur-sm bg-black/40">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 bg-white/5 text-[11px] font-semibold text-neutral-200 mb-7">
-              <Zap className="h-3 w-3 text-amber-300" />
-              30-day free trial · no credit card
-            </div>
-            <h2 className="text-[36px] md:text-[56px] font-bold tracking-[-0.03em] leading-[1.05] text-white">
-              Give your org a memory.
-            </h2>
-            <p className="text-[16px] text-neutral-300 mt-5 max-w-[480px] mx-auto leading-[1.6]">
-              Try the sandbox in one click, or sign up your team and bring your own memory in.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-10">
-              <Link
-                href="/sandbox"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[14px] font-semibold text-[#0c0816] bg-white hover:bg-neutral-100 transition-colors shadow-[0_18px_60px_-18px_rgba(255,255,255,0.4)]"
-              >
-                Try the sandbox <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[14px] font-semibold text-white border border-white/20 hover:border-white/40 hover:bg-white/[0.06] transition-all"
-              >
-                See pricing
-              </Link>
-            </div>
+          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-violet-600 mb-6">
+            AI-native organizational memory
+          </p>
+          <h1 className="text-[44px] md:text-[64px] leading-[1.04] font-bold tracking-[-0.035em] text-[#1a1a2e]">
+            Your organization&apos;s memory,
+            <br />
+            <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-700 bg-clip-text text-transparent">
+              preserved and resurfaced when needed.
+            </span>
+          </h1>
+          <p className="text-[17px] md:text-[18px] text-neutral-600 mt-7 max-w-[560px] leading-[1.6]">
+            Decisions, context, and institutional knowledge. Captured automatically, linked across your org, and brought back at the moment someone needs them — even when the people who knew them have moved on.
+          </p>
+          <div className="flex flex-wrap items-center gap-3 mt-9">
+            <Link
+              href="mailto:pb@reattend.ai?subject=Book%20a%20demo%20%E2%80%94%20Reattend%20Enterprise"
+              className="group inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-white bg-violet-600 hover:bg-violet-700 transition-all shadow-[0_14px_40px_-14px_rgba(124,58,237,0.6)]"
+            >
+              Book a demo
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+            <Link
+              href="/sandbox"
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-[#1a1a2e] border border-[#1a1a2e]/15 bg-white hover:border-[#1a1a2e]/30 hover:bg-violet-50/60 transition-all"
+            >
+              Take a tour
+            </Link>
           </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-[12px] text-neutral-500">
+            <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> SOC 2 in-flight</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-violet-600" /> 30-day free trial</span>
+            <span className="flex items-center gap-1.5"><Brain className="h-3.5 w-3.5 text-fuchsia-600" /> On-premise option</span>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="relative"
+        >
+          <HeroVisual />
         </motion.div>
       </div>
     </section>
   )
 }
 
-function DarkFooter() {
+// Stylized product preview that sits on the hero right. Renders a faux
+// memory card UI (the moment a memory gets resurfaced into a chat
+// answer) instead of a real screenshot — keeps the visual crisp at
+// every viewport and matches the headline's "preserved + resurfaced"
+// promise. Light, soft violet accents.
+function HeroVisual() {
   return (
-    <footer className="border-t border-white/[0.05] bg-black/40">
-      <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-[13px]">
-        <div className="col-span-2 md:col-span-1">
-          <Link href="/" className="flex items-center gap-2 mb-3">
-            <Image src="/icon-128.png" alt="Reattend" width={24} height={24} className="h-6 w-6 rounded-md" unoptimized />
-            <span className="text-[14px] font-semibold tracking-tight text-white">Reattend</span>
-          </Link>
-          <p className="text-[12px] text-neutral-500 leading-[1.6]">Organizational memory, preserved.</p>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-neutral-500 mb-4">Product</p>
-          <ul className="space-y-2.5 text-neutral-400">
-            <li><Link href="/sandbox" className="hover:text-white transition-colors">Sandbox</Link></li>
-            <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-            <li><Link href="/compliance" className="hover:text-white transition-colors">Compliance</Link></li>
-            <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-neutral-500 mb-4">Legal</p>
-          <ul className="space-y-2.5 text-neutral-400">
-            <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
-            <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-neutral-500 mb-4">Get in touch</p>
-          <ul className="space-y-2.5 text-neutral-400">
-            <li><a href="mailto:pb@reattend.ai" className="hover:text-white transition-colors">pb@reattend.ai</a></li>
-            <li><a href="mailto:security@reattend.ai" className="hover:text-white transition-colors">security@reattend.ai</a></li>
-          </ul>
+    <div className="relative w-full aspect-[5/4] md:aspect-auto md:h-[520px]">
+      {/* Soft halo behind the card stack */}
+      <div className="absolute -inset-6 rounded-[40px] bg-[radial-gradient(ellipse_at_center,rgba(167,139,250,0.30),rgba(216,180,254,0.18)_40%,transparent_70%)] blur-2xl -z-10" />
+
+      {/* Top floating "captured" memory chip — small, slightly tilted,
+          appears as if it just dropped in. */}
+      <div className="absolute top-2 right-6 md:right-10 w-[260px] rotate-[3deg] z-20">
+        <div className="rounded-2xl bg-white border border-[#1a1a2e]/[0.08] shadow-[0_24px_60px_-30px_rgba(124,58,237,0.45)] p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Captured · just now</span>
+          </div>
+          <div className="text-[13px] font-semibold text-[#1a1a2e] leading-snug">
+            BEPS treaty position — align with OECD pillar two.
+          </div>
+          <div className="text-[11px] text-neutral-500 mt-1">Decision · Rajiv Sharma · Q3 sync</div>
         </div>
       </div>
-      <div className="border-t border-white/[0.05]">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-neutral-500">
-          <p>© {new Date().getFullYear()} Reattend Technologies Private Limited. All rights reserved.</p>
-          <div className="flex items-center gap-1.5">
-            <Network className="h-3 w-3" />
-            <span>Built for organizational memory</span>
+
+      {/* Center main card — the "resurfaced" answer */}
+      <div className="absolute left-2 md:left-0 top-20 md:top-24 w-[88%] md:w-[420px] z-10">
+        <div className="rounded-2xl bg-white border border-[#1a1a2e]/[0.08] shadow-[0_30px_70px_-30px_rgba(124,58,237,0.35)] overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#1a1a2e]/[0.06] bg-violet-50/50">
+            <div className="h-5 w-5 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white">
+              <Brain className="h-3 w-3" strokeWidth={2.5} />
+            </div>
+            <span className="text-[11px] font-semibold text-violet-700 uppercase tracking-wider">Resurfaced for you</span>
+          </div>
+          <div className="p-5">
+            <div className="text-[13px] text-neutral-500 leading-relaxed">
+              <span className="font-medium text-neutral-700">You asked:</span> What did we decide about BEPS last quarter?
+            </div>
+            <div className="mt-3 pl-3 border-l-2 border-violet-500/40 text-[13px] text-[#1a1a2e] leading-[1.6]">
+              The Director of International Taxation locked the treaty position to align with OECD pillar two. <span className="text-violet-700 font-medium">Three downstream artifacts depend on this</span> — reversing now would invalidate all of them.
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-4">
+              {['Decision · Q3', 'Memo · Safe-harbor', 'Briefing · Q3 audit'].map((s) => (
+                <span key={s} className="text-[10px] px-2 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-2.5 border-t border-[#1a1a2e]/[0.06] bg-neutral-50/50 flex items-center justify-between text-[11px] text-neutral-500">
+            <span>4 sources cited</span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              First captured 8 months ago
+            </span>
           </div>
         </div>
       </div>
-    </footer>
+
+      {/* Bottom-right "linked" cluster — small chips showing connected memories */}
+      <div className="absolute right-2 md:right-2 bottom-4 md:bottom-8 w-[240px] -rotate-[2deg] z-10">
+        <div className="rounded-2xl bg-white border border-[#1a1a2e]/[0.08] shadow-[0_24px_60px_-30px_rgba(124,58,237,0.4)] p-4">
+          <div className="flex items-center gap-1.5 mb-3">
+            <Network className="h-3.5 w-3.5 text-violet-600" />
+            <span className="text-[11px] font-semibold text-[#1a1a2e]">3 linked memories</span>
+          </div>
+          <ul className="space-y-2">
+            {[
+              { icon: Gavel,    label: 'Decision: BEPS treaty', tone: 'bg-violet-100 text-violet-600' },
+              { icon: FileText, label: 'Memo: Safe-harbor margins', tone: 'bg-fuchsia-100 text-fuchsia-600' },
+              { icon: Brain,    label: 'Briefing: Q3 audit pack', tone: 'bg-blue-100 text-blue-600' },
+            ].map((it) => (
+              <li key={it.label} className="flex items-center gap-2 text-[11px] text-neutral-700">
+                <span className={`h-5 w-5 rounded-md flex items-center justify-center ${it.tone}`}>
+                  <it.icon className="h-3 w-3" />
+                </span>
+                <span className="truncate flex-1">{it.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Tiny "stat tile" chip floating top-left */}
+      <div className="absolute top-12 left-2 md:left-6 z-0">
+        <div className="rounded-xl bg-white/80 backdrop-blur border border-[#1a1a2e]/[0.06] shadow-md px-3 py-2">
+          <div className="text-[9px] uppercase tracking-wider text-neutral-500 font-semibold">Memories</div>
+          <div className="text-base font-bold text-[#1a1a2e] tabular-nums">8,492</div>
+        </div>
+      </div>
+
+      {/* Subtle dotted connector between cards (decorative) */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none -z-10"
+        aria-hidden="true"
+      >
+        <path
+          d="M 80 60 C 160 140, 240 200, 340 260"
+          stroke="rgba(167, 139, 250, 0.45)"
+          strokeWidth="1"
+          strokeDasharray="2,4"
+          fill="none"
+        />
+      </svg>
+    </div>
   )
 }
+
+// ─── Trust strip — light variant ────────────────────────────────────────
+
+function TrustStripLight() {
+  // The TrustStrip component currently has dark styling baked in. We
+  // wrap it in a light section so it sits cleanly under the hero until
+  // we redesign it. The logos themselves render fine on light bg
+  // because they're brightness-0 invert + dim.
+  // For now we just render an inline light version directly.
+  return (
+    <section className="relative py-16 border-y border-[#1a1a2e]/[0.06]">
+      <div className="max-w-6xl mx-auto px-6">
+        <p className="text-center text-[11px] font-semibold tracking-[0.22em] uppercase text-neutral-500 mb-10">
+          Employees at these companies are using us
+        </p>
+        <div className="relative">
+          <ul className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-x-6 gap-y-8 items-center">
+            {[
+              'zomato', 'infosys', 'Namecheap', 'atvi', 'BMGF', 'NTGP', 'gt', '10thlogo', 'udyamini',
+            ].map((slug) => (
+              <li key={slug} className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <Image
+                  src={`/clients/${slug}.svg`}
+                  alt=""
+                  width={120}
+                  height={36}
+                  className="h-7 md:h-8 w-auto object-contain"
+                  unoptimized
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Placeholder for the rest ───────────────────────────────────────────
+// The user wants to redesign each subsequent section together. Rather
+// than leaving the previous dark sections (which would clash with the
+// new light hero), we render a quiet "more coming" placeholder so the
+// page below the hero is intentionally minimal until we get to it.
+
+function PlaceholderRest() {
+  return (
+    <>
+      <section className="py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-violet-600/70 mb-4">More coming</p>
+          <h2 className="text-[28px] md:text-[36px] font-bold tracking-[-0.02em] text-[#1a1a2e]">
+            We&apos;re redesigning the rest of this page together.
+          </h2>
+          <p className="text-[15px] text-neutral-500 mt-4 leading-[1.6]">
+            Features, the product walkthrough, the decision graph demo, pricing — all next.
+            For now, the fastest way to see what Reattend does is to{' '}
+            <Link href="/sandbox" className="text-violet-600 font-semibold hover:underline">
+              take the sandbox tour
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      <footer className="border-t border-[#1a1a2e]/[0.06] bg-white/60 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-neutral-500">
+          <p>© {new Date().getFullYear()} Reattend Technologies Private Limited.</p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="hover:text-[#1a1a2e] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#1a1a2e] transition-colors">Terms</Link>
+            <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+            <Link href="/support" className="hover:text-[#1a1a2e] transition-colors">Support</Link>
+          </div>
+        </div>
+      </footer>
+    </>
+  )
+}
+
+// Keep the import to avoid a dead-tree-shaking warning while we
+// iterate; we'll wire TrustStrip back in when we redesign that section.
+void TrustStrip
