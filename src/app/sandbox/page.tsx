@@ -20,7 +20,8 @@ import {
   ArrowRight, Loader2, Crown, Briefcase, Building2, User, UserCheck,
   Sparkles, Shield, Clock, Bot,
 } from 'lucide-react'
-import { LegalFooter } from '@/components/enterprise/legal-footer'
+import { SiteNav } from '@/components/landing/site-nav'
+import { SiteFooter } from '@/components/landing/site-footer'
 
 type RoleKey = 'super_admin' | 'admin' | 'dept_head' | 'member' | 'guest'
 
@@ -119,22 +120,7 @@ export default function SandboxLanding() {
     <div className="min-h-screen bg-[#FAFAFA] relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-neutral-200/40 via-neutral-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8" unoptimized />
-          <div>
-            <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
-            <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
-          </div>
-        </Link>
-        <div className="flex items-center gap-5 text-[13px] font-medium text-neutral-600">
-          <Link href="/pricing" className="hover:text-[#1a1a2e] transition-colors">Pricing</Link>
-          <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
-          <Link href="/login" className="font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">
-            Sign in →
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <main className="relative z-10 max-w-6xl mx-auto px-8 pt-10 pb-24">
         <motion.div
@@ -269,7 +255,7 @@ export default function SandboxLanding() {
         </AnimatePresence>
       </main>
 
-      <LegalFooter />
+      <SiteFooter />
     </div>
   )
 }

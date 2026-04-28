@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Check, Building2, Shield, Sparkles, Users, GraduationCap, Brain, FileText, FileScan } from 'lucide-react'
-import { LegalFooter } from '@/components/enterprise/legal-footer'
+import { SiteNav } from '@/components/landing/site-nav'
+import { SiteFooter } from '@/components/landing/site-footer'
 
 interface Tier {
   id: 'team' | 'enterprise' | 'government'
@@ -92,19 +92,7 @@ const TIERS: Tier[] = [
 export default function PricingContent() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8" unoptimized />
-          <div>
-            <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
-            <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
-          </div>
-        </Link>
-        <div className="flex items-center gap-5">
-          <Link href="/compliance" className="text-[13px] font-medium text-neutral-600 hover:text-[#1a1a2e]">Compliance</Link>
-          <Link href="/login" className="text-[13px] font-semibold text-[#1a1a2e]">Sign in →</Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <main className="max-w-6xl mx-auto px-6 pb-24">
         <div className="text-center pt-8 pb-12">
@@ -220,7 +208,7 @@ export default function PricingContent() {
         </div>
       </main>
 
-      <LegalFooter />
+      <SiteFooter />
     </div>
   )
 }

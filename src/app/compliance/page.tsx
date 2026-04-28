@@ -4,7 +4,8 @@ import {
   Shield, CheckCircle2, Clock, AlertTriangle, Lock, FileText, Database,
   Globe2, Eye, KeyRound, Network, Award, Scale, BookOpen,
 } from 'lucide-react'
-import { LegalFooter } from '@/components/enterprise/legal-footer'
+import { SiteNav } from '@/components/landing/site-nav'
+import { SiteFooter } from '@/components/landing/site-footer'
 
 export const metadata: Metadata = {
   title: 'Compliance · Reattend Enterprise',
@@ -115,7 +116,8 @@ const CONTROLS: Array<{
 
 export default function CompliancePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <SiteNav />
       <div className="max-w-5xl mx-auto px-6 py-12 space-y-10">
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
@@ -239,7 +241,7 @@ export default function CompliancePage() {
         </div>
       </div>
 
-      <LegalFooter />
+      <SiteFooter />
     </div>
   )
 }

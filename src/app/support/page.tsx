@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
-import { LegalFooter } from '@/components/enterprise/legal-footer'
+import { SiteNav } from '@/components/landing/site-nav'
+import { SiteFooter } from '@/components/landing/site-footer'
 
 // Public support page. Reachable via https://enterprise.reattend.com/support
 // — required for the Chrome Web Store listing's Support URL field. UI is
@@ -39,20 +39,7 @@ export default function SupportPage() {
     <div className="min-h-screen bg-[#FAFAFA] relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-neutral-200/40 via-neutral-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-5xl mx-auto">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8" unoptimized />
-          <div>
-            <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
-            <span className="text-[10px] font-semibold text-neutral-400 ml-1.5 uppercase tracking-wider">Enterprise</span>
-          </div>
-        </Link>
-        <div className="flex items-center gap-6 text-[13px]">
-          <Link href="/pricing" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Pricing</Link>
-          <Link href="/compliance" className="font-semibold text-neutral-500 hover:text-[#1a1a2e] transition-colors">Compliance</Link>
-          <Link href="/login" className="font-semibold text-[#1a1a2e] hover:text-neutral-600 transition-colors">Sign in &rarr;</Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <main className="relative z-10 max-w-3xl mx-auto px-8 pt-12 pb-24">
         <header className="mb-12">
@@ -128,7 +115,7 @@ export default function SupportPage() {
         </section>
       </main>
 
-      <LegalFooter />
+      <SiteFooter />
     </div>
   )
 }
