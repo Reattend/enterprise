@@ -44,9 +44,8 @@ export const metadata: Metadata = {
   publisher: 'Reattend',
   icons: {
     icon: [
+      { url: '/black_logo.svg', type: 'image/svg+xml' },
       { url: '/icon-128.png', sizes: '128x128', type: 'image/png' },
-      { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
-      { url: '/icon-16.png', sizes: '16x16', type: 'image/png' },
     ],
     apple: '/icon-128.png',
   },
