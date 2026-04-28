@@ -221,6 +221,27 @@ export function NangoConnectPanel() {
     )
   }
 
+  // Connectors not yet provisioned — show a friendly "coming online" card
+  // instead of a panel full of disabled buttons. The customer's admin can't
+  // self-serve this; provisioning happens on our infra (one-time, by us).
+  if (!data?.configured) {
+    return (
+      <div className="rounded-2xl border bg-card p-6 mb-6 text-center">
+        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+          <Zap className="h-5 w-5 text-primary" />
+        </div>
+        <h2 className="text-base font-semibold tracking-tight mb-1">Connectors are being enabled for your tenant</h2>
+        <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+          Gmail, Drive, Slack, Notion, and Confluence connectors will appear here as soon as your
+          tenant is provisioned. No action required from your team.
+        </p>
+        <p className="text-[11px] text-muted-foreground/70 mt-3">
+          Need this turned on now? Email <a href="mailto:support@reattend.com" className="underline">support@reattend.com</a>.
+        </p>
+      </div>
+    )
+  }
+
   const anyConnected = data?.providers.some((p) => p.status === 'connected')
 
   return (
@@ -243,16 +264,6 @@ export function NangoConnectPanel() {
           </Badge>
         )}
       </div>
-
-      {!data?.configured && (
-        <div className="px-5 py-3 bg-yellow-500/10 border-b text-xs text-yellow-900 dark:text-yellow-200 flex items-start gap-2">
-          <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-          <div>
-            Ingestion pipeline isn&apos;t live yet on this tenant — admin needs to provision it. Connectors
-            will appear here as soon as it&apos;s up.
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
         {data?.providers.map((p, i) => {
