@@ -5,9 +5,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, ArrowLeft, Shield, Lock } from 'lucide-react'
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { signIn } from 'next-auth/react'
+
+// Stripe-style split-screen sign-in. Left panel is the brand pitch on a
+// dark navy background; right panel is the email + OTP form on white.
+// Google OAuth was dropped — OTP-only is simpler, audit-friendly, and
+// keeps the surface area small for security review.
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -38,13 +43,10 @@ function LoginForm() {
   const maybeStartSso = async (emailAddr: string): Promise<boolean> => {
     try {
       const res = await fetch(`/api/sso/initiate?email=${encodeURIComponent(emailAddr)}`, { redirect: 'manual' })
-      // If the API 302s to the IdP, fetch can't follow it with redirect:manual.
-      // The browser will navigate via window.location instead.
       if (res.type === 'opaqueredirect' || res.status === 0) {
         window.location.href = `/api/sso/initiate?email=${encodeURIComponent(emailAddr)}`
         return true
       }
-      // JSON response means SSO is not configured for this domain.
       if (res.ok) {
         const data = await res.json().catch(() => null)
         if (data && data.ssoAvailable === false) return false
@@ -53,14 +55,11 @@ function LoginForm() {
     return false
   }
 
-  const handleSendOTP = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSendOTP = async (e?: React.FormEvent) => {
+    e?.preventDefault()
     if (!email.trim()) return
     setLoading(true)
 
-    // SSO-first: if the email's domain has an SSO config, the initiate
-    // endpoint will 302 to the IdP and navigation happens there. We bail
-    // out of the OTP path in that case.
     if (await maybeStartSso(email.trim())) {
       setLoading(false)
       return
@@ -73,15 +72,12 @@ function LoginForm() {
         body: JSON.stringify({ email: email.trim() }),
       })
       const data = await res.json()
-
       if (!res.ok) {
-        toast.error(data.error || 'Failed to send OTP')
+        toast.error(data.error || 'Failed to send code')
         return
       }
-
       if (data.dev) setDevCode(data.dev)
-
-      toast.success('Check your email for the login code!')
+      toast.success('Code sent. Check your email.')
       setStep('otp')
     } catch {
       toast.error('Something went wrong')
@@ -94,7 +90,6 @@ function LoginForm() {
     const code = otp.join('')
     if (code.length !== 6) return
     setLoading(true)
-
     try {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
@@ -102,13 +97,12 @@ function LoginForm() {
         body: JSON.stringify({ email: email.trim(), code }),
       })
       const data = await res.json()
-
       if (!res.ok) {
-        toast.error(data.error || 'Invalid or expired code. Please try again.')
+        toast.error(data.error || 'Invalid or expired code. Try again.')
         setOtp(['', '', '', '', '', ''])
         inputRefs.current[0]?.focus()
       } else {
-        toast.success('Welcome to Reattend!')
+        toast.success('Welcome back.')
         window.location.href = callbackUrl
       }
     } catch {
@@ -123,9 +117,7 @@ function LoginForm() {
     const newOtp = [...otp]
     newOtp[index] = value.slice(-1)
     setOtp(newOtp)
-
     if (value && index < 5) inputRefs.current[index + 1]?.focus()
-
     if (newOtp.every(d => d !== '') && newOtp.join('').length === 6) {
       setTimeout(() => handleVerifyOTP(), 100)
     }
@@ -159,81 +151,78 @@ function LoginForm() {
       {step === 'email' ? (
         <motion.div
           key="email"
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
           className="w-full"
         >
-          <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-8 text-center">Sign in to Reattend</h1>
+          <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.02em] text-[#1a1a2e]">
+            Sign in to Reattend
+          </h1>
+          <p className="text-[14px] text-neutral-500 mt-2">
+            Enter your work email and we&apos;ll send you a one-time code.
+          </p>
 
-          {/* Google OAuth */}
-          <button
-            onClick={() => signIn('google', { callbackUrl })}
-            className="w-full h-[48px] flex items-center justify-center gap-3 bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl text-[14px] font-medium text-[#1a1a2e] hover:bg-white/90 active:scale-[0.98] transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-4"
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Continue with Google
-          </button>
-
-          <div className="relative mb-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200/60" />
+          <form onSubmit={handleSendOTP} className="mt-8 space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-[12px] font-semibold text-[#1a1a2e] mb-1.5">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                autoFocus
+                className="w-full h-11 px-3.5 text-[14px] text-[#1a1a2e] bg-white border border-neutral-300 rounded-md outline-none transition-all placeholder:text-neutral-400 focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/10"
+              />
             </div>
-            <div className="relative flex justify-center text-[11px]">
-              <span className="px-3 bg-white/60 text-gray-400">or</span>
-            </div>
-          </div>
-
-          <form onSubmit={handleSendOTP} className="space-y-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              required
-              autoFocus
-              className="w-full h-[48px] px-4 text-[14px] text-[#1a1a2e] bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl outline-none transition-all placeholder:text-gray-400 focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-            />
 
             <button
               type="submit"
               disabled={loading || !email.trim()}
-              className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
+              className="w-full h-11 inline-flex items-center justify-center gap-1.5 bg-[#1a1a2e] text-white text-[13px] font-semibold rounded-md transition-colors hover:bg-[#2d2b55] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Continue with email
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <>
+                  Continue with email <ArrowRight className="h-3.5 w-3.5" />
+                </>
+              )}
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[13px] text-gray-500">
-            By signing in, you agree to our{' '}
-            <Link href="/terms" className="text-[#4F46E5] hover:underline">Terms of Service</Link>
+          <p className="mt-8 text-[12px] text-neutral-500">
+            By continuing you agree to our{' '}
+            <Link href="/terms" className="text-[#1a1a2e] font-semibold hover:underline">Terms</Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="text-[#1a1a2e] font-semibold hover:underline">Privacy Policy</Link>.
           </p>
 
-          <p className="mt-4 text-center text-[13px] text-gray-500">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-[#4F46E5] font-medium hover:underline">Sign up</Link>
+          <p className="mt-4 text-[13px] text-neutral-600">
+            New to Reattend?{' '}
+            <Link href="/register" className="text-[#1a1a2e] font-semibold hover:underline">Create an account</Link>
           </p>
         </motion.div>
       ) : (
         <motion.div
           key="otp"
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
           className="w-full"
         >
-          <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">Enter your code</h1>
-          <p className="text-[14px] text-gray-500 text-center mb-8">
-            We sent a 6-digit code to <span className="font-medium text-[#1a1a2e]">{email}</span>
+          <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.02em] text-[#1a1a2e]">
+            Check your email
+          </h1>
+          <p className="text-[14px] text-neutral-500 mt-2">
+            We sent a 6-digit code to <span className="text-[#1a1a2e] font-semibold">{email}</span>.
           </p>
 
-          <div className="flex gap-2.5 justify-center mb-6" onPaste={handleOtpPaste}>
+          <div className="flex gap-2 mt-8" onPaste={handleOtpPaste}>
             {otp.map((digit, i) => (
               <input
                 key={i}
@@ -245,7 +234,7 @@ function LoginForm() {
                 onChange={(e) => handleOtpChange(i, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(i, e)}
                 autoFocus={i === 0}
-                className="w-11 h-12 text-center text-[18px] font-bold text-[#1a1a2e] bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl outline-none transition-all focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+                className="w-12 h-12 text-center text-[18px] font-bold tabular-nums text-[#1a1a2e] bg-white border border-neutral-300 rounded-md outline-none transition-all focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/10"
               />
             ))}
           </div>
@@ -253,34 +242,33 @@ function LoginForm() {
           {devCode && (
             <button
               onClick={handleUseDevCode}
-              className="w-full mb-4 text-[12px] text-[#4F46E5] hover:underline text-center"
+              className="block mt-3 text-[12px] text-[#1a1a2e] hover:underline font-mono"
             >
-              Dev mode: Click to auto-fill code ({devCode})
+              Dev: auto-fill {devCode}
             </button>
           )}
 
           <button
             onClick={handleVerifyOTP}
             disabled={loading || otp.join('').length !== 6}
-            className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
+            className="w-full mt-6 h-11 inline-flex items-center justify-center gap-1.5 bg-[#1a1a2e] text-white text-[13px] font-semibold rounded-md transition-colors hover:bg-[#2d2b55] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Verify & Sign In
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify and sign in'}
           </button>
 
-          <div className="mt-5 flex items-center justify-center gap-4">
+          <div className="mt-6 flex items-center gap-5 text-[12px] text-neutral-500">
             <button
               onClick={() => { setStep('email'); setOtp(['', '', '', '', '', '']); setDevCode(null) }}
-              className="flex items-center gap-1 text-[13px] text-gray-500 hover:text-[#4F46E5] font-medium transition-colors"
+              className="inline-flex items-center gap-1 hover:text-[#1a1a2e] transition-colors"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Change email
+              <ArrowLeft className="h-3 w-3" />
+              Use different email
             </button>
-            <span className="text-gray-300">|</span>
+            <span className="text-neutral-300">·</span>
             <button
-              onClick={handleSendOTP as any}
+              onClick={() => handleSendOTP()}
               disabled={loading}
-              className="text-[13px] text-gray-500 hover:text-[#4F46E5] font-medium transition-colors disabled:opacity-50"
+              className="hover:text-[#1a1a2e] transition-colors disabled:opacity-50"
             >
               Resend code
             </button>
@@ -291,54 +279,77 @@ function LoginForm() {
   )
 }
 
+// ─── Page shell — split-screen layout ──────────────────────────────────────
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAFA] px-6 relative overflow-hidden">
-      {/* Background gradient blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-20 -right-40 w-[500px] h-[500px] rounded-full bg-[#818CF8]/5 blur-3xl pointer-events-none" />
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
+      {/* LEFT — brand panel. Dark navy with a vibrant gradient blob and a
+          big tagline. Hidden on small screens to keep the form above the
+          fold. */}
+      <div className="hidden lg:flex relative bg-[#1a1a2e] text-white p-12 flex-col overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-violet-600/40 via-fuchsia-600/30 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-180px] right-[-120px] w-[480px] h-[480px] rounded-full bg-gradient-to-br from-amber-500/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-[380px]">
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-center gap-2.5 mb-8"
-        >
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/black_logo.svg" alt="Reattend" width={36} height={36} className="h-9 w-9" unoptimized />
-            <span className="text-[20px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
+        <Link href="/" className="relative flex items-center gap-2.5 z-10">
+          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8 invert" unoptimized />
+          <span className="text-[17px] font-bold tracking-tight">Reattend</span>
+          <span className="text-[10px] font-semibold text-white/50 ml-1.5 uppercase tracking-widest">Enterprise</span>
+        </Link>
+
+        <div className="relative flex-1 flex flex-col justify-center max-w-md z-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 mb-5">
+            Enterprise memory platform
+          </p>
+          <h2 className="text-[36px] md:text-[40px] font-semibold tracking-[-0.025em] leading-[1.1]">
+            When people leave, the knowledge stays.
+          </h2>
+          <p className="text-[15px] text-white/70 mt-5 leading-relaxed">
+            Decisions, context, and institutional knowledge. Captured, linked, and indexed by time. The most expensive thing in any organization is the knowledge that walks out the door on a Friday afternoon.
+          </p>
+        </div>
+
+        <div className="relative z-10 flex items-center gap-5 text-[11px] text-white/50">
+          <span>SOC 2 in progress</span>
+          <span className="h-1 w-1 rounded-full bg-white/30" />
+          <span>On-premise available</span>
+          <span className="h-1 w-1 rounded-full bg-white/30" />
+          <span>Customer-managed KMS</span>
+        </div>
+      </div>
+
+      {/* RIGHT — sign-in form. Pure white, generous padding, single column. */}
+      <div className="flex flex-col bg-white">
+        {/* Mobile-only top bar with logo */}
+        <div className="lg:hidden flex items-center justify-between px-6 h-16 border-b border-neutral-100">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/black_logo.svg" alt="Reattend" width={26} height={26} className="h-[26px] w-[26px]" unoptimized />
+            <span className="text-[15px] font-bold tracking-tight text-[#1a1a2e]">Reattend</span>
           </Link>
-        </motion.div>
+          <Link href="/" className="text-[12px] text-neutral-500 hover:text-[#1a1a2e]">← Home</Link>
+        </div>
 
-        {/* Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white/60 backdrop-blur-xl border border-white/80 rounded-2xl shadow-[0_8px_32px_rgba(79,70,229,0.06)] p-8"
-        >
-          <Suspense fallback={
-            <div className="flex justify-center py-10">
-              <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-            </div>
-          }>
-            <LoginForm />
-          </Suspense>
-        </motion.div>
+        {/* Top-right "← Back to home" on desktop */}
+        <div className="hidden lg:flex justify-end p-6">
+          <Link href="/" className="text-[12px] text-neutral-500 hover:text-[#1a1a2e] inline-flex items-center gap-1">
+            <ArrowLeft className="h-3 w-3" /> Back to home
+          </Link>
+        </div>
 
-        {/* Trust badges */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex items-center justify-center gap-5 mt-6 text-[11px] text-gray-400"
-        >
-          <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> SOC2-ready</span>
-          <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Encrypted</span>
-        </motion.div>
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-[400px]">
+            <Suspense fallback={
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+              </div>
+            }>
+              <LoginForm />
+            </Suspense>
+          </div>
+        </div>
+
+        <div className="px-6 pb-6 text-center text-[11px] text-neutral-400">
+          &copy; {new Date().getFullYear()} Reattend Technologies Private Limited
+        </div>
       </div>
     </div>
   )

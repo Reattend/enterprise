@@ -2,9 +2,9 @@ import { Metadata } from 'next'
 import LoginPage from './login-form'
 
 export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to your Reattend workspace. Access your team decisions, knowledge graph, and AI-powered memory.',
-  alternates: { canonical: 'https://reattend.com/login' },
+  title: 'Sign in · Reattend Enterprise',
+  description: 'Sign in to your Reattend Enterprise workspace with a one-time email code.',
+  alternates: { canonical: 'https://enterprise.reattend.com/login' },
 }
 
 export default function Page() {
