@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import {
   ArrowRight, Shield, Building2, GraduationCap, History, Check,
-  Plug, Network,
+  Plug, Network, ListFilterPlus, Database, Sparkles, Plus, Minus,
 } from 'lucide-react'
 import { SiteNav } from '@/components/landing/site-nav'
 import { SiteFooter } from '@/components/landing/site-footer'
@@ -24,9 +25,13 @@ export default function EnterpriseLanding() {
       <Hero />
       <CompanyMarquee />
       <BigStatement />
+      <ThreePillars />
+      <HowItWorks />
       <CapabilityGrid />
       <UseCases />
+      <Testimonial />
       <PricingTease />
+      <FAQ />
       <ClosingCTA />
       <SiteFooter />
     </div>
@@ -249,6 +254,127 @@ const CAPABILITIES: Array<{ icon: typeof History; title: string; copy: string; m
   },
 ]
 
+// ─── Three pillars (colourful #1) ──────────────────────────────────────────
+// Three deep-gradient cards summarizing the product as a Capture → Connect →
+// Recall loop. Bold visuals in an otherwise restrained page; the user
+// asked for a colourful section, this is one of the two.
+const PILLARS: Array<{
+  icon: typeof ListFilterPlus
+  title: string
+  copy: string
+  gradient: string
+  ring: string
+}> = [
+  {
+    icon: ListFilterPlus,
+    title: 'Capture',
+    copy: 'Every meeting note, every decision, every email thread. Brain-dump it, paste it, drag a PDF in. The AI parses what matters.',
+    gradient: 'from-violet-600 via-fuchsia-600 to-pink-600',
+    ring: 'ring-violet-500/30',
+  },
+  {
+    icon: Network,
+    title: 'Connect',
+    copy: 'Memories link to decisions, decisions to policies, policies to people. The graph fills itself as you work.',
+    gradient: 'from-amber-500 via-orange-600 to-rose-600',
+    ring: 'ring-amber-500/30',
+  },
+  {
+    icon: History,
+    title: 'Recall',
+    copy: 'Ask in plain English. Scrub through 24 months. See what the org knew on any past day. Even after the person who knew it has left.',
+    gradient: 'from-emerald-500 via-teal-600 to-cyan-700',
+    ring: 'ring-emerald-500/30',
+  },
+]
+
+function ThreePillars() {
+  return (
+    <section className="py-16 md:py-20 relative z-10">
+      <div className="max-w-6xl mx-auto px-8">
+        <div className="max-w-2xl mb-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500 mb-4">The loop</p>
+          <h2 className="text-[28px] md:text-[34px] font-semibold tracking-[-0.025em] leading-[1.1] text-[#1a1a2e]">
+            Capture, connect, recall. Forever.
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {PILLARS.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className={`relative rounded-2xl p-6 bg-gradient-to-br ${p.gradient} text-white shadow-xl ring-2 ${p.ring} overflow-hidden`}
+            >
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+              <div className="relative">
+                <div className="h-11 w-11 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center mb-5">
+                  <p.icon className="h-5 w-5 text-white" strokeWidth={2.25} />
+                </div>
+                <h3 className="text-[20px] font-bold tracking-tight mb-2">{p.title}</h3>
+                <p className="text-[13px] text-white/85 leading-relaxed">{p.copy}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── How it works (3 numbered steps) ───────────────────────────────────────
+const STEPS: Array<{ n: string; title: string; copy: string; icon: typeof ListFilterPlus }> = [
+  {
+    n: '01',
+    title: 'Drop in what you know.',
+    copy: 'Brain-dump notes, paste a Slack thread, save a Gmail conversation, drag a contract PDF. Five seconds in.',
+    icon: ListFilterPlus,
+  },
+  {
+    n: '02',
+    title: 'AI structures it.',
+    copy: 'The model classifies, links, deduplicates, and adds it to the right department\'s memory. RBAC is enforced before the LLM ever sees a record.',
+    icon: Database,
+  },
+  {
+    n: '03',
+    title: 'Recall on demand.',
+    copy: 'Ask anything. Scrub through time. Run an exit-interview agent the day someone leaves. The memory is yours, indexed.',
+    icon: Sparkles,
+  },
+]
+
+function HowItWorks() {
+  return (
+    <section className="py-16 md:py-20 relative z-10">
+      <div className="max-w-6xl mx-auto px-8">
+        <div className="max-w-2xl mb-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500 mb-4">How it works</p>
+          <h2 className="text-[28px] md:text-[34px] font-semibold tracking-[-0.025em] leading-[1.1] text-[#1a1a2e]">
+            Three steps. No consultants required.
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {STEPS.map((s) => (
+            <div key={s.n} className="rounded-xl bg-white border border-neutral-200 p-6 hover:border-neutral-300 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-9 w-9 rounded-lg bg-[#1a1a2e] text-white text-[13px] font-bold tabular-nums flex items-center justify-center">
+                  {s.n}
+                </div>
+                <s.icon className="h-4 w-4 text-neutral-500" />
+              </div>
+              <h3 className="text-[16px] font-semibold tracking-tight text-[#1a1a2e] mb-2">{s.title}</h3>
+              <p className="text-[13px] text-neutral-600 leading-relaxed">{s.copy}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function CapabilityGrid() {
   return (
     <section id="capabilities" className="py-16 md:py-20 relative z-10">
@@ -436,6 +562,45 @@ function UseCaseCard({ badge, icon: Icon, title, copy, bullets, cta }: {
 }
 
 // ─── Pricing tease ─────────────────────────────────────────────────────────
+// ─── Testimonial (colourful #2) ────────────────────────────────────────────
+// Single bold pull-quote on a vibrant gradient panel. Breaks the page's
+// neutral rhythm right after Use Cases, sets up Pricing.
+function Testimonial() {
+  return (
+    <section className="py-16 md:py-20 relative z-10">
+      <div className="max-w-6xl mx-auto px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.4 }}
+          className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-600 px-8 md:px-16 py-14 md:py-20 shadow-2xl"
+        >
+          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-amber-300/20 blur-3xl pointer-events-none" />
+          <div className="relative max-w-3xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70 mb-5">
+              Why we built it
+            </p>
+            <blockquote className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em] leading-[1.25] text-white">
+              &ldquo;The most expensive thing in any organization is the knowledge that walks out the door on a Friday afternoon. Reattend exists so that no decision, no relationship, no hard-won insight ever has to be re-discovered.&rdquo;
+            </blockquote>
+            <div className="flex items-center gap-3 mt-7">
+              <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-[14px]">
+                P
+              </div>
+              <div>
+                <div className="text-[13px] font-semibold text-white">Partha Jyoti Bhuyan</div>
+                <div className="text-[11px] text-white/70">Founder, Reattend</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 function PricingTease() {
   return (
     <section className="py-16 md:py-20 relative z-10">
@@ -475,6 +640,77 @@ function PlanCard({ name, price, cadence, blurb, highlight }: { name: string; pr
 }
 
 // ─── Closing CTA ───────────────────────────────────────────────────────────
+// ─── FAQ ───────────────────────────────────────────────────────────────────
+const FAQS: Array<{ q: string; a: string }> = [
+  {
+    q: 'How is this different from a wiki?',
+    a: 'Wikis are write-once, decay-fast, and require manual upkeep. Reattend captures memory as you work, links it automatically, and indexes everything by point in time so you can replay what the org knew on any past date.',
+  },
+  {
+    q: 'Can we run it on our own infrastructure?',
+    a: 'Yes. The Government and Enterprise plans both support on-premise deployment. The full stack runs inside your network, including the AI inference engine via on-prem Rabbit. Zero data egress to Reattend.',
+  },
+  {
+    q: 'How do you protect customer data?',
+    a: 'Two-tier RBAC enforced at the database query layer, eight record-visibility rules, hash-chained WORM audit log, encryption at rest and in transit, customer-managed KMS on Enterprise. We never train AI models on customer content.',
+  },
+  {
+    q: 'How fast can we go live?',
+    a: 'Team plan: 30 minutes (Slack + Notion connectors are one-click). Enterprise dedicated: 1 to 2 weeks. Government on-premise with paper digitization: 6 to 12 weeks depending on legacy archive size.',
+  },
+  {
+    q: 'What about hallucinations?',
+    a: 'Every answer cites the exact source memory. The Oracle mode shows the passage from the memory that informed each claim. If the memory does not have it, the AI says so explicitly in an Unknowns section.',
+  },
+  {
+    q: 'What if we want to leave?',
+    a: 'Self-serve GDPR-grade data export from settings (one-click JSON bundle). For org-level export, contact us and we deliver a full SQL dump within 5 business days.',
+  },
+]
+
+function FAQItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border-b border-neutral-200 last:border-b-0">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+      >
+        <span className="text-[15px] font-semibold text-[#1a1a2e] group-hover:text-neutral-700 transition-colors">{q}</span>
+        <span className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${open ? 'bg-[#1a1a2e] text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+          {open ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+        </span>
+      </button>
+      {open && (
+        <p className="text-[14px] text-neutral-600 leading-relaxed pb-5 pr-12">{a}</p>
+      )}
+    </div>
+  )
+}
+
+function FAQ() {
+  return (
+    <section className="py-16 md:py-20 relative z-10">
+      <div className="max-w-3xl mx-auto px-8">
+        <div className="text-center mb-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500 mb-4">FAQ</p>
+          <h2 className="text-[28px] md:text-[34px] font-semibold tracking-[-0.025em] leading-[1.1] text-[#1a1a2e]">
+            Questions, answered.
+          </h2>
+        </div>
+        <div className="rounded-2xl bg-white border border-neutral-200 px-6">
+          {FAQS.map((f) => (
+            <FAQItem key={f.q} {...f} />
+          ))}
+        </div>
+        <p className="text-center text-[12px] text-neutral-500 mt-6">
+          More on our <Link href="/compliance" className="text-[#1a1a2e] font-semibold hover:underline">compliance page</Link> and at <a href="mailto:pb@reattend.ai" className="text-[#1a1a2e] font-semibold hover:underline">pb@reattend.ai</a>.
+        </p>
+      </div>
+    </section>
+  )
+}
+
 function ClosingCTA() {
   return (
     <section className="py-20 md:py-24 relative z-10">
