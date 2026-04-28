@@ -1,10 +1,10 @@
 # Reattend Enterprise — Session Handoff
 
-**Last updated:** 2026-04-26 (end of Sprint O-b · sidebar + topbar refresh + legal pages + extension submission)
+**Last updated:** 2026-04-28 (Sprint P landed in code · Nango wired end-to-end, awaiting NANGO_SECRET_KEY in droplet env)
 **Branch:** `main` — pushed
 **Live at:** https://enterprise.reattend.com · public sandbox at https://enterprise.reattend.com/sandbox
-**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a (sandbox + hardening), O-b (legal pages + sidebar/topbar refresh + extension submission)
-**Sprints remaining before launch:** rest of O (UI/UX polish — interactive with user), P (Nango), Q (infra), R (billing), then launch
+**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a, O-b, P (code-complete — see §11)
+**Sprints remaining before launch:** rest of O (UI/UX polish), Q (infra hardening), R (billing), then launch
 
 ---
 
@@ -21,7 +21,7 @@
 | DB | SQLite via better-sqlite3 + Drizzle |
 | Migrations | `npx tsx src/lib/db/migrate.ts` (custom, additive) |
 | LLMs | Claude (answering) · Groq Llama 3.3 + Haiku rerank · Groq Whisper |
-| Nango | not deployed (Sprint P) |
+| Nango | code wired (NangoConnectPanel + 5 providers) — needs NANGO_SECRET_KEY on droplet to flip on |
 | Rabbit | not deployed (Year 2) |
 
 Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git pull --ff-only && rm -rf .next && npm run build && pm2 restart enterprise"`. Always include `npx tsx src/lib/db/migrate.ts` if schema changed.
@@ -346,3 +346,49 @@ Tell next session: "Read today.md and pick up Sprint O proper (UI/UX polish — 
 ---
 
 *Generated end of Sprint O-a (sandbox + hardening). Next: Sprint O proper (UI/UX polish) — interactive with user.*
+
+---
+
+## 11. Sprint P (Nango) — code is live, env is the only blocker
+
+Wired end-to-end in code (commits before this entry):
+
+| Layer | File(s) |
+|---|---|
+| Config / SDK wrapper | `src/lib/integrations/nango/client.ts` |
+| Provider catalog (5 first-class) | `src/lib/integrations/nango/providers.ts` |
+| Per-provider normalizers | `src/lib/integrations/nango/providers/{gmail,google-drive,slack,notion,confluence}.ts` |
+| Ingest path (raw_items + scope filter + triage enqueue) | `src/lib/integrations/nango/ingest.ts` |
+| Connect-session mint | `POST /api/integrations/nango/session` |
+| Status board | `GET /api/integrations/nango/status` |
+| Manual sync | `POST /api/integrations/nango/sync` |
+| Backfill (3 pages × 100) | `POST /api/integrations/nango/backfill` |
+| Per-connection scope CRUD | `GET/PATCH /api/integrations/nango/scope` |
+| Disconnect | `POST /api/integrations/nango/disconnect` |
+| Webhook (auth + sync_completed) | `POST /api/nango/webhook` |
+| UI panel | `src/components/enterprise/nango-connect-panel.tsx` (rendered in `/app/integrations`) |
+
+**To flip Nango on for prod:**
+
+1. Sign in to Nango (cloud or self-hosted). Configure five integrations: `google-mail`, `google-drive`, `slack`, `notion`, `confluence`. Each needs OAuth client id/secret + a sync script publishing the model names in `providers.ts` (`GmailEmail`, `Document`, `SlackMessage`, `NotionPage`, `ConfluencePage`).
+2. Set webhook URL → `https://enterprise.reattend.com/api/nango/webhook`.
+3. On droplet, set env vars and reload PM2:
+   ```bash
+   ssh root@167.99.158.143 'pm2 set enterprise:NANGO_SECRET_KEY "<key>"; pm2 set enterprise:NANGO_HOST "<host or omit for api.nango.dev>"; pm2 set enterprise:NANGO_WEBHOOK_SECRET "<secret>"; pm2 restart enterprise'
+   ```
+4. Visit `/app/integrations` while signed in. Connect Gmail. OAuth modal opens via `@nangohq/frontend` session token. After connect, `/backfill` runs synchronously (≤ 300 records) so memories appear immediately. Subsequent updates arrive via Nango's scheduled sync → our webhook → `ingestFromNango`.
+
+**Self-hosted vs cloud decision:** for the first SMB pilots, run on Nango Cloud (zero ops). Switch to self-hosted on the droplet only when an enterprise prospect asks for "no data leaves your network" — `NANGO_HOST` is the only env var that changes.
+
+**Per-connection scope filter** is enforced inside `passesScope` in `ingest.ts`. Three lists per connection (include / exclude / domain). Stored in `integrations_connections.settings` JSON. Editable from the Scope dialog in the panel.
+
+**Connection IDs are reversible**: `<userId>__<providerKey>` so the webhook can always route back to a workspace via `parseNangoConnectionId`.
+
+**Roadmap connectors** (Teams, SharePoint, SAP, Jira/Linear/GitHub) listed as informational tiles below the Nango panel — pending OAuth scope review and Nango sync script availability.
+
+**What's deliberately NOT done yet** (post-launch):
+- Slack bot inline-ask + "save this thread" command (requires Slack app review)
+- Per-channel Slack allow-list UI (current scope filter is text-substring only)
+- Decision-from-pinned-thread workflow (needs UI in /app/decisions)
+- MS Teams full coverage (Nango supports OAuth; sync scripts are still custom-needed)
+- Real-time sync status card on Home (status API exists; just no Home tile yet — drop into Sprint Q)
