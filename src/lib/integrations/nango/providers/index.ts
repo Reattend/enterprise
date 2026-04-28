@@ -1,5 +1,6 @@
 import { normalizeGmail } from './gmail'
 import { normalizeGoogleDrive } from './google-drive'
+import { normalizeGoogleCalendar } from './google-calendar'
 import { normalizeSlack } from './slack'
 import { normalizeNotion } from './notion'
 import { normalizeConfluence } from './confluence'
@@ -11,6 +12,7 @@ const byProviderConfigKey: Record<string, NangoNormalizer> = {
   'google-mail': normalizeGmail,
   'gmail': normalizeGmail,
   'google-drive': normalizeGoogleDrive,
+  'google-calendar': normalizeGoogleCalendar,
   'slack': normalizeSlack,
   'notion': normalizeNotion,
   'confluence': normalizeConfluence,

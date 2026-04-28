@@ -49,6 +49,16 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     triageAggressiveness: 'high',
   },
   {
+    key: 'google-calendar-nango',
+    providerConfigKey: 'google-calendar',
+    name: 'Google Calendar',
+    category: 'calendar',
+    description: 'Meetings with descriptions and attendees become memories. Used by Meeting Prep to brief you 15 minutes ahead.',
+    iconHint: 'calendar',
+    models: ['GoogleCalendarEvent', 'CalendarEvent', 'Event'],
+    triageAggressiveness: 'medium',
+  },
+  {
     key: 'slack-nango',
     providerConfigKey: 'slack',
     name: 'Slack',

@@ -81,6 +81,15 @@ function ProviderIcon({ hint, className = 'h-6 w-6' }: { hint: string; className
       <path d="M22 6.5c.6.9-.3 2.1-1.3 2.7-4.1 2.6-8.7 2.4-12.9-.1-1.1-.7-2-1.7-1.4-2.8.4-.8 1.3-1 2.1-.5 3.3 1.9 6.9 2.1 10.3.3.9-.5 2.1-.5 2.8 0 .2.1.3.3.4.4z" fill="#2684FF" />
     </svg>
   )
+  if (hint === 'calendar') return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="5" width="18" height="16" rx="2" fill="#FFFFFF" stroke="#4285F4" strokeWidth="1.5" />
+      <rect x="3" y="5" width="18" height="4" rx="2" fill="#4285F4" />
+      <line x1="8" y1="3" x2="8" y2="7" stroke="#1A73E8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="16" y1="3" x2="16" y2="7" stroke="#1A73E8" strokeWidth="1.5" strokeLinecap="round" />
+      <text x="12" y="18" textAnchor="middle" fontSize="9" fontWeight="600" fill="#4285F4">31</text>
+    </svg>
+  )
   return <Plug className={className} />
 }
 
@@ -433,6 +442,7 @@ function ScopeDialog({
   const hints = {
     'gmail-nango': { includeHint: 'decision, approved, q4', excludeHint: 'marketing, newsletter', domainLabel: 'Only keep emails touching these domains' },
     'google-drive-nango': { includeHint: 'roadmap, spec', excludeHint: 'archive, obsolete', domainLabel: 'Filenames or titles must contain' },
+    'google-calendar-nango': { includeHint: 'review, planning, decision', excludeHint: 'lunch, 1:1', domainLabel: 'Only meetings with attendees from' },
     'slack-nango': { includeHint: 'decision, ship', excludeHint: 'lunch, fun', domainLabel: 'Only keep messages mentioning' },
     'notion-nango': { includeHint: 'spec, decision', excludeHint: 'draft, scratch', domainLabel: 'Page title must contain' },
     'confluence-nango': { includeHint: 'policy, runbook', excludeHint: 'sandbox', domainLabel: 'Space key must contain' },
