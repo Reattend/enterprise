@@ -76,7 +76,7 @@ export default function IntegrationsPage() {
             <li>• OAuth tokens scoped to the minimum needed — read-only, optionally per-label / per-channel.</li>
             <li>• Every sync event is logged to the audit trail with actor + timestamp.</li>
             <li>• Record visibility respects department RBAC — a Gmail thread from finance only shows to the finance dept.</li>
-            <li>• On-premise deployment available on the Enterprise plan — point <code className="text-[10px] bg-muted px-1 py-0.5 rounded">NANGO_HOST</code> at your self-hosted Nango; no data leaves your network.</li>
+            <li>• On-premise deployment available on the Enterprise plan — the entire ingestion pipeline runs inside your network; no data leaves your tenant.</li>
           </ul>
         </div>
       </div>

@@ -95,7 +95,7 @@ export default function TasksPage() {
         <Badge variant="outline" className="text-[10px] mb-2">Coming soon</Badge>
         <p className="text-xs text-muted-foreground">
           Browser extension — overlay these tasks inside Word, Outlook, Teams, PowerPoint.
-          Ships when we self-host Nango alongside the production OAuth callbacks.
+          Ships alongside the production OAuth callbacks.
         </p>
       </div>
     </motion.div>

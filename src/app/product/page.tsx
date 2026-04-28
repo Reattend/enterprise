@@ -278,7 +278,7 @@ function Run() {
       items={[
         { icon: GraduationCap, title: 'Exit Interview', copy: 'Six weeks of ramp time saved. The handoff doc is a saved memory the successor can read on day one.' },
         { icon: Bot,           title: 'Onboarding Genie', copy: 'New hire form → first-week packet (decisions, people, policies, agents to try).' },
-        { icon: ListFilterPlus,title: 'Action agents',  copy: 'Draft email reply, draft team broadcast. Ready to copy out. Real-send via Slack/email lands with Nango.' },
+        { icon: ListFilterPlus,title: 'Action agents',  copy: 'Draft email reply, draft team broadcast. Ready to copy out. Real-send via Slack/email lands soon.' },
         { icon: Sparkles,      title: 'Run Now',        copy: 'Admin-only. Triggers an agent over recent memory; result saves as a new memory record.' },
       ]}
     />

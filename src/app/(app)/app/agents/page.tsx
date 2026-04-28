@@ -193,10 +193,10 @@ export default function AgentsPage() {
                     status="live"
                     tone="from-violet-500/10 to-purple-500/5 border-violet-500/20"
                   />
-                  <ActionAgentCard icon={SendHorizonal} title="Send to Slack channel" desc="Post a message to a channel. Needs Nango." status="soon" />
-                  <ActionAgentCard icon={Ticket} title="Create Linear / Jira ticket" desc="File a ticket from a decision or memory. Needs Nango." status="soon" />
-                  <ActionAgentCard icon={CalendarPlus} title="Schedule follow-up" desc="Book a calendar event off a decision. Needs Nango." status="soon" />
-                  <ActionAgentCard icon={FileEdit} title="Update Notion page" desc="Push memory content into an existing Notion doc. Needs Nango." status="soon" />
+                  <ActionAgentCard icon={SendHorizonal} title="Send to Slack channel" desc="Post a message to a channel." status="soon" />
+                  <ActionAgentCard icon={Ticket} title="Create Linear / Jira ticket" desc="File a ticket from a decision or memory." status="soon" />
+                  <ActionAgentCard icon={CalendarPlus} title="Schedule follow-up" desc="Book a calendar event off a decision." status="soon" />
+                  <ActionAgentCard icon={FileEdit} title="Update Notion page" desc="Push memory content into an existing Notion doc." status="soon" />
                   <ActionAgentCard icon={FileText} title="Draft policy amendment" desc="Compose a delta against a published policy." status="soon" />
                   <ActionAgentCard icon={LineChart} title="Weekly team report" desc="Auto-compile what's shipped, what's pending, what's stuck." status="soon" />
                 </div>

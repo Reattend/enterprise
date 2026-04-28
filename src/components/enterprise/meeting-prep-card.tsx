@@ -293,7 +293,7 @@ function AddMeetingDialog({ orgId, onClose, onAdded }: { orgId: string; onClose:
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Until Nango calendar sync is live, add upcoming meetings here — so Reattend can brief you 15 minutes ahead.
+          Until calendar sync is live, add upcoming meetings here — so Reattend can brief you 15 minutes ahead.
         </p>
         <div className="space-y-2">
           <Input placeholder="Meeting title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={saving} />

@@ -399,14 +399,14 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     features: [
       {
         title: 'Gmail / Slack / Calendar ingest',
-        desc: 'Real OAuth + incremental sync via Nango. Ships right before GA.',
+        desc: 'Real OAuth + incremental sync. Ships right before GA.',
         icon: Plug,
         status: 'soon',
         who: ['super_admin', 'admin', 'member'],
       },
       {
         title: 'More action agents (send, schedule, file ticket)',
-        desc: 'Send to Slack, create Linear/Jira tickets, schedule follow-ups, update Notion pages. Listed as "coming soon" in /app/agents until Nango connectors ship in Sprint P.',
+        desc: 'Send to Slack, create Linear/Jira tickets, schedule follow-ups, update Notion pages. Listed as "coming soon" in /app/agents until the connectors ship.',
         icon: Bot,
         status: 'soon',
         who: ['super_admin', 'admin', 'member'],

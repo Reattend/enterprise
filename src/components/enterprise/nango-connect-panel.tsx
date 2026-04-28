@@ -25,7 +25,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Zap,
-  ExternalLink,
   Filter,
 } from 'lucide-react'
 
@@ -234,18 +233,7 @@ export function NangoConnectPanel() {
           <div className="min-w-0">
             <h2 className="text-base font-semibold tracking-tight">Enterprise Integrations</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              One-click OAuth + auto-sync into your org memory.{' '}
-              <span className="text-muted-foreground/70">
-                Powered by{' '}
-                <a
-                  href="https://www.nango.dev"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline inline-flex items-center gap-0.5"
-                >
-                  Nango <ExternalLink className="h-2.5 w-2.5" />
-                </a>
-              </span>
+              One-click OAuth + auto-sync into your org memory. Tokens stay on your tenant.
             </p>
           </div>
         </div>
@@ -260,8 +248,8 @@ export function NangoConnectPanel() {
         <div className="px-5 py-3 bg-yellow-500/10 border-b text-xs text-yellow-900 dark:text-yellow-200 flex items-start gap-2">
           <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
           <div>
-            Nango is not configured. Set <code className="px-1 py-0.5 bg-muted rounded text-[10px]">NANGO_SECRET_KEY</code> in
-            env, and optionally <code className="px-1 py-0.5 bg-muted rounded text-[10px]">NANGO_HOST</code> (for self-hosted).
+            Ingestion pipeline isn&apos;t live yet on this tenant — admin needs to provision it. Connectors
+            will appear here as soon as it&apos;s up.
           </div>
         </div>
       )}
