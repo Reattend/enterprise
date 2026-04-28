@@ -31,6 +31,7 @@ import {
   Search,
   Plug,            // Integrations icon (now in topbar)
   Map as MapIcon,  // Legend icon (now in topbar)
+  Chrome,          // Install Chrome extension
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -310,6 +311,22 @@ export function AppTopbar() {
               {activeEnterpriseOrg.orgPlan}
             </Link>
           )}
+
+          {/* Chrome extension — Web Store install */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            asChild
+            title="Install Reattend for Chrome"
+          >
+            <a
+              href="https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Chrome className="h-4 w-4 text-muted-foreground" />
+            </a>
+          </Button>
 
           {/* Integrations — moved out of sidebar in Sprint O */}
           <Button

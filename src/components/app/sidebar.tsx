@@ -430,7 +430,7 @@ export function AppSidebar() {
         {/* Header: Logo + Collapse */}
         <div className="flex items-center gap-2 p-3">
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1">
-            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md" unoptimized />
+            <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0" unoptimized />
             <div className="flex flex-col min-w-0 leading-tight">
               <span className="text-[15px] font-bold text-sidebar-foreground tracking-tight">Reattend</span>
               <span className="text-[9px] uppercase tracking-wider text-primary font-semibold">Enterprise</span>
@@ -699,7 +699,7 @@ function MobileOverlay({
         {/* Header */}
         <div className="flex items-center gap-2 p-3 border-b border-sidebar-border shrink-0">
           <Link href="/app" className="flex items-center gap-2 flex-1 min-w-0 px-1" onClick={close}>
-            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md" unoptimized />
+            <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} className="h-7 w-7 shrink-0" unoptimized />
             <span className="text-[15px] font-bold tracking-tight">Reattend</span>
           </Link>
           <button
