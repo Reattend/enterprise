@@ -2,7 +2,7 @@
 
 // "Who should I ask?" dialog. Press ⌘⇧K anywhere or click the topbar button.
 // Type a question, see top 5 people in the org best positioned to answer,
-// each with a Claude-written 1-line "why".
+// each with a one-line AI-written "why this person".
 
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -50,7 +50,14 @@ export function AskExpertsDialog({ open, onOpenChange }: { open: boolean; onOpen
   }, [open])
 
   async function run() {
-    if (!activeEnterpriseOrgId || q.trim().length < 3) return
+    if (q.trim().length < 3) {
+      toast.error('Type a question with at least 3 characters')
+      return
+    }
+    if (!activeEnterpriseOrgId) {
+      toast.error('Select an organization first (top-left of the topbar)')
+      return
+    }
     setLoading(true)
     setExperts(null)
     try {
@@ -59,12 +66,14 @@ export function AskExpertsDialog({ open, onOpenChange }: { open: boolean; onOpen
       )
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        toast.error(body.error || 'Failed to find experts')
+        toast.error(body.error || `Failed to find experts (HTTP ${res.status})`)
         return
       }
       const data = await res.json()
       setExperts(data.experts || [])
       setKeywords(data.keywords || [])
+    } catch (err) {
+      toast.error((err as Error).message || 'Network error')
     } finally {
       setLoading(false)
     }
@@ -136,10 +145,15 @@ export function AskExpertsDialog({ open, onOpenChange }: { open: boolean; onOpen
 
           {experts && experts.length === 0 && !loading && (
             <div className="py-8 text-center">
-              <div className="text-sm text-muted-foreground">No one matches yet.</div>
-              <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-                Either this topic hasn't been captured in memory yet, or we can't find a clear author. Try rephrasing, or capture a memory about it first.
+              <div className="text-sm font-medium text-foreground">No clear expert found.</div>
+              <p className="text-xs text-muted-foreground mt-1.5 max-w-md mx-auto leading-relaxed">
+                Either this topic hasn&apos;t been captured in memory yet, or no one in your accessible departments has authored related records. Try rephrasing the question, or capture a memory about the topic first and try again.
               </p>
+              {keywords.length === 0 && (
+                <p className="text-[11px] text-muted-foreground/70 mt-3">
+                  Tip: questions with specific nouns work better. &quot;Who knows about <em>BEPS treaty</em>?&quot; ranks higher than &quot;who can help me?&quot;.
+                </p>
+              )}
             </div>
           )}
 

@@ -522,7 +522,7 @@ function UseCases() {
             icon={Plug}
             title="Slack + Notion + MS Teams. Hooked up in a day."
             copy="Cloud-native. Your decision graph fills itself from the conversations and docs your team already has."
-            bullets={['Slack / Notion / MS Teams', '$25 per seat per month', '30-day free trial']}
+            bullets={['Slack / Notion / MS Teams', 'From $19 per seat per month', '30-day free trial']}
             cta={{ label: 'See team pricing', href: '/pricing#team' }}
           />
         </div>
@@ -611,9 +611,10 @@ function PricingTease() {
             Pick your plan by deployment.
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <PlanCard name="Team" price="$25" cadence="/seat/month" blurb="For startups and SMBs up to 200 people." />
-          <PlanCard name="Enterprise" price="Custom" blurb="Dedicated tenant, SAML+SCIM, residency." highlight />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <PlanCard name="Team" price="$19" cadence="/seat/month" blurb="Org memory, decisions, agents, Chrome extension. The full memory layer." />
+          <PlanCard name="Pro" price="$29" cadence="/seat/month" blurb="Everything in Team plus the meeting recorder bot. Replaces Fireflies / Otter." highlight />
+          <PlanCard name="Enterprise" price="Custom" blurb="Dedicated tenant, SAML+SCIM, residency, customer-managed KMS." />
           <PlanCard name="Government" price="Quote" blurb="On-premise, air-gapped, trainer dispatched." />
         </div>
         <div className="mt-8">

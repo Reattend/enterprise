@@ -2,13 +2,13 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Pricing · Reattend Enterprise',
-  description: 'Three plans, one product: Team ($25/seat), Enterprise (custom), Government (on-prem). Same memory engine, same RBAC.',
+  description: 'Four plans, one product: Team ($19/seat), Pro ($29/seat with meeting recorder), Enterprise (custom), Government (on-prem). Same memory engine, same RBAC.',
   alternates: {
     canonical: 'https://enterprise.reattend.com/pricing',
   },
   openGraph: {
     title: 'Reattend Enterprise Pricing',
-    description: 'Team / Enterprise / Government — pick by deployment + scale.',
+    description: 'Team / Pro / Enterprise / Government. Pick by deployment, scale, and whether you want the meeting recorder.',
     url: 'https://enterprise.reattend.com/pricing',
   },
 }

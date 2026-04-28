@@ -7,7 +7,7 @@ import { SiteNav } from '@/components/landing/site-nav'
 import { SiteFooter } from '@/components/landing/site-footer'
 
 interface Tier {
-  id: 'team' | 'enterprise' | 'government'
+  id: 'team' | 'pro' | 'enterprise' | 'government'
   name: string
   price: string
   priceCadence?: string
@@ -21,9 +21,9 @@ const TIERS: Tier[] = [
   {
     id: 'team',
     name: 'Team',
-    price: '$25',
+    price: '$19',
     priceCadence: '/seat/month',
-    blurb: 'For startups & SMBs up to 200 people who live in Slack + Notion + Google.',
+    blurb: 'Org memory for the team. Capture, decisions, recall, agents, the Chrome extension. Everything you need to stop forgetting.',
     cta: { label: 'Start 30-day trial', href: '/register', primary: true },
     features: [
       { label: 'Up to 200 seats', included: true },
@@ -33,15 +33,35 @@ const TIERS: Tier[] = [
       { label: 'Onboarding Genie', included: true },
       { label: 'Exit Interview Agent + Handoff Generator', included: true },
       { label: 'Self-healing dashboard', included: true },
-      { label: 'Oracle Mode + Chat (AI-powered)', included: true },
+      { label: 'Chat + Deepthink (AI-powered)', included: true },
       { label: 'Chrome extension + ambient surfacing', included: true },
       { label: 'Slack / Notion / MS Teams integrations', included: true },
       { label: 'OCR pipeline (basic — image-only)', included: true },
       { label: 'GDPR data controls + WORM audit log', included: true },
+      { label: 'Meeting recorder + auto-transcripts', included: false },
       { label: 'SAML SSO', included: 'available' },
       { label: 'On-premise / dedicated tenant', included: false },
-      { label: 'StateRAMP / CJIS controls', included: false },
-      { label: 'Assisted onboarding + paper digitization', included: false },
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '$29',
+    priceCadence: '/seat/month',
+    blurb: 'Everything in Team plus the meeting layer. A bot joins your Zoom / Meet / Teams calls, transcribes, and feeds the org memory automatically.',
+    cta: { label: 'Start 30-day trial', href: '/register', primary: true },
+    highlight: true,
+    features: [
+      { label: 'Everything in Team', included: true },
+      { label: 'Meeting recorder bot (Zoom / Meet / Teams)', included: true },
+      { label: 'Automatic transcription with speaker labels', included: true },
+      { label: 'AI summary with decisions and action items extracted', included: true },
+      { label: 'Transcripts saved as memory records (RBAC-respecting)', included: true },
+      { label: 'Calendar auto-join (opt-in per meeting)', included: true },
+      { label: 'Per-user recording quota included (40 hours/month)', included: true },
+      { label: 'Audio retention configurable (default 30 days, transcripts forever)', included: true },
+      { label: 'Replaces Fireflies / Otter / Granola in your stack', included: true },
+      { label: 'SAML SSO', included: 'available' },
     ],
   },
   {
@@ -50,10 +70,9 @@ const TIERS: Tier[] = [
     price: 'Custom',
     blurb: 'For 200+ seats, regulated industries, or anyone needing dedicated infrastructure.',
     cta: { label: 'Talk to sales', href: 'mailto:sales@reattend.com', primary: true },
-    highlight: true,
     features: [
       { label: 'Unlimited seats', included: true },
-      { label: 'Everything in Team', included: true },
+      { label: 'Everything in Pro', included: true },
       { label: 'SAML SSO + SCIM provisioning', included: true },
       { label: 'Dedicated tenant (Postgres + isolated app)', included: true },
       { label: 'EU / US / APAC data residency', included: true },
@@ -109,7 +128,7 @@ export default function PricingContent() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
           {TIERS.map((tier, i) => (
             <motion.div
               key={tier.id}
@@ -187,8 +206,10 @@ export default function PricingContent() {
           <h2 className="text-[20px] font-bold text-[#1a1a2e] mb-5">A few quick answers</h2>
           <div className="space-y-5">
             {[
-              { q: 'Is there a free trial?', a: '30 days on the Team plan, no credit card required. Enterprise + Government go through sales — we want to make sure you land on the right deployment.' },
-              { q: 'Per-seat — what counts as a seat?', a: 'Any active user with an org membership. Guests (read-only on explicit shares) don\'t count. Admins do.' },
+              { q: 'Is there a free trial?', a: '30 days on Team and Pro, no credit card required. Enterprise and Government go through sales so we land you on the right deployment.' },
+              { q: 'What is the difference between Team and Pro?', a: 'Pro adds the meeting recorder. A bot joins your Zoom, Meet, or Teams calls, transcribes them, extracts decisions and action items, and saves the result as a memory record (still RBAC-respecting). It replaces Fireflies, Otter, or Granola in your stack. Everything else is identical to Team.' },
+              { q: 'Per-seat. What counts as a seat?', a: 'Any active user with an org membership. Guests (read-only on explicit shares) don\'t count. Admins do.' },
+              { q: 'How much meeting recording is included on Pro?', a: '40 hours per user per month, transcribed and summarised. Audio is retained for 30 days by default; transcripts and summaries stay forever. Heavier usage available on request.' },
               { q: 'On-prem — what does that actually mean?', a: 'The full stack runs inside your network: app, database, and the LLM (via on-prem Rabbit). Zero egress to Reattend. Customer manages updates on their cadence; we provide signed tarball releases.' },
               { q: 'How fast can we go live?', a: 'Team: 30 minutes (Slack + Notion connectors are 1-click). Enterprise dedicated: 1-2 weeks. Government on-prem with paper digitization: 6-12 weeks depending on legacy archive size.' },
               { q: 'What about the AI engine?', a: 'Cloud deployment uses our managed AI stack — frontier reasoning models for answering plus a fast model for triage. Year-2 we ship on-prem Rabbit so the model lives on your hardware. You can swap at any time.' },
