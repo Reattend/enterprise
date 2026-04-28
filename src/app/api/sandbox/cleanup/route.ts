@@ -53,12 +53,17 @@ export async function GET(req: NextRequest) {
       .where(inArray(schema.workspaceOrgLinks.organizationId, orgIds))
     const workspaceIds = Array.from(new Set(linkRows.map((l) => l.workspaceId)))
 
-    // Use a transaction to keep the cascade atomic. Delete leaves first,
-    // then the org row. Table cascades help where present but we're explicit.
+    // Use a transaction with defer_foreign_keys=ON so FK constraints are
+    // checked only at COMMIT time, not on every DELETE. Without this, a
+    // perfectly-correct cascade order still trips FK violations because
+    // some columns (decisions.decided_by_user_id, agents.owner_user_id,
+    // etc.) reference users with NO ACTION onDelete — meaning the engine
+    // refuses each statement individually even though the referenced
+    // user will be gone before the transaction commits.
     const tx = sqlite.transaction(() => {
+      sqlite.prepare('PRAGMA defer_foreign_keys = ON').run()
+
       if (workspaceIds.length) {
-        // records + everything records-scoped cascade via workspace deletion
-        // but we nuke known org-scoped tables explicitly too.
         const wsList = workspaceIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',')
         sqlite.prepare(`DELETE FROM records WHERE workspace_id IN (${wsList})`).run()
         sqlite.prepare(`DELETE FROM workspace_org_links WHERE workspace_id IN (${wsList})`).run()
@@ -67,27 +72,43 @@ export async function GET(req: NextRequest) {
       }
 
       const orgList = orgIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',')
-      // Org-scoped tables
+      // Org-scoped tables. Order matters less now that FK checks are
+      // deferred, but we still front-load the tables that reference
+      // others (acks, members, audit) before the ones they target.
       const orgTables = [
-        'decisions', 'policies', 'policy_versions', 'policy_acks',
-        'agents', 'agent_queries', 'announcements', 'announcement_acks',
-        'prompt_library', 'calendar_events', 'exit_interviews', 'ocr_jobs',
-        'departments', 'department_members', 'organization_members',
-        'audit_log', 'record_views', 'transfer_tasks',
+        'policy_acks', 'announcement_acks',
+        'policy_versions', 'policies',
+        'agent_queries', 'agents',
+        'announcements', 'prompt_library', 'calendar_events',
+        'exit_interviews', 'ocr_jobs', 'transfer_tasks',
+        'decisions', 'audit_log', 'record_views',
+        'department_members', 'departments',
+        'organization_members',
       ]
       for (const t of orgTables) {
         try {
           sqlite.prepare(`DELETE FROM ${t} WHERE organization_id IN (${orgList})`).run()
         } catch { /* table may not exist in this deployment */ }
       }
-      // policy_versions sometimes joined via policy_id — safe no-op if
-      // policies were cleared first via cascade
 
       sqlite.prepare(`DELETE FROM organizations WHERE id IN (${orgList})`).run()
 
-      // Finally, sandbox users — only those with no remaining org memberships
+      // Finally, sandbox users — only those with no remaining org memberships.
+      // Personal workspaces created during sandbox launch may still reference
+      // them; clear those first.
       if (candidateUserIds.length) {
         const userList = candidateUserIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',')
+        // Drop any personal workspaces these users own (sandbox launch creates
+        // one per visitor).
+        sqlite.prepare(`
+          DELETE FROM workspace_members
+          WHERE user_id IN (${userList})
+        `).run()
+        sqlite.prepare(`
+          DELETE FROM workspaces
+          WHERE created_by IN (${userList})
+            AND type = 'personal'
+        `).run()
         sqlite.prepare(`
           DELETE FROM users
           WHERE id IN (${userList})
