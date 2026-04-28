@@ -134,46 +134,44 @@ export function NangoConnectPanel() {
       const session = await sessionRes.json()
 
       // Dynamic import keeps the Nango frontend bundle out of pages that
-      // don't need it. The modern SDK authenticates via the session token
-      // minted by our backend; no public key needed.
+      // don't need it. We use the classic auth() popup flow rather than
+      // openConnectUI() — the latter loads its iframe from connect.nango.dev
+      // by default, which doesn't know about our self-hosted instance.
+      // auth() goes straight to <our nango>/oauth/connect/<provider>, opens
+      // the provider's own consent screen in a popup, and resolves on success.
       const mod: any = await import('@nangohq/frontend')
       const Nango = mod.default ?? mod.Nango ?? mod
       const client = new Nango({
         host: session.host,
         connectSessionToken: session.sessionToken,
       })
-      if (!client.openConnectUI) {
-        throw new Error('Nango frontend SDK is too old — please upgrade @nangohq/frontend')
+
+      try {
+        await client.auth(session.providerConfigKey, session.connectionId)
+      } catch (authErr: any) {
+        // User closed popup or denied consent — non-fatal, just stop.
+        if (authErr?.type === 'authorization_cancelled' || authErr?.message?.includes('cancel')) {
+          return
+        }
+        throw authErr
       }
 
-      client.openConnectUI({
-        sessionToken: session.sessionToken,
-        onEvent: async (event: any) => {
-          if (event?.type === 'connect') {
-            toast.success(`${provider.name} connected — running backfill…`)
-            // Backfill the last few pages so data appears immediately
-            // instead of waiting for Nango's scheduled sync.
-            try {
-              const backfillRes = await fetch('/api/integrations/nango/backfill', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ providerKey: provider.key }),
-              })
-              if (backfillRes.ok) {
-                const data = await backfillRes.json()
-                toast.success(`Backfill done · ${data.added} new, ${data.skipped} already-seen, ${data.filtered} filtered`)
-              }
-            } catch { /* non-fatal */ }
-            fetchStatus()
-          }
-          if (event?.type === 'close') {
-            fetchStatus()
-          }
-        },
-      })
+      toast.success(`${provider.name} connected — running backfill…`)
+      try {
+        const backfillRes = await fetch('/api/integrations/nango/backfill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ providerKey: provider.key }),
+        })
+        if (backfillRes.ok) {
+          const data = await backfillRes.json()
+          toast.success(`Backfill done · ${data.added} new, ${data.skipped} already-seen, ${data.filtered} filtered`)
+        }
+      } catch { /* non-fatal */ }
+      fetchStatus()
     } catch (err: any) {
       console.error(err)
-      toast.error(err?.message || 'Failed to open Nango Connect UI')
+      toast.error(err?.message || 'Failed to open OAuth flow')
     } finally {
       setConnecting(null)
     }
