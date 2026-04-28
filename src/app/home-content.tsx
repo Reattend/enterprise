@@ -1,73 +1,66 @@
 'use client'
 
-// Reattend Enterprise — landing page (Stripe design language).
-//
-// Hero: animated gradient mesh, white display type overlay, two CTAs.
-// Trust strip: colored client logos on white.
-// Feature triplet: light tinted cards on white background.
-// Showcase: a tinted "studio" section with a stylized product preview.
-// Final CTA: a second gradient mesh panel with white headline.
-// Footer: soft slate, simple four-column.
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
-  ArrowRight, Brain, GraduationCap, ShieldCheck, Sparkles,
-  Users, Gavel, Clock, Zap, Network,
+  ArrowRight, Shield, Lock, Building2, GraduationCap,
+  Sparkles, Gavel, History, Check, Plug, Server,
 } from 'lucide-react'
-import { GradientMesh } from '@/components/landing/gradient-mesh'
-import { TrustStrip } from '@/components/landing/trust-strip'
+
+// Reattend Enterprise landing — Stripe-inspired light theme. Big serif-y
+// display headline, refined whitespace, alternating feature rows with a
+// product-mock card on the right of each, customer logo wall, stats strip,
+// dual use-case cards, pricing teaser, big closing CTA, multi-column footer.
+//
+// No full-page gradient mesh. Subtle pastel section backgrounds break up
+// the page rhythm without competing for attention with the product mocks.
 
 export default function EnterpriseLanding() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 selection:bg-fuchsia-500/30 selection:text-white antialiased">
+    <div className="min-h-screen bg-white text-[#1a1a2e] overflow-x-hidden">
+      <Nav />
       <Hero />
-      <TrustStrip />
-      <FeatureTriplet />
-      <Showcase />
-      <FinalCTA />
-      <Footer />
+      <LogoWall />
+      <FeatureMemory />
+      <FeatureExit />
+      <FeatureSecure />
+      <Stats />
+      <UseCases />
+      <PricingTease />
+      <ClosingCTA />
+      <SiteFooter />
     </div>
   )
 }
 
-function Nav({ tone }: { tone: 'on-mesh' | 'on-light' }) {
-  // The nav lives inside its parent section so it inherits its color
-  // backdrop. Two tones: on the gradient mesh (white text), on light
-  // sections (slate text). Used by Hero and FinalCTA.
-  const linkClass = tone === 'on-mesh'
-    ? 'text-white/80 hover:text-white'
-    : 'text-slate-600 hover:text-slate-900'
-  const ctaClass = tone === 'on-mesh'
-    ? 'bg-white text-slate-900 hover:bg-slate-100'
-    : 'bg-slate-900 text-white hover:bg-slate-800'
+// ─── Nav ───────────────────────────────────────────────────────────────────
+function Nav() {
   return (
-    <nav className="relative z-20">
-      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/icon-128.png" alt="Reattend" width={32} height={32} className="h-8 w-8 rounded-lg" unoptimized />
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-neutral-200/60">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 rounded-md" unoptimized />
           <div className="leading-tight">
-            <div className={`text-[15px] font-semibold tracking-tight ${tone === 'on-mesh' ? 'text-white' : 'text-slate-900'}`}>Reattend</div>
-            <div className={`text-[9px] font-semibold uppercase tracking-[0.22em] ${tone === 'on-mesh' ? 'text-white/60' : 'text-slate-400'}`}>Enterprise</div>
+            <div className="text-[15px] font-bold tracking-tight">Reattend</div>
+            <div className="text-[9px] font-semibold text-neutral-400 uppercase tracking-widest">Enterprise</div>
           </div>
         </Link>
-        <div className={`hidden md:flex items-center gap-8 text-[14px] ${linkClass}`}>
-          <Link href="/pricing" className="transition-colors">Pricing</Link>
-          <Link href="/sandbox" className="transition-colors">Sandbox</Link>
-          <Link href="/compliance" className="transition-colors">Compliance</Link>
-          <Link href="/support" className="transition-colors">Support</Link>
+        <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-neutral-600">
+          <a href="#product" className="hover:text-[#1a1a2e] transition-colors">Product</a>
+          <Link href="/pricing" className="hover:text-[#1a1a2e] transition-colors">Pricing</Link>
+          <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+          <Link href="/sandbox" className="hover:text-[#1a1a2e] transition-colors">Sandbox</Link>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/login" className={`text-[14px] font-medium transition-colors ${linkClass}`}>
+          <Link href="/login" className="text-[13px] font-semibold text-neutral-700 hover:text-[#1a1a2e] transition-colors">
             Sign in
           </Link>
           <Link
-            href="/sandbox"
-            className={`inline-flex items-center gap-1.5 px-4 h-9 rounded-full text-[13px] font-semibold transition-colors ${ctaClass}`}
+            href="/register"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1a1a2e] text-white text-[13px] font-semibold rounded-full hover:bg-[#2d2b55] transition-colors"
           >
-            Get started
-            <ArrowRight className="h-3.5 w-3.5" />
+            Get started <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
@@ -75,53 +68,61 @@ function Nav({ tone }: { tone: 'on-mesh' | 'on-light' }) {
   )
 }
 
+// ─── Hero ──────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative isolate overflow-hidden text-white">
-      <GradientMesh />
-      {/* Soft top-edge darkening so the nav contrasts no matter where the
-          blobs happen to be when the page loads */}
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent z-10 pointer-events-none" />
+    <section className="relative pt-16 md:pt-24 pb-24 overflow-hidden">
+      {/* Soft pastel wash behind the hero, no animated gradient. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-violet-50/60 via-white to-white pointer-events-none" />
+      <div className="absolute -top-40 right-[-10%] h-[480px] w-[480px] rounded-full bg-violet-200/30 blur-3xl pointer-events-none" />
+      <div className="absolute top-40 left-[-10%] h-[420px] w-[420px] rounded-full bg-amber-200/25 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10">
-        <Nav tone="on-mesh" />
-
-        <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-28 md:pb-40 text-center">
+      <div className="relative max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="lg:col-span-7">
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5 }}
           >
-            <p className="text-[12px] font-medium tracking-[0.18em] uppercase text-white/60 mb-7">
-              Reattend Enterprise
-            </p>
-            <h1 className="text-[52px] md:text-[88px] leading-[0.98] font-semibold tracking-[-0.035em] text-white max-w-4xl mx-auto">
-              Your organization&apos;s memory,{' '}
-              <span className="italic font-medium text-white/80">preserved.</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100/70 text-violet-700 text-[11px] font-semibold uppercase tracking-widest mb-6">
+              <Sparkles className="h-3 w-3" /> Enterprise memory platform
+            </div>
+            <h1 className="text-[44px] md:text-[64px] font-bold tracking-[-0.035em] leading-[1.05]">
+              Your organization&apos;s <br className="hidden md:block" />
+              <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">memory, preserved.</span>
             </h1>
-            <p className="text-[17px] md:text-[20px] text-white/75 mt-8 max-w-2xl mx-auto leading-[1.55]">
-              Decisions, context, and institutional knowledge. Captured, linked, and never lost — even when people leave the room, the team, or the company.
+            <p className="text-[18px] text-neutral-600 mt-6 max-w-xl leading-relaxed">
+              Decisions, context, and institutional knowledge — captured, linked, and never lost. Even when people leave, transfer, or retire.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-12">
+            <div className="flex flex-wrap items-center gap-3 mt-9">
               <Link
                 href="/sandbox"
-                className="group inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-slate-900 bg-white hover:bg-slate-100 transition-colors shadow-[0_18px_60px_-18px_rgba(255,255,255,0.4)]"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#1a1a2e] text-white text-[14px] font-semibold rounded-full hover:bg-[#2d2b55] transition-all shadow-md shadow-[#1a1a2e]/15"
               >
-                Try the sandbox
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                Try the live sandbox <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center gap-2 h-12 px-6 rounded-full text-[14px] font-semibold text-white border border-white/30 hover:border-white/60 hover:bg-white/[0.06] transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#1a1a2e] text-[14px] font-semibold rounded-full border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 transition-colors"
               >
                 See pricing
               </Link>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 mt-10 text-[12px] text-white/60">
-              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> SOC 2 in-flight</span>
-              <span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-amber-200" /> 30-day free trial</span>
-              <span className="flex items-center gap-1.5"><Network className="h-3.5 w-3.5 text-pink-200" /> On-premise option</span>
+            <div className="flex items-center gap-5 mt-8 text-[12px] text-neutral-500">
+              <span className="inline-flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-emerald-600" /> SOC 2 in progress</span>
+              <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-blue-600" /> On-premise deployment</span>
+              <span className="hidden sm:inline-flex items-center gap-1.5"><Server className="h-3.5 w-3.5 text-violet-600" /> Customer-managed KMS</span>
             </div>
+          </motion.div>
+        </div>
+
+        <div className="lg:col-span-5">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <HeroProductMock />
           </motion.div>
         </div>
       </div>
@@ -129,71 +130,57 @@ function Hero() {
   )
 }
 
-const FEATURES: Array<{
-  icon: typeof Brain
-  title: string
-  desc: string
-  tint: string
-  iconBg: string
-}> = [
-  {
-    icon: Brain,
-    title: 'Organizational Memory',
-    desc: 'Every decision, meeting, policy, and exit interview lives in one graph. Time-indexed so you can scrub the org back to any month and see what was active, what was reversed, and who knew what.',
-    tint: 'from-violet-100 to-fuchsia-50',
-    iconBg: 'bg-gradient-to-br from-violet-500 to-fuchsia-500',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Exit Interview Agent',
-    desc: 'When someone gives notice, the AI reads their memory footprint and writes a structured handoff for their successor. Six weeks of ramp time saved per departure.',
-    tint: 'from-amber-100 to-orange-50',
-    iconBg: 'bg-gradient-to-br from-amber-500 to-orange-600',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Secure by Design',
-    desc: 'Two-tier RBAC, hash-chained audit log, GDPR-grade controls. On-premise deployment with the AI running entirely on your hardware. Procurement-grade from day one.',
-    tint: 'from-emerald-100 to-cyan-50',
-    iconBg: 'bg-gradient-to-br from-emerald-500 to-cyan-600',
-  },
-]
-
-function FeatureTriplet() {
+function HeroProductMock() {
   return (
-    <section className="relative bg-white py-28 md:py-36">
-      <div className="max-w-6xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.6 }}
-          className="max-w-[680px] mb-16"
-        >
-          <p className="text-[12px] font-medium tracking-[0.18em] uppercase text-slate-500 mb-5">
-            Built for organizational continuity
-          </p>
-          <h2 className="text-[36px] md:text-[52px] font-semibold tracking-[-0.03em] leading-[1.06] text-slate-900">
-            The memory layer your <span className="italic text-slate-600">org has been missing.</span>
-          </h2>
-        </motion.div>
+    <div className="relative">
+      {/* Floating background card */}
+      <div className="absolute -top-4 -right-3 w-full h-full rounded-3xl bg-violet-200/50 blur-md transform rotate-2" />
+      <div className="relative rounded-3xl border border-neutral-200 bg-white shadow-2xl shadow-neutral-300/40 p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Gavel className="h-4 w-4 text-violet-600" />
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-violet-600">Decision · April 22, 2026</span>
+        </div>
+        <h3 className="text-[18px] font-semibold leading-snug">Adopt OECD BEPS 2.0 framework for international taxation</h3>
+        <p className="text-[13px] text-neutral-600 leading-relaxed">
+          Aligning with OECD pillar framework reduces tax arbitrage and secures ~$4B in additional revenue per year. Replaces the 2024 unilateral position.
+        </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200">
+            <Check className="h-3 w-3" /> Active
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[10px] font-semibold border border-violet-200">
+            12 dependent decisions
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-semibold border border-amber-200">
+            5 policies impacted
+          </span>
+        </div>
+        <div className="border-t border-neutral-100 pt-3">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Blast radius</div>
+          <div className="flex items-center gap-2 text-[12px] text-neutral-600">
+            <div className="h-1.5 flex-1 rounded-full bg-neutral-100 overflow-hidden">
+              <div className="h-full w-[68%] bg-gradient-to-r from-amber-400 to-rose-500" />
+            </div>
+            <span className="text-[12px] font-semibold text-rose-600 tabular-nums">68 / Systemic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.55, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative rounded-2xl bg-gradient-to-br ${f.tint} border border-slate-200/80 p-7 hover:shadow-[0_30px_80px_-30px_rgba(15,23,42,0.18)] transition-shadow`}
-            >
-              <div className={`h-11 w-11 rounded-xl ${f.iconBg} flex items-center justify-center mb-5 shadow-md`}>
-                <f.icon className="h-5 w-5 text-white" strokeWidth={2.25} />
-              </div>
-              <h3 className="text-[18px] font-semibold text-slate-900 mb-2">{f.title}</h3>
-              <p className="text-[14px] text-slate-600 leading-[1.6]">{f.desc}</p>
-            </motion.div>
+// ─── Logo wall ──────────────────────────────────────────────────────────────
+function LogoWall() {
+  const labels = ['Ministry of Finance', 'CBDT', 'Acme Tax', 'Oakridge Capital', 'Helix Bio', 'Northwind Health']
+  return (
+    <section className="border-y border-neutral-100 bg-neutral-50/40">
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <p className="text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-6">
+          Built for organizations that can&apos;t afford to forget
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-neutral-500">
+          {labels.map((l) => (
+            <span key={l} className="text-[14px] font-semibold tracking-tight grayscale opacity-70">{l}</span>
           ))}
         </div>
       </div>
@@ -201,231 +188,431 @@ function FeatureTriplet() {
   )
 }
 
-function Showcase() {
+// ─── Feature row ───────────────────────────────────────────────────────────
+function FeatureMemory() {
   return (
-    <section className="relative bg-gradient-to-b from-rose-50 via-fuchsia-50/40 to-white py-28 md:py-36 overflow-hidden">
-      {/* Soft tinted backdrop ovals */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-pink-200/40 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full bg-violet-200/30 blur-3xl" />
-      </div>
-
-      <div className="relative max-w-6xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-[680px] mx-auto mb-16"
-        >
-          <p className="text-[12px] font-medium tracking-[0.18em] uppercase text-fuchsia-600 mb-5">
-            The product
-          </p>
-          <h2 className="text-[36px] md:text-[52px] font-semibold tracking-[-0.03em] leading-[1.05] text-slate-900">
-            One graph. Every memory. Indexed by time.
-          </h2>
-          <p className="text-[16px] text-slate-600 mt-6 leading-[1.6]">
-            Decisions surface from meetings. Policies stay current with verification cadences. Every memory links to the people, departments, and questions it answers. Ask anything; cite everything.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
-        >
-          {/* Halo behind the frame */}
-          <div className="absolute -inset-4 rounded-[28px] bg-gradient-to-br from-fuchsia-300/40 via-violet-300/30 to-pink-200/30 blur-2xl -z-10" />
-
-          <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-[0_40px_120px_-30px_rgba(15,23,42,0.25)]">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              <span className="ml-3 text-[11px] text-slate-500 font-mono">enterprise.reattend.com / app</span>
-            </div>
-
-            <div className="grid grid-cols-12 gap-4 p-6 md:p-8 bg-slate-50/40">
-              {[
-                { icon: Users, label: 'Active members', value: '142' },
-                { icon: Brain, label: 'Memories', value: '8,492', sub: '+128 this week' },
-                { icon: Gavel, label: 'Decisions', value: '317', sub: '4 reversed YTD' },
-                { icon: Clock, label: 'Stale', value: '12', sub: 'past verify' },
-              ].map((t) => (
-                <div key={t.label} className="col-span-6 md:col-span-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <t.icon className="h-3.5 w-3.5 text-fuchsia-600" />
-                    <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-500">{t.label}</span>
-                  </div>
-                  <div className="text-2xl font-bold text-slate-900 tabular-nums">{t.value}</div>
-                  {t.sub && <div className="text-[11px] text-slate-500 mt-1">{t.sub}</div>}
-                </div>
-              ))}
-
-              <div className="col-span-12 md:col-span-7 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-fuchsia-600 mb-3">Ask · Chat</div>
-                <div className="text-sm text-slate-700 leading-[1.6]">
-                  <span className="text-slate-400">You</span> · What did we decide about the BEPS treaty position last quarter, and what depends on it?
-                </div>
-                <div className="mt-3 pl-3 border-l-2 border-fuchsia-400 text-sm text-slate-700 leading-[1.6]">
-                  In Q3 the Director of International Taxation locked the treaty position aligning with OECD pillar two. Three downstream artifacts depend on this decision: the safe-harbor margin worksheet (Jan 25), the transfer-pricing memo to subsidiaries (Feb 9), and the auditor briefing pack (March 11). Reversing now would invalidate all three.
-                </div>
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {['Decision · BEPS treaty position', 'Memo · Safe-harbor margins', 'Briefing · Q3 audit'].map((s) => (
-                    <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600">{s}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="col-span-12 md:col-span-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-violet-600 mb-3">Memory mix</div>
-                <div className="flex items-center gap-5">
-                  <DonutMock />
-                  <ul className="flex-1 space-y-2 text-[12px]">
-                    {[
-                      { label: 'Decisions', pct: 32, color: 'bg-violet-500' },
-                      { label: 'Meetings',  pct: 28, color: 'bg-blue-500' },
-                      { label: 'Insights',  pct: 22, color: 'bg-emerald-500' },
-                      { label: 'Notes',     pct: 18, color: 'bg-amber-500' },
-                    ].map((s) => (
-                      <li key={s.label} className="flex items-center gap-2 text-slate-600">
-                        <span className={`h-2 w-2 rounded-sm ${s.color}`} />
-                        <span className="flex-1">{s.label}</span>
-                        <span className="font-semibold tabular-nums text-slate-900">{s.pct}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+    <FeatureRow
+      eyebrow="Time Machine"
+      eyebrowColor="text-amber-600"
+      title="Decisions never decay."
+      copy="Scrub the org through 24 months of state. See what was active when, what got reversed, and what depends on what — every number is a real point-in-time query."
+      bullets={[
+        'Hash-chained decision log',
+        'Blast Radius scoring on every decision',
+        'Self-healing on stale + contradicted memory',
+      ]}
+      visual={
+        <ProductCard tone="amber">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 flex items-center gap-1.5 mb-3">
+            <History className="h-3 w-3" /> Time Machine
           </div>
-        </motion.div>
+          <div className="text-[20px] font-bold tracking-tight mb-3">As of January 2025</div>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <Stat label="Decisions active" value="42" tone="amber" />
+            <Stat label="Already reversed" value="7" tone="rose" />
+          </div>
+          <div className="space-y-1.5 text-[12px] text-neutral-700">
+            <RowDot color="bg-amber-500" text="BEPS treaty position adopted" />
+            <RowDot color="bg-amber-500" text="Hiring freeze on Level-A roles" />
+            <RowDot color="bg-rose-400" text="2024 transfer pricing policy ↺" />
+          </div>
+        </ProductCard>
+      }
+      reverse={false}
+    />
+  )
+}
+
+function FeatureExit() {
+  return (
+    <FeatureRow
+      eyebrow="Exit Interview Agent"
+      eyebrowColor="text-violet-600"
+      title="When people leave, the knowledge stays."
+      copy="The AI reads the departing person's memory footprint, asks 10–15 grounded questions, and writes a structured handoff doc. Six weeks of ramp time, gone."
+      bullets={[
+        'Question generation from authored memory',
+        'Tribal knowledge captured before it walks out',
+        'Successor briefing as a saved memory record',
+      ]}
+      visual={
+        <ProductCard tone="violet">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-violet-600 flex items-center gap-1.5 mb-3">
+            <GraduationCap className="h-3 w-3" /> Handoff doc
+          </div>
+          <div className="text-[14px] font-semibold mb-2">Rajiv Sharma · Director, International Taxation</div>
+          <p className="text-[12px] text-neutral-500 leading-relaxed mb-4">4 years tenure. 47 decisions authored. 6 weeks of context to transfer.</p>
+          <div className="space-y-2">
+            <HandoffSection title="Active projects" body="3 in flight, BEPS treaty thread is the load-bearing one." />
+            <HandoffSection title="Relationships" body="Meera (EU), Priya (CBDT), Arjun (Legal) — meet first." />
+            <HandoffSection title="Gotchas" body="BEPS form silently maps blank year to 2020. Always set explicitly." />
+          </div>
+        </ProductCard>
+      }
+      reverse
+    />
+  )
+}
+
+function FeatureSecure() {
+  return (
+    <FeatureRow
+      eyebrow="Procurement-grade"
+      eyebrowColor="text-blue-600"
+      title="Built for the security review."
+      copy="Two-tier RBAC with eight record-visibility rules. Hash-chained WORM audit log. GDPR controls live today, SOC 2 in progress, StateRAMP + CJIS prep on request."
+      bullets={[
+        'Org role + per-department role',
+        'Customer-managed KMS · BYO encryption',
+        'On-premise deployment with the AI on your hardware',
+      ]}
+      visual={
+        <ProductCard tone="blue">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-blue-600 flex items-center gap-1.5 mb-3">
+            <Shield className="h-3 w-3" /> Compliance posture
+          </div>
+          <div className="space-y-2.5">
+            <Control name="Encryption at rest + in transit" status="live" />
+            <Control name="GDPR self-export + erasure" status="live" />
+            <Control name="WORM audit log (sha256-chained)" status="live" />
+            <Control name="Two-tier RBAC + 8 visibility rules" status="live" />
+            <Control name="SOC 2 Type I" status="q1" />
+            <Control name="StateRAMP Moderate" status="prep" />
+            <Control name="On-premise / air-gapped" status="available" />
+          </div>
+        </ProductCard>
+      }
+      reverse={false}
+    />
+  )
+}
+
+interface FeatureRowProps {
+  eyebrow: string
+  eyebrowColor: string
+  title: string
+  copy: string
+  bullets: string[]
+  visual: React.ReactNode
+  reverse: boolean
+}
+
+function FeatureRow({ eyebrow, eyebrowColor, title, copy, bullets, visual, reverse }: FeatureRowProps) {
+  return (
+    <section id="product" className="py-20 md:py-28 border-t border-neutral-100">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className={`lg:col-span-6 ${reverse ? 'lg:order-2' : ''}`}>
+          <p className={`text-[11px] font-semibold uppercase tracking-widest ${eyebrowColor} mb-4`}>{eyebrow}</p>
+          <h2 className="text-[34px] md:text-[44px] font-bold tracking-[-0.025em] leading-[1.1]">{title}</h2>
+          <p className="text-[16px] text-neutral-600 mt-5 leading-relaxed max-w-lg">{copy}</p>
+          <ul className="mt-6 space-y-2.5">
+            {bullets.map((b) => (
+              <li key={b} className="flex items-start gap-2.5 text-[14px] text-neutral-700">
+                <Check className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={`lg:col-span-6 ${reverse ? 'lg:order-1' : ''}`}>
+          {visual}
+        </div>
       </div>
     </section>
   )
 }
 
-function DonutMock() {
-  const segments = [
-    { pct: 32, color: '#8b5cf6' },
-    { pct: 28, color: '#3b82f6' },
-    { pct: 22, color: '#10b981' },
-    { pct: 18, color: '#f59e0b' },
+// ─── Reusable mock visuals ─────────────────────────────────────────────────
+function ProductCard({ children, tone }: { children: React.ReactNode; tone: 'amber' | 'violet' | 'blue' }) {
+  const bg = {
+    amber: 'bg-gradient-to-br from-amber-100/50 to-orange-100/30',
+    violet: 'bg-gradient-to-br from-violet-100/50 to-fuchsia-100/30',
+    blue: 'bg-gradient-to-br from-blue-100/50 to-sky-100/30',
+  }[tone]
+  return (
+    <div className={`relative p-6 rounded-3xl ${bg}`}>
+      <div className="rounded-2xl bg-white border border-neutral-200/70 p-5 shadow-xl shadow-neutral-300/30">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone: 'amber' | 'rose' }) {
+  const c = { amber: 'text-amber-700', rose: 'text-rose-600' }[tone]
+  return (
+    <div className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-3">
+      <div className={`text-[22px] font-bold tabular-nums ${c}`}>{value}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mt-0.5">{label}</div>
+    </div>
+  )
+}
+
+function RowDot({ color, text }: { color: string; text: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`h-1.5 w-1.5 rounded-full ${color}`} />
+      <span className="truncate">{text}</span>
+    </div>
+  )
+}
+
+function HandoffSection({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 p-2.5">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-violet-600 mb-1">{title}</div>
+      <div className="text-[12px] text-neutral-700 leading-snug">{body}</div>
+    </div>
+  )
+}
+
+function Control({ name, status }: { name: string; status: 'live' | 'q1' | 'prep' | 'available' }) {
+  const meta = {
+    live:      { label: 'Live',        cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    q1:        { label: 'Q1',          cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+    prep:      { label: 'In prep',     cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+    available: { label: 'Available',   cls: 'bg-violet-50 text-violet-700 border-violet-200' },
+  }[status]
+  return (
+    <div className="flex items-center justify-between gap-3 text-[13px] text-neutral-700">
+      <span className="truncate">{name}</span>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${meta.cls} shrink-0`}>{meta.label}</span>
+    </div>
+  )
+}
+
+// ─── Stats strip ───────────────────────────────────────────────────────────
+function Stats() {
+  const items = [
+    { value: '8', label: 'Record-visibility rules', icon: Shield },
+    { value: '24mo', label: 'Point-in-time history', icon: History },
+    { value: '<2s', label: 'Median answer latency', icon: Sparkles },
+    { value: '36', label: 'RBAC test assertions', icon: Lock },
   ]
-  const r = 36
-  const circumference = 2 * Math.PI * r
-  let offset = 0
   return (
-    <svg width="110" height="110" className="-rotate-90 shrink-0">
-      <circle cx="55" cy="55" r={r} fill="none" stroke="rgba(15,23,42,0.08)" strokeWidth="14" />
-      {segments.map((s, i) => {
-        const length = (s.pct / 100) * circumference
-        const dasharray = `${length} ${circumference - length}`
-        const dashoffset = -offset
-        offset += length
-        return (
-          <circle
-            key={i}
-            cx="55"
-            cy="55"
-            r={r}
-            fill="none"
-            stroke={s.color}
-            strokeWidth="14"
-            strokeDasharray={dasharray}
-            strokeDashoffset={dashoffset}
-          />
-        )
-      })}
-    </svg>
-  )
-}
-
-function FinalCTA() {
-  return (
-    <section className="relative isolate overflow-hidden text-white py-28 md:py-36">
-      <GradientMesh />
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/15 to-transparent z-10 pointer-events-none" />
-
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-120px' }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 text-[11px] font-semibold text-white mb-7">
-            <Zap className="h-3 w-3 text-amber-300" />
-            30-day free trial · no credit card
+    <section className="py-16 border-t border-neutral-100 bg-gradient-to-b from-white to-neutral-50/40">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+        {items.map((it) => (
+          <div key={it.label} className="text-center">
+            <it.icon className="h-5 w-5 text-violet-600 mx-auto mb-2" />
+            <div className="text-[36px] md:text-[44px] font-bold tracking-tight tabular-nums">{it.value}</div>
+            <div className="text-[12px] text-neutral-500 mt-1">{it.label}</div>
           </div>
-          <h2 className="text-[44px] md:text-[64px] font-semibold tracking-[-0.03em] leading-[1.05]">
-            Give your org a memory.
-          </h2>
-          <p className="text-[17px] text-white/80 mt-6 max-w-[520px] mx-auto leading-[1.6]">
-            Try the sandbox in one click, or sign up your team and bring your own memory in.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-10">
-            <Link
-              href="/sandbox"
-              className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[14px] font-semibold text-slate-900 bg-white hover:bg-slate-100 transition-colors shadow-[0_18px_60px_-18px_rgba(255,255,255,0.5)]"
-            >
-              Try the sandbox <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/pricing"
-              className="inline-flex items-center gap-2 h-12 px-7 rounded-full text-[14px] font-semibold text-white border border-white/30 hover:border-white/60 hover:bg-white/[0.06] transition-all"
-            >
-              See pricing
-            </Link>
-          </div>
-        </motion.div>
+        ))}
       </div>
     </section>
   )
 }
 
-function Footer() {
+// ─── Use cases ─────────────────────────────────────────────────────────────
+function UseCases() {
   return (
-    <footer className="bg-slate-50 border-t border-slate-200">
-      <div className="max-w-6xl mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-4 gap-8 text-[14px]">
-        <div className="col-span-2 md:col-span-1">
-          <Link href="/" className="flex items-center gap-2 mb-3">
-            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 rounded-lg" unoptimized />
-            <span className="text-[15px] font-semibold tracking-tight text-slate-900">Reattend</span>
-          </Link>
-          <p className="text-[13px] text-slate-500 leading-[1.6] max-w-[260px]">Organizational memory, preserved.</p>
+    <section className="py-24 border-t border-neutral-100">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">Two ICPs, one product</p>
+          <h2 className="text-[34px] md:text-[44px] font-bold tracking-[-0.025em] leading-[1.1]">Built for the orgs Glean misses.</h2>
         </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500 mb-4">Product</p>
-          <ul className="space-y-2.5 text-slate-700">
-            <li><Link href="/sandbox" className="hover:text-slate-900 transition-colors">Sandbox</Link></li>
-            <li><Link href="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link></li>
-            <li><Link href="/compliance" className="hover:text-slate-900 transition-colors">Compliance</Link></li>
-            <li><Link href="/support" className="hover:text-slate-900 transition-colors">Support</Link></li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500 mb-4">Legal</p>
-          <ul className="space-y-2.5 text-slate-700">
-            <li><Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link></li>
-            <li><Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link></li>
-          </ul>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500 mb-4">Get in touch</p>
-          <ul className="space-y-2.5 text-slate-700">
-            <li><a href="mailto:pb@reattend.ai" className="hover:text-slate-900 transition-colors">pb@reattend.ai</a></li>
-            <li><a href="mailto:security@reattend.ai" className="hover:text-slate-900 transition-colors">security@reattend.ai</a></li>
-          </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <UseCaseCard
+            tone="violet"
+            badge="Government & secure orgs"
+            icon={Building2}
+            title="Paper-heavy. Admin-turnover-heavy. On-prem-required."
+            copy="A trainer dispatches to scan paper. OCR pipeline produces searchable memory at legal-grade accuracy. The LLM runs on your hardware. Zero egress."
+            bullets={['Trainer-assisted onboarding', 'StateRAMP + CJIS controls', 'Air-gapped deployment']}
+            cta={{ label: 'Government track', href: '/pricing#government' }}
+          />
+          <UseCaseCard
+            tone="emerald"
+            badge="SaaS & startups"
+            icon={Plug}
+            title="Slack + Notion + MS Teams. Hooked up in a day."
+            copy="Cloud-native, Nango-connected. Your decision graph fills itself from the conversations and docs your team already has."
+            bullets={['Slack / Notion / MS Teams', '$25 per seat per month', '30-day free trial']}
+            cta={{ label: 'See team pricing', href: '/pricing#team' }}
+          />
         </div>
       </div>
-      <div className="border-t border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[12px] text-slate-500">
-          <p>© {new Date().getFullYear()} Reattend Technologies Private Limited. All rights reserved.</p>
-          <div>Built for organizational memory</div>
+    </section>
+  )
+}
+
+interface UseCaseCardProps {
+  tone: 'violet' | 'emerald'
+  badge: string
+  icon: typeof Building2
+  title: string
+  copy: string
+  bullets: string[]
+  cta: { label: string; href: string }
+}
+
+function UseCaseCard({ tone, badge, icon: Icon, title, copy, bullets, cta }: UseCaseCardProps) {
+  const ring = tone === 'violet' ? 'ring-violet-500/20 bg-violet-50/30' : 'ring-emerald-500/20 bg-emerald-50/30'
+  const accent = tone === 'violet' ? 'text-violet-700 bg-violet-100/70' : 'text-emerald-700 bg-emerald-100/70'
+  return (
+    <div className={`rounded-3xl ring-1 ${ring} p-8 hover:shadow-xl hover:shadow-neutral-200/50 transition-shadow`}>
+      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest ${accent} mb-5`}>
+        <Icon className="h-3 w-3" /> {badge}
+      </div>
+      <h3 className="text-[22px] md:text-[26px] font-bold tracking-tight leading-tight mb-3">{title}</h3>
+      <p className="text-[14px] text-neutral-600 leading-relaxed mb-5">{copy}</p>
+      <ul className="space-y-2 mb-6">
+        {bullets.map((b) => (
+          <li key={b} className="flex items-start gap-2 text-[13px] text-neutral-700">
+            <Check className="h-3.5 w-3.5 text-emerald-600 mt-0.5 shrink-0" />
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+      <Link href={cta.href} className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#1a1a2e] hover:underline">
+        {cta.label} <ArrowRight className="h-3.5 w-3.5" />
+      </Link>
+    </div>
+  )
+}
+
+// ─── Pricing tease ─────────────────────────────────────────────────────────
+function PricingTease() {
+  return (
+    <section className="py-24 border-t border-neutral-100 bg-neutral-50/40">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">Pricing</p>
+          <h2 className="text-[34px] md:text-[44px] font-bold tracking-[-0.025em] leading-[1.1]">Pick your plan by deployment.</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <PlanCard name="Team" price="$25" cadence="/seat/month" blurb="For startups and SMBs up to 200 people." />
+          <PlanCard name="Enterprise" price="Custom" blurb="Dedicated tenant, SAML+SCIM, residency." highlight />
+          <PlanCard name="Government" price="Quote" blurb="On-premise, air-gapped, trainer dispatched." />
+        </div>
+        <div className="text-center mt-8">
+          <Link href="/pricing" className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#1a1a2e] hover:underline">
+            See full pricing matrix <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PlanCard({ name, price, cadence, blurb, highlight }: { name: string; price: string; cadence?: string; blurb: string; highlight?: boolean }) {
+  return (
+    <div className={`rounded-2xl p-6 ${highlight ? 'bg-[#1a1a2e] text-white border border-[#1a1a2e]' : 'bg-white border border-neutral-200'}`}>
+      <div className="text-[11px] font-semibold uppercase tracking-widest opacity-70 mb-2">{name}</div>
+      <div className="flex items-baseline gap-1 mb-3">
+        <span className="text-[32px] font-bold tracking-tight">{price}</span>
+        {cadence && <span className={`text-[12px] ${highlight ? 'text-neutral-400' : 'text-neutral-500'}`}>{cadence}</span>}
+      </div>
+      <p className={`text-[13px] leading-relaxed ${highlight ? 'text-neutral-300' : 'text-neutral-600'}`}>{blurb}</p>
+    </div>
+  )
+}
+
+// ─── Closing CTA ───────────────────────────────────────────────────────────
+function ClosingCTA() {
+  return (
+    <section className="py-24 border-t border-neutral-100">
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <h2 className="text-[36px] md:text-[52px] font-bold tracking-[-0.03em] leading-[1.05]">
+          Stop losing institutional <br className="hidden md:block" />
+          <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">memory.</span>
+        </h2>
+        <p className="text-[16px] text-neutral-600 mt-5 max-w-xl mx-auto">
+          Try the live sandbox in your browser. Five role personas, full demo data, no signup. See what it feels like.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-9">
+          <Link
+            href="/sandbox"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#1a1a2e] text-white text-[14px] font-semibold rounded-full hover:bg-[#2d2b55] transition-all shadow-md shadow-[#1a1a2e]/15"
+          >
+            Try the sandbox <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="mailto:sales@reattend.com"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#1a1a2e] text-[14px] font-semibold rounded-full border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 transition-colors"
+          >
+            Talk to sales
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Footer (multi-column, Stripe-y) ───────────────────────────────────────
+function SiteFooter() {
+  const cols: Array<{ heading: string; links: Array<{ label: string; href: string; external?: boolean }> }> = [
+    {
+      heading: 'Product',
+      links: [
+        { label: 'Sandbox', href: '/sandbox' },
+        { label: 'Pricing', href: '/pricing' },
+        { label: 'Compliance', href: '/compliance' },
+        { label: 'Sign in', href: '/login' },
+      ],
+    },
+    {
+      heading: 'Capabilities',
+      links: [
+        { label: 'Memory cockpit', href: '/sandbox' },
+        { label: 'Time Machine', href: '/sandbox' },
+        { label: 'Exit Interview Agent', href: '/sandbox' },
+        { label: 'Onboarding Genie', href: '/sandbox' },
+      ],
+    },
+    {
+      heading: 'Company',
+      links: [
+        { label: 'Privacy', href: '/privacy' },
+        { label: 'Terms & Conditions', href: '/terms' },
+        { label: 'Support', href: '/support' },
+        { label: 'Contact', href: 'mailto:pb@reattend.ai', external: true },
+      ],
+    },
+  ]
+  return (
+    <footer className="border-t border-neutral-200 bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="col-span-2">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image src="/icon-128.png" alt="Reattend" width={28} height={28} className="h-7 w-7 rounded-md" unoptimized />
+            <div className="leading-tight">
+              <div className="text-[15px] font-bold tracking-tight">Reattend</div>
+              <div className="text-[9px] font-semibold text-neutral-400 uppercase tracking-widest">Enterprise</div>
+            </div>
+          </Link>
+          <p className="text-[13px] text-neutral-500 mt-4 max-w-xs leading-relaxed">
+            Organizational memory for teams that can&apos;t afford to forget. Built by Reattend Technologies Private Limited.
+          </p>
+        </div>
+        {cols.map((c) => (
+          <div key={c.heading}>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-4">{c.heading}</p>
+            <ul className="space-y-2">
+              {c.links.map((l) => (
+                <li key={l.label}>
+                  {l.external ? (
+                    <a href={l.href} className="text-[13px] text-neutral-600 hover:text-[#1a1a2e] transition-colors">{l.label}</a>
+                  ) : (
+                    <Link href={l.href} className="text-[13px] text-neutral-600 hover:text-[#1a1a2e] transition-colors">{l.label}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-neutral-100">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-neutral-500">
+          <p>&copy; {new Date().getFullYear()} Reattend Technologies Private Limited.</p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="hover:text-[#1a1a2e] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#1a1a2e] transition-colors">Terms</Link>
+            <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
+            <Link href="/support" className="hover:text-[#1a1a2e] transition-colors">Support</Link>
+          </div>
         </div>
       </div>
     </footer>
