@@ -18,10 +18,10 @@ export function SiteFooter() {
     {
       heading: 'Capabilities',
       links: [
-        { label: 'Memory cockpit', href: '/sandbox' },
-        { label: 'Time Machine', href: '/sandbox' },
-        { label: 'Exit Interview Agent', href: '/sandbox' },
-        { label: 'Onboarding Genie', href: '/sandbox' },
+        { label: 'Command Centre', href: '/command-centre' },
+        { label: 'Time Machine', href: '/time-machine' },
+        { label: 'Exit Interview Agent', href: '/exit-interview-agent' },
+        { label: 'Onboarding Genie', href: '/onboarding-genie' },
       ],
     },
     {
