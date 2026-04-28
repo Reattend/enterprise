@@ -20,7 +20,7 @@ export function SiteNav() {
         </div>
       </Link>
       <div className="flex items-center gap-6 text-[13px] font-medium text-neutral-600">
-        <Link href="/#capabilities" className="hover:text-[#1a1a2e] transition-colors hidden sm:inline">Product</Link>
+        <Link href="/product" className="hover:text-[#1a1a2e] transition-colors hidden sm:inline">Product</Link>
         <Link href="/pricing" className="hover:text-[#1a1a2e] transition-colors">Pricing</Link>
         <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
         <Link
