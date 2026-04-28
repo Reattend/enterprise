@@ -21,7 +21,7 @@
 | DB | SQLite via better-sqlite3 + Drizzle |
 | Migrations | `npx tsx src/lib/db/migrate.ts` (custom, additive) |
 | LLMs | Claude (answering) · Groq Llama 3.3 + Haiku rerank · Groq Whisper |
-| Nango | code wired (NangoConnectPanel + 5 providers) — needs NANGO_SECRET_KEY on droplet to flip on |
+| Nango | self-hosted at `https://nango.enterprise.reattend.com` (Docker on droplet, SSL live) — needs admin signup + NANGO_SECRET_KEY on PM2 to flip on |
 | Rabbit | not deployed (Year 2) |
 
 Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git pull --ff-only && rm -rf .next && npm run build && pm2 restart enterprise"`. Always include `npx tsx src/lib/db/migrate.ts` if schema changed.
@@ -368,17 +368,37 @@ Wired end-to-end in code (commits before this entry):
 | Webhook (auth + sync_completed) | `POST /api/nango/webhook` |
 | UI panel | `src/components/enterprise/nango-connect-panel.tsx` (rendered in `/app/integrations`) |
 
-**To flip Nango on for prod:**
+**Self-hosted Nango stack (live on droplet):**
 
-1. Sign in to Nango (cloud or self-hosted). Configure five integrations: `google-mail`, `google-drive`, `slack`, `notion`, `confluence`. Each needs OAuth client id/secret + a sync script publishing the model names in `providers.ts` (`GmailEmail`, `Document`, `SlackMessage`, `NotionPage`, `ConfluencePage`).
-2. Set webhook URL → `https://enterprise.reattend.com/api/nango/webhook`.
-3. On droplet, set env vars and reload PM2:
+| Path | Value |
+|---|---|
+| Compose dir | `/var/www/nango/` |
+| Containers | `nango-server` (image `nangohq/nango-server:hosted` v0.70.1) + `nango-db` (postgres:16) |
+| Server bind | `127.0.0.1:3003` → container `:8080` |
+| Public URL | `https://nango.enterprise.reattend.com` (nginx vhost `/etc/nginx/sites-enabled/nango`, Let's Encrypt cert auto-renews) |
+| OAuth callback | `https://nango.enterprise.reattend.com/oauth/callback` (give this to every provider) |
+| Encryption key | in `/var/www/nango/.env` — **back up off-droplet, losing it kills every stored OAuth token** |
+| DB password | in `/var/www/nango/.env` |
+| Restart | `cd /var/www/nango && docker compose restart nango-server` |
+| Logs | `docker logs nango-server -f` |
+
+**To flip the connectors live:**
+
+1. Visit `https://nango.enterprise.reattend.com/signup` in a browser. Sign up with admin email + a strong password (8+ chars, uppercase, number, special). This first signup becomes the sole admin of OUR Nango instance — save creds in 1Password.
+2. In the Nango admin UI: **Environment Settings → API Keys** → copy the `prod` env's secret key.
+3. **Environment Settings → Webhooks** → set Primary URL to `https://enterprise.reattend.com/api/nango/webhook`. Copy the signing key.
+4. On droplet, wire PM2 + restart:
    ```bash
-   ssh root@167.99.158.143 'pm2 set enterprise:NANGO_SECRET_KEY "<key>"; pm2 set enterprise:NANGO_HOST "<host or omit for api.nango.dev>"; pm2 set enterprise:NANGO_WEBHOOK_SECRET "<secret>"; pm2 restart enterprise'
+   ssh root@167.99.158.143 \
+     'pm2 set enterprise:NANGO_HOST "https://nango.enterprise.reattend.com" && \
+      pm2 set enterprise:NANGO_SECRET_KEY "<prod secret key>" && \
+      pm2 set enterprise:NANGO_WEBHOOK_SECRET "<signing key>" && \
+      pm2 restart enterprise'
    ```
-4. Visit `/app/integrations` while signed in. Connect Gmail. OAuth modal opens via `@nangohq/frontend` session token. After connect, `/backfill` runs synchronously (≤ 300 records) so memories appear immediately. Subsequent updates arrive via Nango's scheduled sync → our webhook → `ingestFromNango`.
+5. Configure five integrations in Nango admin (one OAuth app per provider, registered with provider's dev console with the callback URL above): `google-mail`, `google-drive`, `slack`, `notion`, `confluence`. Each needs a sync script publishing the model names in `providers.ts` (`GmailEmail`, `Document`, `SlackMessage`, `NotionPage`, `ConfluencePage`).
+6. Visit `/app/integrations` while signed in to the app — the "Connectors are being enabled" empty state flips to 5 working Connect buttons. Click Connect on Gmail. Provider's OAuth screen pops up. Authorize. Backfill runs synchronously (≤ 300 records) and memories appear immediately. Subsequent updates arrive via Nango's scheduled sync → our webhook → `ingestFromNango`.
 
-**Self-hosted vs cloud decision:** for the first SMB pilots, run on Nango Cloud (zero ops). Switch to self-hosted on the droplet only when an enterprise prospect asks for "no data leaves your network" — `NANGO_HOST` is the only env var that changes.
+**Cloud vs self-hosted:** decided on self-hosted (gov ICP requires it; SMB doesn't care). Cloud signup at app.nango.dev was abandoned mid-setup on 2026-04-28 in favor of the self-hosted stack above.
 
 **Per-connection scope filter** is enforced inside `passesScope` in `ingest.ts`. Three lists per connection (include / exclude / domain). Stored in `integrations_connections.settings` JSON. Editable from the Scope dialog in the panel.
 
