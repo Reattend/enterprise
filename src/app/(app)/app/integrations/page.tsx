@@ -6,10 +6,12 @@
 // through Nango: OAuth + incremental sync + scope filters. Everything else is
 // listed as roadmap so prospects can see what's coming.
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Plug, FileText, Video, ShieldCheck } from 'lucide-react'
+import { Plug, FileText, Video, ShieldCheck, Brain, ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { NangoConnectPanel } from '@/components/enterprise/nango-connect-panel'
+import { useAppStore } from '@/stores/app-store'
 
 interface Roadmap {
   key: string
@@ -26,6 +28,10 @@ const ROADMAP: Roadmap[] = [
 ]
 
 export default function IntegrationsPage() {
+  const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
+  const activeOrg = useAppStore((s) => s.enterpriseOrgs).find((o) => o.orgId === activeOrgId)
+  const isAdmin = activeOrg && (activeOrg.role === 'super_admin' || activeOrg.role === 'admin')
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -44,6 +50,24 @@ export default function IntegrationsPage() {
       </div>
 
       <NangoConnectPanel />
+
+      {isAdmin && activeOrgId && (
+        <Link
+          href={`/app/admin/${activeOrgId}/triage-review`}
+          className="rounded-xl border bg-card p-4 flex items-center gap-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors"
+        >
+          <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
+            <Brain className="h-4 w-4 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold">See what triage is doing with new data</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Inspect the last 50 records ingested, the AI&apos;s decision (kept / rejected), and thumbs-up/down to retrain.
+            </p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
+      )}
 
       <div>
         <h2 className="text-sm font-semibold mb-2">On the roadmap</h2>
