@@ -11,6 +11,7 @@ import { enqueueJob } from '@/lib/jobs/worker'
 import type { NangoRecord } from '@nangohq/node'
 import { fetchGmailMessages } from './proxy-fetchers/gmail'
 import { fetchCalendarEvents } from './proxy-fetchers/google-calendar'
+import { fetchSlackMessages } from './proxy-fetchers/slack'
 import type { NormalizedRawItem } from './normalize'
 
 // Providers we fetch ourselves via nango.proxy() instead of nango.listRecords.
@@ -19,6 +20,7 @@ import type { NormalizedRawItem } from './normalize'
 const PROXY_PROVIDERS: Record<string, true> = {
   'google-mail': true,
   'google-calendar': true,
+  'slack': true,
 }
 
 export interface IngestResult {
@@ -131,6 +133,8 @@ export async function ingestFromNango(opts: {
         normalizedItems = await fetchGmailMessages(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
       } else if (provider.providerConfigKey === 'google-calendar') {
         normalizedItems = await fetchCalendarEvents(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+      } else if (provider.providerConfigKey === 'slack') {
+        normalizedItems = await fetchSlackMessages(nango, provider.providerConfigKey, nangoConnectionId, {})
       }
       console.log(`[ingest] proxy returned ${normalizedItems.length} items`)
     } catch (err: any) {
