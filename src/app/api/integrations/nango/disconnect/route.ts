@@ -5,7 +5,6 @@ import { eq, and } from 'drizzle-orm'
 import {
   getNangoClient,
   getNangoConfig,
-  buildNangoConnectionId,
 } from '@/lib/integrations/nango/client'
 import { getProviderByKey } from '@/lib/integrations/nango/providers'
 
@@ -20,11 +19,25 @@ export async function POST(req: NextRequest) {
     const provider = getProviderByKey(providerKey)
     if (!provider) return NextResponse.json({ error: 'unknown providerKey' }, { status: 400 })
 
+    // Pull the Nango-generated connection_id from our stored settings; we no
+    // longer construct it ourselves because session-based auth makes Nango
+    // pick the id.
+    const conn = await db.query.integrationsConnections.findFirst({
+      where: and(
+        eq(schema.integrationsConnections.userId, userId),
+        eq(schema.integrationsConnections.integrationKey, providerKey),
+      ),
+    })
+    let nangoConnectionId: string | null = null
+    if (conn?.settings) {
+      try { nangoConnectionId = JSON.parse(conn.settings).nangoConnectionId || null } catch { /* ignore */ }
+    }
+
     const cfg = getNangoConfig()
-    if (cfg.configured) {
+    if (cfg.configured && nangoConnectionId) {
       try {
         const nango = getNangoClient()
-        await nango.deleteConnection(provider.providerConfigKey, buildNangoConnectionId(userId, providerKey))
+        await nango.deleteConnection(provider.providerConfigKey, nangoConnectionId)
       } catch (err) {
         // If Nango already forgot the connection, keep going so we can still
         // clean up our local row.

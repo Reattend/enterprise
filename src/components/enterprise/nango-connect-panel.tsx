@@ -147,7 +147,10 @@ export function NangoConnectPanel() {
       })
 
       try {
-        await client.auth(session.providerConfigKey, session.connectionId)
+        // Don't pass a connection_id — when using session tokens, Nango
+        // generates its own and stores end_user.id (= our userId) on the
+        // connection. We retrieve the generated id from the auth webhook.
+        await client.auth(session.providerConfigKey)
       } catch (authErr: any) {
         // User closed popup or denied consent — non-fatal, just stop.
         if (authErr?.type === 'authorization_cancelled' || authErr?.message?.includes('cancel')) {

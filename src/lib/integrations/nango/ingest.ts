@@ -4,7 +4,7 @@
 
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
-import { getNangoClient, buildNangoConnectionId } from './client'
+import { getNangoClient } from './client'
 import { getProviderByKey, type NangoProviderDef } from './providers'
 import { getNormalizer } from './providers/index'
 import { enqueueJob } from '@/lib/jobs/worker'
@@ -78,38 +78,44 @@ export async function ingestFromNango(opts: {
   if (!normalize) throw new Error(`no normalizer registered for ${provider.providerConfigKey}`)
 
   const nango = getNangoClient()
-  const connectionId = buildNangoConnectionId(opts.userId, opts.providerKey)
   const limit = opts.limit ?? 100
 
-  const { records, next_cursor } = await nango.listRecords({
-    providerConfigKey: provider.providerConfigKey,
-    connectionId,
-    model: opts.model,
-    limit,
-    ...(opts.cursor ? { cursor: opts.cursor } : {}),
-  })
-
-  const source = await resolveSource(opts.workspaceId, provider)
-
-  // Load the user's scope filter for this connection (from integrations_connections.settings).
-  // Empty filter arrays = no filter, so most connections trivially pass.
-  let scope: ConnectionScope | null = null
+  // Look up the Nango-generated connection_id (stored when the auth webhook
+  // fired) plus the user's scope filter. Both live in integrations_connections.settings.
   const conn = await db.query.integrationsConnections.findFirst({
     where: and(
       eq(schema.integrationsConnections.userId, opts.userId),
       eq(schema.integrationsConnections.integrationKey, opts.providerKey),
     ),
   })
-  if (conn?.settings) {
+  if (!conn) throw new Error(`no integrations_connections row for ${opts.userId}/${opts.providerKey}`)
+
+  let nangoConnectionId: string | null = null
+  let scope: ConnectionScope | null = null
+  if (conn.settings) {
     try {
       const s = JSON.parse(conn.settings)
+      nangoConnectionId = s.nangoConnectionId || null
       if (s.scope) scope = {
         includeTerms: s.scope.includeTerms || [],
         excludeTerms: s.scope.excludeTerms || [],
         domainWhitelist: s.scope.domainWhitelist || [],
       }
-    } catch { /* bad JSON; treat as no scope */ }
+    } catch { /* bad JSON */ }
   }
+  if (!nangoConnectionId) {
+    throw new Error(`no nangoConnectionId stored for ${opts.userId}/${opts.providerKey} — auth webhook may not have fired yet`)
+  }
+
+  const { records, next_cursor } = await nango.listRecords({
+    providerConfigKey: provider.providerConfigKey,
+    connectionId: nangoConnectionId,
+    model: opts.model,
+    limit,
+    ...(opts.cursor ? { cursor: opts.cursor } : {}),
+  })
+
+  const source = await resolveSource(opts.workspaceId, provider)
 
   let added = 0, skipped = 0, errors = 0, filtered = 0
 

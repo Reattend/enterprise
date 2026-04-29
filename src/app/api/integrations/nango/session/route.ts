@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
-import { getNangoClient, getNangoConfig, buildNangoConnectionId } from '@/lib/integrations/nango/client'
+import { getNangoClient, getNangoConfig } from '@/lib/integrations/nango/client'
 import { getProviderByKey } from '@/lib/integrations/nango/providers'
 import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     const provider = getProviderByKey(providerKey)
     if (!provider) return NextResponse.json({ error: 'unknown providerKey' }, { status: 400 })
 
-    const connectionId = buildNangoConnectionId(userId, providerKey)
     const email = session?.user?.email || 'unknown@example.com'
     const displayName = session?.user?.name || email.split('@')[0]
 
@@ -39,6 +38,9 @@ export async function POST(req: NextRequest) {
     const nango = getNangoClient()
     const result = await nango.createConnectSession({
       end_user: {
+        // Our userId becomes Nango's end_user.id, which the auth webhook
+        // echoes back. That's how we map the auto-generated connection_id
+        // back to a workspace member.
         id: userId,
         email,
         display_name: userRow?.name || displayName,
@@ -49,7 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       sessionToken: (result as any).data?.token || (result as any).token,
       expiresAt: (result as any).data?.expires_at || (result as any).expires_at,
-      connectionId,
       providerConfigKey: provider.providerConfigKey,
       host: cfg.host,
     })

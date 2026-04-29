@@ -6,6 +6,19 @@ import { getProviderByConfigKey } from '@/lib/integrations/nango/providers'
 import { ingestFromNango } from '@/lib/integrations/nango/ingest'
 import { processAllPendingJobs } from '@/lib/jobs/worker'
 
+// Nango's auth event payload includes endUser metadata when the connection
+// was minted via createConnectSession. We set end_user.id = our userId, so
+// this is the canonical place to recover it after Nango auto-generates the
+// connection_id.
+function extractUserIdFromWebhook(body: Record<string, unknown>, connectionId: string): string | null {
+  const endUser = (body.endUser ?? body.end_user) as Record<string, unknown> | undefined
+  const endUserId = endUser?.endUserId ?? endUser?.end_user_id ?? endUser?.id
+  if (typeof endUserId === 'string' && endUserId) return endUserId
+  // Back-compat: legacy connections we built ourselves were "<userId>__<providerKey>".
+  const parsed = parseNangoConnectionId(connectionId)
+  return parsed?.userId ?? null
+}
+
 // Nango webhook receiver.
 //
 // Events we handle:
@@ -53,16 +66,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored: 'missing connection/provider' })
   }
 
-  const parsed = parseNangoConnectionId(connectionId)
-  if (!parsed) {
-    return NextResponse.json({ ok: true, ignored: 'unmanaged connection_id format' })
+  const userId = extractUserIdFromWebhook(body, connectionId)
+  if (!userId) {
+    return NextResponse.json({ ok: true, ignored: 'no userId in endUser or connection_id' })
   }
-  const { userId, providerKey } = parsed
 
   const provider = getProviderByConfigKey(providerConfigKey)
   if (!provider) {
     return NextResponse.json({ ok: true, ignored: `no normalizer for ${providerConfigKey}` })
   }
+  // We always look up our local provider key from the providerConfigKey since
+  // session-based connections no longer encode it in the connection_id.
+  const providerKey = provider.key
 
   // Find the user's active workspace. For enterprise deployments this is
   // the most-recent workspace they belong to; the triage agent can be
