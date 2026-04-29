@@ -47,10 +47,11 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     providerConfigKey: 'google-drive',
     name: 'Google Drive',
     category: 'docs',
-    description: 'Sync Google Docs, Sheets, and Slides. Long-form decisions and specs become searchable memories.',
+    description: 'Sync Google Docs, Sheets, Slides, PDFs and Markdown. Long-form decisions and specs become searchable memories.',
     iconHint: 'drive',
     models: ['Document', 'GoogleDriveFile'],
     triageAggressiveness: 'high',
+    setupHint: 'Drive shares the Google OAuth app you set up for Gmail — just add drive.readonly to the consent screen scopes and re-add yourself as a test user (already done if you connected Gmail).',
   },
   {
     key: 'google-calendar-nango',

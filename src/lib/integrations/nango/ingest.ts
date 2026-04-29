@@ -15,6 +15,7 @@ import { fetchSlackMessages } from './proxy-fetchers/slack'
 import { fetchNotionPages } from './proxy-fetchers/notion'
 import { fetchGithubItems } from './proxy-fetchers/github'
 import { fetchLinearIssues } from './proxy-fetchers/linear'
+import { fetchDriveFiles } from './proxy-fetchers/google-drive'
 import type { NormalizedRawItem } from './normalize'
 
 // Providers we fetch ourselves via nango.proxy() instead of nango.listRecords.
@@ -23,6 +24,7 @@ import type { NormalizedRawItem } from './normalize'
 const PROXY_PROVIDERS: Record<string, true> = {
   'google-mail': true,
   'google-calendar': true,
+  'google-drive': true,
   'slack': true,
   'notion': true,
   'github': true,
@@ -148,6 +150,8 @@ export async function ingestFromNango(opts: {
         normalizedItems = await fetchGithubItems(nango, provider.providerConfigKey, nangoConnectionId, {})
       } else if (provider.providerConfigKey === 'linear') {
         normalizedItems = await fetchLinearIssues(nango, provider.providerConfigKey, nangoConnectionId, {})
+      } else if (provider.providerConfigKey === 'google-drive') {
+        normalizedItems = await fetchDriveFiles(nango, provider.providerConfigKey, nangoConnectionId, {})
       }
       console.log(`[ingest] proxy returned ${normalizedItems.length} items`)
     } catch (err: any) {
