@@ -82,6 +82,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'notion',
     models: ['NotionPage', 'Page'],
     triageAggressiveness: 'high',
+    setupHint: 'Share each Notion page (or top-level workspace) with the Reattend integration: open the page → top-right ••• → Connections → Reattend. Notion only exposes pages explicitly granted access.',
   },
   {
     key: 'confluence-nango',
