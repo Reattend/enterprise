@@ -16,6 +16,8 @@ import { fetchNotionPages } from './proxy-fetchers/notion'
 import { fetchGithubItems } from './proxy-fetchers/github'
 import { fetchLinearIssues } from './proxy-fetchers/linear'
 import { fetchDriveFiles } from './proxy-fetchers/google-drive'
+import { fetchConfluencePages } from './proxy-fetchers/confluence'
+import { fetchJiraIssues } from './proxy-fetchers/jira'
 import type { NormalizedRawItem } from './normalize'
 
 // Providers we fetch ourselves via nango.proxy() instead of nango.listRecords.
@@ -29,6 +31,8 @@ const PROXY_PROVIDERS: Record<string, true> = {
   'notion': true,
   'github': true,
   'linear': true,
+  'confluence': true,
+  'jira': true,
 }
 
 export interface IngestResult {
@@ -152,6 +156,10 @@ export async function ingestFromNango(opts: {
         normalizedItems = await fetchLinearIssues(nango, provider.providerConfigKey, nangoConnectionId, {})
       } else if (provider.providerConfigKey === 'google-drive') {
         normalizedItems = await fetchDriveFiles(nango, provider.providerConfigKey, nangoConnectionId, {})
+      } else if (provider.providerConfigKey === 'confluence') {
+        normalizedItems = await fetchConfluencePages(nango, provider.providerConfigKey, nangoConnectionId, {})
+      } else if (provider.providerConfigKey === 'jira') {
+        normalizedItems = await fetchJiraIssues(nango, provider.providerConfigKey, nangoConnectionId, {})
       }
       console.log(`[ingest] proxy returned ${normalizedItems.length} items`)
     } catch (err: any) {

@@ -116,6 +116,18 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'confluence',
     models: ['ConfluencePage', 'Page'],
     triageAggressiveness: 'high',
+    setupHint: 'Confluence uses your Atlassian OAuth app — same credentials as Jira if you set that up. Pick the site to ingest when prompted (v1 picks the first if you have multiple Atlassian workspaces).',
+  },
+  {
+    key: 'jira-nango',
+    providerConfigKey: 'jira',
+    name: 'Jira',
+    category: 'docs',
+    description: 'Capture issue threads with descriptions, status, and assignees. Decisions logged in tickets become memory.',
+    iconHint: 'jira',
+    models: ['JiraIssue', 'Issue'],
+    triageAggressiveness: 'medium',
+    setupHint: 'Jira shares your Atlassian OAuth app with Confluence — same client id/secret, just register a separate Nango integration with the jira-* scopes.',
   },
 ]
 

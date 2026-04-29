@@ -96,6 +96,11 @@ function ProviderIcon({ hint, className = 'h-6 w-6' }: { hint: string; className
       <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1-.02-1.96-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.5 3.18-1.18 3.18-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
     </svg>
   )
+  if (hint === 'jira') return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <path d="M11.571 11.513H0a5.218 5.218 0 005.232 5.215h2.13v2.058A5.215 5.215 0 0012.575 24V12.518a1.005 1.005 0 00-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 005.215 5.214h2.129v2.058a5.218 5.218 0 005.215 5.215V6.762a1.005 1.005 0 00-1.001-1.005zM23.013 0H11.456a5.215 5.215 0 005.215 5.215h2.129v2.057A5.215 5.215 0 0024.013 12.483V1.005A1.005 1.005 0 0023.013 0z" fill="#2684FF" />
+    </svg>
+  )
   if (hint === 'linear') return (
     <svg className={className} viewBox="0 0 100 100" fill="none">
       <defs>
@@ -489,6 +494,7 @@ function ScopeDialog({
     'github-nango': { includeHint: 'design, RFC, breaking', excludeHint: 'WIP, dependabot, typo', domainLabel: 'Only repos containing' },
     'linear-nango': { includeHint: 'spec, decision, RFC', excludeHint: 'duplicate, wontfix', domainLabel: 'Only teams containing' },
     'confluence-nango': { includeHint: 'policy, runbook', excludeHint: 'sandbox', domainLabel: 'Space key must contain' },
+    'jira-nango': { includeHint: 'spec, decision, RFC, blocker', excludeHint: 'duplicate, wontfix, dupe', domainLabel: 'Only projects containing' },
   }[provider.key] || { includeHint: 'keyword1, keyword2', excludeHint: '', domainLabel: 'Must contain' }
 
   return (
