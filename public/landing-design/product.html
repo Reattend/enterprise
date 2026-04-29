@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Product</title>
+  <meta name="description" content="The complete Reattend platform. Six chapters: Capture, Connect, Recall, Run, Govern, Deploy." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+  <link rel="stylesheet" href="/landing-design/product.css?v=2" />
+</head>
+<body>
+
+  <!-- ============== TOPBAR (matches landing) ============== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="https://enterprise.reattend.com/black_logo.svg" alt="Reattend" />
+        <span class="ent-tag">Enterprise</span>
+      </a>
+      <nav class="nav">
+        <a class="nav-item" href="/">Home</a>
+        <a class="nav-item" href="/product" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Product</a>
+        <a class="nav-item" href="/#integrations">Integrations</a>
+        <a class="nav-item" href="/pricing">Pricing</a>
+        <a class="nav-item" href="/compliance">Compliance</a>
+      </nav>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-ghost" href="/login">Sign in</a>
+        <a class="btn btn-primary btn-fill" href="/register">Book a demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== HERO ============== -->
+  <section class="product-hero">
+    <div class="reveal">
+      <div class="eyebrow" style="display:inline-flex;">
+        <span class="eyebrow-dot"></span>
+        The complete platform
+      </div>
+    </div>
+    <h1 class="reveal">Six surfaces.<br/>One <em>memory</em>.</h1>
+    <p class="lede reveal">Reattend is the operating layer for organizational memory. Every conversation captured, every decision linked, every answer cited — across six tightly integrated chapters built for enterprise scale.</p>
+    <div class="hero-cta reveal">
+      <a class="btn btn-primary btn-fill" href="/register">Start a 30-day pilot</a>
+      <a class="btn btn-ghost btn-fill-dark" href="/register">Book a demo →</a>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER NAV ============== -->
+  <nav class="chapter-nav" id="chapterNav">
+    <div class="chapter-nav-inner">
+      <a class="chap-tab" data-target="capture"><span class="num">01</span>Capture</a>
+      <a class="chap-tab" data-target="connect"><span class="num">02</span>Connect</a>
+      <a class="chap-tab" data-target="recall"><span class="num">03</span>Recall</a>
+      <a class="chap-tab" data-target="run"><span class="num">04</span>Run</a>
+      <a class="chap-tab" data-target="govern"><span class="num">05</span>Govern</a>
+      <a class="chap-tab" data-target="deploy"><span class="num">06</span>Deploy</a>
+    </div>
+  </nav>
+
+  <!-- ============== CHAPTER 01: CAPTURE ============== -->
+  <section class="chapter" id="capture">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 01</div>
+        <h2 class="fade-up">Capture <em>everything</em> that matters.</h2>
+      </div>
+      <p class="chap-lede fade-up">Memory only works if it actually exists. Reattend gives your organization a hundred surfaces to drop a thought, a decision, a screenshot, a meeting — without thinking about where it goes. The platform sorts, links, and indexes in the background, so the friction of recording knowledge approaches zero.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Slack, Teams, Discord — capture from any channel with a slash command or react-to-save</li>
+      <li>Browser extension pins web pages, Notion docs, Figma frames, and PDFs in one click</li>
+      <li>Meeting capture for Zoom, Meet, and Teams with diarized transcripts and decision extraction</li>
+      <li>Email forwarding to a dedicated org address auto-classifies threads into projects</li>
+      <li>OCR-aware uploads turn screenshots, whiteboards, and scanned docs into searchable text</li>
+      <li>Voice memos transcribed and threaded into the right project automatically</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-brain-dump">
+          <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+        <div class="fc-num">/ 01</div>
+        <h3>Brain Dump</h3>
+        <p>A frictionless inbox. Type, paste, drop, forward — Reattend triages and tags every entry into the right project, owner, and timeline.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-chrome-pin">
+          <div class="pin">+</div>
+        </div>
+        <div class="fc-num">/ 02</div>
+        <h3>Chrome Pin</h3>
+        <p>One keystroke from any tab. Pages, threads, and Figma frames land in your org's memory with full context, citations, and an owner.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-ocr">
+          <div class="doc">
+            <div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div>
+          </div>
+          <div class="scanline"></div>
+        </div>
+        <div class="fc-num">/ 03</div>
+        <h3>OCR Vision</h3>
+        <p>Whiteboards, scanned contracts, slide decks. Vision models read every pixel and route extracted text into the right project.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-voice">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="fc-num">/ 04</div>
+        <h3>Voice Capture</h3>
+        <p>Walk-and-talk. Record on iOS or Android; we transcribe, attribute, and stitch your voice memo into the project it belongs to.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER 02: CONNECT ============== -->
+  <section class="chapter" id="connect">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 02</div>
+        <h2 class="fade-up">Connect knowledge into a <em>graph</em>.</h2>
+      </div>
+      <p class="chap-lede fade-up">Disconnected notes are not memory. Reattend builds a typed graph of every entity in your organization — people, projects, decisions, customers, vendors, contracts — and silently links related entries as they arrive. The result: ask one question, get the whole story back.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Entity extraction across messages, docs, and meetings — no manual tagging required</li>
+      <li>Decision chains preserve the why behind every change, with the people who weighed in</li>
+      <li>Blast-radius analysis shows everything a decision affects before you ship the change</li>
+      <li>Org graph mirrors your reporting lines so context stays scoped and auditable</li>
+      <li>Customer & vendor timelines roll up every email, ticket, contract, and call</li>
+      <li>Versioned schemas — entities evolve with your business without breaking old links</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-graph">
+          <svg viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet">
+            <line class="ge" x1="40" y1="45" x2="100" y2="20" stroke="oklch(0.45 0.18 280)" stroke-width="1"/>
+            <line class="ge" x1="40" y1="45" x2="100" y2="70" stroke="oklch(0.45 0.18 280)" stroke-width="1"/>
+            <line class="ge" x1="100" y1="20" x2="160" y2="35" stroke="oklch(0.45 0.18 280)" stroke-width="1"/>
+            <line class="ge" x1="100" y1="70" x2="160" y2="55" stroke="oklch(0.45 0.18 280)" stroke-width="1"/>
+            <line class="ge" x1="100" y1="20" x2="100" y2="70" stroke="oklch(0.45 0.18 280)" stroke-width="1"/>
+            <circle class="gn" cx="40" cy="45" r="5" fill="oklch(0.45 0.18 280)"/>
+            <circle class="gn" cx="100" cy="20" r="5" fill="oklch(0.18 0.012 270)"/>
+            <circle class="gn" cx="100" cy="70" r="5" fill="oklch(0.78 0.16 65)"/>
+            <circle class="gn" cx="160" cy="35" r="5" fill="oklch(0.45 0.18 280)"/>
+            <circle class="gn" cx="160" cy="55" r="5" fill="oklch(0.18 0.012 270)"/>
+          </svg>
+        </div>
+        <div class="fc-num">/ 05</div>
+        <h3>Knowledge Graph</h3>
+        <p>Every captured entry resolves into typed entities — Project, Person, Decision, Customer — and edges are inferred automatically.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-chain">
+          <div class="node active"></div><span class="arrow">→</span>
+          <div class="node active"></div><span class="arrow">→</span>
+          <div class="node active"></div><span class="arrow">→</span>
+          <div class="node"></div>
+        </div>
+        <div class="fc-num">/ 06</div>
+        <h3>Decision Chain</h3>
+        <p>Every "we decided X" links to the alternatives, the people involved, and the evidence — so a year from now, the why is still there.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-blast">
+          <div class="ring r1"></div>
+          <div class="ring r2"></div>
+          <div class="ring r3"></div>
+          <div class="center"></div>
+        </div>
+        <div class="fc-num">/ 07</div>
+        <h3>Blast Radius</h3>
+        <p>Before you change a policy, swap a vendor, or rename a flag — see every project, person, and document that touches the decision.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-tree">
+          <svg viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet">
+            <line x1="100" y1="20" x2="60" y2="50" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="100" y1="20" x2="140" y2="50" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="60" y1="50" x2="40" y2="75" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="60" y1="50" x2="80" y2="75" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="140" y1="50" x2="120" y2="75" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="140" y1="50" x2="160" y2="75" stroke="var(--rule)" stroke-width="1"/>
+            <rect x="92" y="14" width="16" height="12" fill="oklch(0.45 0.18 280)" rx="2"/>
+            <rect x="52" y="44" width="16" height="12" fill="var(--ink)" rx="2"/>
+            <rect x="132" y="44" width="16" height="12" fill="var(--ink)" rx="2"/>
+            <rect x="32" y="69" width="16" height="12" fill="oklch(0.78 0.16 65)" rx="2"/>
+            <rect x="72" y="69" width="16" height="12" fill="oklch(0.78 0.16 65)" rx="2"/>
+            <rect x="112" y="69" width="16" height="12" fill="oklch(0.78 0.16 65)" rx="2"/>
+            <rect x="152" y="69" width="16" height="12" fill="oklch(0.78 0.16 65)" rx="2"/>
+          </svg>
+        </div>
+        <div class="fc-num">/ 08</div>
+        <h3>Org Graph</h3>
+        <p>Reporting lines, teams, and projects mirror reality. Context inherits cleanly — leaders see strategy, ICs see their slice.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER 03: RECALL ============== -->
+  <section class="chapter" id="recall">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 03</div>
+        <h2 class="fade-up">Recall like you were <em>there</em>.</h2>
+      </div>
+      <p class="chap-lede fade-up">Search is a relic. Reattend's recall layer is conversational, time-aware, and cited — every answer points to the exact source line. Ask in plain language, scrub the timeline, or commission a deep-research dossier. The org's memory becomes a colleague who never left.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Plain-language Q&A across every captured entry, scoped to your permissions</li>
+      <li>Every answer cites exact sources — no hallucinated facts, ever</li>
+      <li>Time Machine lets you ask the org what it knew on any given date</li>
+      <li>DeepThink dossiers compile multi-source briefs in 30 seconds</li>
+      <li>Anonymous mode strips PII from results for sensitive lookups</li>
+      <li>Mobile, desktop, Chrome, Slack — recall surface lives wherever you work</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-chat">
+          <div class="bubble you">Why did we drop SAML in v3?</div>
+          <div class="bubble">Switched to OIDC for SSO simpler ops</div>
+          <div class="bubble cite">→ rfc-2024-019</div>
+          <div class="bubble typing"><span></span><span></span><span></span></div>
+        </div>
+        <div class="fc-num">/ 09</div>
+        <h3>Conversational Recall</h3>
+        <p>Ask anything in plain language. Citations attach to every claim — click to read the original message or doc.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-dossier">
+          <div class="col"><div class="col-line"></div><div class="col-line"></div><div class="col-line"></div></div>
+          <div class="col"><div class="col-line"></div><div class="col-line"></div><div class="col-line"></div></div>
+          <div class="col"><div class="col-line"></div><div class="col-line"></div><div class="col-line"></div></div>
+          <div class="col"><div class="col-line"></div><div class="col-line"></div><div class="col-line"></div></div>
+          <div class="col"><div class="col-line"></div><div class="col-line"></div><div class="col-line"></div></div>
+        </div>
+        <div class="fc-num">/ 10</div>
+        <h3>DeepThink</h3>
+        <p>Commission a multi-source dossier on a person, project, or topic. 30 seconds in, 12-page brief out, with every citation.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-time">
+          <div class="track">
+            <div class="tick" style="left:10%"></div>
+            <div class="tick" style="left:25%"></div>
+            <div class="tick" style="left:40%"></div>
+            <div class="tick" style="left:55%"></div>
+            <div class="tick" style="left:70%"></div>
+            <div class="tick" style="left:85%"></div>
+            <div class="handle"></div>
+          </div>
+          <span class="label-l">Q1</span>
+          <span class="label-r">Q4</span>
+        </div>
+        <div class="fc-num">/ 11</div>
+        <h3>Time Machine</h3>
+        <p>Replay the org's knowledge state on any past date. What did we know in Q2? What did we believe before the audit?</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-anon">
+          <div class="mask"></div>
+        </div>
+        <div class="fc-num">/ 12</div>
+        <h3>Anonymous Mode</h3>
+        <p>Strip names, emails, and PII from any recall — for compliance reviews, hiring debates, and external benchmarking.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER 04: RUN ============== -->
+  <section class="chapter" id="run">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 04</div>
+        <h2 class="fade-up">Run actions, <em>not</em> meetings.</h2>
+      </div>
+      <p class="chap-lede fade-up">Once memory is structured, agents can act on it. Reattend ships a library of pre-built operators — onboarding, exit interviews, deal-room drafting, vendor renewals — that read your org's memory, draft outputs, and route them for human approval. You ship work, not summaries.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Pre-built agents for hiring, onboarding, exit, vendor reviews, and deal-room prep</li>
+      <li>Every agent reads org memory; nothing is invented from scratch</li>
+      <li>Drafts route to humans for approval — agents never ship without sign-off</li>
+      <li>Custom agents in YAML or our visual builder, no engineering required</li>
+      <li>Triggered by schedule, by event (new hire), or by /run-now from any surface</li>
+      <li>Full audit log of agent inputs, outputs, and approvals</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-agent">
+          <div class="orbit"></div>
+          <div class="agent-icon">A</div>
+        </div>
+        <div class="fc-num">/ 13</div>
+        <h3>Agent Library</h3>
+        <p>20+ pre-tuned agents for the operations every org runs. Drop them in, point them at memory, watch them work.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-packet">
+          <div class="stack">
+            <div class="sheet"></div>
+            <div class="sheet"></div>
+            <div class="sheet"></div>
+          </div>
+        </div>
+        <div class="fc-num">/ 14</div>
+        <h3>Onboarding Genie</h3>
+        <p>Day one: a bespoke packet of relevant decisions, people, and customer context — generated from memory, not boilerplate.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-draft">
+          <div class="draft-line"></div>
+          <div class="draft-line"></div>
+          <div class="draft-line"></div>
+          <div class="draft-line"></div>
+        </div>
+        <div class="fc-num">/ 15</div>
+        <h3>Exit Interview Agent</h3>
+        <p>When someone leaves, capture what they knew. Structured 20-minute interviews preserve tribal knowledge before it walks.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-runnow">
+          <div class="play">▶</div>
+        </div>
+        <div class="fc-num">/ 16</div>
+        <h3>Run Now</h3>
+        <p>Trigger any agent from any surface — Slack, Chrome, mobile. Drafts arrive in your inbox, ready to review and ship.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER 05: GOVERN ============== -->
+  <section class="chapter" id="govern">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 05</div>
+        <h2 class="fade-up">Govern memory like a <em>regulated</em> system.</h2>
+      </div>
+      <p class="chap-lede fade-up">An organization's memory is regulated data. Reattend was built compliance-first: cell-level RBAC, write-once-read-many audit trails, redaction pipelines, and data residency you control. Legal sleeps, security signs, IT ships.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Cell-level RBAC — control access down to a paragraph or a numeric field</li>
+      <li>WORM audit trails — every read, write, and approval logged immutably</li>
+      <li>SAML 2.0 + OIDC SSO with SCIM provisioning and just-in-time access</li>
+      <li>GDPR, HIPAA, SOC 2 Type II — pre-mapped controls, ready for your auditor</li>
+      <li>Data residency in 12 regions, including India, EU, US, UK, and Singapore</li>
+      <li>Customer-managed encryption keys with HSM-backed key escrow</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-rbac">
+          <div class="cell allow flash"></div><div class="cell allow"></div><div class="cell deny"></div><div class="cell allow"></div><div class="cell allow"></div><div class="cell deny"></div>
+          <div class="cell allow"></div><div class="cell allow flash"></div><div class="cell allow"></div><div class="cell deny"></div><div class="cell allow"></div><div class="cell allow"></div>
+          <div class="cell deny"></div><div class="cell allow"></div><div class="cell allow flash"></div><div class="cell allow"></div><div class="cell deny"></div><div class="cell allow"></div>
+          <div class="cell allow"></div><div class="cell deny"></div><div class="cell allow"></div><div class="cell allow flash"></div><div class="cell allow"></div><div class="cell deny"></div>
+        </div>
+        <div class="fc-num">/ 17</div>
+        <h3>Cell-Level RBAC</h3>
+        <p>Forget folder permissions. Control who sees which paragraph, field, or numeric value — with audit trails on every read.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-worm">
+          <div class="block locked">SHA</div>
+          <span class="link">→</span>
+          <div class="block locked">SHA</div>
+          <span class="link">→</span>
+          <div class="block">···</div>
+        </div>
+        <div class="fc-num">/ 18</div>
+        <h3>WORM Audit</h3>
+        <p>Write-once-read-many ledger. Every read, write, edit, and approval is hash-chained — tamper-evident for regulators.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-saml">
+          <div class="lock">🔒</div>
+          <div class="arrow-flow"></div>
+          <span class="idp">SAML / OIDC</span>
+        </div>
+        <div class="fc-num">/ 19</div>
+        <h3>SSO + SCIM</h3>
+        <p>Plug into Okta, Entra, Google, JumpCloud. Just-in-time provisioning; deprovision flows revoke memory access instantly.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-gdpr">
+          <span class="badge">GDPR / HIPAA</span>
+          <span class="check">✓</span>
+        </div>
+        <div class="fc-num">/ 20</div>
+        <h3>Compliance Suite</h3>
+        <p>SOC 2 Type II, ISO 27001, GDPR, HIPAA, India's DPDP — pre-mapped controls + auditor-ready evidence room.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CHAPTER 06: DEPLOY ============== -->
+  <section class="chapter" id="deploy">
+    <div class="chap-head">
+      <div>
+        <div class="chap-num">Chapter 06</div>
+        <h2 class="fade-up">Deploy <em>your</em> way.</h2>
+      </div>
+      <p class="chap-lede fade-up">SaaS, dedicated tenant, VPC, or fully on-prem behind your firewall. Reattend ships in every shape an enterprise IT team needs — with the same product surface, same compliance posture, same migration path.</p>
+    </div>
+
+    <ul class="chap-bullets fade-up">
+      <li>Multi-tenant SaaS in 12 regions for fast onboarding</li>
+      <li>Dedicated single-tenant cloud with private VPC peering and customer-managed keys</li>
+      <li>On-prem deployment via Kubernetes Helm chart — your hardware, your air gap</li>
+      <li>Hybrid mode: index lives in your cloud, capture surfaces use ours</li>
+      <li>Migration assist team handles import from Notion, Confluence, SharePoint, Slack archives</li>
+      <li>Uptime 99.95% SLA on managed tiers; on-prem ships with full ops runbooks</li>
+    </ul>
+
+    <div class="feat-grid">
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-cloud">
+          <div class="cloud">☁️</div>
+        </div>
+        <div class="fc-num">/ 21</div>
+        <h3>Managed Cloud</h3>
+        <p>Multi-tenant SaaS in 12 regions. Sign up, point DNS, ship in a week. 99.95% SLA, fully managed by Reattend SRE.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-tenant">
+          <div class="silo"><div class="layer"></div><div class="layer"></div></div>
+          <div class="silo active"><div class="layer"></div><div class="layer"></div><div class="layer"></div></div>
+          <div class="silo"><div class="layer"></div></div>
+          <div class="silo"><div class="layer"></div><div class="layer"></div></div>
+        </div>
+        <div class="fc-num">/ 22</div>
+        <h3>Dedicated Tenant</h3>
+        <p>Single-tenant cloud with private VPC, customer-managed keys, and isolated compute. Same product, your perimeter.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-onprem">
+          <div class="server">
+            <div class="rack"></div>
+            <div class="rack"></div>
+            <div class="rack"></div>
+          </div>
+        </div>
+        <div class="fc-num">/ 23</div>
+        <h3>On-Prem</h3>
+        <p>Helm chart on your Kubernetes. Air-gapped or VPN'd. Full ops runbooks, quarterly upgrade trains, your hardware.</p>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="fc-visual viz-compliance">
+          <span class="badge live">SOC 2</span>
+          <span class="badge live">ISO 27001</span>
+          <span class="badge">HIPAA</span>
+          <span class="badge live">GDPR</span>
+          <span class="badge">DPDP</span>
+        </div>
+        <div class="fc-num">/ 24</div>
+        <h3>Posture Inherits</h3>
+        <p>Every deployment shape carries the same compliance posture. Auditors see one report, regardless of where you run.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FINAL CTA ============== -->
+  <section class="product-final">
+    <h2 class="fade-up">Make your organization <em>impossible</em> to forget.</h2>
+    <p class="fade-up">Pilot programs in 30 days. White-glove migration from your existing tools. Pricing scoped to your team's stage and scale.</p>
+    <div class="cta-row fade-up">
+      <a class="btn btn-light btn-fill" href="/register">Start a 30-day pilot</a>
+      <a class="btn btn-outline btn-fill-dark" href="/register">Talk to founders →</a>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="https://enterprise.reattend.com/black_logo.svg" alt="Reattend" />
+          <span class="ent-tag">Enterprise</span>
+        </a>
+        <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="/product">Product</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/compliance">Compliance</a>
+        <a href="/login">Sign in</a>
+        <a href="/#integrations">Integrations</a>
+      </div>
+      <div class="footer-col">
+        <h5>Capabilities</h5>
+        <a href="/product#capture">Capture</a>
+        <a href="/product#connect">Connect</a>
+        <a href="/product#recall">Recall</a>
+        <a href="/product#run">Run</a>
+        <a href="/product#govern">Govern</a>
+        <a href="/product#deploy">Deploy</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+        <a href="#">Press</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="#">Docs</a>
+        <a href="#">Changelog</a>
+        <a href="#">Trust</a>
+        <a href="#">Status</a>
+        <a href="#">SOC 2</a>
+        <a href="#">HIPAA</a>
+        <a href="#">GDPR</a>
+        <a href="#">DPA</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Reattend Technologies Private Limited</span>
+      <span style="display:flex; gap:24px;">
+        <a href="#" style="color:inherit;">Privacy</a>
+        <a href="#" style="color:inherit;">Terms</a>
+        <a href="#" style="color:inherit;">Compliance</a>
+        <a href="#" style="color:inherit;">Support</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    // === Reveal observer for fade-up + .reveal
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            e.target.classList.add("revealed");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    document.querySelectorAll(".fade-up, .reveal").forEach((el) => io.observe(el));
+
+    // === Sticky chapter nav: smooth scroll + active state
+    const tabs = [...document.querySelectorAll(".chap-tab")];
+    const sections = tabs.map((t) => document.getElementById(t.dataset.target));
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.getElementById(tab.dataset.target);
+        if (!target) return;
+        const navH = document.querySelector(".chapter-nav").offsetHeight;
+        const topbarH = document.querySelector(".topbar").offsetHeight;
+        const y = target.getBoundingClientRect().top + window.scrollY - navH - topbarH - 12;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      });
+    });
+
+    // active tab on scroll
+    const setActive = () => {
+      const navH = document.querySelector(".chapter-nav").offsetHeight;
+      const topbarH = document.querySelector(".topbar").offsetHeight;
+      const y = window.scrollY + navH + topbarH + 80;
+      let activeIdx = 0;
+      sections.forEach((sec, i) => {
+        if (sec && sec.offsetTop <= y) activeIdx = i;
+      });
+      tabs.forEach((t, i) => t.classList.toggle("active", i === activeIdx));
+    };
+    let scrollTick;
+    window.addEventListener("scroll", () => {
+      if (scrollTick) return;
+      scrollTick = requestAnimationFrame(() => {
+        setActive();
+        scrollTick = null;
+      });
+    });
+    setActive();
+
+    // === Button fill helpers (reuse landing pattern)
+    document.querySelectorAll(".btn-fill, .btn-fill-dark").forEach((btn) => {
+      btn.addEventListener("mouseenter", function () {
+        if (!btn.querySelector(".btn-fill-bg")) {
+          const bg = document.createElement("span");
+          bg.className = "btn-fill-bg";
+          btn.prepend(bg);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

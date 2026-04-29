@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Pricing</title>
+  <meta name="description" content="Three plans, one product. Same memory engine, same RBAC, same security posture." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+  <link rel="stylesheet" href="/landing-design/pricing.css?v=1" />
+</head>
+<body>
+
+  <!-- ============== TOPBAR ============== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="https://enterprise.reattend.com/black_logo.svg" alt="Reattend" />
+        <span class="ent-tag">Enterprise</span>
+      </a>
+      <nav class="nav">
+        <a class="nav-item" href="/">Home</a>
+        <a class="nav-item" href="/product">Product</a>
+        <a class="nav-item" href="/#integrations">Integrations</a>
+        <a class="nav-item" href="/pricing" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Pricing</a>
+        <a class="nav-item" href="/compliance">Compliance</a>
+      </nav>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-ghost" href="/login">Sign in</a>
+        <a class="btn btn-primary btn-fill" href="/register">Book a demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== HERO ============== -->
+  <section class="pricing-hero">
+    <div class="reveal">
+      <div class="eyebrow" style="display:inline-flex;">
+        <span class="eyebrow-dot"></span>
+        Pricing
+      </div>
+    </div>
+    <h1 class="reveal">Three plans, <em>one</em> product.</h1>
+    <p class="lede reveal">Same memory engine, same RBAC, same security posture. The plans differ in deployment, scale, and how much we hold your hand.</p>
+    <div class="reveal">
+      <div class="billing-toggle" id="billingToggle">
+        <span class="bt-opt active" data-mode="month">Monthly</span>
+        <span class="bt-opt" data-mode="year">Annual <span class="save">−15%</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PLAN GRID ============== -->
+  <section class="plan-grid-section">
+    <div class="plan-grid">
+
+      <!-- Team -->
+      <div class="plan pfade">
+        <div class="plan-head">
+          <h3>Team</h3>
+        </div>
+        <p class="plan-blurb">Org memory for the team. Capture, decisions, recall, agents, the Chrome extension. Everything you need to stop forgetting.</p>
+        <div class="plan-price">
+          <span class="amount" data-month="$19" data-year="$16">$19</span>
+          <span class="unit">/seat/month</span>
+        </div>
+        <a class="btn btn-primary btn-fill" href="/register">Start 30-day trial</a>
+        <ul class="plan-feats">
+          <li>Up to 200 seats</li>
+          <li>Org hierarchy + two-tier RBAC</li>
+          <li>Decision log + Blast Radius</li>
+          <li>Time Machine (24-month history)</li>
+          <li>Onboarding Genie</li>
+          <li>Exit Interview Agent + Handoff Generator</li>
+          <li>Self-healing dashboard</li>
+          <li>Chat + DeepThink (AI-powered)</li>
+          <li>Chrome extension + ambient surfacing</li>
+          <li>Slack / Notion / MS Teams integrations</li>
+          <li>OCR pipeline (basic — image-only)</li>
+          <li>GDPR data controls + WORM audit log</li>
+          <li class="dim">Meeting recorder + auto-transcripts</li>
+          <li class="opt">SAML SSO <span class="badge">(available)</span></li>
+          <li class="dim">On-premise / dedicated tenant</li>
+        </ul>
+      </div>
+
+      <!-- Pro (featured) -->
+      <div class="plan featured pfade">
+        <div class="plan-head">
+          <h3>Pro</h3>
+          <span class="plan-tag">Most picked</span>
+        </div>
+        <p class="plan-blurb">Everything in Team plus the meeting layer. A bot joins your Zoom / Meet / Teams calls, transcribes, and feeds the org memory automatically.</p>
+        <div class="plan-price">
+          <span class="amount" data-month="$29" data-year="$25">$29</span>
+          <span class="unit">/seat/month</span>
+        </div>
+        <a class="btn btn-primary btn-fill" href="/register">Start 30-day trial</a>
+        <ul class="plan-feats">
+          <li>Everything in Team</li>
+          <li>Meeting recorder bot (Zoom / Meet / Teams)</li>
+          <li>Automatic transcription with speaker labels</li>
+          <li>AI summary with decisions and action items extracted</li>
+          <li>Transcripts saved as memory records (RBAC-respecting)</li>
+          <li>Calendar auto-join (opt-in per meeting)</li>
+          <li>Per-user recording quota included (40 hours/month)</li>
+          <li>Audio retention configurable (default 30 days, transcripts forever)</li>
+          <li>Replaces Fireflies / Otter / Granola in your stack</li>
+          <li class="opt">SAML SSO <span class="badge">(available)</span></li>
+        </ul>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="plan pfade">
+        <div class="plan-head">
+          <h3>Enterprise</h3>
+        </div>
+        <p class="plan-blurb">For 200+ seats, regulated industries, or anyone needing dedicated infrastructure.</p>
+        <div class="plan-price">
+          <span class="amount long">Custom</span>
+        </div>
+        <a class="btn btn-primary btn-fill" href="mailto:sales@reattend.com">Talk to sales</a>
+        <ul class="plan-feats">
+          <li>Unlimited seats</li>
+          <li>Everything in Pro</li>
+          <li>SAML SSO + SCIM provisioning</li>
+          <li>Dedicated tenant (Postgres + isolated app)</li>
+          <li>EU / US / APAC data residency</li>
+          <li>Customer-managed KMS</li>
+          <li>Advanced OCR (multi-page PDF + cloud Textract)</li>
+          <li>Field-level encryption (opt-in)</li>
+          <li>SOC 2 Type II report (when available)</li>
+          <li>Priority support + named CSM</li>
+          <li>Custom retention + legal hold workflows</li>
+          <li class="opt">On-premise deployment <span class="badge">(optional)</span></li>
+          <li class="opt">BAA for HIPAA <span class="badge">(optional)</span></li>
+        </ul>
+      </div>
+
+      <!-- Government -->
+      <div class="plan pfade">
+        <div class="plan-head">
+          <h3>Government</h3>
+        </div>
+        <p class="plan-blurb">For state, federal, and law-enforcement-adjacent orgs. On-prem first; assisted onboarding included.</p>
+        <div class="plan-price">
+          <span class="amount long">Quote</span>
+        </div>
+        <a class="btn btn-primary btn-fill" href="mailto:gov@reattend.com">Request quote</a>
+        <ul class="plan-feats">
+          <li>Everything in Enterprise</li>
+          <li>On-premise deployment (default)</li>
+          <li>On-prem Rabbit LLM — zero egress</li>
+          <li>Assisted onboarding (trainer dispatched)</li>
+          <li>Paper digitization (we scan + OCR your archives)</li>
+          <li>StateRAMP Moderate alignment + SSP</li>
+          <li>CJIS addendum + management control agreement</li>
+          <li class="opt">PIV / CAC card authentication <span class="badge">(on request)</span></li>
+          <li class="opt">FedRAMP Moderate prep <span class="badge">(roadmap)</span></li>
+          <li class="opt">FIPS-validated crypto modules <span class="badge">(optional)</span></li>
+          <li class="opt">Air-gapped deployment <span class="badge">(optional)</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============== CAPABILITIES INCLUDED ============== -->
+  <section class="cap-section">
+    <div style="max-width: var(--maxw); margin: 0 auto 40px; text-align:center;">
+      <div class="eyebrow pfade" style="display:inline-flex; margin-bottom: 16px;">
+        <span class="eyebrow-dot"></span>
+        In every plan
+      </div>
+      <h2 class="pfade" style="font-family: var(--serif); font-size: clamp(32px, 4vw, 48px); letter-spacing:-0.02em; line-height: 1.1; max-width: 22ch; margin: 0 auto;">The whole memory stack — across every tier.</h2>
+    </div>
+
+    <div class="cap-grid">
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+        </span>
+        <h4>Decision graph + Blast Radius</h4>
+        <p>Every decision logged with rationale + alternatives. "If we reverse this, what breaks?" — calculated, not guessed.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 0 1 4 4v3M8 9V6a4 4 0 0 1 4-4M5 9h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9z"/><path d="M12 14v3"/></svg>
+        </span>
+        <h4>Exit Interview Agent</h4>
+        <p>The AI pre-reads the departing person's memory footprint, asks 10–15 targeted questions, writes the handoff doc.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+        </span>
+        <h4>Onboarding Genie</h4>
+        <p>New hire form → personalized first-week packet (decisions to know, people to meet, policies to ack).</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+        </span>
+        <h4>OCR pipeline</h4>
+        <p>Scanned PDF / image → Tesseract or Textract → PII redaction → searchable memory record.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
+        </span>
+        <h4>WORM audit log</h4>
+        <p>Every audit row sha256-linked to the prior. Tamper-detectable. Verify chain on demand.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="8" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        </span>
+        <h4>Two-tier RBAC</h4>
+        <p>Org role + dept role. Record-level visibility. The LLM never sees what the user can't.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.61.49 1.51 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <h4>Time Machine</h4>
+        <p>Scrub through 24 months. See what the org knew at any point — what was decided, reversed, what existed.</p>
+      </div>
+      <div class="cap-card pfade">
+        <span class="cap-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 13h6M9 17h6"/></svg>
+        </span>
+        <h4>GDPR controls</h4>
+        <p>Self-serve data export + right-to-erasure. Hashed marker for regulator verification.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FAQ ============== -->
+  <section class="pricing-faq-section">
+    <div class="pricing-faq pfade">
+      <h2>A few quick answers</h2>
+      <dl>
+        <div>
+          <dt>Is there a free trial?</dt>
+          <dd>30 days on Team and Pro, no credit card required. Enterprise and Government go through sales so we land you on the right deployment.</dd>
+        </div>
+        <div>
+          <dt>What is the difference between Team and Pro?</dt>
+          <dd>Pro adds the meeting recorder. A bot joins your Zoom, Meet, or Teams calls, transcribes them, extracts decisions and action items, and saves the result as a memory record (still RBAC-respecting). It replaces Fireflies, Otter, or Granola in your stack. Everything else is identical to Team.</dd>
+        </div>
+        <div>
+          <dt>Per-seat. What counts as a seat?</dt>
+          <dd>Any active user with an org membership. Guests (read-only on explicit shares) don't count. Admins do.</dd>
+        </div>
+        <div>
+          <dt>How much meeting recording is included on Pro?</dt>
+          <dd>40 hours per user per month, transcribed and summarised. Audio is retained for 30 days by default; transcripts and summaries stay forever. Heavier usage available on request.</dd>
+        </div>
+        <div>
+          <dt>On-prem — what does that actually mean?</dt>
+          <dd>The full stack runs inside your network: app, database, and the LLM (via on-prem Rabbit). Zero egress to Reattend. Customer manages updates on their cadence; we provide signed tarball releases.</dd>
+        </div>
+        <div>
+          <dt>How fast can we go live?</dt>
+          <dd>Team: 30 minutes (Slack + Notion connectors are 1-click). Enterprise dedicated: 1–2 weeks. Government on-prem with paper digitization: 6–12 weeks depending on legacy archive size.</dd>
+        </div>
+        <div>
+          <dt>What about the AI engine?</dt>
+          <dd>Cloud deployment uses our managed AI stack — frontier reasoning models for answering plus a fast model for triage. Year-2 we ship on-prem Rabbit so the model lives on your hardware. You can swap at any time.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Contact line -->
+  <p class="contact-line pfade">
+    Questions? <a href="mailto:sales@reattend.com">sales@reattend.com</a> &nbsp;·&nbsp; Security review? <a href="mailto:trust@reattend.com">trust@reattend.com</a>
+  </p>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="https://enterprise.reattend.com/black_logo.svg" alt="Reattend" />
+          <span class="ent-tag">Enterprise</span>
+        </a>
+        <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="/product">Product</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/compliance">Compliance</a>
+        <a href="/login">Sign in</a>
+        <a href="/#integrations">Integrations</a>
+      </div>
+      <div class="footer-col">
+        <h5>Capabilities</h5>
+        <a href="/product#capture">Capture</a>
+        <a href="/product#connect">Connect</a>
+        <a href="/product#recall">Recall</a>
+        <a href="/product#run">Run</a>
+        <a href="/product#govern">Govern</a>
+        <a href="/product#deploy">Deploy</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+        <a href="#">Press</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="#">Docs</a>
+        <a href="#">Changelog</a>
+        <a href="#">Trust</a>
+        <a href="#">Status</a>
+        <a href="#">SOC 2</a>
+        <a href="#">HIPAA</a>
+        <a href="#">GDPR</a>
+        <a href="#">DPA</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Reattend Technologies Private Limited</span>
+      <span style="display:flex; gap:24px;">
+        <a href="#" style="color:inherit;">Privacy</a>
+        <a href="#" style="color:inherit;">Terms</a>
+        <a href="#" style="color:inherit;">Compliance</a>
+        <a href="#" style="color:inherit;">Support</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    // === Reveal observer
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            e.target.classList.add("revealed");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    document.querySelectorAll(".pfade, .reveal").forEach((el) => io.observe(el));
+
+    // === Billing toggle
+    const toggle = document.getElementById("billingToggle");
+    const opts = toggle.querySelectorAll(".bt-opt");
+    const amounts = document.querySelectorAll(".plan-price .amount[data-month]");
+    opts.forEach((opt) => {
+      opt.addEventListener("click", () => {
+        opts.forEach((o) => o.classList.remove("active"));
+        opt.classList.add("active");
+        const mode = opt.dataset.mode;
+        amounts.forEach((a) => {
+          a.textContent = mode === "year" ? a.dataset.year : a.dataset.month;
+        });
+      });
+    });
+
+    // === Button fill helpers
+    document.querySelectorAll(".btn-fill, .btn-fill-dark").forEach((btn) => {
+      btn.addEventListener("mouseenter", function () {
+        if (!btn.querySelector(".btn-fill-bg")) {
+          const bg = document.createElement("span");
+          bg.className = "btn-fill-bg";
+          btn.prepend(bg);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
