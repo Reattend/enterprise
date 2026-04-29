@@ -91,9 +91,10 @@ export async function ingestFromNango(opts: {
   const provider = getProviderByKey(opts.providerKey)
   if (!provider) throw new Error(`unknown provider key: ${opts.providerKey}`)
 
-  const normalize = getNormalizer(provider.providerConfigKey)
-  if (!normalize) throw new Error(`no normalizer registered for ${provider.providerConfigKey}`)
-
+  // Normalizer is only consulted in the listRecords branch (proxy providers
+  // normalize inside their fetcher). We resolve it lazily below to avoid
+  // throwing for proxy-only providers like github that have no Nango sync
+  // script and therefore no listRecords-shape to normalize.
   const nango = getNangoClient()
   const limit = opts.limit ?? 100
 
@@ -150,6 +151,8 @@ export async function ingestFromNango(opts: {
       throw err
     }
   } else {
+    const normalize = getNormalizer(provider.providerConfigKey)
+    if (!normalize) throw new Error(`no normalizer registered for ${provider.providerConfigKey}`)
     const { records, next_cursor } = await nango.listRecords({
       providerConfigKey: provider.providerConfigKey,
       connectionId: nangoConnectionId,
