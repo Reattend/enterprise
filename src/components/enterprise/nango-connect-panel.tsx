@@ -148,8 +148,7 @@ export function NangoConnectPanel() {
 
       try {
         // Don't pass a connection_id — when using session tokens, Nango
-        // generates its own and stores end_user.id (= our userId) on the
-        // connection. We retrieve the generated id from the auth webhook.
+        // generates its own. We recover it via /finalize below.
         await client.auth(session.providerConfigKey)
       } catch (authErr: any) {
         // User closed popup or denied consent — non-fatal, just stop.
@@ -157,6 +156,21 @@ export function NangoConnectPanel() {
           return
         }
         throw authErr
+      }
+
+      // Finalize: ask Nango for the auto-generated connection_id and persist
+      // an integrations_connections row with status='connected'. We don't
+      // wait for the auth webhook because it can race with the backfill below.
+      const finalizeRes = await fetch('/api/integrations/nango/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerKey: provider.key }),
+      })
+      if (!finalizeRes.ok) {
+        const err = await finalizeRes.json().catch(() => ({}))
+        toast.error(err.error || 'Connected to provider but failed to register the connection — try Sync now from the panel.')
+        fetchStatus()
+        return
       }
 
       toast.success(`${provider.name} connected — running backfill…`)
@@ -169,6 +183,9 @@ export function NangoConnectPanel() {
         if (backfillRes.ok) {
           const data = await backfillRes.json()
           toast.success(`Backfill done · ${data.added} new, ${data.skipped} already-seen, ${data.filtered} filtered`)
+        } else {
+          const err = await backfillRes.json().catch(() => ({}))
+          toast.error(err.error || 'Backfill failed — check the Inbox or click Sync now to retry.')
         }
       } catch { /* non-fatal */ }
       fetchStatus()
