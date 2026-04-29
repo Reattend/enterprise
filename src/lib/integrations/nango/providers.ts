@@ -85,6 +85,17 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     setupHint: 'Share each Notion page (or top-level workspace) with the Reattend integration: open the page → top-right ••• → Connections → Reattend. Notion only exposes pages explicitly granted access.',
   },
   {
+    key: 'linear-nango',
+    providerConfigKey: 'linear',
+    name: 'Linear',
+    category: 'docs',
+    description: 'Capture issue threads and project descriptions. Decisions logged in tickets become memory.',
+    iconHint: 'linear',
+    models: ['LinearIssue', 'Issue'],
+    triageAggressiveness: 'medium',
+    setupHint: 'Linear sees every team and issue you have access to in your workspace. To narrow down, use the Scope filter (e.g. include "spec, decision, RFC" to skip routine ticket noise).',
+  },
+  {
     key: 'github-nango',
     providerConfigKey: 'github',
     name: 'GitHub',
