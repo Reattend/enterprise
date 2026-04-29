@@ -85,6 +85,17 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     setupHint: 'Share each Notion page (or top-level workspace) with the Reattend integration: open the page → top-right ••• → Connections → Reattend. Notion only exposes pages explicitly granted access.',
   },
   {
+    key: 'github-nango',
+    providerConfigKey: 'github',
+    name: 'GitHub',
+    category: 'docs',
+    description: 'Capture PR discussions and issue threads. Where code decisions actually live.',
+    iconHint: 'github',
+    models: ['GithubPullRequest', 'GithubIssue', 'PullRequest', 'Issue'],
+    triageAggressiveness: 'medium',
+    setupHint: 'During the OAuth screen, GitHub asks which organizations to grant access to — click Grant (or Request) for each org whose repos you want indexed. Without this, only personal repos appear.',
+  },
+  {
     key: 'confluence-nango',
     providerConfigKey: 'confluence',
     name: 'Confluence',
