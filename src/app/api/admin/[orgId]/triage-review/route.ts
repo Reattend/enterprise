@@ -24,11 +24,19 @@ export async function GET(req: NextRequest, { params }: { params: { orgId: strin
     const auth = await requireOrgAuth(req, orgId, 'org.audit.read')
     if (isAuthResponse(auth)) return auth
 
-    // Workspaces linked to this org. Mirrors the pattern used by audit/analytics.
-    const wsLinks = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+    // Workspaces the admin can audit: org-linked workspaces (multi-user) PLUS
+    // workspaces the admin is a member of (catches solo / pre-link ingest like
+    // a freshly-connected Gmail dumping into the admin's personal workspace).
+    const orgLinks = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
       .from(schema.workspaceOrgLinks)
       .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
-    const workspaceIds = wsLinks.map((w) => w.workspaceId)
+    const ownMemberships = await db.select({ workspaceId: schema.workspaceMembers.workspaceId })
+      .from(schema.workspaceMembers)
+      .where(eq(schema.workspaceMembers.userId, auth.userId))
+    const workspaceIds = Array.from(new Set([
+      ...orgLinks.map((w) => w.workspaceId),
+      ...ownMemberships.map((w) => w.workspaceId),
+    ]))
     if (workspaceIds.length === 0) {
       return NextResponse.json({ items: [], counts: { new: 0, triaged: 0, ignored: 0, promoted: 0 } })
     }
@@ -131,11 +139,17 @@ export async function POST(req: NextRequest, { params }: { params: { orgId: stri
     const auth = await requireOrgAuth(req, orgId, 'org.audit.read')
     if (isAuthResponse(auth)) return auth
 
-    // Verify the raw_item belongs to a workspace in this org.
-    const wsLinks = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+    // Same workspace set as the GET path: org-linked + admin's own.
+    const orgLinks = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
       .from(schema.workspaceOrgLinks)
       .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
-    const workspaceIds = wsLinks.map((w) => w.workspaceId)
+    const ownMemberships = await db.select({ workspaceId: schema.workspaceMembers.workspaceId })
+      .from(schema.workspaceMembers)
+      .where(eq(schema.workspaceMembers.userId, auth.userId))
+    const workspaceIds = Array.from(new Set([
+      ...orgLinks.map((w) => w.workspaceId),
+      ...ownMemberships.map((w) => w.workspaceId),
+    ]))
     const item = await db.query.rawItems.findFirst({
       where: and(
         eq(schema.rawItems.id, rawItemId),
