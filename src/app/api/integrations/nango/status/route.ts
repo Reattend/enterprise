@@ -29,6 +29,7 @@ export async function GET() {
         category: p.category,
         description: p.description,
         iconHint: p.iconHint,
+        setupHint: p.setupHint ?? null,
         status: row?.status ?? 'disconnected',
         lastSyncedAt: row?.lastSyncedAt ?? null,
         syncError: row?.syncError ?? null,

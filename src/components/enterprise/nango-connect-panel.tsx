@@ -35,6 +35,7 @@ type Provider = {
   category: string
   description: string
   iconHint: string
+  setupHint: string | null
   status: 'connected' | 'disconnected' | 'error'
   lastSyncedAt: string | null
   syncError: string | null
@@ -328,6 +329,11 @@ export function NangoConnectPanel() {
                   )}
                   {p.syncError && (
                     <p className="text-[10px] text-red-500 mt-1 line-clamp-2">{p.syncError}</p>
+                  )}
+                  {isConnected && p.setupHint && (
+                    <div className="mt-2 rounded-md bg-amber-500/10 border border-amber-500/20 px-2 py-1.5 text-[10px] text-amber-900 dark:text-amber-200 leading-relaxed">
+                      <span className="font-medium">Setup: </span>{p.setupHint}
+                    </div>
                   )}
                 </div>
               </div>

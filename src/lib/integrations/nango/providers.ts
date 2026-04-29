@@ -25,6 +25,10 @@ export interface NangoProviderDef {
   // like decisions / insights); 'low' = everything lands in raw_items but
   // triage rarely promotes (e.g. chat noise).
   triageAggressiveness: 'high' | 'medium' | 'low'
+  // One-line setup tip shown after the user connects. Use for "you need to
+  // do something on the provider side before data flows" gotchas — e.g. the
+  // Slack bot-invite-to-channel step.
+  setupHint?: string
 }
 
 export const NANGO_PROVIDERS: NangoProviderDef[] = [
@@ -67,6 +71,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'slack',
     models: ['SlackMessage', 'Message'],
     triageAggressiveness: 'low',
+    setupHint: 'Invite the Reattend bot to each channel you want captured (type /invite @reattend in the channel). The bot only sees channels it’s invited to — clean privacy model, no firehose.',
   },
   {
     key: 'notion-nango',
