@@ -9,6 +9,17 @@ import { getProviderByKey, type NangoProviderDef } from './providers'
 import { getNormalizer } from './providers/index'
 import { enqueueJob } from '@/lib/jobs/worker'
 import type { NangoRecord } from '@nangohq/node'
+import { fetchGmailMessages } from './proxy-fetchers/gmail'
+import { fetchCalendarEvents } from './proxy-fetchers/google-calendar'
+import type { NormalizedRawItem } from './normalize'
+
+// Providers we fetch ourselves via nango.proxy() instead of nango.listRecords.
+// Self-hosted Nango ships with sync scripts disabled, so listRecords returns
+// empty for these — we must drive the API calls ourselves.
+const PROXY_PROVIDERS: Record<string, true> = {
+  'google-mail': true,
+  'google-calendar': true,
+}
 
 export interface IngestResult {
   added: number
@@ -104,29 +115,42 @@ export async function ingestFromNango(opts: {
     } catch { /* bad JSON */ }
   }
   if (!nangoConnectionId) {
-    throw new Error(`no nangoConnectionId stored for ${opts.userId}/${opts.providerKey} — auth webhook may not have fired yet`)
+    throw new Error(`no nangoConnectionId stored for ${opts.userId}/${opts.providerKey} — connection may not have completed yet`)
   }
 
-  const { records, next_cursor } = await nango.listRecords({
-    providerConfigKey: provider.providerConfigKey,
-    connectionId: nangoConnectionId,
-    model: opts.model,
-    limit,
-    ...(opts.cursor ? { cursor: opts.cursor } : {}),
-  })
+  // Branch: providers we fetch ourselves via nango.proxy(), or via Nango's
+  // sync scripts (listRecords). The proxy path is for any provider where a
+  // sync template isn't enabled in our self-hosted Nango.
+  let normalizedItems: NormalizedRawItem[] = []
+  let nextCursor: string | null = null
+
+  if (PROXY_PROVIDERS[provider.providerConfigKey]) {
+    if (provider.providerConfigKey === 'google-mail') {
+      normalizedItems = await fetchGmailMessages(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+    } else if (provider.providerConfigKey === 'google-calendar') {
+      normalizedItems = await fetchCalendarEvents(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+    }
+  } else {
+    const { records, next_cursor } = await nango.listRecords({
+      providerConfigKey: provider.providerConfigKey,
+      connectionId: nangoConnectionId,
+      model: opts.model,
+      limit,
+      ...(opts.cursor ? { cursor: opts.cursor } : {}),
+    })
+    nextCursor = next_cursor || null
+    for (const rec of records as NangoRecord[]) {
+      const n = normalize(rec as unknown as Record<string, unknown>)
+      if (n) normalizedItems.push(n)
+    }
+  }
 
   const source = await resolveSource(opts.workspaceId, provider)
 
   let added = 0, skipped = 0, errors = 0, filtered = 0
 
-  for (const rec of records as NangoRecord[]) {
+  for (const normalized of normalizedItems) {
     try {
-      const normalized = normalize(rec as unknown as Record<string, unknown>)
-      if (!normalized) {
-        skipped++
-        continue
-      }
-
       // Scope filter — user configured which content to keep. Rejected
       // records never hit raw_items, saving triage work downstream.
       if (!passesScope(normalized.text, scope)) {
@@ -168,5 +192,5 @@ export async function ingestFromNango(opts: {
     }
   }
 
-  return { added, skipped, errors, filtered, nextCursor: next_cursor }
+  return { added, skipped, errors, filtered, nextCursor }
 }
