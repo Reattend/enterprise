@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Compliance & Trust</title>
+  <meta name="description" content="Reattend's trust center. SOC 2 Type II, HIPAA, GDPR, ISO 27001, residency, encryption, subprocessors, and the controls behind Memory you can audit." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+  <link rel="stylesheet" href="/landing-design/page.css?v=1" />
+
+  <style>
+    /* =============== Compliance Page =============== */
+    .cmp-hero {
+      position: relative;
+      padding: clamp(72px, 10vw, 120px) var(--pad) clamp(40px, 5vw, 64px);
+      overflow: hidden;
+    }
+    .cmp-hero::before {
+      content:""; position:absolute; inset:-10% -5%;
+      background:
+        radial-gradient(ellipse 50% 35% at 22% 30%, oklch(0.94 0.06 285 / 0.42), transparent 70%),
+        radial-gradient(ellipse 40% 30% at 78% 80%, oklch(0.95 0.05 80 / 0.34), transparent 70%);
+      filter: blur(40px);
+      pointer-events:none; z-index:0;
+    }
+    .cmp-hero > * { position:relative; z-index:2; }
+    .cmp-hero-grid {
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: clamp(40px, 6vw, 80px);
+      align-items:center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .cmp-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 6.4vw, 92px);
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+      margin: 16px 0 20px;
+      max-width: 16ch;
+    }
+    .cmp-hero h1 em { font-style: italic; color: var(--accent); }
+    .cmp-hero .lede {
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 56ch;
+      margin: 0 0 28px;
+    }
+    .cmp-hero .meta {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-3);
+      display:flex; flex-wrap:wrap; gap: 18px 28px;
+      letter-spacing: 0.04em;
+    }
+    .cmp-hero .meta b {
+      color: var(--ink); font-weight: 500; margin-right: 6px;
+    }
+    .cmp-hero .meta .dot {
+      display:inline-block; width:6px; height:6px; border-radius:50%;
+      background: oklch(0.7 0.15 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.15);
+      margin-right: 8px; vertical-align: 1px;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    .cmp-hero .ctas { display:flex; gap:10px; margin-top: 30px; flex-wrap:wrap; }
+
+    /* badges board */
+    .badge-board {
+      position: relative;
+      aspect-ratio: 1.1 / 1;
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 50%, var(--bg-paper) 0%, var(--bg) 70%);
+      padding: 22px;
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .badge-board::before {
+      content:""; position:absolute; inset: 14px;
+      border: 1px dashed var(--rule-2);
+      border-radius: 16px;
+      pointer-events:none;
+    }
+    .bb-tick {
+      position:absolute;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+      color: var(--ink-3); text-transform: uppercase;
+      background: var(--bg-paper);
+      padding: 4px 8px; border: 1px solid var(--rule);
+      border-radius: 4px;
+    }
+    .bb-tick.tl { top: 10px; left: 14px; }
+    .bb-tick.tr { top: 10px; right: 14px; color: var(--accent); border-color: oklch(0.45 0.18 280 / 0.3); }
+    .bb-tick.bl { bottom: 10px; left: 14px; }
+    .bb-tick.br { bottom: 10px; right: 14px; }
+
+    .badge {
+      position: relative;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 18px;
+      display:flex; flex-direction:column; justify-content:space-between;
+      transition: transform .25s ease, border-color .25s, box-shadow .25s;
+      overflow:hidden;
+    }
+    .badge:hover {
+      transform: translateY(-2px);
+      border-color: var(--ink-4);
+      box-shadow: 0 14px 30px -16px oklch(0.18 0.012 270 / 0.18);
+    }
+    .badge .seal {
+      width: 52px; height: 52px;
+      display:grid; place-items:center;
+      border-radius: 12px;
+      background: var(--bg-2);
+      border: 1px solid var(--rule);
+    }
+    .badge .seal svg { width: 26px; height: 26px; }
+    .badge .name {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 16px;
+    }
+    .badge h3 {
+      font-family: var(--serif);
+      font-size: 22px; letter-spacing: -0.01em;
+      margin: 4px 0 8px; line-height: 1.1;
+    }
+    .badge .status {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--ink-2);
+      display:flex; align-items:center; gap: 6px;
+    }
+    .badge .status .dot {
+      width: 6px; height: 6px; border-radius:50%;
+      background: oklch(0.7 0.15 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.15);
+    }
+    .badge.amber .status .dot { background: var(--amber-deep); box-shadow: 0 0 0 3px oklch(0.68 0.15 60 / 0.15); }
+
+    /* sweep */
+    .badge::after {
+      content:""; position:absolute; top: 0; left:-40%;
+      width: 30%; height: 100%;
+      background: linear-gradient(110deg, transparent, oklch(0.45 0.18 280 / 0.05), transparent);
+      transform: skewX(-18deg);
+      transition: left .9s ease;
+    }
+    .badge:hover::after { left: 130%; }
+
+    /* =============== Sections =============== */
+    .cmp-section { padding: clamp(60px, 8vw, 110px) var(--pad); }
+    .cmp-section.alt { background: var(--bg-paper); border-top: 1px solid var(--rule-2); border-bottom: 1px solid var(--rule-2); }
+
+    .cmp-section .head {
+      max-width: 1400px; margin: 0 auto clamp(36px, 5vw, 64px);
+      display:grid; grid-template-columns: 220px 1fr;
+      gap: clamp(24px, 4vw, 80px); align-items: end;
+    }
+    .cmp-section .head .label-col {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink-3);
+      display:flex; align-items:center; gap: 8px;
+    }
+    .cmp-section .head .label-col .num {
+      font-family: var(--mono); color: var(--accent);
+    }
+    .cmp-section .head h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4.6vw, 64px);
+      line-height: 1.06; letter-spacing: -0.02em;
+      max-width: 22ch;
+    }
+    .cmp-section .head h2 em { font-style: italic; color: var(--accent); }
+    .cmp-section .head .sub {
+      font-size: 16px; color: var(--ink-2); max-width: 56ch; margin-top: 12px;
+    }
+
+    /* =============== Controls grid =============== */
+    .ctl-grid {
+      max-width: 1400px; margin: 0 auto;
+      display:grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--rule);
+      border-radius: 16px; overflow:hidden;
+      background: var(--rule);
+    }
+    .ctl {
+      background: var(--bg-paper);
+      padding: 28px 26px 30px;
+      position:relative;
+      overflow:hidden;
+      transition: background .25s;
+    }
+    .ctl:hover { background: var(--bg); }
+    .ctl .num {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; color: var(--ink-3);
+      margin-bottom: 18px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .ctl .num .pip { display:flex; gap:3px; }
+    .ctl .num .pip i { width:5px; height:5px; border-radius:50%; background: var(--rule); display:block; }
+    .ctl .num .pip i.on { background: var(--accent); }
+    .ctl .ic-wrap {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: var(--bg-2);
+      border: 1px solid var(--rule-2);
+      display:grid; place-items:center;
+      margin-bottom: 16px;
+    }
+    .ctl h3 {
+      font-family: var(--serif); font-size: 24px;
+      letter-spacing: -0.01em; line-height: 1.15;
+      margin: 0 0 8px;
+    }
+    .ctl p { font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+    .ctl ul {
+      list-style:none; padding:0; margin: 14px 0 0;
+      display:flex; flex-direction:column; gap: 8px;
+    }
+    .ctl ul li {
+      font-family: var(--mono); font-size: 12px;
+      color: var(--ink-2);
+      display:flex; align-items:flex-start; gap: 8px;
+      letter-spacing: 0.02em;
+    }
+    .ctl ul li::before {
+      content:""; width: 5px; height:5px; border-radius:50%;
+      background: var(--accent); margin-top: 7px; flex-shrink:0;
+      box-shadow: 0 0 0 3px oklch(0.45 0.18 280 / 0.14);
+    }
+
+    /* =============== Stats row =============== */
+    .stat-strip {
+      max-width: 1400px; margin: 0 auto;
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: 14px;
+      overflow:hidden;
+    }
+    .ss-cell { background: var(--bg-paper); padding: 26px 22px; }
+    .ss-cell .num {
+      font-family: var(--serif);
+      font-size: clamp(36px, 3.6vw, 52px);
+      line-height: 1; letter-spacing: -0.025em;
+      color: var(--ink); margin-bottom: 6px;
+    }
+    .ss-cell .num em { color: var(--accent); font-style: italic; }
+    .ss-cell .lbl {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.14em; text-transform:uppercase;
+      color: var(--ink-3);
+    }
+
+    /* =============== Residency map =============== */
+    .residency {
+      max-width: 1400px; margin: 0 auto;
+      display:grid; grid-template-columns: 1.25fr 1fr;
+      gap: clamp(28px, 4vw, 64px); align-items: center;
+    }
+    .map-board {
+      position:relative;
+      aspect-ratio: 1.6 / 1;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 18px;
+      padding: 18px;
+      overflow:hidden;
+    }
+    .map-board::before {
+      content:""; position:absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--rule-2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--rule-2) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity: 0.45;
+      mask-image: radial-gradient(ellipse 70% 70% at center, #000 30%, transparent 80%);
+    }
+    .map-board svg { position:relative; width:100%; height:100%; }
+    .pin {
+      position:absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.18), 0 0 0 8px oklch(0.45 0.18 280 / 0.08);
+      transform: translate(-50%, -50%);
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+    .pin.amber { background: var(--amber-deep); box-shadow: 0 0 0 4px oklch(0.68 0.15 60 / 0.18), 0 0 0 8px oklch(0.68 0.15 60 / 0.08); }
+    .pin .lab {
+      position:absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); white-space: nowrap;
+      background: var(--bg-paper); border: 1px solid var(--rule);
+      padding: 3px 7px; border-radius: 4px;
+    }
+
+    .res-list {
+      display:flex; flex-direction:column; gap: 14px;
+    }
+    .res-row {
+      display:grid; grid-template-columns: auto 1fr auto;
+      gap: 16px; align-items:center;
+      padding: 16px 18px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      transition: border-color .2s, transform .2s;
+    }
+    .res-row:hover { border-color: var(--ink-4); transform: translateY(-1px); }
+    .res-row .flag {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--bg-2); border: 1px solid var(--rule);
+      display:grid; place-items:center;
+      font-family: var(--serif); font-size: 14px; font-style: italic;
+      color: var(--ink);
+    }
+    .res-row .where {
+      font-size: 14px; color: var(--ink); font-weight: 500;
+      letter-spacing: -0.005em;
+    }
+    .res-row .where small {
+      display:block; font-family: var(--mono); font-size: 11px;
+      color: var(--ink-3); font-weight: 400; letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+    .res-row .tag {
+      font-family: var(--mono); font-size: 11px;
+      color: oklch(0.45 0.16 145);
+      background: oklch(0.7 0.15 145 / 0.12);
+      border: 1px solid oklch(0.7 0.15 145 / 0.3);
+      padding: 4px 10px; border-radius: 4px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .res-row .tag.amber {
+      color: oklch(0.5 0.15 60);
+      background: oklch(0.82 0.13 75 / 0.18);
+      border-color: oklch(0.68 0.15 60 / 0.32);
+    }
+
+    /* =============== Subprocessors table =============== */
+    .sp-wrap {
+      max-width: 1400px; margin: 0 auto;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      overflow:hidden;
+    }
+    .sp-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 14px;
+    }
+    .sp-table thead th {
+      text-align: left;
+      padding: 14px 22px;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--ink-3);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--rule);
+      font-weight: 500;
+    }
+    .sp-table tbody td {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--rule-2);
+      color: var(--ink-2);
+      vertical-align: middle;
+    }
+    .sp-table tbody tr:last-child td { border-bottom: 0; }
+    .sp-table tbody tr:hover td { background: var(--bg-2); }
+    .sp-table .vendor {
+      color: var(--ink); font-weight: 500;
+      display:flex; align-items:center; gap: 12px;
+    }
+    .sp-table .vendor .lg {
+      width: 28px; height: 28px;
+      border-radius: 7px; background: var(--bg-2);
+      border: 1px solid var(--rule);
+      display:grid; place-items:center;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      color: var(--ink);
+    }
+    .sp-table .region {
+      font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+    }
+    .sp-table .data {
+      font-size: 13px; color: var(--ink-2);
+    }
+    .sp-table .pill {
+      display:inline-flex; align-items:center; gap: 6px;
+      font-family: var(--mono); font-size: 11px;
+      padding: 4px 9px; border-radius: 4px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      background: var(--bg-2);
+      border: 1px solid var(--rule);
+      color: var(--ink-2);
+    }
+    .sp-table .pill.green { color: oklch(0.45 0.16 145); background: oklch(0.7 0.15 145 / 0.12); border-color: oklch(0.7 0.15 145 / 0.3); }
+    .sp-table .pill.purple { color: var(--accent); background: oklch(0.45 0.18 280 / 0.08); border-color: oklch(0.45 0.18 280 / 0.25); }
+
+    /* =============== Encryption / data flow =============== */
+    .flow-card {
+      max-width: 1400px; margin: 0 auto;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      padding: clamp(28px, 4vw, 56px);
+      position: relative;
+      overflow:hidden;
+    }
+    .flow-card::before {
+      content:""; position:absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 35% 25% at 15% 20%, oklch(0.94 0.06 285 / 0.25), transparent 70%),
+        radial-gradient(ellipse 30% 30% at 90% 90%, oklch(0.95 0.05 80 / 0.22), transparent 70%);
+      pointer-events:none; z-index: 0;
+    }
+    .flow-card > * { position: relative; z-index: 1; }
+    .flow-grid {
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .flow-step {
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 22px 18px;
+      position:relative;
+      display:flex; flex-direction:column; gap: 10px;
+    }
+    .flow-step .num {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; color: var(--ink-3);
+    }
+    .flow-step .num em { color: var(--accent); font-style: normal; }
+    .flow-step h4 {
+      font-family: var(--serif); font-size: 19px;
+      letter-spacing: -0.005em; line-height: 1.15;
+      margin: 4px 0 0;
+    }
+    .flow-step p { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+    .flow-step .key {
+      margin-top: auto;
+      font-family: var(--mono); font-size: 10.5px;
+      color: var(--ink-3);
+      padding: 8px 10px; background: var(--bg-2);
+      border: 1px solid var(--rule-2);
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      display:flex; align-items:center; gap: 8px;
+    }
+    .flow-step .key b { color: var(--accent); font-weight: 500; }
+    .flow-arrow {
+      position:absolute; top: 50%; right: -8px;
+      width: 16px; height: 16px;
+      transform: translateY(-50%);
+      display:grid; place-items:center;
+      pointer-events:none; z-index: 2;
+    }
+    .flow-arrow svg { width: 14px; height: 14px; color: var(--ink-3); }
+
+    /* =============== Documents list =============== */
+    .doc-list {
+      max-width: 1400px; margin: 0 auto;
+      display:grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .doc {
+      display:grid; grid-template-columns: 40px 1fr auto;
+      gap: 16px; align-items:center;
+      padding: 18px 20px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      transition: border-color .2s, transform .2s, background .2s;
+      cursor: pointer;
+    }
+    .doc:hover { border-color: var(--ink-4); transform: translateY(-2px); }
+    .doc .icon {
+      width: 40px; height: 48px;
+      background: var(--bg-2);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      position:relative;
+      display:grid; place-items:center;
+      font-family: var(--mono); font-size: 9px;
+      color: var(--ink-3); letter-spacing: 0.08em;
+    }
+    .doc .icon::before {
+      content:""; position:absolute; top:-1px; right:-1px;
+      width: 12px; height: 12px;
+      background: var(--bg);
+      border-left: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .doc .meta { display:flex; flex-direction:column; gap: 3px; }
+    .doc .meta .t { font-size: 14.5px; color: var(--ink); font-weight: 500; letter-spacing: -0.005em; }
+    .doc .meta .s { font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em; }
+    .doc .arrow {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--bg-2);
+      border: 1px solid var(--rule);
+      display:grid; place-items:center;
+      transition: background .2s, color .2s;
+      color: var(--ink-2);
+    }
+    .doc:hover .arrow { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+    /* =============== FAQ =============== */
+    .faq-grid {
+      max-width: 1400px; margin: 0 auto;
+      display:grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .faq-grid details {
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 18px 22px;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .faq-grid details[open] { border-color: var(--ink-4); }
+    .faq-grid summary {
+      list-style:none;
+      display:flex; justify-content:space-between; align-items:center;
+      gap: 16px;
+      font-size: 16px; color: var(--ink); font-weight: 500;
+      letter-spacing: -0.005em;
+    }
+    .faq-grid summary::-webkit-details-marker { display:none; }
+    .faq-grid summary .plus {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg-2); border: 1px solid var(--rule);
+      display:grid; place-items:center;
+      color: var(--ink-2);
+      transition: transform .25s, background .25s, color .25s;
+      flex-shrink: 0;
+    }
+    .faq-grid details[open] summary .plus { transform: rotate(45deg); background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .faq-grid details p {
+      margin: 12px 0 0; padding-top: 12px;
+      border-top: 1px solid var(--rule-2);
+      font-size: 14px; line-height: 1.6; color: var(--ink-2);
+    }
+
+    /* =============== Trust CTA =============== */
+    .trust-cta {
+      max-width: 1400px; margin: 0 auto;
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 24px;
+      padding: clamp(40px, 5vw, 64px);
+      display:grid; grid-template-columns: 1.4fr 1fr;
+      gap: clamp(28px, 4vw, 56px); align-items:center;
+      position:relative; overflow:hidden;
+    }
+    .trust-cta::before {
+      content:""; position:absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 40% 50% at 90% 110%, oklch(0.45 0.18 280 / 0.4), transparent 60%),
+        radial-gradient(ellipse 30% 40% at 5% -10%, oklch(0.82 0.13 75 / 0.18), transparent 60%);
+      pointer-events:none;
+    }
+    .trust-cta > * { position:relative; }
+    .trust-cta .eyebrow {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: oklch(0.85 0.005 80 / 0.7);
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 6px 12px; border-radius: 999px;
+      background: oklch(0.99 0 0 / 0.06);
+      border: 1px solid oklch(0.99 0 0 / 0.08);
+    }
+    .trust-cta .eyebrow .dot {
+      width:6px; height:6px; border-radius:50%;
+      background: oklch(0.7 0.15 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.2);
+    }
+    .trust-cta h2 {
+      font-family: var(--serif);
+      font-size: clamp(34px, 4vw, 56px);
+      line-height: 1.05; letter-spacing: -0.022em;
+      margin: 16px 0 14px; max-width: 18ch;
+    }
+    .trust-cta h2 em { font-style: italic; color: oklch(0.78 0.16 285); }
+    .trust-cta p { color: oklch(0.85 0.005 80 / 0.78); font-size: 16px; max-width: 50ch; }
+    .trust-cta .ctas { display:flex; gap: 10px; margin-top: 28px; flex-wrap:wrap; }
+    .trust-cta .ctas .btn-primary { background: var(--bg); color: var(--ink); }
+    .trust-cta .ctas .btn-primary::before { background: var(--accent); }
+    .trust-cta .ctas .btn-primary:hover { color: var(--bg); }
+    .trust-cta .ctas .btn-ghost { color: oklch(0.99 0 0 / 0.85); border-color: oklch(0.99 0 0 / 0.18); border:1px solid oklch(0.99 0 0 / 0.18); }
+    .trust-cta .ctas .btn-ghost:hover { background: oklch(0.99 0 0 / 0.06); color: var(--bg); }
+
+    .trust-cta .checks {
+      display:grid; grid-template-columns: 1fr 1fr; gap: 12px 24px;
+      font-family: var(--mono); font-size: 12px;
+      color: oklch(0.85 0.005 80 / 0.78);
+      letter-spacing: 0.02em;
+    }
+    .trust-cta .checks span {
+      display:flex; align-items:center; gap: 10px;
+    }
+    .trust-cta .checks span::before {
+      content:""; width: 14px; height: 14px;
+      background: oklch(0.7 0.15 145 / 0.18);
+      border: 1px solid oklch(0.7 0.15 145 / 0.5);
+      border-radius: 4px;
+      display:grid; place-items:center; flex-shrink:0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2370b893' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 9 6 12 13 5'/></svg>");
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* =============== Reveal =============== */
+    .pfade { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+    .pfade.in { opacity: 1; transform: none; }
+
+    /* =============== Footer (reused) =============== */
+
+    /* =============== Responsive =============== */
+    @media (max-width: 1100px) {
+      .cmp-hero-grid { grid-template-columns: 1fr; }
+      .cmp-section .head { grid-template-columns: 1fr; }
+      .ctl-grid { grid-template-columns: 1fr 1fr; }
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+      .residency { grid-template-columns: 1fr; }
+      .flow-grid { grid-template-columns: 1fr 1fr; }
+      .doc-list { grid-template-columns: 1fr 1fr; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .trust-cta { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .ctl-grid, .stat-strip, .flow-grid, .doc-list { grid-template-columns: 1fr; }
+      .badge-board { aspect-ratio: 1 / 1; }
+    }
+  </style>
+</head>
+<body data-screen-label="Compliance">
+
+  <!-- ============== TOPBAR ============== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <svg class="brand-logo" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="2" width="28" height="28" rx="8" fill="#0B0B0F"/>
+          <circle cx="16" cy="16" r="3.5" fill="#fff"/>
+          <circle cx="16" cy="16" r="7.5" stroke="#fff" stroke-opacity="0.55" stroke-width="1.4"/>
+          <circle cx="16" cy="16" r="11.5" stroke="#fff" stroke-opacity="0.25" stroke-width="1"/>
+        </svg>
+        <span class="brand-word">Reattend</span>
+        <span class="ent-tag">Enterprise</span>
+      </a>
+      <nav class="nav">
+        <a class="nav-item" href="/">Home</a>
+        <a class="nav-item" href="/product">Product</a>
+        <a class="nav-item" href="/#integrations">Integrations</a>
+        <a class="nav-item" href="/pricing">Pricing</a>
+        <a class="nav-item" href="/compliance" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Compliance</a>
+      </nav>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-ghost" href="/login">Sign in</a>
+        <a class="btn btn-primary btn-fill" href="/register">Book a demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============== HERO ============== -->
+  <section class="cmp-hero" data-screen-label="Compliance · Hero">
+    <div class="cmp-hero-grid">
+      <div>
+        <div class="eyebrow pfade" style="display:inline-flex;">
+          <span class="eyebrow-dot"></span>
+          Trust &amp; Compliance
+        </div>
+        <h1 class="pfade">Memory you can <em>audit.</em></h1>
+        <p class="lede pfade">
+          Every recall is logged. Every document is encrypted. Every access carries a name, a role, and a reason.
+          Reattend is built so security and legal teams can answer <em>"who saw what, when, and why?"</em> in seconds —
+          not in a six-week investigation.
+        </p>
+        <div class="meta pfade">
+          <span><span class="dot"></span><b>SOC 2 Type II</b>continuous audit</span>
+          <span><b>HIPAA</b>BAA on Pro & Enterprise</span>
+          <span><b>GDPR &amp; DPDP</b>data residency</span>
+          <span><b>ISO 27001</b>certified Mar 2026</span>
+        </div>
+        <div class="ctas pfade">
+          <button class="btn btn-primary btn-fill">Request trust report</button>
+          <button class="btn btn-secondary btn-fill">Download SOC 2 Type II</button>
+        </div>
+      </div>
+
+      <div class="badge-board pfade">
+        <span class="bb-tick tl">CTRL · 04</span>
+        <span class="bb-tick tr">LIVE</span>
+        <span class="bb-tick bl">REPORT · v3.2</span>
+        <span class="bb-tick br">UPDATED 04·12</span>
+
+        <div class="badge">
+          <div class="seal">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 3l11 4v8c0 7-4.6 12.4-11 14-6.4-1.6-11-7-11-14V7l11-4z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M11 16l3.5 3.5L21 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">AICPA</div>
+            <h3>SOC 2 Type II</h3>
+            <div class="status"><span class="dot"></span>Audited · Apr 2026</div>
+          </div>
+        </div>
+
+        <div class="badge">
+          <div class="seal">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="8" width="22" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M5 14h22" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M16 19v3M13 22h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M11 8V6a5 5 0 0110 0v2" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">U.S. HHS</div>
+            <h3>HIPAA</h3>
+            <div class="status"><span class="dot"></span>BAA on request</div>
+          </div>
+        </div>
+
+        <div class="badge">
+          <div class="seal">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M5 16h22M16 5c3 3.6 4.5 7.4 4.5 11s-1.5 7.4-4.5 11M16 5c-3 3.6-4.5 7.4-4.5 11S13 23.4 16 27" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="22" cy="22" r="4.5" fill="var(--bg-paper)" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M20 22l1.5 1.5L24 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">EU · India · UK</div>
+            <h3>GDPR &amp; DPDP</h3>
+            <div class="status"><span class="dot"></span>DPA signed at sign-up</div>
+          </div>
+        </div>
+
+        <div class="badge amber">
+          <div class="seal">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="6" width="22" height="20" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M10 12h12M10 16h12M10 20h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="24" cy="22" r="4.5" fill="var(--bg-paper)" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M22 22l1.5 1.5L26 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">ISO/IEC</div>
+            <h3>ISO 27001</h3>
+            <div class="status"><span class="dot"></span>Stage 2 audit · Mar 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== STAT STRIP ============== -->
+  <section class="cmp-section" style="padding-top: 0;">
+    <div class="stat-strip pfade">
+      <div class="ss-cell">
+        <div class="num"><em>0</em></div>
+        <div class="lbl">Critical findings · last 18 mo</div>
+      </div>
+      <div class="ss-cell">
+        <div class="num">99.98<em>%</em></div>
+        <div class="lbl">Recall trace coverage</div>
+      </div>
+      <div class="ss-cell">
+        <div class="num">&lt; 4<em>h</em></div>
+        <div class="lbl">P1 incident notification SLA</div>
+      </div>
+      <div class="ss-cell">
+        <div class="num"><em>14</em></div>
+        <div class="lbl">Subprocessors · all listed below</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CONTROLS ============== -->
+  <section class="cmp-section alt" id="controls" data-screen-label="Compliance · Controls">
+    <div class="head">
+      <div class="label-col"><span class="num">02 /</span> Controls</div>
+      <div>
+        <h2 class="pfade">Six layers, zero <em>"trust me bro."</em></h2>
+        <p class="sub pfade">
+          Every claim on this page maps to a control in our SOC 2 report. The full mapping is in the trust report;
+          the headlines are below.
+        </p>
+      </div>
+    </div>
+
+    <div class="ctl-grid pfade">
+      <div class="ctl">
+        <div class="num">01 / Identity<span class="pip"><i class="on"></i><i></i><i></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+            <path d="M16.5 11.5l1.5 1.5 3-3"/>
+          </svg>
+        </div>
+        <h3>Identity &amp; access</h3>
+        <p>SSO is mandatory. Roles map to org structure. Service accounts rotate keys on a 30‑day timer; nothing recalls without a name attached.</p>
+        <ul>
+          <li>SAML 2.0 · OIDC · SCIM 2.0</li>
+          <li>RBAC + per‑memory ACLs</li>
+          <li>Session bound to device + IP range</li>
+          <li>Hardware key (WebAuthn) optional</li>
+        </ul>
+      </div>
+
+      <div class="ctl">
+        <div class="num">02 / Encryption<span class="pip"><i></i><i class="on"></i><i></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V8a4 4 0 018 0v3"/>
+            <circle cx="12" cy="16" r="1.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>Encryption</h3>
+        <p>AES‑256 at rest, TLS 1.3 in transit, envelope keys rotated quarterly. BYOK on Enterprise; we never see your data‑encryption key.</p>
+        <ul>
+          <li>AES‑256‑GCM · TLS 1.3 only</li>
+          <li>HSM‑backed root keys (FIPS 140‑3)</li>
+          <li>Per‑tenant data keys · quarterly rotation</li>
+          <li>BYOK via AWS KMS / GCP KMS</li>
+        </ul>
+      </div>
+
+      <div class="ctl">
+        <div class="num">03 / Audit<span class="pip"><i></i><i></i><i class="on"></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 4h13l5 5v11a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z"/>
+            <path d="M7 13h10M7 17h6M7 9h6"/>
+          </svg>
+        </div>
+        <h3>Audit &amp; provenance</h3>
+        <p>Every recall returns a citation chain. Every admin action goes to your SIEM in under 60 seconds. Logs are tamper‑evident with a Merkle digest published daily.</p>
+        <ul>
+          <li>Citation graph on every answer</li>
+          <li>Splunk · Datadog · Snowflake export</li>
+          <li>7‑year retention default</li>
+          <li>Tamper‑evident hash chain</li>
+        </ul>
+      </div>
+
+      <div class="ctl">
+        <div class="num">04 / Privacy<span class="pip"><i class="on"></i><i></i><i></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3 3"/>
+          </svg>
+        </div>
+        <h3>Privacy &amp; retention</h3>
+        <p>Your prompts and documents do not train any model — ours, or anyone else's. Retention is configurable per memory class; deletion is real, not soft.</p>
+        <ul>
+          <li>No training on customer data, ever</li>
+          <li>Per‑memory TTL (30d → indefinite)</li>
+          <li>Right‑to‑erase &lt; 72h SLA</li>
+          <li>PII redaction on ingest (toggle)</li>
+        </ul>
+      </div>
+
+      <div class="ctl">
+        <div class="num">05 / Resilience<span class="pip"><i></i><i class="on"></i><i></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 11-3.5-7.1"/>
+            <polyline points="21 4 21 9 16 9"/>
+          </svg>
+        </div>
+        <h3>Resilience</h3>
+        <p>Multi‑AZ by default; multi‑region available. RTO is one hour; RPO is fifteen minutes. We test failover quarterly with full chaos drills.</p>
+        <ul>
+          <li>99.95% uptime SLA · status.reattend.com</li>
+          <li>Quarterly DR test · 4h restore</li>
+          <li>Daily encrypted backups · 35d retain</li>
+          <li>Active/active in two AZs</li>
+        </ul>
+      </div>
+
+      <div class="ctl">
+        <div class="num">06 / Vulnerability<span class="pip"><i></i><i></i><i class="on"></i></span></div>
+        <div class="ic-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+        </div>
+        <h3>Vulnerability mgmt</h3>
+        <p>SAST and SCA on every commit. External pen test twice a year by NCC Group. Public disclosure policy and bug bounty live.</p>
+        <ul>
+          <li>SAST · SCA · DAST in CI</li>
+          <li>Pen test · NCC Group · 2x/year</li>
+          <li>Bug bounty · HackerOne</li>
+          <li>Patch SLA · critical &lt; 48h</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== DATA FLOW / ENCRYPTION ============== -->
+  <section class="cmp-section" data-screen-label="Compliance · Data Flow">
+    <div class="head">
+      <div class="label-col"><span class="num">03 /</span> Data flow</div>
+      <div>
+        <h2 class="pfade">From source to recall — <em>encrypted at every step.</em></h2>
+        <p class="sub pfade">
+          Here's exactly what happens when a document enters Reattend and a teammate later asks a question against it.
+          Nothing is stored in the clear. Nothing leaves the boundary you choose.
+        </p>
+      </div>
+    </div>
+
+    <div class="flow-card pfade">
+      <div class="flow-grid">
+        <div class="flow-step">
+          <div class="num">STEP <em>01</em></div>
+          <h4>Ingest</h4>
+          <p>Document captured from source (Slack, Drive, repo). TLS 1.3 over the wire. Source ACL preserved 1:1.</p>
+          <div class="key"><b>TLS</b> 1.3 · ECDHE‑X25519</div>
+          <div class="flow-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP <em>02</em></div>
+          <h4>Embed &amp; index</h4>
+          <p>Vectors generated in your region. PII redaction applied on flagged classes. Object‑store write is encrypted.</p>
+          <div class="key"><b>AES</b> 256‑GCM · per‑tenant DEK</div>
+          <div class="flow-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP <em>03</em></div>
+          <h4>Recall</h4>
+          <p>Query checked against ACLs before retrieval. Only chunks the asker can see are decrypted into RAM. Nothing else.</p>
+          <div class="key"><b>ACL</b> check · zero leakage</div>
+          <div class="flow-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="num">STEP <em>04</em></div>
+          <h4>Audit</h4>
+          <p>Citation chain hashed and chained into the daily Merkle root. Event streams to your SIEM. Plaintext is dropped.</p>
+          <div class="key"><b>SIEM</b> &lt; 60s · Merkle daily</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== RESIDENCY ============== -->
+  <section class="cmp-section alt" id="residency" data-screen-label="Compliance · Residency">
+    <div class="head">
+      <div class="label-col"><span class="num">04 /</span> Residency</div>
+      <div>
+        <h2 class="pfade">Data stays where <em>your law</em> says it stays.</h2>
+        <p class="sub pfade">
+          Reattend runs on AWS and GCP across six regions. You pick one at sign‑up; data — including embeddings, logs, and backups —
+          never crosses the boundary. EU‑only and India‑only deployments are available on Pro and Enterprise.
+        </p>
+      </div>
+    </div>
+
+    <div class="residency">
+      <div class="map-board pfade">
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" fill="none">
+          <!-- stylized continent blobs (abstract dots) -->
+          <g fill="oklch(0.88 0.008 270)" opacity="0.55">
+            <!-- North America -->
+            <circle cx="160" cy="170" r="3"/><circle cx="180" cy="160" r="3"/><circle cx="200" cy="170" r="3"/><circle cx="170" cy="190" r="3"/><circle cx="190" cy="200" r="3"/><circle cx="220" cy="180" r="3"/><circle cx="150" cy="200" r="3"/><circle cx="210" cy="210" r="3"/><circle cx="140" cy="180" r="3"/><circle cx="230" cy="200" r="3"/>
+            <!-- South America -->
+            <circle cx="240" cy="320" r="3"/><circle cx="260" cy="350" r="3"/><circle cx="250" cy="380" r="3"/><circle cx="270" cy="310" r="3"/>
+            <!-- Europe -->
+            <circle cx="400" cy="160" r="3"/><circle cx="420" cy="170" r="3"/><circle cx="410" cy="180" r="3"/><circle cx="430" cy="160" r="3"/><circle cx="400" cy="180" r="3"/><circle cx="390" cy="170" r="3"/>
+            <!-- Africa -->
+            <circle cx="430" cy="260" r="3"/><circle cx="450" cy="280" r="3"/><circle cx="440" cy="320" r="3"/><circle cx="420" cy="340" r="3"/><circle cx="460" cy="240" r="3"/>
+            <!-- Asia / India -->
+            <circle cx="540" cy="220" r="3"/><circle cx="560" cy="200" r="3"/><circle cx="580" cy="230" r="3"/><circle cx="600" cy="210" r="3"/><circle cx="520" cy="240" r="3"/><circle cx="540" cy="260" r="3"/><circle cx="560" cy="280" r="3"/>
+            <!-- Australia -->
+            <circle cx="660" cy="380" r="3"/><circle cx="680" cy="370" r="3"/><circle cx="700" cy="390" r="3"/>
+          </g>
+        </svg>
+        <!-- pins -->
+        <div class="pin" style="top: 36%; left: 22%;"><span class="lab">us-east-1</span></div>
+        <div class="pin" style="top: 38%; left: 18%;"><span class="lab" style="top:-22px;">us-west-2</span></div>
+        <div class="pin" style="top: 33%; left: 51%;"><span class="lab">eu-west-1</span></div>
+        <div class="pin" style="top: 35%; left: 53%;"><span class="lab" style="top:-22px;">eu-central-1</span></div>
+        <div class="pin" style="top: 47%; left: 70%;"><span class="lab">ap-south-1</span></div>
+        <div class="pin amber" style="top: 78%; left: 84%;"><span class="lab">ap-southeast-2</span></div>
+      </div>
+
+      <div class="res-list pfade">
+        <div class="res-row">
+          <div class="flag">N</div>
+          <div class="where">North America<small>us-east-1 · us-west-2 · AWS</small></div>
+          <span class="tag">Live</span>
+        </div>
+        <div class="res-row">
+          <div class="flag">E</div>
+          <div class="where">European Union<small>eu-west-1 · eu-central-1 · AWS</small></div>
+          <span class="tag">Live</span>
+        </div>
+        <div class="res-row">
+          <div class="flag">U</div>
+          <div class="where">United Kingdom<small>eu-west-2 · AWS · separate tenancy</small></div>
+          <span class="tag">Live</span>
+        </div>
+        <div class="res-row">
+          <div class="flag">I</div>
+          <div class="where">India<small>ap-south-1 · AWS · DPDP‑aligned</small></div>
+          <span class="tag">Live</span>
+        </div>
+        <div class="res-row">
+          <div class="flag">A</div>
+          <div class="where">Australia<small>ap-southeast-2 · AWS</small></div>
+          <span class="tag amber">Q3 2026</span>
+        </div>
+        <div class="res-row">
+          <div class="flag">S</div>
+          <div class="where">Self-hosted (VPC / on‑prem)<small>Helm chart · air‑gapped supported</small></div>
+          <span class="tag">Enterprise</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SUBPROCESSORS ============== -->
+  <section class="cmp-section" id="subprocessors" data-screen-label="Compliance · Subprocessors">
+    <div class="head">
+      <div class="label-col"><span class="num">05 /</span> Subprocessors</div>
+      <div>
+        <h2 class="pfade">Every vendor we share data with — <em>listed here.</em></h2>
+        <p class="sub pfade">
+          We notify customers 30 days before adding a new subprocessor. Subscribe to changes at <a href="mailto:trust@reattend.com" style="color:var(--accent); border-bottom:1px solid currentColor;">trust@reattend.com</a>.
+        </p>
+      </div>
+    </div>
+
+    <div class="sp-wrap pfade">
+      <table class="sp-table">
+        <thead>
+          <tr>
+            <th>Subprocessor</th>
+            <th>Purpose</th>
+            <th>Data processed</th>
+            <th>Region</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="vendor"><span class="lg">A</span>Amazon Web Services</td>
+            <td class="data">Compute, storage, KMS</td>
+            <td class="data">All customer data (encrypted)</td>
+            <td class="region">Customer-elected</td>
+            <td><span class="pill green">Core · DPA</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">G</span>Google Cloud Platform</td>
+            <td class="data">Compute, storage (alt region)</td>
+            <td class="data">All customer data (encrypted)</td>
+            <td class="region">EU · US</td>
+            <td><span class="pill green">Core · DPA</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">An</span>Anthropic</td>
+            <td class="data">LLM inference (Rabbit-LLM v3.2 fallback)</td>
+            <td class="data">Prompt + retrieved chunks (zero retention)</td>
+            <td class="region">US</td>
+            <td><span class="pill purple">Inference · ZDR</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">Op</span>OpenAI</td>
+            <td class="data">LLM inference (optional)</td>
+            <td class="data">Prompt + retrieved chunks (zero retention)</td>
+            <td class="region">US · EU</td>
+            <td><span class="pill purple">Inference · ZDR</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">Pn</span>Pinecone</td>
+            <td class="data">Vector index (managed tier)</td>
+            <td class="data">Embeddings only · no plaintext</td>
+            <td class="region">Customer-elected</td>
+            <td><span class="pill">Optional</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">Ds</span>Datadog</td>
+            <td class="data">Observability &amp; APM</td>
+            <td class="data">Service logs · no customer payloads</td>
+            <td class="region">US · EU</td>
+            <td><span class="pill green">Operations</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">St</span>Stripe</td>
+            <td class="data">Billing</td>
+            <td class="data">Account name + invoice line items</td>
+            <td class="region">US · EU</td>
+            <td><span class="pill green">Billing · DPA</span></td>
+          </tr>
+          <tr>
+            <td class="vendor"><span class="lg">Sn</span>Snowflake</td>
+            <td class="data">Audit-log warehouse (customer-routed)</td>
+            <td class="data">Audit events (your tenancy)</td>
+            <td class="region">Customer-elected</td>
+            <td><span class="pill">Optional</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============== DOCUMENTS ============== -->
+  <section class="cmp-section alt" id="documents" data-screen-label="Compliance · Documents">
+    <div class="head">
+      <div class="label-col"><span class="num">06 /</span> Documents</div>
+      <div>
+        <h2 class="pfade">Read the report. <em>Then</em> ask the questions.</h2>
+        <p class="sub pfade">
+          NDAs gate the audit reports themselves; the policies, DPAs, and security whitepaper are public. Trust report request gives you the full SOC 2 + ISO + pen‑test under NDA in &lt; 24h.
+        </p>
+      </div>
+    </div>
+
+    <div class="doc-list pfade">
+      <a class="doc">
+        <div class="icon">PDF</div>
+        <div class="meta"><span class="t">SOC 2 Type II report</span><span class="s">v3.2 · Apr 2026 · NDA</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">PDF</div>
+        <div class="meta"><span class="t">ISO 27001 certificate</span><span class="s">Mar 2026 · Public</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">PDF</div>
+        <div class="meta"><span class="t">Penetration test summary</span><span class="s">NCC Group · Q1 2026 · NDA</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">DOC</div>
+        <div class="meta"><span class="t">Data Processing Addendum</span><span class="s">v2.4 · GDPR + DPDP · Public</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">DOC</div>
+        <div class="meta"><span class="t">Business Associate Agreement</span><span class="s">HIPAA · v1.6 · Pro &amp; Ent</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">PDF</div>
+        <div class="meta"><span class="t">Security whitepaper</span><span class="s">v8 · 42 pages · Public</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">DOC</div>
+        <div class="meta"><span class="t">Subprocessor list (live)</span><span class="s">Updated continuously · RSS</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">DOC</div>
+        <div class="meta"><span class="t">Vulnerability disclosure policy</span><span class="s">HackerOne · Public</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+      <a class="doc">
+        <div class="icon">PDF</div>
+        <div class="meta"><span class="t">Incident response plan summary</span><span class="s">v4.1 · Public</span></div>
+        <div class="arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 17 17 7"/><polyline points="9 7 17 7 17 15"/></svg>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============== FAQ ============== -->
+  <section class="cmp-section" id="faq" data-screen-label="Compliance · FAQ">
+    <div class="head">
+      <div class="label-col"><span class="num">07 /</span> Questions</div>
+      <div>
+        <h2 class="pfade">The questions <em>your security team</em> will ask.</h2>
+        <p class="sub pfade">
+          Twelve answers we've given a thousand times. If yours isn't here, write to <a href="mailto:trust@reattend.com" style="color:var(--accent); border-bottom:1px solid currentColor;">trust@reattend.com</a>.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-grid pfade">
+      <details>
+        <summary>Do you train any model on our data?<span class="plus">+</span></summary>
+        <p>No. Customer prompts, documents, embeddings, and recall traffic are excluded from all training — ours and our LLM subprocessors'. Anthropic and OpenAI both run under zero‑data‑retention agreements. The only exception is opt‑in feedback your admins explicitly route to us in writing.</p>
+      </details>
+      <details>
+        <summary>Where is data stored, exactly?<span class="plus">+</span></summary>
+        <p>Whichever region you pick at sign‑up — and only that region. Embeddings, object storage, audit logs, and backups all stay inside the boundary. Cross‑region replication is opt‑in and only between regions you've explicitly approved.</p>
+      </details>
+      <details>
+        <summary>Can we bring our own keys?<span class="plus">+</span></summary>
+        <p>Yes, on Enterprise. We support BYOK via AWS KMS and GCP KMS. Reattend never holds the data‑encryption key — we hold a wrapping key you can revoke at any time, which makes the tenant cryptographically inaccessible within seconds.</p>
+      </details>
+      <details>
+        <summary>What's the incident notification SLA?<span class="plus">+</span></summary>
+        <p>Under four hours for any P1 confirmed incident affecting your tenancy, with a written follow‑up inside 72 hours. Status incidents (degraded service, not security) post to status.reattend.com in real time.</p>
+      </details>
+      <details>
+        <summary>How do you handle a right‑to‑erase request?<span class="plus">+</span></summary>
+        <p>Admins can issue a full‑subject delete from the dashboard; we propagate to vector index, object store, audit log archive, and all backups within 72 hours. We return a signed deletion receipt with a Merkle proof you can hand a regulator.</p>
+      </details>
+      <details>
+        <summary>Do you support air‑gapped / on‑prem?<span class="plus">+</span></summary>
+        <p>Yes, on Enterprise. The full stack — ingest, vector index, recall — ships as a Helm chart that runs in your VPC or on‑prem cluster. The only outbound call is a license heartbeat, which can be replaced with an offline license key for fully air‑gapped deployments.</p>
+      </details>
+      <details>
+        <summary>How is access logged?<span class="plus">+</span></summary>
+        <p>Every recall, edit, share, and admin action emits an event. Events stream to your SIEM (Splunk, Datadog, Snowflake) inside 60 seconds and are retained 7 years by default. The event chain is hashed daily into a Merkle root we publish — so a logged event can't be silently rewritten.</p>
+      </details>
+      <details>
+        <summary>Who has access on your side?<span class="plus">+</span></summary>
+        <p>Production access is gated by hardware key, per‑request approval, and a 30‑minute time‑box. All sessions are recorded. The customer support team has zero access to memory contents — they see metadata and audit, never the document body.</p>
+      </details>
+      <details>
+        <summary>How is the LLM prevented from leaking documents?<span class="plus">+</span></summary>
+        <p>Recall checks ACLs <em>before</em> retrieval. The model only ever sees chunks the asker is authorized to read. The model layer is stateless across queries; nothing persists in the inference path. Prompts and outputs are zero‑retained on the LLM side.</p>
+      </details>
+      <details>
+        <summary>What if a subprocessor changes?<span class="plus">+</span></summary>
+        <p>We give 30 days' written notice via the trust@reattend.com mailing list before any new subprocessor is added or an existing one's scope expands. You can object during that window; we offer reasonable mitigations or, on Enterprise, a region carve‑out.</p>
+      </details>
+      <details>
+        <summary>Pen test cadence?<span class="plus">+</span></summary>
+        <p>Twice yearly with NCC Group covering web, API, infrastructure, and a focused review of the recall path. Findings are remediated by severity SLA (critical &lt; 48h). Sanitized summaries go in the trust report; the full report is available under NDA.</p>
+      </details>
+      <details>
+        <summary>How do we run a security review?<span class="plus">+</span></summary>
+        <p>Email trust@reattend.com with your assessor and we'll return the trust packet (SOC 2, ISO, pen test, DPA, BAA, whitepaper) inside 24 hours. We respond to standardized questionnaires (CAIQ, SIG Lite, VSAQ) without a custom rewrite — answers are pre‑mapped to controls.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============== TRUST CTA ============== -->
+  <section class="cmp-section">
+    <div class="trust-cta pfade">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Trust Center</span>
+        <h2>Hand this page to your <em>security team.</em> They'll know what to do.</h2>
+        <p>One link gets you the full trust packet under NDA. One conversation gets your CISO's questions answered in under an hour. We've done it three hundred and forty times this year.</p>
+        <div class="ctas">
+          <button class="btn btn-primary btn-fill">Request trust packet</button>
+          <button class="btn btn-ghost btn-fill">Talk to security</button>
+        </div>
+      </div>
+      <div class="checks">
+        <span>SOC 2 Type II</span>
+        <span>HIPAA · BAA</span>
+        <span>ISO 27001</span>
+        <span>GDPR · DPDP</span>
+        <span>BYOK · KMS</span>
+        <span>Air‑gapped option</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a class="brand" href="/">
+          <svg class="brand-logo" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill="#0B0B0F"/>
+            <circle cx="16" cy="16" r="3.5" fill="#fff"/>
+            <circle cx="16" cy="16" r="7.5" stroke="#fff" stroke-opacity="0.55" stroke-width="1.4"/>
+            <circle cx="16" cy="16" r="11.5" stroke="#fff" stroke-opacity="0.25" stroke-width="1"/>
+          </svg>
+          <span class="brand-word">Reattend</span>
+          <span class="ent-tag">Enterprise</span>
+        </a>
+        <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="/product">Product</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/compliance">Compliance</a>
+        <a href="/login">Sign in</a>
+        <a href="/#integrations">Integrations</a>
+      </div>
+      <div class="footer-col">
+        <h5>Capabilities</h5>
+        <a href="/product#capture">Capture</a>
+        <a href="/product#connect">Connect</a>
+        <a href="/product#recall">Recall</a>
+        <a href="/product#run">Run</a>
+        <a href="/product#govern">Govern</a>
+        <a href="/product#deploy">Deploy</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/about">About</a>
+        <a href="/careers">Careers</a>
+        <a href="/blog">Blog</a>
+        <a href="/press">Press</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/contact">Support</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="/contact">Docs</a>
+        <a href="/contact">Changelog</a>
+        <a href="/compliance">Trust</a>
+        <a href="/contact">Status</a>
+        <a href="/contact">SOC 2</a>
+        <a href="/contact">HIPAA</a>
+        <a href="/contact">GDPR</a>
+        <a href="/contact">DPA</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Reattend Technologies Private Limited</span>
+      <span style="display:flex; gap:24px;">
+        <a href="/privacy" style="color:inherit;">Privacy</a>
+        <a href="/terms" style="color:inherit;">Terms</a>
+        <a href="/compliance" style="color:inherit;">Compliance</a>
+        <a href="/contact" style="color:inherit;">Support</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    // Reveal observer
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>

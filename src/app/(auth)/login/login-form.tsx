@@ -1,18 +1,19 @@
 'use client'
 
-import React, { Suspense, useState, useRef, useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import React, { Suspense, useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { signIn } from 'next-auth/react'
 
-// Stripe-style split-screen sign-in. Left panel is the brand pitch on a
-// dark navy background; right panel is the email + OTP form on white.
-// Google OAuth was dropped — OTP-only is simpler, audit-friendly, and
-// keeps the surface area small for security review.
+// Sign-in surface — visual structure from the claude.ai/design handoff
+// (public/landing-design/signin.css), wired to the existing OTP + SSO
+// backend. The handlers below are unchanged from the prior version:
+//   - /api/sso/initiate domain check (auto-redirect to IdP if SSO is on)
+//   - /api/auth/send-otp (six-digit code by email)
+//   - /api/auth/verify-otp (verifies + opens session)
+//   - sso-ticket NextAuth provider for the SSO callback round-trip
+//   - dev-mode auto-fill of the returned code (dev only)
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -22,7 +23,11 @@ function LoginForm() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [devCode, setDevCode] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [secondsLeft, setSecondsLeft] = useState(600)
+  const [resendDisabled, setResendDisabled] = useState(true)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const emailInputRef = useRef<HTMLInputElement | null>(null)
 
   // SSO handoff — if /api/sso/callback sent us back with ?sso_ticket=,
   // trade it for a NextAuth session. Also surface sso_error if present.
@@ -37,6 +42,19 @@ function LoginForm() {
       signIn('sso-ticket', { ticket, callbackUrl })
     }
   }, [searchParams, callbackUrl])
+
+  // Countdown for the resend button + visible code-validity timer.
+  useEffect(() => {
+    if (step !== 'otp') return
+    setSecondsLeft(600)
+    setResendDisabled(true)
+    const resendUnlockAt = Date.now() + 30_000
+    const id = setInterval(() => {
+      setSecondsLeft((s) => Math.max(0, s - 1))
+      if (Date.now() >= resendUnlockAt) setResendDisabled(false)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [step])
 
   // Before sending an OTP, check if the email's domain has SSO enabled.
   // If so, bounce the user straight to the IdP instead.
@@ -55,12 +73,18 @@ function LoginForm() {
     return false
   }
 
-  const handleSendOTP = async (e?: React.FormEvent) => {
+  const handleSendOTP = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault()
-    if (!email.trim()) return
+    const value = email.trim()
+    if (!value) return
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError("That doesn't look like a valid email. Try again.")
+      return
+    }
+    setEmailError(null)
     setLoading(true)
 
-    if (await maybeStartSso(email.trim())) {
+    if (await maybeStartSso(value)) {
       setLoading(false)
       return
     }
@@ -69,7 +93,7 @@ function LoginForm() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: value }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -84,9 +108,9 @@ function LoginForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [email])
 
-  const handleVerifyOTP = async () => {
+  const handleVerifyOTP = useCallback(async () => {
     const code = otp.join('')
     if (code.length !== 6) return
     setLoading(true)
@@ -110,7 +134,7 @@ function LoginForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [otp, email, callbackUrl])
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return
@@ -118,7 +142,7 @@ function LoginForm() {
     newOtp[index] = value.slice(-1)
     setOtp(newOtp)
     if (value && index < 5) inputRefs.current[index + 1]?.focus()
-    if (newOtp.every(d => d !== '') && newOtp.join('').length === 6) {
+    if (newOtp.every((d) => d !== '') && newOtp.join('').length === 6) {
       setTimeout(() => handleVerifyOTP(), 100)
     }
   }
@@ -126,6 +150,10 @@ function LoginForm() {
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      inputRefs.current[index - 1]?.focus()
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      inputRefs.current[index + 1]?.focus()
     }
   }
 
@@ -146,211 +174,246 @@ function LoginForm() {
     }
   }
 
-  return (
-    <AnimatePresence mode="wait">
-      {step === 'email' ? (
-        <motion.div
-          key="email"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.2 }}
-          className="w-full"
-        >
-          <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.02em] text-[#1a1a2e]">
-            Sign in to Reattend
-          </h1>
-          <p className="text-[14px] text-neutral-500 mt-2">
-            Enter your work email and we&apos;ll send you a one-time code.
-          </p>
+  const handleResend = () => {
+    if (resendDisabled) return
+    handleSendOTP()
+  }
 
-          <form onSubmit={handleSendOTP} className="mt-8 space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-[12px] font-semibold text-[#1a1a2e] mb-1.5">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                required
-                autoFocus
-                className="w-full h-11 px-3.5 text-[14px] text-[#1a1a2e] bg-white border border-neutral-300 rounded-md outline-none transition-all placeholder:text-neutral-400 focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/10"
-              />
-            </div>
+  const fmtTime = (s: number) => {
+    const m = Math.floor(s / 60).toString().padStart(2, '0')
+    const r = (s % 60).toString().padStart(2, '0')
+    return `${m}:${r}`
+  }
 
-            <button
-              type="submit"
-              disabled={loading || !email.trim()}
-              className="w-full h-11 inline-flex items-center justify-center gap-1.5 bg-[#1a1a2e] text-white text-[13px] font-semibold rounded-md transition-colors hover:bg-[#2d2b55] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+  return step === 'email' ? (
+    <div className="step active">
+      <div className="ribbon">Step 01 / 02 · Sign in</div>
+      <h2>Welcome back to <em>Reattend.</em></h2>
+      <p className="lede">Enter your <strong>work email</strong> — we&apos;ll send a six-digit code. No passwords to forget, no recovery flows to dread.</p>
+
+      <form onSubmit={handleSendOTP} noValidate>
+        <div className={`si-field${emailError ? ' error' : ''}`}>
+          <label htmlFor="email">Work email</label>
+          <div className="input-wrap">
+            <span className="leading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" />
+              </svg>
+            </span>
+            <input
+              ref={emailInputRef}
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null) }}
+              placeholder="you@company.com"
+            />
+          </div>
+          <p className="hint">
+            <svg className="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              {emailError ? (
                 <>
-                  Continue with email <ArrowRight className="h-3.5 w-3.5" />
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M15 9l-6 6M9 9l6 6" />
+                </>
+              ) : (
+                <>
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4" />
+                  <circle cx="12" cy="16" r="0.5" fill="currentColor" />
                 </>
               )}
-            </button>
-          </form>
-
-          <p className="mt-8 text-[12px] text-neutral-500">
-            By continuing you agree to our{' '}
-            <Link href="/terms" className="text-[#1a1a2e] font-semibold hover:underline">Terms</Link>
-            {' '}and{' '}
-            <Link href="/privacy" className="text-[#1a1a2e] font-semibold hover:underline">Privacy Policy</Link>.
+            </svg>
+            <span>{emailError || "Use the address tied to your workspace · we'll never share it."}</span>
           </p>
+        </div>
 
-          <p className="mt-4 text-[13px] text-neutral-600">
-            New to Reattend?{' '}
-            <Link href="/register" className="text-[#1a1a2e] font-semibold hover:underline">Create an account</Link>
-          </p>
-        </motion.div>
-      ) : (
-        <motion.div
-          key="otp"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.2 }}
-          className="w-full"
-        >
-          <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.02em] text-[#1a1a2e]">
-            Check your email
-          </h1>
-          <p className="text-[14px] text-neutral-500 mt-2">
-            We sent a 6-digit code to <span className="text-[#1a1a2e] font-semibold">{email}</span>.
-          </p>
-
-          <div className="flex gap-2 mt-8" onPaste={handleOtpPaste}>
-            {otp.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => { inputRefs.current[i] = el }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleOtpChange(i, e.target.value)}
-                onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                autoFocus={i === 0}
-                className="w-12 h-12 text-center text-[18px] font-bold tabular-nums text-[#1a1a2e] bg-white border border-neutral-300 rounded-md outline-none transition-all focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/10"
-              />
-            ))}
-          </div>
-
-          {devCode && (
-            <button
-              onClick={handleUseDevCode}
-              className="block mt-3 text-[12px] text-[#1a1a2e] hover:underline font-mono"
-            >
-              Dev: auto-fill {devCode}
-            </button>
+        <button className="si-submit" type="submit" disabled={loading || !email.trim()}>
+          {loading ? (
+            <>
+              <span className="si-spinner" />
+              <span>Sending code…</span>
+            </>
+          ) : (
+            <>
+              <span>Send verification code</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="13 5 19 12 13 19" />
+              </svg>
+            </>
           )}
+        </button>
+      </form>
 
-          <button
-            onClick={handleVerifyOTP}
-            disabled={loading || otp.join('').length !== 6}
-            className="w-full mt-6 h-11 inline-flex items-center justify-center gap-1.5 bg-[#1a1a2e] text-white text-[13px] font-semibold rounded-md transition-colors hover:bg-[#2d2b55] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify and sign in'}
+      <p className="si-legal">
+        By continuing you agree to our <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>. New to Reattend? <Link href="/register">Create an account</Link>.
+      </p>
+    </div>
+  ) : (
+    <div className="step active" onPaste={handleOtpPaste}>
+      <button
+        className="otp-back"
+        type="button"
+        onClick={() => { setStep('email'); setOtp(['', '', '', '', '', '']); setDevCode(null); setTimeout(() => emailInputRef.current?.focus(), 250) }}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 6 9 12 15 18" />
+        </svg>
+        Use a different email
+      </button>
+      <div className="ribbon">Step 02 / 02 · Verify</div>
+      <h2>Enter your <em>code.</em></h2>
+      <p className="lede">We sent a six-digit code to <strong>{email}</strong>. It expires in <strong>10 minutes</strong>.</p>
+
+      <span className="email-pill">
+        <span className="ic" />
+        <span>{email}</span>
+      </span>
+
+      <form onSubmit={(e) => { e.preventDefault(); handleVerifyOTP() }} noValidate>
+        <div className="otp-row">
+          {otp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { inputRefs.current[i] = el }}
+              className={`otp-input${digit ? ' filled' : ''}`}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              autoComplete={i === 0 ? 'one-time-code' : 'off'}
+              value={digit}
+              onChange={(e) => handleOtpChange(i, e.target.value)}
+              onKeyDown={(e) => handleOtpKeyDown(i, e)}
+              autoFocus={i === 0}
+            />
+          ))}
+        </div>
+
+        <div className="otp-meta">
+          <span className="countdown">
+            {secondsLeft > 0 ? <>Code valid for <b>{fmtTime(secondsLeft)}</b></> : <>Code expired — <b>resend</b> below</>}
+          </span>
+          <button className="resend" type="button" disabled={resendDisabled || loading} onClick={handleResend}>
+            Resend code
           </button>
+        </div>
 
-          <div className="mt-6 flex items-center gap-5 text-[12px] text-neutral-500">
-            <button
-              onClick={() => { setStep('email'); setOtp(['', '', '', '', '', '']); setDevCode(null) }}
-              className="inline-flex items-center gap-1 hover:text-[#1a1a2e] transition-colors"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Use different email
-            </button>
-            <span className="text-neutral-300">·</span>
-            <button
-              onClick={() => handleSendOTP()}
-              disabled={loading}
-              className="hover:text-[#1a1a2e] transition-colors disabled:opacity-50"
-            >
-              Resend code
-            </button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <button className="si-submit" type="submit" disabled={loading || otp.join('').length !== 6} style={{ marginTop: 18 }}>
+          {loading ? (
+            <>
+              <span className="si-spinner" />
+              <span>Verifying…</span>
+            </>
+          ) : (
+            <>
+              <span>Verify &amp; continue</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="13 5 19 12 13 19" />
+              </svg>
+            </>
+          )}
+        </button>
+
+        {devCode && (
+          <p className="si-dev">
+            Dev: <button type="button" onClick={handleUseDevCode}>auto-fill {devCode}</button>
+          </p>
+        )}
+      </form>
+
+      <p className="si-legal" style={{ marginTop: 18 }}>
+        Didn&apos;t receive it? Check spam, then <button
+          type="button"
+          onClick={handleResend}
+          disabled={resendDisabled || loading}
+          style={{ background: 'none', border: 0, padding: 0, color: 'inherit', cursor: 'pointer', borderBottom: '1px solid currentColor' }}
+        >resend</button>.
+      </p>
+    </div>
   )
 }
 
-// ─── Page shell — split-screen layout ──────────────────────────────────────
+// ─── Page shell — split-screen layout from the design handoff ──────────────
 export default function LoginPage() {
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white">
-      {/* LEFT — brand panel. Dark navy with a vibrant gradient blob and a
-          big tagline. Hidden on small screens to keep the form above the
-          fold. */}
-      <div className="hidden lg:flex relative bg-[#1a1a2e] text-white p-12 flex-col overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-violet-600/40 via-fuchsia-600/30 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[-180px] right-[-120px] w-[480px] h-[480px] rounded-full bg-gradient-to-br from-amber-500/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
+    <>
+      {/* Design tokens come from styles.css; page-specific styles from signin.css.
+          Both are static assets in /public/landing-design/. */}
+      <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+      <link rel="stylesheet" href="/landing-design/signin.css?v=1" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
 
-        <Link href="/" className="relative flex items-center gap-2.5 z-10">
-          <Image src="/black_logo.svg" alt="Reattend" width={32} height={32} className="h-8 w-8 invert" unoptimized />
-          <span className="text-[17px] font-bold tracking-tight">Reattend</span>
-          <span className="text-[10px] font-semibold text-white/50 ml-1.5 uppercase tracking-widest">Enterprise</span>
-        </Link>
-
-        <div className="relative flex-1 flex flex-col justify-center max-w-md z-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 mb-5">
-            Enterprise memory platform
-          </p>
-          <h2 className="text-[36px] md:text-[40px] font-semibold tracking-[-0.025em] leading-[1.1]">
-            When people leave, the knowledge stays.
-          </h2>
-          <p className="text-[15px] text-white/70 mt-5 leading-relaxed">
-            Decisions, context, and institutional knowledge. Captured, linked, and indexed by time. The most expensive thing in any organization is the knowledge that walks out the door on a Friday afternoon.
-          </p>
-        </div>
-
-        <div className="relative z-10 flex items-center gap-5 text-[11px] text-white/50">
-          <span>SOC 2 in progress</span>
-          <span className="h-1 w-1 rounded-full bg-white/30" />
-          <span>On-premise available</span>
-          <span className="h-1 w-1 rounded-full bg-white/30" />
-          <span>Customer-managed KMS</span>
-        </div>
-      </div>
-
-      {/* RIGHT — sign-in form. Pure white, generous padding, single column. */}
-      <div className="flex flex-col bg-white">
-        {/* Mobile-only top bar with logo */}
-        <div className="lg:hidden flex items-center justify-between px-6 h-16 border-b border-neutral-100">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/black_logo.svg" alt="Reattend" width={26} height={26} className="h-[26px] w-[26px]" unoptimized />
-            <span className="text-[15px] font-bold tracking-tight text-[#1a1a2e]">Reattend</span>
+      <div className="si-page">
+        {/* Slim topbar */}
+        <header className="si-topbar">
+          <Link className="si-brand" href="/">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="28" height="28" rx="8" fill="#0B0B0F" />
+              <circle cx="16" cy="16" r="3.5" fill="#fff" />
+              <circle cx="16" cy="16" r="7.5" stroke="#fff" strokeOpacity="0.55" strokeWidth="1.4" />
+              <circle cx="16" cy="16" r="11.5" stroke="#fff" strokeOpacity="0.25" strokeWidth="1" />
+            </svg>
+            <span>Reattend</span>
+            <span className="ent-tag">Enterprise</span>
           </Link>
-          <Link href="/" className="text-[12px] text-neutral-500 hover:text-[#1a1a2e]">← Home</Link>
-        </div>
+          <nav>
+            <Link href="/">Home</Link>
+            <Link href="/product">Product</Link>
+            <Link href="/pricing">Pricing</Link>
+            <Link href="/compliance">Compliance</Link>
+            <a href="mailto:sales@reattend.com">Need help?</a>
+          </nav>
+        </header>
 
-        {/* Top-right "← Back to home" on desktop */}
-        <div className="hidden lg:flex justify-end p-6">
-          <Link href="/" className="text-[12px] text-neutral-500 hover:text-[#1a1a2e] inline-flex items-center gap-1">
-            <ArrowLeft className="h-3 w-3" /> Back to home
-          </Link>
-        </div>
+        <main className="si-shell">
+          {/* Left: brand canvas */}
+          <section className="si-left">
+            <div className="si-pitch">
+              <span className="si-eyebrow"><span className="dot" />Live · 24,193 memories indexed</span>
+              <h1>Sign in to your <em>second brain.</em></h1>
+              <p>Reattend remembers what your team can&apos;t afford to forget — every Slack thread, ticket, design call, and shipped change — and recalls it at the speed of a question.</p>
+            </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-[400px]">
-            <Suspense fallback={
-              <div className="flex justify-center py-10">
-                <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+            <div className="si-orb" aria-hidden="true">
+              <div className="orb-core">
+                <div>
+                  <div className="core-label">Recall index</div>
+                  <div className="core-num">24,193</div>
+                  <div className="core-sub">19 sources · <b>98.7%</b> coverage</div>
+                </div>
               </div>
-            }>
-              <LoginForm />
-            </Suspense>
-          </div>
-        </div>
+              <div className="orb-tag t1"><span className="ic" />Slack · 8,442</div>
+              <div className="orb-tag t2 amber"><span className="ic" />Notion · 3,219</div>
+              <div className="orb-tag t3 green"><span className="ic" />Linear · 1,574</div>
+            </div>
 
-        <div className="px-6 pb-6 text-center text-[11px] text-neutral-400">
-          &copy; {new Date().getFullYear()} Reattend Technologies Private Limited
-        </div>
+            <div className="si-foot">
+              <span>SOC 2 Type II</span>
+              <span>HIPAA · BAA</span>
+              <span>ISO 27001</span>
+              <Link href="/compliance">Trust center →</Link>
+            </div>
+          </section>
+
+          {/* Right: form */}
+          <section className="si-right">
+            <div className="si-card">
+              <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
+                <LoginForm />
+              </Suspense>
+            </div>
+          </section>
+        </main>
       </div>
-    </div>
+    </>
   )
 }
