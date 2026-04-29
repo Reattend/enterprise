@@ -125,10 +125,17 @@ export async function ingestFromNango(opts: {
   let nextCursor: string | null = null
 
   if (PROXY_PROVIDERS[provider.providerConfigKey]) {
-    if (provider.providerConfigKey === 'google-mail') {
-      normalizedItems = await fetchGmailMessages(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
-    } else if (provider.providerConfigKey === 'google-calendar') {
-      normalizedItems = await fetchCalendarEvents(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+    console.log(`[ingest] proxy branch for ${provider.providerConfigKey} conn=${nangoConnectionId}`)
+    try {
+      if (provider.providerConfigKey === 'google-mail') {
+        normalizedItems = await fetchGmailMessages(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+      } else if (provider.providerConfigKey === 'google-calendar') {
+        normalizedItems = await fetchCalendarEvents(nango, provider.providerConfigKey, nangoConnectionId, { maxResults: limit })
+      }
+      console.log(`[ingest] proxy returned ${normalizedItems.length} items`)
+    } catch (err: any) {
+      console.error(`[ingest] proxy failed:`, err?.response?.status, err?.response?.data || err?.message || err)
+      throw err
     }
   } else {
     const { records, next_cursor } = await nango.listRecords({
