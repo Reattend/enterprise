@@ -356,12 +356,8 @@ export default function LoginPage() {
         {/* Slim topbar */}
         <header className="si-topbar">
           <Link className="si-brand" href="/">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="2" y="2" width="28" height="28" rx="8" fill="#0B0B0F" />
-              <circle cx="16" cy="16" r="3.5" fill="#fff" />
-              <circle cx="16" cy="16" r="7.5" stroke="#fff" strokeOpacity="0.55" strokeWidth="1.4" />
-              <circle cx="16" cy="16" r="11.5" stroke="#fff" strokeOpacity="0.25" strokeWidth="1" />
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/black_logo.svg" alt="Reattend" width={28} height={28} style={{ display: 'block' }} />
             <span>Reattend</span>
             <span className="ent-tag">Enterprise</span>
           </Link>
