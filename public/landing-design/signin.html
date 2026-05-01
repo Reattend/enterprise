@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Sign in</title>
+  <meta name="description" content="Sign in to Reattend with your work email." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+
+  <style>
+    /* =============== Sign-in page =============== */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .si-shell {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      min-height: calc(100vh - 0px);
+      position: relative;
+    }
+
+    /* ---------- left: brand canvas ---------- */
+    .si-left {
+      position: relative;
+      padding: clamp(40px, 5vw, 72px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 70% 50% at 30% 30%, oklch(0.94 0.06 285 / 0.5), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, oklch(0.95 0.05 80 / 0.45), transparent 70%),
+        var(--bg);
+      border-right: 1px solid var(--rule-2);
+    }
+    .si-left::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--rule-2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--rule-2) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.35;
+      mask-image: radial-gradient(ellipse 80% 80% at 30% 50%, #000 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .si-brand {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .si-brand .ent-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      padding: 3px 7px;
+      border-radius: 4px;
+    }
+
+    .si-pitch {
+      position: relative;
+      max-width: 520px;
+      margin: 24px 0;
+    }
+    .si-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink-3);
+      padding: 6px 12px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      margin-bottom: 22px;
+    }
+    .si-eyebrow .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: oklch(0.7 0.15 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.18);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    .si-pitch h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 4.6vw, 64px);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin: 0 0 18px;
+      max-width: 14ch;
+    }
+    .si-pitch h1 em { font-style: italic; color: var(--accent); }
+    .si-pitch p {
+      font-size: 16.5px; line-height: 1.6;
+      color: var(--ink-2); max-width: 46ch;
+    }
+
+    /* memory orb */
+    .si-orb {
+      position: relative;
+      width: clamp(280px, 28vw, 380px);
+      aspect-ratio: 1;
+      margin: 36px 0 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, oklch(0.99 0.005 80) 0%, oklch(0.96 0.02 285 / 0.6) 60%, transparent 75%);
+      border: 1px solid var(--rule-2);
+    }
+    .si-orb::before, .si-orb::after {
+      content: ""; position: absolute; inset: -8% -8% -8% -8%;
+      border: 1px dashed var(--rule);
+      border-radius: 50%;
+      animation: orbSpin 22s linear infinite;
+    }
+    .si-orb::after {
+      inset: -22% -22% -22% -22%;
+      border: 1px solid var(--rule-2);
+      animation-duration: 38s;
+      animation-direction: reverse;
+    }
+    @keyframes orbSpin {
+      to { transform: rotate(360deg); }
+    }
+    .orb-core {
+      position: absolute; inset: 18%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 40%, var(--bg-paper) 0%, oklch(0.92 0.05 285 / 0.6) 70%, oklch(0.45 0.18 280 / 0.15) 100%);
+      border: 1px solid var(--rule);
+      display: grid; place-items: center;
+      box-shadow:
+        inset 0 -20px 60px oklch(0.45 0.18 280 / 0.12),
+        0 24px 60px -20px oklch(0.18 0.012 270 / 0.18);
+    }
+    .orb-core .core-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; color: var(--ink-3);
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .orb-core .core-num {
+      font-family: var(--serif); font-size: clamp(40px, 4vw, 56px);
+      letter-spacing: -0.02em; color: var(--ink); margin-top: 4px;
+      line-height: 1;
+    }
+    .orb-core .core-sub {
+      font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+      letter-spacing: 0.06em; margin-top: 6px;
+    }
+    .orb-core .core-sub b { color: oklch(0.45 0.16 145); font-weight: 500; }
+
+    .orb-tag {
+      position: absolute;
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.06em;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      padding: 6px 10px; border-radius: 8px;
+      color: var(--ink); white-space: nowrap;
+      box-shadow: 0 8px 22px oklch(0.18 0.012 270 / 0.06);
+      display: flex; align-items: center; gap: 6px;
+      animation: tagFloat 6s ease-in-out infinite;
+    }
+    .orb-tag .ic { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px oklch(0.45 0.18 280 / 0.18); }
+    .orb-tag.amber .ic { background: var(--amber-deep); box-shadow: 0 0 0 3px oklch(0.68 0.15 60 / 0.18); }
+    .orb-tag.green .ic { background: oklch(0.7 0.15 145); box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.18); }
+    .orb-tag.t1 { top: 8%; left: -6%; animation-delay: 0s; }
+    .orb-tag.t2 { top: 38%; right: -10%; animation-delay: -1.5s; }
+    .orb-tag.t3 { bottom: 12%; left: -2%; animation-delay: -3s; }
+    @keyframes tagFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .si-foot {
+      position: relative;
+      display: flex; gap: 22px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.06em; color: var(--ink-3);
+      margin-top: auto; padding-top: 24px;
+    }
+    .si-foot a { color: var(--ink-2); }
+    .si-foot a:hover { color: var(--ink); }
+
+    /* ---------- right: form ---------- */
+    .si-right {
+      display: flex; align-items: center; justify-content: center;
+      padding: clamp(32px, 4vw, 64px);
+      background: var(--bg-paper);
+      position: relative;
+    }
+
+    .si-card {
+      width: 100%; max-width: 440px;
+      position: relative;
+    }
+    .si-card .ribbon {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--ink-3); letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: flex; gap: 12px; align-items: center;
+      margin-bottom: 24px;
+    }
+    .si-card .ribbon::before {
+      content: ""; width: 24px; height: 1px; background: var(--ink-3);
+    }
+    .si-card h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 3.4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+    }
+    .si-card h2 em { font-style: italic; color: var(--accent); }
+    .si-card .lede {
+      font-size: 15px; line-height: 1.55;
+      color: var(--ink-2); margin: 0 0 30px;
+    }
+    .si-card .lede strong { color: var(--ink); font-weight: 500; }
+
+    /* steps */
+    .step { display: none; }
+    .step.active { display: block; animation: stepIn .42s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* form fields */
+    .field { display: block; }
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+    }
+    .field .input-wrap {
+      position: relative;
+      display: flex; align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+    }
+    .field .input-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.12);
+      background: var(--bg-paper);
+    }
+    .field .input-wrap .leading {
+      padding: 0 0 0 14px;
+      color: var(--ink-3);
+      display: flex;
+    }
+    .field input[type="email"] {
+      flex: 1;
+      border: 0; outline: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 15.5px;
+      color: var(--ink);
+      padding: 16px 14px;
+      letter-spacing: -0.005em;
+    }
+    .field input[type="email"]::placeholder { color: var(--ink-4); }
+    .field .hint {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--ink-3);
+      margin-top: 10px;
+      display: flex; gap: 6px; align-items: center;
+    }
+    .field .hint .ic {
+      width: 12px; height: 12px;
+      flex-shrink: 0;
+      color: var(--ink-3);
+    }
+    .field.error .input-wrap { border-color: oklch(0.6 0.18 25); box-shadow: 0 0 0 4px oklch(0.6 0.18 25 / 0.12); }
+    .field.error .hint { color: oklch(0.55 0.18 25); }
+
+    /* primary action */
+    .si-submit {
+      width: 100%;
+      margin-top: 22px;
+      padding: 16px 20px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      background: var(--ink);
+      color: var(--bg);
+      border: 1px solid var(--ink);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .si-submit::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, oklch(0.45 0.18 280 / 0.35), transparent);
+      transform: translateX(-100%);
+      transition: transform .9s ease;
+    }
+    .si-submit:hover { transform: translateY(-1px); box-shadow: 0 12px 32px -10px oklch(0.18 0.012 270 / 0.4); }
+    .si-submit:hover::before { transform: translateX(100%); }
+    .si-submit:active { transform: translateY(0); }
+    .si-submit svg { width: 16px; height: 16px; transition: transform .2s; }
+    .si-submit:hover svg { transform: translateX(2px); }
+
+    .si-submit:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+    }
+    .si-submit .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid oklch(0.99 0 0 / 0.3);
+      border-top-color: var(--bg);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* SSO row */
+    .sso-divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 28px 0;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--ink-3); letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .sso-divider::before, .sso-divider::after {
+      content: ""; flex: 1; height: 1px; background: var(--rule);
+    }
+    .sso-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .sso-btn {
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      padding: 13px 16px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--ink);
+      transition: background .18s, border-color .18s, transform .18s;
+    }
+    .sso-btn:hover { border-color: var(--ink-4); background: var(--bg-paper); transform: translateY(-1px); }
+    .sso-btn svg { width: 16px; height: 16px; }
+
+    /* legal line */
+    .legal {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--ink-3);
+      line-height: 1.55;
+      margin-top: 26px;
+      letter-spacing: 0.02em;
+    }
+    .legal a { color: var(--ink-2); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+    .legal a:hover { color: var(--ink); border-color: var(--ink); }
+
+    /* ---------- step 2: OTP ---------- */
+    .otp-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 11.5px;
+      color: var(--ink-3);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      background: none; border: 0; padding: 0;
+      margin-bottom: 24px;
+      transition: color .15s, gap .2s;
+    }
+    .otp-back:hover { color: var(--ink); gap: 8px; }
+    .otp-back svg { width: 13px; height: 13px; }
+
+    .email-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font-family: var(--mono); font-size: 12px;
+      color: var(--ink); letter-spacing: -0.005em;
+      margin: 0 0 22px;
+    }
+    .email-pill .ic {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: oklch(0.7 0.15 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.18);
+    }
+
+    .otp-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin: 6px 0 4px;
+    }
+    .otp-input {
+      aspect-ratio: 0.85;
+      width: 100%;
+      text-align: center;
+      font-family: var(--serif);
+      font-size: clamp(22px, 3vw, 30px);
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      outline: 0;
+      transition: border-color .18s, box-shadow .18s, transform .12s, background .18s;
+      caret-color: var(--accent);
+    }
+    .otp-input::-webkit-outer-spin-button,
+    .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .otp-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.12);
+      background: var(--bg-paper);
+      transform: translateY(-1px);
+    }
+    .otp-input.filled { border-color: var(--ink-4); background: var(--bg-paper); }
+    .otp-input.error { border-color: oklch(0.6 0.18 25); box-shadow: 0 0 0 4px oklch(0.6 0.18 25 / 0.12); animation: shake .35s; }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(3px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+
+    .otp-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono); font-size: 11.5px;
+      color: var(--ink-3);
+      margin-top: 18px;
+      letter-spacing: 0.04em;
+    }
+    .otp-meta .countdown { color: var(--ink-2); }
+    .otp-meta .countdown b { color: var(--ink); font-weight: 500; }
+    .otp-meta button.resend {
+      background: none; border: 0; padding: 0;
+      color: var(--accent);
+      cursor: pointer;
+      font-family: inherit; font-size: inherit; letter-spacing: inherit;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 1px;
+    }
+    .otp-meta button.resend:disabled {
+      color: var(--ink-4); cursor: not-allowed; border-color: transparent;
+    }
+
+    /* ---------- step 3: success ---------- */
+    .si-success {
+      text-align: left;
+    }
+    .success-mark {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: oklch(0.7 0.15 145 / 0.14);
+      border: 1px solid oklch(0.7 0.15 145 / 0.4);
+      display: grid; place-items: center;
+      margin-bottom: 22px;
+      animation: popIn .5s cubic-bezier(.2,1.4,.4,1) both;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .success-mark svg {
+      width: 28px; height: 28px;
+      color: oklch(0.45 0.16 145);
+    }
+    .success-mark svg path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawCheck .5s .15s ease forwards;
+    }
+    @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+    .si-success-meta {
+      display: flex; flex-direction: column; gap: 10px;
+      margin: 24px 0 28px;
+      padding: 16px 18px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+    }
+    .si-success-meta .row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono); font-size: 12px;
+    }
+    .si-success-meta .row .k { color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; font-size: 10.5px; }
+    .si-success-meta .row .v { color: var(--ink); }
+
+    /* ---------- topbar (slim) ---------- */
+    .si-topbar {
+      position: relative; z-index: 5;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 22px clamp(24px, 4vw, 64px);
+      border-bottom: 1px solid var(--rule-2);
+      background: var(--bg);
+    }
+    .si-topbar nav {
+      display: flex; gap: 22px;
+      font-family: var(--mono); font-size: 12px;
+      color: var(--ink-3); letter-spacing: 0.04em;
+    }
+    .si-topbar nav a { transition: color .15s; }
+    .si-topbar nav a:hover { color: var(--ink); }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 980px) {
+      .si-shell { grid-template-columns: 1fr; }
+      .si-left { padding-bottom: 32px; min-height: auto; }
+      .si-orb { display: none; }
+      .si-pitch h1 { font-size: clamp(32px, 6vw, 44px); }
+      .si-foot { display: none; }
+    }
+    @media (max-width: 520px) {
+      .otp-row { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+      .otp-input { font-size: 22px; }
+      .sso-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-screen-label="Sign In">
+
+  <!-- ============== SLIM TOPBAR ============== -->
+  <header class="si-topbar">
+    <a class="si-brand" href="/">
+      <img src="/black_logo.svg" alt="Reattend" width="28" height="28" style="display:block;" />
+      <span>Reattend</span>
+      <span class="ent-tag">Enterprise</span>
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="mailto:sales@reattend.com">Need help?</a>
+    </nav>
+  </header>
+
+  <!-- ============== TWO-COL SHELL ============== -->
+  <main class="si-shell">
+
+    <!-- ====== LEFT: brand canvas ====== -->
+    <section class="si-left">
+      <div class="si-pitch">
+        <span class="si-eyebrow"><span class="dot"></span>Live · 24,193 memories indexed</span>
+        <h1>Sign in to your <em>second brain.</em></h1>
+        <p>Reattend remembers what your team can't afford to forget — every Slack thread, ticket, design call, and shipped change — and recalls it at the speed of a question.</p>
+      </div>
+
+      <!-- memory orb -->
+      <div class="si-orb" aria-hidden="true">
+        <div class="orb-core">
+          <div>
+            <div class="core-label">Recall index</div>
+            <div class="core-num">24,193</div>
+            <div class="core-sub">19 sources · <b>98.7%</b> coverage</div>
+          </div>
+        </div>
+        <div class="orb-tag t1"><span class="ic"></span>Slack · 8,442</div>
+        <div class="orb-tag t2 amber"><span class="ic"></span>Notion · 3,219</div>
+        <div class="orb-tag t3 green"><span class="ic"></span>Linear · 1,574</div>
+      </div>
+
+      <div class="si-foot">
+        <span>SOC 2 Type II</span>
+        <span>HIPAA · BAA</span>
+        <span>ISO 27001</span>
+        <a href="/compliance">Trust center →</a>
+      </div>
+    </section>
+
+    <!-- ====== RIGHT: form ====== -->
+    <section class="si-right">
+      <div class="si-card">
+
+        <!-- ===== STEP 1: email ===== -->
+        <div class="step active" data-step="email" id="stepEmail">
+          <div class="ribbon">Step 01 / 02 · Sign in</div>
+          <h2>Welcome back to <em>Reattend.</em></h2>
+          <p class="lede">Enter your <strong>work email</strong> — we'll send a six‑digit code. No passwords to forget, no recovery flows to dread.</p>
+
+          <form id="emailForm" novalidate>
+            <div class="field" id="emailField">
+              <label for="email">Work email</label>
+              <div class="input-wrap">
+                <span class="leading">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <path d="M3 7l9 6 9-6"/>
+                  </svg>
+                </span>
+                <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
+              </div>
+              <p class="hint" id="emailHint">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                Use the address tied to your workspace · we'll never share it.
+              </p>
+            </div>
+
+            <button class="si-submit" type="submit" id="emailSubmit">
+              <span class="label">Send verification code</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
+            </button>
+          </form>
+
+          <div class="sso-divider">or continue with</div>
+          <div class="sso-row">
+            <button class="sso-btn" type="button">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+              Google
+            </button>
+            <button class="sso-btn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="8" height="8" fill="#F25022"/>
+                <rect x="13" y="3" width="8" height="8" fill="#7FBA00"/>
+                <rect x="3" y="13" width="8" height="8" fill="#00A4EF"/>
+                <rect x="13" y="13" width="8" height="8" fill="#FFB900"/>
+              </svg>
+              Microsoft
+            </button>
+          </div>
+
+          <p class="legal">
+            By continuing you agree to our <a href="/terms">Terms</a> and <a href="#">Privacy Policy</a>. New to Reattend? <a href="#">Talk to sales</a>.
+          </p>
+        </div>
+
+        <!-- ===== STEP 2: OTP ===== -->
+        <div class="step" data-step="otp" id="stepOtp">
+          <button class="otp-back" type="button" id="otpBack">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>
+            Use a different email
+          </button>
+          <div class="ribbon">Step 02 / 02 · Verify</div>
+          <h2>Enter your <em>code.</em></h2>
+          <p class="lede">We sent a six‑digit code to <strong id="emailEcho">you@company.com</strong>. It expires in <strong>10 minutes</strong>.</p>
+
+          <span class="email-pill" id="emailPill">
+            <span class="ic"></span>
+            <span id="emailPillTxt">you@company.com</span>
+          </span>
+
+          <form id="otpForm" novalidate>
+            <div class="otp-row" id="otpRow">
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" data-i="0" />
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-i="1" />
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-i="2" />
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-i="3" />
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-i="4" />
+              <input class="otp-input" type="text" inputmode="numeric" maxlength="1" data-i="5" />
+            </div>
+
+            <div class="otp-meta">
+              <span class="countdown" id="countdown">Code valid for <b>09:58</b></span>
+              <button class="resend" type="button" id="resendBtn" disabled>Resend code</button>
+            </div>
+
+            <button class="si-submit" type="submit" id="otpSubmit" disabled>
+              <span class="label">Verify &amp; continue</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
+            </button>
+          </form>
+
+          <p class="legal">
+            Tip: enter <code style="font-family:var(--mono); background:var(--bg-2); padding:2px 6px; border-radius:4px; border:1px solid var(--rule);">123456</code> for the demo. Didn't receive it? Check spam, then <a href="#" id="resendInline">resend</a>.
+          </p>
+        </div>
+
+        <!-- ===== STEP 3: success ===== -->
+        <div class="step" data-step="success" id="stepSuccess">
+          <div class="success-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12.5l4.5 4.5L20 6"/>
+            </svg>
+          </div>
+          <div class="ribbon">Verified · Welcome back</div>
+          <h2>You're in. Loading your <em>memory.</em></h2>
+          <p class="lede">Reconnecting your sources and warming the recall index. This usually takes a couple of seconds.</p>
+
+          <div class="si-success-meta">
+            <div class="row"><span class="k">Workspace</span><span class="v" id="successWorkspace">Acme Corp · Production</span></div>
+            <div class="row"><span class="k">Region</span><span class="v">eu-west-1 · GDPR</span></div>
+            <div class="row"><span class="k">Last seen</span><span class="v">2 hours ago · macOS</span></div>
+            <div class="row"><span class="k">Memories</span><span class="v">24,193 · 98.7% coverage</span></div>
+          </div>
+
+          <a class="si-submit" href="/" style="text-decoration:none;">
+            <span class="label">Open dashboard</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+  // Real auth wiring for the design's email → OTP → success flow.
+  // - POST /api/auth/send-otp        : email step
+  // - POST /api/auth/verify-otp      : OTP step
+  // - GET  /api/sso/initiate         : domain SSO check (auto-redirect to IdP)
+  // - GET  /api/auth/csrf + POST /api/auth/callback/sso-ticket : trade ?sso_ticket= for a NextAuth session
+  (() => {
+    const $ = (s, r=document) => r.querySelector(s)
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s))
+
+    const stepEmail   = $('#stepEmail')
+    const stepOtp     = $('#stepOtp')
+    const stepSuccess = $('#stepSuccess')
+
+    const emailForm   = $('#emailForm')
+    const emailInput  = $('#email')
+    const emailField  = $('#emailField')
+    const emailHint   = $('#emailHint')
+    const emailSubmit = $('#emailSubmit')
+    const emailEcho   = $('#emailEcho')
+    const emailPill   = $('#emailPillTxt')
+    const successWs   = $('#successWorkspace')
+
+    const otpForm     = $('#otpForm')
+    const otpInputs   = $$('#otpRow .otp-input')
+    const otpSubmit   = $('#otpSubmit')
+    const otpBack     = $('#otpBack')
+    const countdown   = $('#countdown')
+    const resendBtn   = $('#resendBtn')
+    const resendInline = $('#resendInline')
+
+    // URL params (callbackUrl, sso_ticket, sso_error)
+    const url = new URL(window.location.href)
+    const callbackUrl = url.searchParams.get('callbackUrl') || '/app'
+    const ssoTicket = url.searchParams.get('sso_ticket')
+    const ssoError = url.searchParams.get('sso_error')
+
+    let currentEmail = ''
+    let devCode = null
+
+    function setStep(step) {
+      [stepEmail, stepOtp, stepSuccess].forEach(s => s && s.classList.remove('active'))
+      const target = step === 'email' ? stepEmail : step === 'otp' ? stepOtp : stepSuccess
+      if (target) target.classList.add('active')
+    }
+
+    function setEmailHint(text, isError=false) {
+      emailHint.innerHTML =
+        '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        (isError
+          ? '<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>'
+          : '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>') +
+        '</svg><span>' + text + '</span>'
+      emailField.classList.toggle('error', isError)
+    }
+
+    function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) }
+
+    function workspaceFromEmail(v) {
+      const dom = (v.split('@')[1] || '').split('.')[0] || 'Reattend'
+      return dom.charAt(0).toUpperCase() + dom.slice(1) + ' · Production'
+    }
+
+    // ---- SSO ticket round-trip on page load ----
+    if (ssoError) {
+      setStep('email')
+      setEmailHint('SSO failed: ' + ssoError, true)
+    } else if (ssoTicket) {
+      // Trade the ticket for a NextAuth session via the sso-ticket provider.
+      (async () => {
+        try {
+          const csrfRes = await fetch('/api/auth/csrf')
+          const { csrfToken } = await csrfRes.json()
+          const body = new URLSearchParams()
+          body.append('csrfToken', csrfToken)
+          body.append('ticket', ssoTicket)
+          body.append('callbackUrl', callbackUrl)
+          await fetch('/api/auth/callback/sso-ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+            credentials: 'include',
+          })
+          window.location.href = callbackUrl
+        } catch (err) {
+          console.error('SSO ticket exchange failed:', err)
+          setStep('email')
+          setEmailHint('SSO sign-in failed. Try email instead.', true)
+        }
+      })()
+    }
+
+    // Before sending OTP, check if the email's domain has SSO enabled.
+    // If so, full-page redirect to /api/sso/initiate to bounce to the IdP.
+    async function maybeStartSso(emailAddr) {
+      try {
+        const res = await fetch('/api/sso/initiate?email=' + encodeURIComponent(emailAddr), { redirect: 'manual' })
+        if (res.type === 'opaqueredirect' || res.status === 0) {
+          window.location.href = '/api/sso/initiate?email=' + encodeURIComponent(emailAddr)
+          return true
+        }
+        if (res.ok) {
+          const data = await res.json().catch(() => null)
+          if (data && data.ssoAvailable === false) return false
+        }
+      } catch { /* fall through */ }
+      return false
+    }
+
+    if (emailInput) {
+      emailInput.addEventListener('input', () => {
+        if (emailField.classList.contains('error')) {
+          emailField.classList.remove('error')
+          setEmailHint("Use the address tied to your workspace · we'll never share it.")
+        }
+      })
+    }
+
+    function setSubmitLoading(btn, label) {
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span><span>' + label + '</span>'
+    }
+    function resetEmailSubmit() {
+      emailSubmit.disabled = false
+      emailSubmit.innerHTML = '<span class="label">Send verification code</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>'
+    }
+    function resetOtpSubmit() {
+      otpSubmit.disabled = false
+      otpSubmit.innerHTML = '<span class="label">Verify &amp; continue</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>'
+    }
+
+    // ============ STEP 1: email ============
+    if (emailForm) {
+      emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const v = emailInput.value.trim()
+        if (!isEmail(v)) {
+          setEmailHint("That doesn't look like a valid email. Try again.", true)
+          emailInput.focus()
+          return
+        }
+        setSubmitLoading(emailSubmit, 'Checking…')
+
+        if (await maybeStartSso(v)) return // full-page redirect, no further work
+
+        try {
+          setSubmitLoading(emailSubmit, 'Sending code…')
+          const res = await fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: v }),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            resetEmailSubmit()
+            setEmailHint(data.error || 'Failed to send code. Try again.', true)
+            return
+          }
+          devCode = data.dev || null
+          currentEmail = v
+          emailEcho.textContent = v
+          emailPill.textContent = v
+          successWs.textContent = workspaceFromEmail(v)
+          resetEmailSubmit()
+          setStep('otp')
+          setTimeout(() => otpInputs[0] && otpInputs[0].focus(), 320)
+          startCountdown()
+        } catch (err) {
+          resetEmailSubmit()
+          setEmailHint('Network error. Try again.', true)
+        }
+      })
+    }
+
+    // ============ STEP 2: OTP ============
+    function maybeEnableSubmit() {
+      const code = otpInputs.map(i => i.value).join('')
+      otpSubmit.disabled = code.length !== 6
+    }
+
+    otpInputs.forEach((input, i) => {
+      input.addEventListener('input', () => {
+        let v = input.value.replace(/\D/g, '')
+        if (v.length > 1) v = v.charAt(0)
+        input.value = v
+        if (v) {
+          input.classList.add('filled')
+          if (i < otpInputs.length - 1) otpInputs[i+1].focus()
+        } else {
+          input.classList.remove('filled')
+        }
+        otpInputs.forEach(x => x.classList.remove('error'))
+        maybeEnableSubmit()
+      })
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && i > 0) {
+          otpInputs[i-1].focus()
+          otpInputs[i-1].value = ''
+          otpInputs[i-1].classList.remove('filled')
+          maybeEnableSubmit()
+        } else if (e.key === 'ArrowLeft' && i > 0) {
+          otpInputs[i-1].focus()
+        } else if (e.key === 'ArrowRight' && i < otpInputs.length - 1) {
+          otpInputs[i+1].focus()
+        }
+      })
+      input.addEventListener('paste', (e) => {
+        e.preventDefault()
+        const text = (e.clipboardData || window.clipboardData).getData('text')
+        const digits = text.replace(/\D/g, '').slice(0, 6)
+        if (!digits) return
+        for (let k = 0; k < digits.length && k < otpInputs.length; k++) {
+          otpInputs[k].value = digits[k]
+          otpInputs[k].classList.add('filled')
+        }
+        const next = Math.min(digits.length, otpInputs.length - 1)
+        otpInputs[next].focus()
+        maybeEnableSubmit()
+        if (digits.length === 6) {
+          setTimeout(() => otpForm.requestSubmit(), 120)
+        }
+      })
+    })
+
+    if (otpForm) {
+      otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const code = otpInputs.map(i => i.value).join('')
+        if (code.length !== 6) return
+        setSubmitLoading(otpSubmit, 'Verifying…')
+        try {
+          const res = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentEmail, code }),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            otpInputs.forEach(i => i.classList.add('error'))
+            resetOtpSubmit()
+            otpSubmit.disabled = true
+            setTimeout(() => {
+              otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); i.classList.remove('error') })
+              otpInputs[0].focus()
+            }, 600)
+            return
+          }
+          stopCountdown()
+          setStep('success')
+          // Brief beat for the design's success animation, then redirect.
+          setTimeout(() => { window.location.href = callbackUrl }, 700)
+        } catch (err) {
+          resetOtpSubmit()
+          otpSubmit.disabled = false
+        }
+      })
+    }
+
+    if (otpBack) {
+      otpBack.addEventListener('click', () => {
+        stopCountdown()
+        otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); i.classList.remove('error') })
+        otpSubmit.disabled = true
+        setStep('email')
+        setTimeout(() => emailInput.focus(), 250)
+      })
+    }
+
+    // ============ countdown / resend ============
+    let countdownTimer = null
+    let secondsLeft = 0
+
+    function fmt(s) {
+      const m = Math.floor(s / 60).toString().padStart(2,'0')
+      const r = (s % 60).toString().padStart(2,'0')
+      return m + ':' + r
+    }
+
+    function startCountdown() {
+      stopCountdown()
+      secondsLeft = 10 * 60
+      resendBtn.disabled = true
+      let resendIn = 30
+      countdown.innerHTML = 'Code valid for <b>' + fmt(secondsLeft) + '</b>'
+      countdownTimer = setInterval(() => {
+        secondsLeft--
+        if (secondsLeft <= 0) {
+          stopCountdown()
+          countdown.innerHTML = 'Code expired — <b>resend</b> below'
+          resendBtn.disabled = false
+          return
+        }
+        countdown.innerHTML = 'Code valid for <b>' + fmt(secondsLeft) + '</b>'
+        resendIn--
+        if (resendIn === 0) resendBtn.disabled = false
+      }, 1000)
+    }
+    function stopCountdown() {
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null }
+    }
+
+    async function doResend() {
+      if (!currentEmail || resendBtn.disabled) return
+      resendBtn.disabled = true
+      const original = resendBtn.textContent
+      resendBtn.textContent = 'Sending…'
+      try {
+        const res = await fetch('/api/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (data && data.dev) devCode = data.dev
+        if (res.ok) {
+          resendBtn.textContent = 'Sent ✓'
+          startCountdown()
+          setTimeout(() => { resendBtn.textContent = original }, 1200)
+        } else {
+          resendBtn.textContent = 'Failed'
+          setTimeout(() => { resendBtn.textContent = original; resendBtn.disabled = false }, 1500)
+        }
+      } catch {
+        resendBtn.textContent = 'Failed'
+        setTimeout(() => { resendBtn.textContent = original; resendBtn.disabled = false }, 1500)
+      }
+    }
+    if (resendBtn) resendBtn.addEventListener('click', doResend)
+    if (resendInline) resendInline.addEventListener('click', (e) => { e.preventDefault(); doResend() })
+  })()
+  </script>
+
+</body>
+</html>

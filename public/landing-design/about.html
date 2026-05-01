@@ -4,14 +4,242 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reattend — About</title>
-  <meta name="description" content="Reattend builds organizational memory for enterprise teams. Here is who we are, what we believe, and how we got here." />
+  <meta name="description" content="Reattend is the memory layer for the enterprise — a single, governed substrate that captures, connects, and recalls everything an organization knows." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
   <link rel="stylesheet" href="/landing-design/page.css?v=1" />
+  <style>
+    /* About — narrative page */
+    .about-narrative {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(40px, 6vw, 72px) var(--pad) clamp(80px, 10vw, 140px);
+    }
+    .about-narrative .chap {
+      padding: clamp(40px, 5vw, 64px) 0;
+      border-top: 1px solid var(--rule-2);
+    }
+    .about-narrative .chap:first-of-type { border-top: none; padding-top: 8px; }
+    .about-narrative .chap-eye {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 20px;
+    }
+    .about-narrative .chap-eye .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--accent); color: #fff; font-size: 11px;
+    }
+    .about-narrative h2 {
+      font-family: var(--serif);
+      font-size: clamp(34px, 4.4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      font-weight: 400;
+      color: var(--ink);
+      margin: 0 0 24px;
+      text-wrap: pretty;
+    }
+    .about-narrative h2 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .about-narrative p {
+      font-size: 18px;
+      line-height: 1.62;
+      color: var(--ink-2);
+      margin: 0 0 18px;
+      text-wrap: pretty;
+      max-width: 64ch;
+    }
+    .about-narrative p:last-child { margin-bottom: 0; }
+    .about-narrative p strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .about-narrative p em {
+      font-style: italic;
+      color: var(--ink);
+    }
+    .about-narrative .pull {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      padding: 28px 0 28px 28px;
+      margin: 28px 0;
+      border-left: 2px solid var(--accent);
+      text-wrap: balance;
+      font-style: italic;
+    }
+    .about-narrative .definition {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 16px 28px;
+      padding: 24px 28px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule-2);
+      border-radius: 12px;
+      margin: 24px 0;
+    }
+    .about-narrative .definition dt {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      padding-top: 4px;
+    }
+    .about-narrative .definition dd {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--ink-2);
+    }
+    .about-narrative .definition dd b { color: var(--ink); font-weight: 500; }
+    .about-narrative .symptoms {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0 0;
+      display: grid;
+      gap: 14px;
+    }
+    .about-narrative .symptoms li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 14px;
+      align-items: start;
+      font-size: 16.5px;
+      line-height: 1.55;
+      color: var(--ink-2);
+    }
+    .about-narrative .symptoms li::before {
+      content: '';
+      width: 6px; height: 6px;
+      margin-top: 11px; margin-left: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.12);
+    }
+    .about-narrative .symptoms li b { color: var(--ink); font-weight: 500; }
+
+    .about-narrative .rabbit-card {
+      margin: 28px 0;
+      padding: 28px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, oklch(0.18 0.04 270) 0%, oklch(0.13 0.04 270) 100%);
+      color: oklch(0.95 0.01 270);
+      position: relative;
+      overflow: hidden;
+    }
+    .about-narrative .rabbit-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(600px 200px at 90% 0%, oklch(0.55 0.22 280 / 0.25), transparent 60%),
+        radial-gradient(400px 160px at 0% 100%, oklch(0.65 0.18 30 / 0.18), transparent 60%);
+      pointer-events: none;
+    }
+    .about-narrative .rabbit-card > * { position: relative; z-index: 1; }
+    .about-narrative .rabbit-card .tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: oklch(0.78 0.05 270);
+      padding: 6px 10px;
+      background: oklch(1 0 0 / 0.06);
+      border: 1px solid oklch(1 0 0 / 0.1);
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    .about-narrative .rabbit-card .tag .pulse {
+      width: 6px; height: 6px; border-radius: 999px;
+      background: oklch(0.7 0.18 145);
+      box-shadow: 0 0 0 3px oklch(0.7 0.18 145 / 0.25);
+      animation: rabbitPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes rabbitPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .about-narrative .rabbit-card h3 {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      font-weight: 400;
+      color: oklch(0.98 0.01 270);
+      margin: 0 0 14px;
+    }
+    .about-narrative .rabbit-card h3 em {
+      font-style: italic;
+      color: oklch(0.85 0.12 30);
+    }
+    .about-narrative .rabbit-card p {
+      color: oklch(0.85 0.02 270);
+      max-width: 56ch;
+      margin: 0 0 14px;
+      font-size: 16.5px;
+    }
+    .about-narrative .rabbit-card p:last-child { margin-bottom: 0; }
+    .about-narrative .rabbit-card p b { color: oklch(0.96 0.01 270); font-weight: 500; }
+    .about-narrative .rabbit-card .specs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid oklch(1 0 0 / 0.12);
+      font-family: var(--mono);
+    }
+    .about-narrative .rabbit-card .specs > div {
+      padding: 0 14px;
+      border-left: 1px solid oklch(1 0 0 / 0.08);
+    }
+    .about-narrative .rabbit-card .specs > div:first-child { border-left: none; padding-left: 0; }
+    .about-narrative .rabbit-card .specs .k {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: oklch(0.7 0.04 270);
+      margin-bottom: 6px;
+    }
+    .about-narrative .rabbit-card .specs .v {
+      font-size: 15px;
+      color: oklch(0.96 0.01 270);
+    }
+    @media (max-width: 640px) {
+      .about-narrative .rabbit-card .specs { grid-template-columns: repeat(2, 1fr); gap: 18px 0; }
+      .about-narrative .rabbit-card .specs > div:nth-child(3) { border-left: none; padding-left: 0; }
+      .about-narrative .definition { grid-template-columns: 1fr; gap: 6px; }
+      .about-narrative .definition dt { padding-top: 0; }
+    }
+
+    .about-narrative .closing {
+      margin-top: 56px;
+      padding: 36px;
+      border: 1px solid var(--rule-2);
+      border-radius: 14px;
+      background: var(--bg-paper);
+      text-align: center;
+    }
+    .about-narrative .closing p {
+      max-width: 52ch;
+      margin: 0 auto 22px;
+      font-size: 17px;
+    }
+    .about-narrative .closing .actions {
+      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body data-screen-label="About">
+
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="/">
@@ -36,104 +264,92 @@
 <section class="page-hero" data-screen-label="About · Hero">
   <div class="ph-inner">
     <span class="crumb pfade"><span class="dot"></span>About Reattend</span>
-    <h1 class="pfade">We build the <em>memory</em> companies forget they need.</h1>
-    <p class="lede pfade">Reattend started in 2023 with a stubborn observation: the most expensive thing inside any company isn't compute, headcount, or even time — it's the institutional knowledge that walks out the door every quarter. We're a team of researchers, infrastructure engineers, and former CISOs building the system of record for enterprise memory.</p>
-    <div class="meta pfade">
-      <span><b>Founded</b>March 2023</span>
-      <span><b>HQ</b>Bengaluru · New York</span>
-      <span><b>Team</b>62 people · 14 countries</span>
-      <span><b>Backed by</b>Sequoia · Lightspeed · Notion Capital</span>
-    </div>
+    <h1 class="pfade">A company that <em>remembers</em> itself.</h1>
+    <p class="lede pfade">Reattend is the memory layer for the enterprise. One governed substrate that quietly captures what your organization decides, learns, and ships — and gives it back, in context, the moment someone needs it.</p>
   </div>
 </section>
 
-<div style="border-top: 1px solid var(--rule-2);"></div>
+<main class="about-narrative">
 
-<section style="padding: clamp(48px, 6vw, 80px) var(--pad); background: var(--bg-paper);">
-  <div class="about-stat pfade">
-    <div class="cell"><div class="num"><em>340</em></div><div class="lbl">Enterprises on Reattend</div></div>
-    <div class="cell"><div class="num">2.4<em>B</em></div><div class="lbl">Memories indexed in 2025</div></div>
-    <div class="cell"><div class="num"><em>62</em></div><div class="lbl">Reattenders, 14 countries</div></div>
-    <div class="cell"><div class="num">$48<em>M</em></div><div class="lbl">Total raised · Series B</div></div>
-  </div>
-</section>
+  <section class="chap pfade">
+    <div class="chap-eye"><span class="num">01</span> What Reattend is</div>
+    <h2>The system of record for everything your company <em>knows</em>.</h2>
+    <p>Most enterprise software is a system of record for one thing — deals, tickets, code, calendars. Reattend is the system of record for the connective tissue between all of them: the decisions, the rationale, the precedents, the half-finished thinking, the lessons learned twice and then forgotten a third time.</p>
+    <p>It runs alongside the tools your teams already use — Slack, Notion, Gmail, Linear, Drive, GitHub, Salesforce, calendars, meeting recordings — and turns the exhaust of daily work into a structured, queryable, governed memory. Nothing to migrate. Nothing to learn. The memory accumulates in the background, and surfaces when it's useful.</p>
+    <p>Ask it a question in plain language. Get an answer with citations. Let it watch a meeting and surface the three things this team already decided about this topic, before anyone reopens an old debate.</p>
+  </section>
 
-<section class="page-body">
-  <h2 class="pfade">What we <em>believe.</em></h2>
-  <p class="pfade">Three convictions sit underneath every product decision we make. We don't always get them right — but we always come back to them.</p>
+  <section class="chap pfade">
+    <div class="chap-eye"><span class="num">02</span> What memory is</div>
+    <h2>Memory is what makes a company a <em>company</em>.</h2>
+    <p>People recognise this in themselves. Without memory, you wake up every morning and meet your colleagues for the first time, again. You repeat conversations you've already had. You make commitments you've already broken. You lose the thread of why you're doing what you're doing.</p>
+    <p>Organizations are no different. A company is, fundamentally, a coordination structure built on shared memory: the customer who churned and why, the architecture decision from 2022 that everyone now relies on, the contract clause Legal fought for, the post-mortem that explained why we moved off Postgres, the offhand comment in a hiring panel that decided a finalist.</p>
+    <div class="definition">
+      <dt>Memory</dt>
+      <dd><b>The continuity of context across people and time.</b> Not search. Not storage. The ability for a team to act on what it has already learned, without having to ask the original learner whether they still work here.</dd>
+    </div>
+    <p>Search engines, wikis, knowledge bases — these are filing cabinets. Useful, but inert. Memory is something else: it's the <em>active</em> retrieval of the right context at the right moment, including the parts no one thought to write down.</p>
+  </section>
 
-  <div class="about-pillars pfade" style="margin-top: 28px;">
-    <div class="pillar">
-      <div class="ic">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+  <section class="chap pfade">
+    <div class="chap-eye"><span class="num">03</span> Organizational amnesia</div>
+    <h2>The most expensive thing in your company is what it has <em>already forgotten</em>.</h2>
+    <p>Organizational amnesia is the slow, structural loss of institutional knowledge — and unlike the loss of headcount or revenue, it doesn't show up on any dashboard. It compounds quietly, every quarter, every reorg, every laptop that gets wiped, every Slack channel that gets archived.</p>
+
+    <p class="pull">"We had this exact conversation eighteen months ago. I just can't remember what we decided."</p>
+
+    <p>If you've ever been in a room where that sentence was uttered — and someone shrugged, and the meeting moved on — you've watched amnesia at work. Some of the symptoms:</p>
+
+    <ul class="symptoms">
+      <li><div><b>The same decision, made twice.</b> A roadmap question is re-litigated because the original rationale lives in a deleted Slack DM and no one remembers who was on the call.</div></li>
+      <li><div><b>Tribal knowledge with a bus factor of one.</b> The senior engineer who knows why the billing system is the way it is takes a sabbatical, and nothing ships for three weeks.</div></li>
+      <li><div><b>Onboarding that takes a quarter.</b> New hires don't lack training material — they lack <em>context</em>. The reason this customer was given a custom SLA. The reason that experiment was killed. The reason marketing won't approve that word.</div></li>
+      <li><div><b>Repeated mistakes, dressed as new ideas.</b> A strategy gets reproposed because the postmortem on why it failed last time is buried in a 2023 doc no one searches.</div></li>
+      <li><div><b>AI that hallucinates because it has no <em>you</em>.</b> Generic models are fluent about the world and silent about your company. They invent context because they don't have any.</div></li>
+    </ul>
+
+    <p style="margin-top: 28px;">Conservatively, in a 1,000-person company, the cost of organizational amnesia is in the tens of millions of dollars a year. In meetings re-held, decisions re-made, work re-done, customers re-explained to, and engineers re-explaining things on Slack to colleagues who are too polite to admit they have asked before.</p>
+  </section>
+
+  <section class="chap pfade">
+    <div class="chap-eye"><span class="num">04</span> Rabbit</div>
+    <h2>A model that remembers <em>your</em> company — not the internet.</h2>
+    <p>Generic LLMs are trained on public data. They are encyclopaedic about Wikipedia and lossy about you. Ask one a question about your roadmap, your customers, or your last incident and it will either guess or refuse — neither of which is acceptable inside an enterprise.</p>
+    <p>So we built our own. <strong>Rabbit</strong> is Reattend's purpose-built memory model: a 32-billion-parameter transformer fine-tuned, from scratch, on the structure of organizational memory. It is the engine that decides what to remember, what to surface, when to interrupt, and — crucially — what <em>not</em> to say.</p>
+
+    <div class="rabbit-card">
+      <span class="tag"><span class="pulse"></span>Rabbit-LLM v3.2 · live</span>
+      <h3>Trained on the failure modes of <em>organizational amnesia</em>.</h3>
+      <p>Most retrieval systems are tuned for relevance. Rabbit is tuned for <b>continuity</b> — the much harder problem of recognising when a question, decision, or document is actually a continuation of one your company has already engaged with. It cites. It refuses to invent. It tells you when it doesn't know.</p>
+      <p>It runs entirely inside your tenant. Your context never trains a model anyone else uses. Ever.</p>
+      <div class="specs">
+        <div><div class="k">Parameters</div><div class="v">32B fine-tuned</div></div>
+        <div><div class="k">Recall</div><div class="v">98.7% precision</div></div>
+        <div><div class="k">Context window</div><div class="v">256K tokens</div></div>
+        <div><div class="k">Training data</div><div class="v">Yours, only</div></div>
       </div>
-      <h3>Knowledge compounds — or it leaks.</h3>
-      <p>Every meeting, ticket, and design call you don't capture is a future bug, a re‑asked question, a re‑built feature. Memory is the cheapest leverage in the company.</p>
     </div>
-    <div class="pillar">
-      <div class="ic">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+
+    <p>Rabbit is what makes Reattend feel like memory rather than search. It is the difference between getting a list of links and getting an answer that begins, "Last quarter, you decided the opposite — here's why."</p>
+  </section>
+
+  <section class="chap pfade">
+    <div class="chap-eye"><span class="num">05</span> Why we exist</div>
+    <h2>To make companies <em>continuous</em> with themselves.</h2>
+    <p>The history of enterprise software is a history of giving organizations new senses — new ways to see (analytics), new ways to communicate (chat), new ways to coordinate (project tools). Memory has been the missing one. Companies have eyes, ears, and mouths, but no hippocampus.</p>
+    <p>Reattend exists to fix that. To give an organization the same gift a person has by default: the ability to wake up tomorrow and remember what it learned yesterday. To stop paying the silent tax of forgetting. To make every meeting, every doc, every decision compound — instead of evaporate.</p>
+    <p>That's the entire mission. Everything else is implementation detail.</p>
+
+    <div class="closing">
+      <p>If any of this resonates, the easiest way to see what we mean is to watch Reattend remember a decision your team made last year — and have it cite the original Slack message, the meeting clip, and the doc that made it official.</p>
+      <div class="actions">
+        <a class="btn btn-primary btn-fill" href="/register">Try for free</a>
+        <a class="btn btn-ghost" href="/product">See the product</a>
       </div>
-      <h3>Trust is a system, not a slogan.</h3>
-      <p>An AI that handles your most sensitive context has to log every recall, gate every retrieval, and never train on what isn't yours. We treat compliance as a product surface.</p>
     </div>
-    <div class="pillar">
-      <div class="ic">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <h3>Recall is the unit of value.</h3>
-      <p>Indexing is table stakes. The hard part — and the part nobody else gets right — is returning the one paragraph that actually answers the question, with citations a lawyer can defend.</p>
-    </div>
-  </div>
+  </section>
 
-  <h2 class="pfade">The <em>team.</em></h2>
-  <p class="pfade">We're a remote‑first company with hubs in Bengaluru and New York. The four founders have shipped infrastructure at Stripe, MongoDB, Cloudflare, and Palantir; the team that joined them is, frankly, better than we deserve.</p>
-
-  <div class="team-grid pfade" style="margin-top: 28px;">
-    <div class="member">
-      <div class="av">RB</div>
-      <div class="name">Rohan Bhattacharya</div>
-      <div class="role">Co‑founder · CEO</div>
-      <p class="bio">Former PM on Stripe Sigma. Studied math at IIT Bombay. Believes the calendar is the most under‑used data source on earth.</p>
-    </div>
-    <div class="member">
-      <div class="av">PS</div>
-      <div class="name">Priya Subramanian</div>
-      <div class="role">Co‑founder · CTO</div>
-      <p class="bio">Built the storage engine at MongoDB and infra at Cloudflare. Owns the recall path. Writes Rust on weekends. Doesn't sleep, allegedly.</p>
-    </div>
-    <div class="member">
-      <div class="av">DK</div>
-      <div class="name">Daniel Klein</div>
-      <div class="role">Co‑founder · CSO</div>
-      <p class="bio">Ex‑Palantir Forward Deployed. Wrote SOC 2 audit packets in his sleep. Now writes them for us, and they pass first time.</p>
-    </div>
-    <div class="member">
-      <div class="av">AM</div>
-      <div class="name">Aisha Mensah</div>
-      <div class="role">Co‑founder · Head of Research</div>
-      <p class="bio">Stanford NLP PhD; wrote the retrieval paper that became Rabbit‑LLM. The only person on the team allowed to argue with the founders about embeddings.</p>
-    </div>
-  </div>
-
-  <p class="pfade quiet" style="margin-top: 18px;">Plus 58 more — engineering, applied research, security, GTM, and a small but mighty design team. We're hiring across all of them. Until the careers page is up, write to <a href="mailto:hire@reattend.com">hire@reattend.com</a>.</p>
-
-  <h2 class="pfade">A short <em>history.</em></h2>
-  <p class="pfade">From four people in a Bengaluru WeWork to enterprise deployments on three continents, in roughly chronological order.</p>
-
-  <div class="timeline pfade" style="margin-top: 28px;">
-    <div class="tl-row"><div class="yr">Mar 2023</div><h4>The founding bet.</h4><p>Rohan, Priya, Daniel, and Aisha lock themselves in a WeWork in Indiranagar with a whiteboard and one question: "Why does enterprise AI keep re‑asking the same questions?"</p></div>
-    <div class="tl-row"><div class="yr">Aug 2023</div><h4>First $4M seed · Sequoia leads.</h4><p>The seed round closes on a 14‑page memo and a working prototype that ingests Slack and answers a question with a citation. The prototype is held together with duct tape; the memo, less so.</p></div>
-    <div class="tl-row"><div class="yr">Feb 2024</div><h4>Design partner #1 ships.</h4><p>An 800‑person fintech replaces three internal wikis with Reattend. Their head of engineering tells us, "I didn't know how much we were forgetting until we stopped." We take that line and never give it back.</p></div>
-    <div class="tl-row"><div class="yr">Sep 2024</div><h4>Rabbit‑LLM v1 trained in‑house.</h4><p>We move off third‑party recall models. Latency drops 4×. Retrieval precision goes from 71% to 94%. The team takes one week off, badly.</p></div>
-    <div class="tl-row"><div class="yr">Apr 2025</div><h4>SOC 2 Type II · clean report.</h4><p>Zero critical findings. Two minor observations, both closed in two weeks. CISOs start calling us instead of the other way around.</p></div>
-    <div class="tl-row"><div class="yr">Nov 2025</div><h4>$32M Series B · Lightspeed leads.</h4><p>340 enterprises on the platform. We open the New York office and start the work to support EU‑only and India‑only deployments end‑to‑end.</p></div>
-    <div class="tl-row"><div class="yr">Mar 2026</div><h4>ISO 27001 + India region.</h4><p>ap‑south‑1 goes live with full DPDP alignment. ISO 27001 stage 2 audit passes. We celebrate with terrible cake and excellent dosa.</p></div>
-  </div>
-
-  <h2 class="pfade">Get in <em>touch.</em></h2>
-  <p class="pfade">If you'd like to use Reattend, write to <a href="mailto:sales@reattend.com">sales@reattend.com</a>. If you'd like to work here, write to <a href="mailto:hire@reattend.com">hire@reattend.com</a>. If you've found something we should fix, write to <a href="mailto:trust@reattend.com">trust@reattend.com</a> — and thank you.</p>
-</section>
+</main>
 
 <footer>
   <div class="footer-grid">
@@ -145,64 +361,25 @@
       </a>
       <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
     </div>
-    <div class="footer-col">
-      <h5>Product</h5>
-      <a href="/product">Product</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/compliance">Compliance</a>
-      <a href="/login">Sign in</a>
-      <a href="/#integrations">Integrations</a>
-    </div>
-    <div class="footer-col">
-      <h5>Capabilities</h5>
-      <a href="/product#capture">Capture</a>
-      <a href="/product#connect">Connect</a>
-      <a href="/product#recall">Recall</a>
-      <a href="/product#run">Run</a>
-      <a href="/product#govern">Govern</a>
-      <a href="/product#deploy">Deploy</a>
-    </div>
-    <div class="footer-col">
-      <h5>Company</h5>
-      <a href="/about">About</a>
-      <a href="/coming-soon">Careers</a>
-      <a href="/coming-soon">Blog</a>
-      <a href="/coming-soon">Press</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-      <a href="/coming-soon">Support</a>
-      <a href="/coming-soon">Contact</a>
-    </div>
-    <div class="footer-col">
-      <h5>Resources</h5>
-      <a href="/coming-soon">Docs</a>
-      <a href="/coming-soon">Changelog</a>
-      <a href="/compliance">Trust</a>
-      <a href="/coming-soon">Status</a>
-      <a href="/coming-soon">SOC 2</a>
-      <a href="/coming-soon">HIPAA</a>
-      <a href="/coming-soon">GDPR</a>
-      <a href="/coming-soon">DPA</a>
-    </div>
+    <div class="footer-col"><h5>Product</h5><a href="/product">Product</a><a href="/pricing">Pricing</a><a href="/compliance">Compliance</a><a href="/login">Sign in</a><a href="/#integrations">Integrations</a></div>
+    <div class="footer-col"><h5>Capabilities</h5><a href="/product#capture">Capture</a><a href="/product#connect">Connect</a><a href="/product#recall">Recall</a><a href="/product#run">Run</a><a href="/product#govern">Govern</a><a href="/product#deploy">Deploy</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="/about">About</a><a href="/coming-soon">Careers</a><a href="/coming-soon">Blog</a><a href="/coming-soon">Press</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/coming-soon">Support</a><a href="/coming-soon">Contact</a></div>
+    <div class="footer-col"><h5>Resources</h5><a href="/coming-soon">Docs</a><a href="/coming-soon">Changelog</a><a href="/compliance">Trust</a><a href="/coming-soon">Status</a><a href="/coming-soon">SOC 2</a><a href="/coming-soon">HIPAA</a><a href="/coming-soon">GDPR</a><a href="/coming-soon">DPA</a></div>
   </div>
   <div class="footer-bottom">
     <span>© 2026 Reattend Technologies Private Limited</span>
-    <span style="display:flex; gap:24px;">
-      <a href="/privacy" style="color:inherit;">Privacy</a>
-      <a href="/terms" style="color:inherit;">Terms</a>
-      <a href="/compliance" style="color:inherit;">Compliance</a>
-      <a href="/coming-soon" style="color:inherit;">Support</a>
-    </span>
+    <span style="display:flex; gap:24px;"><a href="/privacy" style="color:inherit;">Privacy</a><a href="/terms" style="color:inherit;">Terms</a><a href="/compliance" style="color:inherit;">Compliance</a><a href="/coming-soon" style="color:inherit;">Support</a></span>
   </div>
 </footer>
 
 <script>
-const io = new IntersectionObserver((entries) => {
-  for (const e of entries) {
-    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-  }
-}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
 </script>
+
 </body>
 </html>
