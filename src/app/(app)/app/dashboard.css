@@ -2560,3 +2560,433 @@
   color: var(--ink-3); line-height: 1.55;
 }
 .enterprise-shell .int-security li { margin: 2px 0; }
+
+/* ============================================================
+ * Tasks page — Copilot-style memory-grounded workflows.
+ * Gallery (tsk-page) + compose panel (tsk-compose).
+ * Classes prefixed `tsk-`.
+ * ============================================================ */
+
+.enterprise-shell .tsk-page-wrap {
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
+}
+.enterprise-shell .tsk-page {
+  padding: 22px 32px 64px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.enterprise-shell .tsk-crumb {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-weight: 600;
+  color: var(--brand-ink); background: var(--brand-soft);
+}
+
+.enterprise-shell .tsk-head h1 {
+  font-family: var(--serif); font-size: 42px; line-height: 1.05;
+  letter-spacing: -0.015em; margin: 8px 0 6px;
+  font-weight: 400; color: var(--ink);
+}
+.enterprise-shell .tsk-head h1 em { font-style: italic; }
+.enterprise-shell .tsk-head .sub {
+  color: var(--ink-3); margin: 0; max-width: 70ch; font-size: 14px;
+}
+
+.enterprise-shell .tsk-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 9px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink-2); font: inherit; font-size: 13px;
+  cursor: pointer; text-decoration: none; margin-bottom: 12px;
+}
+.enterprise-shell .tsk-back:hover { background: oklch(0.97 0.005 85); }
+
+/* Section header (matches wiki-sec-head) */
+.enterprise-shell .tsk-sec-head {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+  margin: 26px 0 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.enterprise-shell .tsk-sec-head::after {
+  content: ""; flex: 1; height: 1px; background: var(--line-2);
+}
+
+/* Gallery grid */
+.enterprise-shell .tsk-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+@media (max-width: 720px) {
+  .enterprise-shell .tsk-grid { grid-template-columns: 1fr; }
+}
+
+.enterprise-shell .tsk-card {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); padding: 18px;
+  display: flex; gap: 14px; align-items: flex-start;
+  text-decoration: none; color: inherit;
+  transition: border-color .12s, box-shadow .12s, transform .04s;
+  position: relative;
+}
+.enterprise-shell .tsk-card:hover {
+  border-color: color-mix(in oklch, var(--brand), white 60%);
+  box-shadow: 0 6px 20px -12px oklch(0.5 0.14 30 / 0.18);
+}
+.enterprise-shell .tsk-card:active { transform: translateY(1px); }
+.enterprise-shell .tsk-card-ico {
+  width: 44px; height: 44px; border-radius: 11px;
+  display: grid; place-items: center; flex-shrink: 0;
+  color: white; box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset;
+}
+.enterprise-shell .tsk-card-ico.write { background: linear-gradient(135deg, oklch(0.62 0.12 220), oklch(0.5 0.16 245)); }
+.enterprise-shell .tsk-card-ico.prep  { background: linear-gradient(135deg, oklch(0.6 0.16 285), oklch(0.45 0.18 290)); }
+.enterprise-shell .tsk-card-ico.plan  { background: linear-gradient(135deg, oklch(0.7 0.14 60), oklch(0.55 0.16 35)); }
+.enterprise-shell .tsk-card-body { flex: 1; min-width: 0; }
+.enterprise-shell .tsk-card-title-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.enterprise-shell .tsk-card-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 400;
+  letter-spacing: -0.01em; color: var(--ink);
+  line-height: 1.1;
+}
+.enterprise-shell .tsk-card-tagline {
+  font-size: 13px; color: var(--ink-3); margin-top: 4px;
+  line-height: 1.45;
+}
+.enterprise-shell .tsk-card-arrow {
+  color: var(--ink-4); transition: color .12s, transform .12s;
+  margin-left: auto; flex-shrink: 0;
+}
+.enterprise-shell .tsk-card:hover .tsk-card-arrow {
+  color: var(--brand-ink); transform: translateX(2px);
+}
+.enterprise-shell .tsk-card-meta {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;
+  font-size: 11px; color: var(--ink-3);
+}
+.enterprise-shell .tsk-card-meta .pill {
+  padding: 2px 7px; border-radius: 4px;
+  background: oklch(0.96 0.005 85); font-family: var(--mono);
+}
+
+.enterprise-shell .tsk-rs-strip {
+  margin-top: 22px; padding: 14px 16px;
+  border: 1px dashed var(--line); border-radius: 12px;
+  background: oklch(0.985 0.005 85);
+  display: flex; gap: 12px; align-items: center;
+  font-size: 12.5px; color: var(--ink-3);
+}
+.dark .enterprise-shell .tsk-rs-strip { background: oklch(0.20 0.01 270); }
+.enterprise-shell .tsk-rs-strip svg { color: var(--brand); flex: none; }
+.enterprise-shell .tsk-rs-strip b { color: var(--ink); font-weight: 600; }
+
+/* ────── Compose panel (per-task page) ────── */
+
+.enterprise-shell .tsk-compose {
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+.enterprise-shell .tsk-hero {
+  display: flex; align-items: flex-start; gap: 16px;
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); padding: 22px 24px;
+  position: relative; overflow: hidden;
+}
+.enterprise-shell .tsk-hero::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px;
+  background: linear-gradient(90deg, oklch(0.65 0.18 220), oklch(0.55 0.2 285), #c86d4b);
+}
+.enterprise-shell .tsk-hero-ico {
+  width: 52px; height: 52px; border-radius: 13px;
+  display: grid; place-items: center; flex-shrink: 0;
+  color: white;
+}
+.enterprise-shell .tsk-hero-ico.write { background: linear-gradient(135deg, oklch(0.62 0.12 220), oklch(0.5 0.16 245)); }
+.enterprise-shell .tsk-hero-ico.prep  { background: linear-gradient(135deg, oklch(0.6 0.16 285), oklch(0.45 0.18 290)); }
+.enterprise-shell .tsk-hero-ico.plan  { background: linear-gradient(135deg, oklch(0.7 0.14 60), oklch(0.55 0.16 35)); }
+.enterprise-shell .tsk-hero-body { flex: 1; min-width: 0; }
+.enterprise-shell .tsk-hero h2 {
+  font-family: var(--serif); font-size: 34px; line-height: 1.05;
+  letter-spacing: -0.01em; margin: 0 0 4px;
+  font-weight: 400; color: var(--ink);
+}
+.enterprise-shell .tsk-hero p {
+  margin: 0; font-size: 13.5px; color: var(--ink-3); line-height: 1.5;
+  max-width: 70ch;
+}
+
+/* Form */
+.enterprise-shell .tsk-form {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .tsk-form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px;
+  padding: 22px 24px 18px;
+}
+@media (max-width: 720px) {
+  .enterprise-shell .tsk-form-grid { grid-template-columns: 1fr; }
+}
+.enterprise-shell .tsk-field { display: flex; flex-direction: column; }
+.enterprise-shell .tsk-field.full { grid-column: 1 / -1; }
+.enterprise-shell .tsk-field label {
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  margin-bottom: 7px; display: inline-flex; gap: 4px;
+}
+.enterprise-shell .tsk-field label .req { color: var(--mem-rose); }
+.enterprise-shell .tsk-field input,
+.enterprise-shell .tsk-field textarea,
+.enterprise-shell .tsk-field select {
+  width: 100%; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--panel); padding: 10px 14px;
+  font: inherit; font-size: 14px; color: var(--ink);
+  outline: 0; transition: border-color .12s, box-shadow .12s;
+}
+.enterprise-shell .tsk-field input:focus,
+.enterprise-shell .tsk-field textarea:focus,
+.enterprise-shell .tsk-field select:focus {
+  border-color: color-mix(in oklch, var(--brand), white 50%);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--brand-soft), transparent 40%);
+}
+.enterprise-shell .tsk-field textarea {
+  resize: vertical; min-height: 120px; font-family: var(--mono); font-size: 13px;
+  line-height: 1.55;
+}
+.enterprise-shell .tsk-field .help {
+  font-size: 11px; color: var(--ink-3); margin-top: 6px; line-height: 1.4;
+}
+
+/* Footer of form: privacy line + Draft button */
+.enterprise-shell .tsk-form-foot {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+  background: oklch(0.985 0.003 85);
+}
+.dark .enterprise-shell .tsk-form-foot { background: oklch(0.20 0.01 270); }
+.enterprise-shell .tsk-privacy {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11.5px; color: var(--ink-3);
+}
+.enterprise-shell .tsk-privacy svg { color: var(--mem-green); }
+.enterprise-shell .tsk-draft-btn {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 10px;
+  font: inherit; font-weight: 600; font-size: 13px;
+  color: white; cursor: pointer; border: 0;
+  background: #c86d4b;
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
+  transition: background .12s;
+}
+.enterprise-shell .tsk-draft-btn:hover { background: #b85e3e; }
+.enterprise-shell .tsk-draft-btn:disabled {
+  opacity: 0.5; cursor: default; background: var(--ink-4);
+  box-shadow: none;
+}
+
+/* Source chips strip */
+.enterprise-shell .tsk-sources {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: oklch(0.985 0.003 85); padding: 14px 18px;
+}
+.dark .enterprise-shell .tsk-sources { background: oklch(0.20 0.01 270); }
+.enterprise-shell .tsk-sources-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.enterprise-shell .tsk-sources-head .auto {
+  color: var(--brand-ink); display: inline-flex; align-items: center; gap: 4px;
+}
+.enterprise-shell .tsk-sources-list {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.enterprise-shell .tsk-source-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 10px 5px 8px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel); font-size: 11.5px;
+  color: var(--ink-2); text-decoration: none;
+  transition: background .12s, border-color .12s;
+}
+.enterprise-shell .tsk-source-chip:hover {
+  background: oklch(0.97 0.005 85);
+  border-color: color-mix(in oklch, var(--brand), white 60%);
+}
+.enterprise-shell .tsk-source-chip .pip {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--brand);
+}
+.enterprise-shell .tsk-source-chip .pip.decision { background: oklch(0.5 0.18 290); }
+.enterprise-shell .tsk-source-chip .pip.meeting { background: var(--brand); }
+.enterprise-shell .tsk-source-chip .pip.note,
+.enterprise-shell .tsk-source-chip .pip.context { background: var(--ink-4); }
+.enterprise-shell .tsk-source-chip .pip.insight { background: var(--mem-teal); }
+.enterprise-shell .tsk-source-chip .pip.idea { background: var(--mem-amber); }
+.enterprise-shell .tsk-source-chip .pip.tasklike { background: var(--mem-rose); }
+.enterprise-shell .tsk-source-chip .ttl {
+  font-weight: 550; max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .tsk-source-chip .when {
+  color: var(--ink-4); font-family: var(--mono); font-size: 10.5px;
+}
+.enterprise-shell .tsk-source-chip .x {
+  color: var(--ink-4); cursor: pointer; padding: 0 0 0 4px;
+  font-size: 14px; line-height: 1; background: transparent; border: 0;
+}
+.enterprise-shell .tsk-source-chip .x:hover { color: var(--mem-rose); }
+
+/* Generated draft */
+.enterprise-shell .tsk-draft {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .tsk-draft-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+  background: oklch(0.985 0.003 85);
+}
+.dark .enterprise-shell .tsk-draft-head { background: oklch(0.22 0.01 270); }
+.enterprise-shell .tsk-draft-head .label {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.enterprise-shell .tsk-draft-head .meta {
+  font-size: 11px; color: var(--ink-4); font-family: var(--mono);
+  display: inline-flex; gap: 8px;
+}
+.enterprise-shell .tsk-draft-head .meta::before {
+  content: "·"; color: var(--ink-4);
+}
+.enterprise-shell .tsk-draft-actions {
+  margin-left: auto; display: flex; gap: 6px;
+}
+.enterprise-shell .tsk-act-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink-2); font: inherit; font-size: 12px; font-weight: 550;
+  cursor: pointer; transition: background .12s;
+  text-decoration: none;
+}
+.enterprise-shell .tsk-act-btn:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .tsk-act-btn.dark {
+  background: var(--ink); color: white; border-color: var(--ink);
+}
+.enterprise-shell .tsk-act-btn.dark:hover { background: oklch(0.24 0.01 270); }
+
+.enterprise-shell .tsk-draft-body {
+  padding: 22px 28px; font-size: 14.5px; color: var(--ink); line-height: 1.65;
+  max-width: 78ch;
+}
+.enterprise-shell .tsk-draft-body p { margin: 0 0 14px; }
+.enterprise-shell .tsk-draft-body strong, .enterprise-shell .tsk-draft-body b {
+  color: var(--ink); font-weight: 600;
+}
+.enterprise-shell .tsk-draft-body em { font-style: italic; }
+.enterprise-shell .tsk-draft-body code {
+  font-family: var(--mono); font-size: 12.5px;
+  padding: 1px 5px; border-radius: 4px;
+  background: oklch(0.96 0.005 85); color: var(--ink-2);
+}
+.enterprise-shell .tsk-draft-body ul, .enterprise-shell .tsk-draft-body ol {
+  margin: 8px 0 14px; padding-left: 22px;
+}
+.enterprise-shell .tsk-draft-body li { margin: 4px 0; }
+.enterprise-shell .tsk-draft-body h1,
+.enterprise-shell .tsk-draft-body h2,
+.enterprise-shell .tsk-draft-body h3 {
+  font-family: var(--sans); font-size: 14.5px; font-weight: 600;
+  margin: 16px 0 8px; color: var(--ink); letter-spacing: 0;
+}
+.enterprise-shell .tsk-draft-meta {
+  padding: 12px 18px; font-size: 11px; color: var(--ink-3);
+  background: oklch(0.99 0.003 85); border-top: 1px solid var(--line-2);
+  font-family: var(--mono);
+}
+.dark .enterprise-shell .tsk-draft-meta { background: oklch(0.20 0.01 270); }
+
+/* Citation pill — replaces inline [1] [2] in the draft body */
+.enterprise-shell .tsk-cite {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; vertical-align: 1px;
+  background: var(--brand-soft); color: var(--brand-ink);
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  text-decoration: none; cursor: pointer;
+  transition: background .12s;
+  margin: 0 1px;
+}
+.enterprise-shell .tsk-cite:hover { background: color-mix(in oklch, var(--brand-soft), var(--brand) 20%); }
+
+/* Recipient chip (To field) */
+.enterprise-shell .tsk-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px; background: var(--brand-soft); color: var(--brand-ink);
+  font-size: 12px; font-weight: 550; margin-top: 6px;
+}
+.enterprise-shell .tsk-chip .av {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--brand); color: white;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700;
+}
+
+/* Refine row */
+.enterprise-shell .tsk-refine {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .tsk-refine-head {
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+  background: oklch(0.985 0.003 85);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.enterprise-shell .tsk-refine-msgs {
+  padding: 14px 18px; max-height: 320px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.enterprise-shell .tsk-refine-msg {
+  display: flex;
+}
+.enterprise-shell .tsk-refine-msg.user { justify-content: flex-end; }
+.enterprise-shell .tsk-refine-msg .bubble {
+  max-width: 85%; padding: 9px 13px; border-radius: 12px;
+  font-size: 13.5px; line-height: 1.5;
+}
+.enterprise-shell .tsk-refine-msg.user .bubble {
+  background: #c86d4b; color: white;
+}
+.enterprise-shell .tsk-refine-msg.assistant .bubble {
+  background: oklch(0.96 0.005 85); color: var(--ink);
+}
+.dark .enterprise-shell .tsk-refine-msg.assistant .bubble {
+  background: oklch(0.24 0.01 270);
+}
+.enterprise-shell .tsk-refine-input {
+  display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line);
+}
+.enterprise-shell .tsk-refine-input input {
+  flex: 1; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--panel); padding: 8px 12px;
+  font: inherit; font-size: 13px; color: var(--ink); outline: 0;
+}
+.enterprise-shell .tsk-refine-input input:focus {
+  border-color: color-mix(in oklch, var(--brand), white 50%);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--brand-soft), transparent 40%);
+}
+.enterprise-shell .tsk-refine-input button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 9px;
+  background: #c86d4b; color: white; border: 0;
+  cursor: pointer; transition: background .12s;
+}
+.enterprise-shell .tsk-refine-input button:hover { background: #b85e3e; }
+.enterprise-shell .tsk-refine-input button:disabled { opacity: 0.5; cursor: default; }

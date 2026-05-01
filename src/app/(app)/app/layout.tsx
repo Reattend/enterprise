@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
 // wrapper would let the input drift mid-page.
 // Routes that get a full-bleed canvas. Use prefix matching for paths whose
 // children should also be full-bleed (e.g. /app/memories AND /app/memories/[id]).
-const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki', '/app/integrations']
+const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki', '/app/integrations', '/app/tasks']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.

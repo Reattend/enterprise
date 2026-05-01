@@ -1,30 +1,29 @@
 'use client'
 
-// Tasks index — the Copilot-style task gallery. Each card launches a
-// specialized workflow that wraps /api/ask with a structured prompt + form
-// input. Meant to feel like the "New from template" experience in Word/PPT
-// but scoped across ALL your org memory, not just one document.
+// Tasks gallery — every card is a memory-grounded workflow. The point of
+// this page over plain Claude: each draft is conditioned on the org's
+// actual memory (decisions, meetings, threads, briefs), with citations
+// back to source records. No hallucinated facts.
+//
+// Cards are pulled from src/lib/ai/task-modes.ts. Click → /app/tasks/<id>
+// renders the compose panel (TaskModePanel).
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import {
-  Sparkles,
-  Mail,
-  Calendar,
-  FileText,
-  LayoutDashboard,
-  ArrowRight,
+  Sparkles, Mail, Calendar, FileText, LayoutDashboard,
+  ChevronRight, ShieldCheck, ArrowRight,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { TASK_MODES } from '@/lib/ai/task-modes'
 import { cn } from '@/lib/utils'
 
 const ICONS: Record<string, any> = { Mail, Calendar, FileText, LayoutDashboard }
 
-const CATEGORY_META: Record<string, { label: string; color: string }> = {
-  write: { label: 'Write', color: 'text-blue-500' },
-  prep: { label: 'Prepare', color: 'text-violet-500' },
-  plan: { label: 'Plan', color: 'text-amber-500' },
+const CATEGORY_ORDER: Array<'write' | 'prep' | 'plan'> = ['write', 'prep', 'plan']
+
+const CATEGORY_LABEL: Record<string, string> = {
+  write: 'Write',
+  prep: 'Prepare',
+  plan: 'Plan',
 }
 
 export default function TasksPage() {
@@ -33,71 +32,72 @@ export default function TasksPage() {
     return acc
   }, {} as Record<string, typeof TASK_MODES>)
 
-  const order: Array<keyof typeof byCategory> = ['write', 'prep', 'plan']
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 max-w-5xl"
-    >
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" /> Tasks
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          Copilot-style workflows that pull from everything you've saved. Write an email, prep for a meeting,
-          draft a brief — grounded in your actual org memory, not a blank page.
-        </p>
-      </div>
+    <div className="tsk-page-wrap">
+      <div className="tsk-page">
+        <span className="tsk-crumb">
+          <Sparkles size={9} strokeWidth={2} /> Tasks
+        </span>
+        <div className="tsk-head">
+          <h1>Write from <em>memory</em>, not a blank page.</h1>
+          <p className="sub">
+            Pick a workflow. Fill in a couple of fields. The AI drafts it from your org's actual decisions, meetings, and threads — citing each fact inline. Stays inside your tenant.
+          </p>
+        </div>
 
-      {order.map((cat) => {
-        const list = byCategory[cat] || []
-        if (list.length === 0) return null
-        const meta = CATEGORY_META[cat]
-        return (
-          <div key={cat} className="space-y-3">
-            <div className="flex items-baseline gap-2">
-              <h2 className={cn('text-sm font-semibold uppercase tracking-wider', meta.color)}>{meta.label}</h2>
-              <span className="text-[10px] text-muted-foreground">{list.length}</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {list.map((m) => {
-                const Icon = ICONS[m.iconName] || Sparkles
-                return (
-                  <Link
-                    key={m.id}
-                    href={`/app/tasks/${m.id}`}
-                    className="group rounded-2xl border bg-card overflow-hidden hover:shadow-sm hover:border-primary/40 transition-all"
-                  >
-                    <div className={cn('h-1 bg-gradient-to-r', m.color)} />
-                    <div className="p-4 flex items-start gap-3">
-                      <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center shrink-0 text-white bg-gradient-to-br', m.color)}>
-                        <Icon className="h-5 w-5" />
+        {CATEGORY_ORDER.map((cat) => {
+          const list = byCategory[cat] || []
+          if (list.length === 0) return null
+          return (
+            <section key={cat}>
+              <div className="tsk-sec-head">
+                {CATEGORY_LABEL[cat]}
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--mono)', letterSpacing: 0, textTransform: 'none', fontWeight: 400 }}>
+                  {list.length} workflow{list.length === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div className="tsk-grid">
+                {list.map((m) => {
+                  const Icon = ICONS[m.iconName] || Sparkles
+                  return (
+                    <Link key={m.id} href={`/app/tasks/${m.id}`} className="tsk-card">
+                      <div className={cn('tsk-card-ico', m.category)}>
+                        <Icon size={22} strokeWidth={1.8} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <h3 className="text-sm font-semibold group-hover:text-primary transition-colors">{m.label}</h3>
-                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <div className="tsk-card-body">
+                        <div className="tsk-card-title-row">
+                          <span className="tsk-card-title">{m.label}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2">{m.tagline}</p>
+                        <div className="tsk-card-tagline">{m.tagline}</div>
+                        <div className="tsk-card-meta">
+                          <span className="pill">{m.fields.length} fields</span>
+                          {m.retrievalHint?.types && (
+                            <span className="pill">→ {m.retrievalHint.types.slice(0, 3).join(', ')}</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )
-      })}
+                      <ChevronRight size={20} strokeWidth={1.8} className="tsk-card-arrow" />
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
+          )
+        })}
 
-      <div className="rounded-2xl border-dashed border bg-card/40 p-5 text-center">
-        <Badge variant="outline" className="text-[10px] mb-2">Coming soon</Badge>
-        <p className="text-xs text-muted-foreground">
-          Browser extension — overlay these tasks inside Word, Outlook, Teams, PowerPoint.
-          Ships alongside the production OAuth callbacks.
-        </p>
+        <div className="tsk-rs-strip">
+          <ShieldCheck size={16} strokeWidth={1.8} />
+          <div style={{ flex: 1 }}>
+            <b>Why use this over plain Claude?</b> Every draft is grounded in your memory and cites the source record. No invented numbers, no made-up commitments. Tokens stay on your tenant.
+          </div>
+          <Link href="/app/integrations" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            color: 'var(--brand-ink)', fontWeight: 600, fontSize: 12, textDecoration: 'none',
+          }}>
+            Add more sources <ArrowRight size={11} />
+          </Link>
+        </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
