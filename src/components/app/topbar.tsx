@@ -219,182 +219,152 @@ export function AppTopbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/80 backdrop-blur-sm px-4">
-        {/* Mobile hamburger */}
+      {/* New design topbar — class names come from src/app/(app)/app/dashboard.css.
+          ALL existing icon buttons preserved verbatim with their handlers. */}
+      <header className="topbar-v2">
+        {/* Mobile hamburger (shown <md) */}
         <button
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           className="md:hidden flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors shrink-0"
+          aria-label="Open sidebar"
         >
           <Menu className="h-4 w-4" />
         </button>
 
-        {/* Left: org selector — always a dropdown trigger so the active org +
-            switcher live in one control instead of a pill + a separate chevron
-            button. Single-org users still see the trigger; clicking it opens
-            the same dropdown with just one entry. */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
-          {hasEnterprise && activeEnterpriseOrg && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="inline-flex items-center gap-2 px-2.5 h-9 rounded-md border border-border bg-background hover:bg-muted/40 transition-colors text-[13px] max-w-[260px]">
-                  <div className="h-5 w-5 rounded bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center shrink-0">
-                    {(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}
-                  </div>
-                  <div className="flex flex-col items-start min-w-0 leading-tight">
-                    <span className="font-semibold text-foreground truncate max-w-[160px]">{activeEnterpriseOrg.orgName}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{activeEnterpriseOrg.role.replace('_', ' ')}</span>
-                  </div>
-                  <ChevronsUpDown className="h-3 w-3 text-muted-foreground shrink-0 ml-0.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-72">
-                <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {enterpriseOrgs.length >= 2 ? 'Organizations' : 'Organization'}
+        {/* Workspace switcher */}
+        {hasEnterprise && activeEnterpriseOrg && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="ws-switch hidden md:flex">
+                <div className="ws-mark">{(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}</div>
+                <div className="ws-meta">
+                  <div className="ws-name">{activeEnterpriseOrg.orgName}</div>
+                  <div className="ws-role">{activeEnterpriseOrg.role.replace('_', ' ')}</div>
                 </div>
-                {enterpriseOrgs.map((o) => (
-                  <DropdownMenuItem
-                    key={o.orgId}
-                    onClick={() => {
-                      useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)
-                    }}
-                    className="cursor-pointer py-2"
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
-                      {o.orgName[0]?.toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm truncate block">{o.orgName}</span>
-                      <span className="text-[10px] text-muted-foreground capitalize">
-                        {o.role.replace('_', ' ')} · {o.orgPlan}
-                      </span>
-                    </div>
-                    {o.orgId === activeEnterpriseOrgId && (
-                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href={`/app/admin/${activeEnterpriseOrg.orgId}`}>
-                    <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                    Open Memory Cockpit
-                  </Link>
+                <ChevronsUpDown className="ws-chev h-3 w-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-72">
+              <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                {enterpriseOrgs.length >= 2 ? 'Organizations' : 'Organization'}
+              </div>
+              {enterpriseOrgs.map((o) => (
+                <DropdownMenuItem
+                  key={o.orgId}
+                  onClick={() => useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)}
+                  className="cursor-pointer py-2"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
+                    {o.orgName[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm truncate block">{o.orgName}</span>
+                    <span className="text-[10px] text-muted-foreground capitalize">
+                      {o.role.replace('_', ' ')} · {o.orgPlan}
+                    </span>
+                  </div>
+                  {o.orgId === activeEnterpriseOrgId && (
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                  )}
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href={`/app/admin/${activeEnterpriseOrg.orgId}`}>
+                  <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                  Open Memory Cockpit
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
-        {/* Center: Global search — Glean-style. */}
-        <div className="flex-1 flex justify-center min-w-0 px-4">
-          <button
-            onClick={() => router.push('/app/search')}
-            className="w-full max-w-xl inline-flex items-center gap-2.5 h-9 px-3 rounded-md border border-border bg-background/60 hover:bg-background hover:border-border/80 transition-colors text-[13px] text-muted-foreground"
-          >
-            <Search className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="flex-1 text-left truncate">
-              <span className="hidden md:inline">Search memories, decisions, policies, people…</span>
-              <span className="md:hidden">Search…</span>
-            </span>
-            <kbd className="text-[10px] font-mono text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded hidden sm:inline">⌘K</kbd>
-          </button>
-        </div>
+        {/* Center: search */}
+        <button
+          onClick={() => router.push('/app/search')}
+          className="top-search"
+          type="button"
+        >
+          <Search className="h-3.5 w-3.5 text-[var(--ink-3)]" />
+          <span className="top-search-input flex-1 truncate">
+            <span className="hidden md:inline">Search memories, decisions, policies, people…</span>
+            <span className="md:hidden">Search…</span>
+          </span>
+          <kbd className="top-kbd hidden sm:inline">⌘ K</kbd>
+        </button>
 
-        {/* Right: Action icons */}
-        <div className="flex items-center gap-1 shrink-0">
+        {/* Right: action icons (every existing button preserved) */}
+        <div className="top-actions">
           {/* Plan badge */}
           {activeEnterpriseOrg && (
             <Link
               href={`/app/admin/${activeEnterpriseOrg.orgId}/settings`}
-              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 text-[11px] font-semibold border border-violet-500/20 hover:bg-violet-500/20 transition-colors mr-1 capitalize"
+              className="plan-pill"
+              title={`Plan: ${activeEnterpriseOrg.orgPlan}`}
             >
+              <Sparkles className="h-3 w-3" />
               {activeEnterpriseOrg.orgPlan}
             </Link>
           )}
 
-          {/* Chrome extension — Web Store install */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            asChild
+          {/* Chrome extension install */}
+          <a
+            href="https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="icon-btn"
             title="Install Reattend for Chrome"
           >
-            <a
-              href="https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Chrome className="h-4 w-4 text-muted-foreground" />
-            </a>
-          </Button>
+            <Chrome className="h-4 w-4" />
+          </a>
 
-          {/* Integrations — moved out of sidebar in Sprint O */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            asChild
-            title="Integrations"
-          >
-            <Link href="/app/integrations">
-              <Plug className="h-4 w-4 text-muted-foreground" />
-            </Link>
-          </Button>
+          {/* Integrations */}
+          <Link href="/app/integrations" className="icon-btn" title="Integrations">
+            <Plug className="h-4 w-4" />
+          </Link>
 
-          {/* Legend — moved out of sidebar in Sprint O */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            asChild
-            title="Legend"
-          >
-            <Link href="/app/legend">
-              <MapIcon className="h-4 w-4 text-muted-foreground" />
-            </Link>
-          </Button>
+          {/* Legend */}
+          <Link href="/app/legend" className="icon-btn" title="Legend">
+            <MapIcon className="h-4 w-4" />
+          </Link>
 
           {/* Who Should I Ask? (⌘⇧K) */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
+          <button
             onClick={() => window.dispatchEvent(new CustomEvent('reattend:open-experts'))}
+            className="icon-btn"
             title="Who should I ask? (⌘⇧K)"
           >
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </Button>
+            <Users className="h-4 w-4" />
+          </button>
 
           {/* Quick Capture */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
+          <button
             onClick={() => useAppStore.getState().setCommandOpen(true)}
+            className="icon-btn"
             title="Quick capture"
           >
-            <Command className="h-4 w-4 text-muted-foreground" />
-          </Button>
+            <Command className="h-4 w-4" />
+          </button>
 
-          {/* Notifications */}
-          <Button
-            variant={inboxPanelOpen ? 'secondary' : 'ghost'}
-            size="icon-sm"
-            className="relative"
+          {/* Notifications (with badge) */}
+          <button
+            className={cn('icon-btn', inboxPanelOpen && 'active')}
             onClick={() => {
               setInboxPanelOpen(!inboxPanelOpen)
               setFeedbackOpen(false)
               if (!inboxPanelOpen) fetchNotifications()
             }}
+            title="Notifications"
           >
-            <Bell className="h-4 w-4 text-muted-foreground" />
+            <Bell className="h-4 w-4" />
             {globalUnreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold">
-                {globalUnreadCount > 9 ? '9+' : globalUnreadCount}
-              </span>
+              <span className="badge-dot">{globalUnreadCount > 9 ? '9+' : globalUnreadCount}</span>
             )}
-          </Button>
+          </button>
 
           {/* Feedback */}
-          <Button
-            variant={feedbackOpen ? 'secondary' : 'ghost'}
-            size="icon-sm"
+          <button
+            className={cn('icon-btn', feedbackOpen && 'active')}
             onClick={() => {
               setFeedbackOpen(!feedbackOpen)
               setInboxPanelOpen(false)
@@ -402,13 +372,12 @@ export function AppTopbar() {
             }}
             title="Send feedback"
           >
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </Button>
+            <MessageCircle className="h-4 w-4" />
+          </button>
 
-          {/* Guide / Docs */}
-          <Button
-            variant={docsOpen ? 'secondary' : 'ghost'}
-            size="icon-sm"
+          {/* Docs / Guide */}
+          <button
+            className={cn('icon-btn', docsOpen && 'active')}
             onClick={() => {
               setDocsOpen(!docsOpen)
               setFeedbackOpen(false)
@@ -416,21 +385,21 @@ export function AppTopbar() {
             }}
             title="Reattend Guide"
           >
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </Button>
+            <BookOpen className="h-4 w-4" />
+          </button>
 
           {/* Theme toggle */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
+          <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="icon-btn"
             title="Toggle theme"
           >
-            <Sun className="h-4 w-4 text-muted-foreground rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 text-muted-foreground rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          </Button>
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </button>
         </div>
       </header>
+
 
 
       {/* Notification Panel */}

@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { usePathname, useRouter } from 'next/navigation'
 import { AppSidebar } from '@/components/app/sidebar'
 import { AppTopbar } from '@/components/app/topbar'
+import './dashboard.css'
 import { QuickCapture } from '@/components/app/quick-capture'
 import { InboxBanner } from '@/components/app/inbox-banner'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
@@ -114,31 +114,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // overflow-y-auto (set when not full-bleed). Pages that pin a footer
     // surface (e.g. the Ask chatbox) rely on this lock to keep `shrink-0`
     // children glued to the bottom of the visible area.
-    <div className="h-screen bg-background enterprise-shell overflow-hidden">
+    <div className={cn('enterprise-shell h-screen overflow-hidden', sidebarCollapsed && 'sidebar-collapsed')}>
       <StoreHydrator />
       <KeyboardShortcuts />
       <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
-      <AppSidebar />
       <QuickCapture />
       <CaptureDrawer />
-      <motion.main
-        initial={false}
-        animate={{ marginLeft: isMobile ? 0 : (sidebarCollapsed ? 64 : 240) }}
-        transition={{ duration: 0.2, ease: 'easeInOut' }}
-        className="flex flex-col h-screen overflow-x-hidden"
-      >
-        <AppTopbar />
-        <SandboxBanner />
-        <InboxBanner />
-        <AnnouncementBanner orgId={activeEnterpriseOrgId} />
-        <PolicyPendingBanner />
-        <div className={cn(
-          'flex-1 overflow-hidden flex flex-col',
-          !isFullBleed && 'p-4 sm:p-6 overflow-y-auto'
-        )}>
-          {children}
-        </div>
-      </motion.main>
+      <div className="app-grid">
+        <AppSidebar />
+        <main className="flex flex-col min-h-0 overflow-hidden">
+          <AppTopbar />
+          <SandboxBanner />
+          <InboxBanner />
+          <AnnouncementBanner orgId={activeEnterpriseOrgId} />
+          <PolicyPendingBanner />
+          <div className={cn(
+            'flex-1 overflow-hidden flex flex-col',
+            !isFullBleed && 'p-4 sm:p-6 overflow-y-auto'
+          )}>
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

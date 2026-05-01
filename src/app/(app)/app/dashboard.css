@@ -1,0 +1,382 @@
+/* ============================================================
+ * Dashboard chrome — design tokens + sidebar/topbar/chat classes
+ * Extracted from claude.ai/design Chat.html. Loaded once from
+ * src/app/(app)/app/layout.tsx so every dashboard page inherits.
+ * ============================================================ */
+
+.enterprise-shell {
+  --bg: oklch(0.985 0.005 85);
+  --panel: oklch(1 0 0);
+  --rail: oklch(0.97 0.005 85);
+  --ink: oklch(0.18 0.01 270);
+  --ink-2: oklch(0.32 0.01 270);
+  --ink-3: oklch(0.52 0.01 270);
+  --ink-4: oklch(0.72 0.008 270);
+  --line: oklch(0.92 0.005 270);
+  --line-2: oklch(0.96 0.004 270);
+  --accent: oklch(0.52 0.18 275);
+  --accent-soft: oklch(0.94 0.04 275);
+  --accent-ink: oklch(0.32 0.14 275);
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: "Inter", system-ui, sans-serif;
+}
+
+/* dark mode mapping */
+.dark .enterprise-shell {
+  --bg: oklch(0.18 0.01 270);
+  --panel: oklch(0.22 0.01 270);
+  --rail: oklch(0.20 0.01 270);
+  --ink: oklch(0.985 0.005 85);
+  --ink-2: oklch(0.85 0.005 85);
+  --ink-3: oklch(0.65 0.01 270);
+  --ink-4: oklch(0.45 0.01 270);
+  --line: oklch(0.30 0.01 270);
+  --line-2: oklch(0.26 0.01 270);
+}
+
+/* ---------- App grid (sidebar + main) ---------- */
+.enterprise-shell .app-grid {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  min-height: 100vh;
+}
+.enterprise-shell.sidebar-collapsed .app-grid {
+  grid-template-columns: 64px 1fr;
+}
+@media (max-width: 768px) {
+  .enterprise-shell .app-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Primary rail (sidebar) ---------- */
+.enterprise-shell .rail {
+  background: var(--rail);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  padding: 16px 12px;
+  position: sticky; top: 0; height: 100vh;
+  overflow: hidden;
+}
+.enterprise-shell .rail .brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 4px 14px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.enterprise-shell .rail .brand-mark {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: transparent; color: var(--ink);
+  display: grid; place-items: center;
+  border: 1.5px solid var(--ink);
+  flex-shrink: 0;
+}
+.enterprise-shell .rail .brand-name {
+  font-family: var(--sans); font-size: 17px; font-weight: 700;
+  letter-spacing: -0.01em; color: var(--ink); line-height: 1.05;
+}
+.enterprise-shell .rail .brand-tag {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--accent-ink); margin-top: 2px;
+  text-transform: uppercase;
+}
+.enterprise-shell .rail-collapse {
+  margin-left: auto;
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--ink-3); display: grid; place-items: center;
+  cursor: pointer;
+}
+.enterprise-shell .rail-collapse:hover { background: oklch(0.95 0.005 85); color: var(--ink); }
+
+.enterprise-shell .rail-cta,
+.enterprise-shell .rail-cta-2 {
+  width: 100%; border: 0; padding: 11px 14px; border-radius: 10px;
+  font: inherit; font-weight: 600; font-size: 13.5px;
+  color: white; text-decoration: none;
+  margin-bottom: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  justify-content: center;
+  transition: filter .15s ease, transform .05s ease, background .15s ease;
+}
+.enterprise-shell .rail-cta {
+  background: linear-gradient(135deg, oklch(0.62 0.16 25), oklch(0.5 0.14 30) 60%, oklch(0.42 0.1 35));
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.25) inset, 0 6px 14px -8px oklch(0.45 0.14 30 / 0.45);
+}
+.enterprise-shell .rail-cta:hover { filter: brightness(1.05); }
+.enterprise-shell .rail-cta-2 {
+  background: oklch(0.16 0.01 270);
+  margin-bottom: 4px;
+}
+.enterprise-shell .rail-cta-2:hover { background: oklch(0.22 0.01 270); }
+.enterprise-shell .rail-cta:active,
+.enterprise-shell .rail-cta-2:active { transform: translateY(1px); }
+
+.enterprise-shell .rail-section {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-4); padding: 14px 8px 6px;
+}
+.enterprise-shell .rail-nav { display: flex; flex-direction: column; gap: 1px; }
+.enterprise-shell .rail-nav a {
+  display: flex; align-items: center; gap: 11px;
+  padding: 7px 10px; border-radius: 7px;
+  color: var(--ink-2); text-decoration: none;
+  font-size: 13.5px; font-weight: 450;
+  transition: background .12s, color .12s;
+}
+.enterprise-shell .rail-nav a:hover { background: oklch(0.94 0.005 85); color: var(--ink); }
+.enterprise-shell .rail-nav a.active {
+  background: var(--panel); color: var(--ink);
+  box-shadow: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.03);
+}
+.enterprise-shell .rail-nav a .ico {
+  width: 16px; height: 16px; color: var(--ink-3); flex-shrink: 0;
+}
+.enterprise-shell .rail-nav a.active .ico { color: var(--accent); }
+.enterprise-shell .rail-nav a .badge {
+  margin-left: auto; font-size: 10px; color: var(--ink-3);
+  background: oklch(0.95 0.005 85); border-radius: 999px;
+  padding: 1px 6px; font-weight: 500;
+}
+
+.enterprise-shell .rail-recent {
+  max-height: 280px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.enterprise-shell .rail-recent .recent-q {
+  font-size: 12.5px; padding: 7px 10px; line-height: 1.3;
+  color: var(--ink-2); border-radius: 7px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: block; text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.enterprise-shell .rail-recent .recent-q:hover { background: oklch(0.96 0.005 85); color: var(--ink); }
+.enterprise-shell .rail-recent .recent-q.active-q { background: oklch(0.94 0.005 85); color: var(--ink); }
+
+.enterprise-shell .rail-foot { margin-top: auto; }
+.enterprise-shell .rail-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel);
+  cursor: pointer;
+}
+.enterprise-shell .rail-user:hover { background: oklch(0.98 0.005 85); }
+.enterprise-shell .rail-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, oklch(0.65 0.18 275), oklch(0.5 0.18 285));
+  color: white; display: grid; place-items: center;
+  font-weight: 600; font-size: 12px; flex-shrink: 0;
+}
+.enterprise-shell .rail-user-name {
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  color: var(--ink);
+}
+.enterprise-shell .rail-user-mail {
+  font-size: 11px; color: var(--ink-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .pill-super {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
+  color: oklch(0.36 0.12 155); background: oklch(0.93 0.07 155);
+  padding: 1px 6px; border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* ---------- Top bar ---------- */
+.enterprise-shell .topbar-v2 {
+  height: 56px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 22px; background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+}
+.enterprise-shell .ws-switch {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--line); border-radius: 9px;
+  padding: 5px 10px 5px 5px; background: var(--panel);
+  cursor: pointer; transition: background .12s;
+  font: inherit;
+}
+.enterprise-shell .ws-switch:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .ws-mark {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, oklch(0.6 0.18 275), oklch(0.45 0.2 285));
+  color: white; display: grid; place-items: center;
+  font-weight: 600; font-size: 12px;
+}
+.enterprise-shell .ws-meta { line-height: 1.1; text-align: left; }
+.enterprise-shell .ws-name { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.enterprise-shell .ws-role {
+  font-size: 9.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.enterprise-shell .ws-chev { color: var(--ink-3); margin-left: 2px; }
+
+.enterprise-shell .top-search {
+  flex: 1; max-width: 560px; height: 36px;
+  border: 1px solid var(--line); border-radius: 9px;
+  background: var(--panel);
+  display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+  font: inherit;
+}
+.enterprise-shell .top-search:hover { background: oklch(0.98 0.005 85); border-color: oklch(0.86 0.005 270); }
+.enterprise-shell .top-search-input {
+  flex: 1; border: 0; outline: 0; background: transparent;
+  font: inherit; color: var(--ink);
+  text-align: left;
+}
+.enterprise-shell .top-search-input::placeholder { color: var(--ink-3); }
+.enterprise-shell .top-kbd {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--ink-3); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 5px; background: var(--bg);
+}
+
+.enterprise-shell .top-actions {
+  display: flex; align-items: center; gap: 6px; margin-left: auto;
+}
+.enterprise-shell .plan-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-soft); color: var(--accent-ink);
+  padding: 5px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em;
+  border: 1px solid color-mix(in oklch, var(--accent), white 75%);
+  text-transform: capitalize; text-decoration: none;
+}
+.enterprise-shell .plan-pill:hover { background: color-mix(in oklch, var(--accent-soft), white 30%); }
+.enterprise-shell .icon-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--ink-3); display: grid; place-items: center;
+  cursor: pointer; position: relative;
+  transition: background .12s, color .12s;
+  text-decoration: none;
+}
+.enterprise-shell .icon-btn:hover { background: oklch(0.95 0.005 85); color: var(--ink); }
+.enterprise-shell .icon-btn[aria-pressed="true"],
+.enterprise-shell .icon-btn.active {
+  background: oklch(0.94 0.005 85); color: var(--ink);
+  border-color: var(--line);
+}
+.enterprise-shell .icon-btn .badge-dot {
+  position: absolute; top: -2px; right: -2px;
+  display: flex; align-items: center; justify-content: center;
+  height: 16px; min-width: 16px; padding: 0 4px;
+  border-radius: 999px;
+  background: oklch(0.62 0.18 25); color: white;
+  font-size: 9.5px; font-weight: 700;
+  border: 2px solid var(--bg);
+}
+
+/* ---------- Chat surface ---------- */
+.enterprise-shell .chat-wrap {
+  display: flex; flex-direction: column;
+  height: 100%; min-height: 0; position: relative;
+}
+.enterprise-shell .chat-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 18px 28px 0;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+.enterprise-shell .pill-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 550;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink-2);
+  cursor: pointer; text-decoration: none;
+  transition: background .12s;
+}
+.enterprise-shell .pill-btn:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .pill-btn.dark {
+  background: var(--ink); color: white; border-color: var(--ink);
+}
+.enterprise-shell .pill-btn.dark:hover { background: oklch(0.24 0.01 270); }
+
+.enterprise-shell .chat-stage {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 0 24px; min-height: 0;
+}
+.enterprise-shell .chat-greeting {
+  font-family: var(--serif);
+  font-size: 44px; line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-align: center; margin: 0 0 28px;
+  color: var(--ink);
+}
+.enterprise-shell .chat-greeting em { font-style: italic; color: var(--accent-ink); }
+
+.enterprise-shell .examples-label {
+  font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-3); text-align: center; margin: 0 0 12px;
+}
+.enterprise-shell .examples {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px; max-width: 640px; width: 100%;
+}
+.enterprise-shell .example {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink); font-size: 13.5px;
+  cursor: pointer; text-align: left;
+  font: inherit;
+  transition: background .12s, border-color .12s, transform .05s;
+}
+.enterprise-shell .example:hover { background: oklch(0.98 0.005 85); border-color: oklch(0.86 0.005 270); }
+.enterprise-shell .example .arrow { margin-left: auto; color: var(--ink-3); }
+.enterprise-shell .example .glyph {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: var(--accent-soft); color: var(--accent-ink);
+  display: grid; place-items: center; flex: none;
+}
+
+/* Composer */
+.enterprise-shell .composer-wrap { padding: 0 24px 22px; flex-shrink: 0; }
+.enterprise-shell .composer {
+  max-width: 720px; margin: 0 auto;
+  border: 1px solid var(--line); border-radius: 18px;
+  background: var(--panel);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.6) inset, 0 12px 32px -16px oklch(0.2 0.01 270 / 0.18);
+  padding: 14px 16px 10px;
+}
+.enterprise-shell .composer textarea {
+  width: 100%; border: 0; outline: 0; resize: none;
+  font: inherit; font-size: 14.5px; color: var(--ink);
+  background: transparent; min-height: 28px; max-height: 200px;
+  padding: 4px 2px;
+}
+.enterprise-shell .composer textarea::placeholder { color: var(--ink-3); }
+.enterprise-shell .composer-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 6px;
+}
+.enterprise-shell .mode-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg);
+  font-size: 12px; color: var(--ink-2); cursor: pointer;
+  font-weight: 500; font: inherit;
+  text-decoration: none;
+}
+.enterprise-shell .mode-pill:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .send-btn {
+  margin-left: auto;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--bg);
+  color: var(--ink-3); display: grid; place-items: center;
+  cursor: pointer;
+  transition: filter .12s, background .12s;
+}
+.enterprise-shell .send-btn.ready { background: var(--ink); color: white; border-color: var(--ink); }
+.enterprise-shell .send-btn:hover { filter: brightness(0.97); }
+.enterprise-shell .composer-hint {
+  text-align: center; color: var(--ink-3);
+  font-size: 11.5px; margin-top: 8px;
+}
+.enterprise-shell .composer-hint .kbd-inline {
+  font-family: var(--mono); color: var(--ink-2);
+}
