@@ -1,11 +1,13 @@
 'use client'
 
-// Hierarchy tab — renders the dept tree (org → dept → division → team, etc.)
-// with record counts and stale badges. Indented by parent depth.
+// Hierarchy tab — flat tree of departments with record counts and a stale
+// indicator. Indented by parent depth. Same data shape as before; only the
+// row chrome changed (now uses .wiki-tree / .wiki-tnode classes from the
+// new design).
 
 import { useEffect, useMemo, useState } from 'react'
-import { Building2, Loader2, AlertTriangle, ChevronRight } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Building2, Loader2, AlertTriangle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type Dept = {
   id: string
@@ -26,8 +28,6 @@ function isStale(ts: string | null) {
   return Date.now() - new Date(ts).getTime() > STALE_MS
 }
 
-// Build a tree from flat parent-linked rows, returning each dept with its
-// depth so indentation is stable even if the list order varies.
 function buildTree(depts: Dept[]): Array<Dept & { depth: number }> {
   const byId = new Map(depts.map((d) => [d.id, d]))
   const children = new Map<string | null, Dept[]>()
@@ -44,7 +44,6 @@ function buildTree(depts: Dept[]): Array<Dept & { depth: number }> {
       visit(k.id, depth + 1)
     }
   }
-  // Start from roots that have no visible parent
   const roots = depts.filter((d) => !d.parentId || !byId.has(d.parentId))
     .sort((a, b) => a.name.localeCompare(b.name))
   for (const r of roots) {
@@ -55,12 +54,13 @@ function buildTree(depts: Dept[]): Array<Dept & { depth: number }> {
 }
 
 export function HierarchyTab({
-  orgId, selectedDeptId, onSelect, filter,
+  orgId, selectedDeptId, onSelect, filter, onCount,
 }: {
   orgId: string
   selectedDeptId: string | null
   onSelect: (id: string) => void
   filter: string
+  onCount?: (n: number) => void
 }) {
   const [depts, setDepts] = useState<Dept[] | null>(null)
   const [loading, setLoading] = useState(true)
@@ -76,12 +76,17 @@ export function HierarchyTab({
           return
         }
         const data = await res.json()
-        if (!cancelled) setDepts(data.departments || [])
+        if (!cancelled) {
+          const list = data.departments || []
+          setDepts(list)
+          onCount?.(list.length)
+        }
       } finally {
         if (!cancelled) setLoading(false)
       }
     })()
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId])
 
   const tree = useMemo(() => depts ? buildTree(depts) : [], [depts])
@@ -93,58 +98,48 @@ export function HierarchyTab({
 
   if (loading) {
     return (
-      <div className="rounded-2xl border bg-card p-5 flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading org…
+      <div className="wiki-tree" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--ink-3)' }}>
+        <Loader2 size={14} className="animate-spin" /> Loading org…
       </div>
     )
   }
 
   if (!depts || depts.length === 0) {
     return (
-      <div className="rounded-2xl border bg-card p-8 text-center text-sm text-muted-foreground">
-        <Building2 className="h-6 w-6 mx-auto mb-2 opacity-50" />
+      <div className="wiki-tree" style={{ padding: 24, textAlign: 'center', fontSize: 13, color: 'var(--ink-3)' }}>
+        <Building2 size={20} style={{ display: 'block', margin: '0 auto 8px', opacity: 0.5 }} />
         No departments visible yet.
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl border bg-card overflow-hidden">
-      <div className="max-h-[70vh] overflow-y-auto">
-        {filtered.map((d) => {
-          const active = d.id === selectedDeptId
-          const stale = isStale(d.lastRecordAt)
-          return (
-            <button
-              key={d.id}
-              onClick={() => onSelect(d.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors border-l-2 ${
-                active
-                  ? 'bg-primary/5 border-primary'
-                  : 'border-transparent hover:bg-muted/40'
-              }`}
-              style={{ paddingLeft: `${d.depth * 16 + 12}px` }}
-            >
-              <Building2 className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium truncate">{d.name}</span>
-                  <span className="text-[10px] text-muted-foreground capitalize">{d.kind}</span>
-                  {stale && d.recordCount > 0 && (
-                    <Badge variant="outline" className="text-[9px] gap-0.5 h-4 px-1 border-yellow-500/40 text-yellow-700 dark:text-yellow-400">
-                      <AlertTriangle className="h-2 w-2" /> Stale
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">
-                  {d.recordCount} memor{d.recordCount === 1 ? 'y' : 'ies'} · {d.memberCount} member{d.memberCount === 1 ? '' : 's'}
-                </div>
-              </div>
-              <ChevronRight className={`h-3 w-3 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground/40'}`} />
-            </button>
-          )
-        })}
-      </div>
-    </div>
+    <aside className="wiki-tree">
+      <h4>Departments</h4>
+      {filtered.map((d) => {
+        const active = d.id === selectedDeptId
+        const stale = isStale(d.lastRecordAt) && d.recordCount > 0
+        return (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => onSelect(d.id)}
+            className={cn('wiki-tnode', active && 'active')}
+            style={{ paddingLeft: `${d.depth * 14 + 8}px` }}
+            title={`${d.recordCount} memor${d.recordCount === 1 ? 'y' : 'ies'} · ${d.memberCount} member${d.memberCount === 1 ? '' : 's'}`}
+          >
+            <Building2 className="ico" size={14} strokeWidth={1.7} />
+            <span className="lab">{d.name}</span>
+            {stale && <span className="stale-dot" title="Stale — no activity > 90d" aria-label="Stale" />}
+            <span className="ct">{d.recordCount.toLocaleString()}</span>
+          </button>
+        )
+      })}
+      {filtered.length === 0 && (
+        <div style={{ padding: 16, textAlign: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+          No matches.
+        </div>
+      )}
+    </aside>
   )
 }

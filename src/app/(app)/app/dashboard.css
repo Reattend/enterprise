@@ -1854,3 +1854,420 @@
   border-radius: 8px !important; overflow: hidden;
   background: var(--panel) !important;
 }
+
+/* ============================================================
+ * Wiki page — extracted from Wiki.html. Three-tab living map
+ * (Hierarchy / Topics / People) with tree column + article column.
+ * Classes prefixed `wiki-` to avoid clashes.
+ * ============================================================ */
+
+.enterprise-shell .wiki-page-wrap {
+  height: 100%; width: 100%; overflow-y: auto;
+}
+.enterprise-shell .wiki-page {
+  padding: 22px 32px 64px;
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.enterprise-shell .wiki-crumb {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-weight: 600;
+  color: var(--accent-ink); background: var(--accent-soft);
+}
+
+.enterprise-shell .wiki-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.enterprise-shell .wiki-head h1 {
+  font-family: var(--serif); font-size: 42px; line-height: 1.05;
+  letter-spacing: -0.015em; margin: 8px 0 6px;
+  font-weight: 400; color: var(--ink);
+}
+.enterprise-shell .wiki-head h1 em { font-style: italic; }
+.enterprise-shell .wiki-head .sub {
+  color: var(--ink-3); margin: 0; max-width: 70ch; font-size: 14px;
+}
+
+.enterprise-shell .wiki-head-tools {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.enterprise-shell .wiki-filter-input {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line); border-radius: 9px;
+  padding: 7px 11px; background: var(--panel); width: 240px;
+}
+.enterprise-shell .wiki-filter-input svg { color: var(--ink-3); flex-shrink: 0; }
+.enterprise-shell .wiki-filter-input input {
+  border: 0; outline: 0; background: transparent;
+  font: inherit; flex: 1; font-size: 12.5px; color: var(--ink);
+  min-width: 0;
+}
+.enterprise-shell .wiki-filter-input input::placeholder { color: var(--ink-3); }
+
+/* Tabs */
+.enterprise-shell .wiki-tabs {
+  display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+  margin: 18px 0 22px;
+}
+.enterprise-shell .wiki-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px 12px;
+  border: 0; background: transparent;
+  font: inherit; font-size: 13.5px; font-weight: 550;
+  color: var(--ink-3); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .12s, border-color .12s;
+}
+.enterprise-shell .wiki-tab:hover { color: var(--ink); }
+.enterprise-shell .wiki-tab.active {
+  color: var(--accent-ink); border-bottom-color: var(--accent);
+}
+.enterprise-shell .wiki-tab .count {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  padding: 1px 6px; border-radius: 4px; background: oklch(0.96 0.005 85);
+}
+
+/* Two-column layout */
+.enterprise-shell .wiki-layout {
+  display: grid; grid-template-columns: 320px 1fr;
+  gap: 18px; align-items: flex-start;
+}
+@media (max-width: 1024px) {
+  .enterprise-shell .wiki-layout { grid-template-columns: 1fr; }
+}
+
+/* Tree column */
+.enterprise-shell .wiki-tree {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); padding: 8px 6px;
+  position: sticky; top: 22px;
+  max-height: calc(100vh - 80px); overflow-y: auto;
+}
+.enterprise-shell .wiki-tree h4 {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); padding: 8px 12px 4px; margin: 0; font-weight: 600;
+}
+.enterprise-shell .wiki-tnode {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; color: var(--ink-2);
+  width: 100%; border: 0; background: transparent;
+  text-align: left; font: inherit; line-height: 1.3;
+  transition: background .12s, color .12s;
+}
+.enterprise-shell .wiki-tnode:hover { background: oklch(0.97 0.005 85); color: var(--ink); }
+.enterprise-shell .wiki-tnode.active {
+  background: var(--accent-soft); color: var(--accent-ink); font-weight: 600;
+}
+.enterprise-shell .wiki-tnode.active .ico { color: var(--accent-ink); }
+.enterprise-shell .wiki-tnode .ico {
+  width: 14px; height: 14px; color: var(--ink-3); flex: none;
+}
+.enterprise-shell .wiki-tnode .lab {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-tnode .ct {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-4);
+  flex-shrink: 0;
+}
+.enterprise-shell .wiki-tnode.active .ct { color: var(--accent-ink); opacity: 0.7; }
+.enterprise-shell .wiki-tnode .stale-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--mem-amber); flex-shrink: 0;
+}
+.enterprise-shell .wiki-tnode .risk-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--mem-rose); flex-shrink: 0;
+}
+.enterprise-shell .wiki-tnode .av {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 600; flex-shrink: 0;
+  background: oklch(0.85 0.04 60); color: oklch(0.35 0.08 40);
+}
+
+/* Article (right column) */
+.enterprise-shell .wiki-article {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .wiki-art-hd { padding: 22px 26px 18px; border-bottom: 1px solid var(--line); }
+.enterprise-shell .wiki-breadcrumb {
+  font-size: 11.5px; color: var(--ink-3);
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.enterprise-shell .wiki-breadcrumb a, .enterprise-shell .wiki-breadcrumb span {
+  color: var(--ink-3); text-decoration: none;
+}
+.enterprise-shell .wiki-breadcrumb a:hover { color: var(--ink); }
+.enterprise-shell .wiki-art-hd h2 {
+  font-family: var(--serif); font-weight: 400; font-size: 36px;
+  letter-spacing: -0.01em; margin: 6px 0 4px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  color: var(--ink); line-height: 1.05;
+}
+.enterprise-shell .wiki-art-hd h2 .name {
+  text-transform: capitalize;
+}
+.enterprise-shell .wiki-fresh {
+  font-family: var(--mono); font-size: 10.5px; color: var(--mem-green);
+  padding: 2px 7px;
+  border: 1px solid color-mix(in oklch, var(--mem-green), white 70%);
+  border-radius: 999px; background: var(--mem-green-soft);
+  font-weight: 500; display: inline-flex; align-items: center; gap: 5px;
+}
+.enterprise-shell .wiki-fresh .pulse {
+  width: 6px; height: 6px; background: var(--mem-green); border-radius: 50%;
+  animation: cap-pulse 1.6s ease-in-out infinite;
+}
+.enterprise-shell .wiki-fresh.amber {
+  color: var(--mem-amber-ink);
+  border-color: color-mix(in oklch, var(--mem-amber), white 70%);
+  background: var(--mem-amber-soft);
+}
+.enterprise-shell .wiki-fresh.amber .pulse { background: var(--mem-amber); }
+.enterprise-shell .wiki-fresh.rose {
+  color: var(--mem-rose);
+  border-color: color-mix(in oklch, var(--mem-rose), white 70%);
+  background: var(--mem-rose-soft);
+}
+.enterprise-shell .wiki-fresh.rose .pulse { background: var(--mem-rose); }
+
+.enterprise-shell .wiki-meta-row {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  color: var(--ink-3); font-size: 12.5px; margin-top: 8px;
+}
+.enterprise-shell .wiki-meta-row b { color: var(--ink-2); font-weight: 550; }
+
+.enterprise-shell .wiki-gen-strip {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px; padding: 10px 12px;
+  background: linear-gradient(90deg, var(--accent-soft), oklch(0.97 0.02 280));
+  border: 1px solid color-mix(in oklch, var(--accent-soft), white 30%);
+  border-radius: 10px; font-size: 12.5px; color: var(--accent-ink);
+}
+.dark .enterprise-shell .wiki-gen-strip {
+  background: linear-gradient(90deg, oklch(0.32 0.05 280), oklch(0.30 0.04 280));
+}
+.enterprise-shell .wiki-gen-strip svg { flex: none; }
+.enterprise-shell .wiki-gen-strip b { font-weight: 600; }
+.enterprise-shell .wiki-gen-strip .right {
+  margin-left: auto; display: inline-flex; gap: 6px; align-items: center;
+}
+
+.enterprise-shell .wiki-art-body { padding: 22px 26px; }
+.enterprise-shell .wiki-summary {
+  font-size: 16px; line-height: 1.6; color: var(--ink-2);
+  max-width: 70ch; white-space: pre-wrap;
+}
+.enterprise-shell .wiki-summary em {
+  font-style: italic; font-family: var(--serif);
+  font-size: 18px; color: var(--ink);
+}
+
+.enterprise-shell .wiki-sec-head {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+  margin: 26px 0 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.enterprise-shell .wiki-sec-head::after {
+  content: ""; flex: 1; height: 1px; background: var(--line-2);
+}
+.enterprise-shell .wiki-sec-head .qmark {
+  width: 18px; height: 18px;
+  display: inline-grid; place-items: center; border-radius: 50%;
+  background: oklch(0.96 0.005 85); color: var(--ink-3);
+  font-size: 11px; font-family: var(--serif); font-style: italic;
+  cursor: help;
+}
+.enterprise-shell .wiki-sec-head .right {
+  margin-left: 0; font-size: 11px; color: var(--accent-ink);
+  text-decoration: none; text-transform: none; letter-spacing: 0;
+  font-weight: 600;
+}
+.enterprise-shell .wiki-sec-head .right:hover { text-decoration: underline; }
+
+/* Topic chips */
+.enterprise-shell .wiki-topic-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.enterprise-shell .wiki-ttag {
+  font-size: 11.5px; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink-2); font-family: var(--mono);
+  text-decoration: none; transition: background .12s, border-color .12s;
+}
+.enterprise-shell .wiki-ttag:hover {
+  background: oklch(0.97 0.005 85);
+  border-color: color-mix(in oklch, var(--accent), white 70%);
+}
+.enterprise-shell .wiki-ttag .ct { color: var(--ink-3); margin-left: 4px; }
+
+/* Decisions */
+.enterprise-shell .wiki-dec-list { display: flex; flex-direction: column; gap: 1px; }
+.enterprise-shell .wiki-dec-row {
+  display: grid; grid-template-columns: 70px 1fr auto;
+  gap: 12px; padding: 12px 4px;
+  border-top: 1px solid var(--line-2); align-items: center;
+  text-decoration: none; color: inherit;
+}
+.enterprise-shell .wiki-dec-row:first-child { border-top: 0; }
+.enterprise-shell .wiki-dec-row:hover { background: oklch(0.985 0.005 85); }
+.enterprise-shell .wiki-dec-row .id {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--accent-ink); background: var(--accent-soft);
+  padding: 3px 7px; border-radius: 5px;
+  text-align: center; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-dec-row .ttl {
+  font-weight: 550; font-size: 13.5px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis;
+}
+.enterprise-shell .wiki-dec-row .meta {
+  font-size: 11.5px; color: var(--ink-3); margin-top: 2px;
+}
+.enterprise-shell .wiki-dec-row .stat {
+  font-size: 11px; padding: 3px 8px; border-radius: 999px;
+  font-weight: 600; white-space: nowrap;
+}
+.enterprise-shell .wiki-dec-row .stat.active {
+  background: var(--mem-green-soft); color: oklch(0.4 0.13 155);
+}
+.enterprise-shell .wiki-dec-row .stat.draft {
+  background: oklch(0.96 0.005 85); color: var(--ink-3);
+}
+.enterprise-shell .wiki-dec-row .stat.eff {
+  background: var(--mem-amber-soft); color: var(--mem-amber-ink);
+}
+.enterprise-shell .wiki-dec-row .stat.superseded,
+.enterprise-shell .wiki-dec-row .stat.reversed {
+  background: var(--mem-rose-soft); color: var(--mem-rose);
+}
+
+/* Members grid */
+.enterprise-shell .wiki-members {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+@media (max-width: 720px) {
+  .enterprise-shell .wiki-members { grid-template-columns: 1fr; }
+}
+.enterprise-shell .wiki-mem {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: 9px;
+  text-decoration: none; color: inherit;
+  transition: background .12s;
+}
+.enterprise-shell .wiki-mem:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .wiki-mem .av {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-weight: 600; font-size: 12px; flex: none;
+}
+.enterprise-shell .wiki-mem .av.a { background: oklch(0.85 0.04 60); color: oklch(0.35 0.08 40); }
+.enterprise-shell .wiki-mem .av.b { background: oklch(0.85 0.05 200); color: oklch(0.32 0.12 220); }
+.enterprise-shell .wiki-mem .av.c { background: oklch(0.86 0.05 145); color: oklch(0.32 0.13 155); }
+.enterprise-shell .wiki-mem .av.d { background: oklch(0.87 0.05 320); color: oklch(0.32 0.14 320); }
+.enterprise-shell .wiki-mem .av.e { background: oklch(0.86 0.05 25); color: oklch(0.36 0.13 25); }
+.enterprise-shell .wiki-mem .av.f { background: oklch(0.86 0.04 270); color: oklch(0.32 0.14 270); }
+.enterprise-shell .wiki-mem .nm {
+  font-size: 13px; font-weight: 550; line-height: 1.2; color: var(--ink);
+  display: flex; align-items: center; gap: 6px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-mem .ti {
+  font-size: 11.5px; color: var(--ink-3); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-mem .body { min-width: 0; flex: 1; }
+.enterprise-shell .wiki-pill-lead {
+  font-size: 9px; padding: 1px 5px; border-radius: 4px;
+  background: oklch(0.92 0.06 65); color: oklch(0.4 0.12 50);
+  font-weight: 600; text-transform: uppercase;
+}
+.enterprise-shell .wiki-pill-status {
+  font-size: 9px; padding: 1px 5px; border-radius: 4px;
+  background: oklch(0.96 0.005 85); color: var(--ink-3);
+  font-weight: 600; text-transform: uppercase;
+}
+
+/* Recent records */
+.enterprise-shell .wiki-rec-list { display: flex; flex-direction: column; gap: 1px; }
+.enterprise-shell .wiki-rec {
+  display: grid; grid-template-columns: 22px 1fr auto;
+  gap: 10px; padding: 10px 4px;
+  border-top: 1px solid var(--line-2); align-items: center;
+  text-decoration: none; color: inherit;
+}
+.enterprise-shell .wiki-rec:first-child { border-top: 0; }
+.enterprise-shell .wiki-rec:hover { background: oklch(0.985 0.005 85); }
+.enterprise-shell .wiki-rec .pip {
+  width: 8px; height: 8px; border-radius: 50%; margin: 0 0 0 6px;
+}
+.enterprise-shell .wiki-rec .pip.meeting { background: var(--accent); }
+.enterprise-shell .wiki-rec .pip.decision { background: oklch(0.5 0.18 290); }
+.enterprise-shell .wiki-rec .pip.note,
+.enterprise-shell .wiki-rec .pip.context { background: var(--ink-4); }
+.enterprise-shell .wiki-rec .pip.insight { background: var(--mem-teal); }
+.enterprise-shell .wiki-rec .pip.idea { background: var(--mem-amber); }
+.enterprise-shell .wiki-rec .pip.tasklike,
+.enterprise-shell .wiki-rec .pip.task { background: var(--mem-rose); }
+.enterprise-shell .wiki-rec .pip.transcript { background: oklch(0.5 0.16 350); }
+.enterprise-shell .wiki-rec .ttl {
+  font-weight: 550; font-size: 13px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-rec .meta {
+  font-size: 11px; color: var(--ink-3); margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .wiki-rec .when {
+  font-size: 11px; color: var(--ink-3); font-family: var(--mono);
+  white-space: nowrap;
+}
+
+/* Empty / loading state pane */
+.enterprise-shell .wiki-empty {
+  border: 1px dashed var(--line); border-radius: 14px;
+  background: oklch(0.99 0.003 85);
+  padding: 64px 24px; text-align: center;
+  color: var(--ink-3);
+}
+.dark .enterprise-shell .wiki-empty {
+  background: oklch(0.21 0.01 270);
+}
+.enterprise-shell .wiki-empty .glyph {
+  font-family: var(--serif); font-style: italic; font-size: 32px;
+  color: var(--ink-4); display: block; margin-bottom: 8px;
+}
+.enterprise-shell .wiki-empty p { font-size: 13px; margin: 0; max-width: 40ch; margin: 0 auto; }
+
+/* At-risk banner */
+.enterprise-shell .wiki-risk-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklch, var(--mem-rose), white 60%);
+  background: var(--mem-rose-soft);
+  border-radius: 12px; margin-bottom: 16px;
+}
+.enterprise-shell .wiki-risk-banner .ic {
+  color: var(--mem-rose); flex-shrink: 0; margin-top: 2px;
+}
+.enterprise-shell .wiki-risk-banner .body { flex: 1; }
+.enterprise-shell .wiki-risk-banner .title {
+  font-size: 13px; font-weight: 600; color: var(--mem-rose);
+}
+.enterprise-shell .wiki-risk-banner .desc {
+  font-size: 12px; color: var(--ink-3); margin-top: 3px; line-height: 1.5;
+}
+.enterprise-shell .wiki-risk-banner .action {
+  margin-left: auto; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--mem-rose); font-weight: 600;
+  text-decoration: none;
+}
+.enterprise-shell .wiki-risk-banner .action:hover { text-decoration: underline; }

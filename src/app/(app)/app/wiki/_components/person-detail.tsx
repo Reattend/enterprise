@@ -1,26 +1,17 @@
 'use client'
 
-// Person detail panel — role, dept memberships, records, decisions, and
-// a "Knowledge at risk" banner if the person has left the org but still
-// has authored content. This is where transfer-protocol UX will live.
+// Person detail — same data shape as before. Restyled to match the article
+// chrome used by Dept and Topic. The "Knowledge at risk" banner stays on
+// top when the person is offboarded with un-transferred records, and the
+// transfer-history panel still loads independently.
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  User as UserIcon,
-  Sparkles,
-  AlertTriangle,
-  Building2,
-  FileText,
-  Gavel,
-  Loader2,
-  Shield,
-  Briefcase,
-  ArrowRightLeft,
-  History,
+  Sparkles, Loader2, AlertTriangle, ChevronRight, Building2, ArrowRightLeft,
+  History, Briefcase, Shield,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
 
 type PersonDetailData = {
   person: {
@@ -33,12 +24,49 @@ type PersonDetailData = {
   decisions: Array<{ id: string; title: string; status: string; decidedAt: string }>
   summary: string
   summaryCached: boolean
+  summaryGeneratedAt: string
   stale: boolean
   lastRecordAt: string | null
   atRisk: boolean
 }
 
-export function PersonDetail({ orgId, userId }: { orgId: string; userId: string }) {
+const AV_PALETTE = ['a', 'b', 'c', 'd', 'e', 'f'] as const
+function avPalette(seed: string) {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
+  return AV_PALETTE[h % AV_PALETTE.length]
+}
+function avInitials(name: string | null, email: string) {
+  return (name || email).split(/\s+/).map((s) => s[0]).join('').slice(0, 2).toUpperCase()
+}
+
+function fmtRelative(iso: string) {
+  const d = new Date(iso)
+  const diff = Date.now() - d.getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m} min ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const days = Math.floor(h / 24)
+  if (days < 14) return `${days}d ago`
+  return d.toLocaleDateString()
+}
+function fmtShort(iso: string | null | undefined) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function decisionStatusClass(status: string): 'active' | 'draft' | 'eff' | 'superseded' | 'reversed' {
+  const s = (status || '').toLowerCase()
+  if (s === 'effective') return 'eff'
+  if (s === 'draft') return 'draft'
+  if (s === 'superseded') return 'superseded'
+  if (s === 'reversed') return 'reversed'
+  return 'active'
+}
+
+export function PersonDetail({ orgId, userId, orgName }: { orgId: string; userId: string; orgName?: string }) {
   const [data, setData] = useState<PersonDetailData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -60,168 +88,159 @@ export function PersonDetail({ orgId, userId }: { orgId: string; userId: string 
 
   if (loading) {
     return (
-      <div className="rounded-2xl border bg-card p-8 flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading person…
+      <div className="wiki-article" style={{ padding: 32, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-3)', fontSize: 13 }}>
+        <Loader2 size={14} className="animate-spin" /> Loading person…
       </div>
     )
   }
   if (!data) return null
 
   const p = data.person
-  const initials = (p.name || p.email).split(/\s+/).map((s) => s[0]).join('').slice(0, 2).toUpperCase()
+  const palette = avPalette(p.id)
+  const initials = avInitials(p.name, p.email)
+  const synced = fmtRelative(data.summaryGeneratedAt)
+  const freshTone: 'amber' | 'rose' | undefined =
+    p.status === 'offboarded' ? 'rose' : data.stale ? 'amber' : undefined
+  const freshLabel =
+    p.status === 'offboarded' ? `offboarded${p.offboardedAt ? ' · ' + fmtShort(p.offboardedAt) : ''}` :
+    data.stale ? `stale · last record ${fmtShort(data.lastRecordAt)}` :
+    `live · synced ${synced}`
 
   return (
-    <div className="space-y-4">
+    <>
       {data.atRisk && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-3 flex items-start gap-2.5">
-          <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <div className="text-sm font-medium text-red-700 dark:text-red-400">Knowledge at risk</div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {p.name || p.email} is offboarded but {data.authored.length} memor{data.authored.length === 1 ? 'y has' : 'ies have'} not
-              been transferred to a current role-holder. Anchor them before this memory effectively vanishes.
-            </p>
+        <div className="wiki-risk-banner">
+          <AlertTriangle className="ic" size={16} />
+          <div className="body">
+            <div className="title">Knowledge at risk</div>
+            <div className="desc">
+              {p.name || p.email} is offboarded but {data.authored.length} memor{data.authored.length === 1 ? 'y has' : 'ies have'} not been transferred to a current role-holder. Anchor them before this memory effectively vanishes.
+            </div>
           </div>
-          <Link
-            href={`/app/admin/${orgId}/transfers`}
-            className="text-xs text-red-600 hover:underline shrink-0 inline-flex items-center gap-1"
-          >
-            <ArrowRightLeft className="h-3 w-3" /> Transfer
+          <Link href={`/app/admin/${orgId}/transfers`} className="action">
+            <ArrowRightLeft size={12} /> Transfer
           </Link>
         </div>
       )}
 
-      <TransferHistoryPanel orgId={orgId} userId={userId} />
-
-
-      <div className="rounded-2xl border bg-card overflow-hidden">
-        <div className="h-1.5 bg-gradient-to-r from-purple-500 to-pink-500" />
-        <div className="p-5 flex items-start gap-3">
-          <Avatar className="h-12 w-12 shrink-0">
-            {p.avatarUrl && <AvatarImage src={p.avatarUrl} alt={p.name || p.email} />}
-            <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg font-bold tracking-tight">{p.name || p.email}</h2>
-              <Badge variant="secondary" className="text-[10px] capitalize">{p.role}</Badge>
-              {p.status === 'offboarded' && (
-                <Badge variant="outline" className="text-[10px] text-muted-foreground">Offboarded {p.offboardedAt ? new Date(p.offboardedAt).toLocaleDateString() : ''}</Badge>
-              )}
-            </div>
-            {p.title && <p className="text-sm text-muted-foreground mt-0.5">{p.title}</p>}
-            <p className="text-[11px] text-muted-foreground mt-0.5">{p.email}</p>
+      <article className="wiki-article">
+        <header className="wiki-art-hd">
+          <div className="wiki-breadcrumb">
+            {orgName && <span>{orgName}</span>}
+            {orgName && <ChevronRight size={10} strokeWidth={2} />}
+            <span>People</span>
+            <ChevronRight size={10} strokeWidth={2} />
+            <span style={{ color: 'var(--ink-2)', fontWeight: 500 }}>{p.name || p.email}</span>
           </div>
-        </div>
-      </div>
+          <h2>
+            <span className="name" style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+              <span className={cn('wiki-mem')} style={{ display: 'inline-flex', padding: 0 }}>
+                <span className={cn('av', palette)} style={{ width: 36, height: 36, fontSize: 13 }}>
+                  {initials}
+                </span>
+              </span>
+              {p.name || p.email}
+            </span>
+            <span className={cn('wiki-fresh', freshTone)}>
+              <span className="pulse" />
+              {freshLabel}
+            </span>
+          </h2>
+          <div className="wiki-meta-row">
+            {p.title && <span><b>Title:</b> {p.title}</span>}
+            <span><b>Role:</b> <span style={{ textTransform: 'capitalize' }}>{p.role.replace('_', ' ')}</span></span>
+            <span><b>Email:</b> {p.email}</span>
+            <span><b>Memories authored:</b> {data.authored.length}</span>
+            {data.decisions.length > 0 && <span><b>Decisions:</b> {data.decisions.length}</span>}
+          </div>
+          <div className="wiki-gen-strip">
+            <Sparkles size={14} strokeWidth={1.8} />
+            <span>
+              <b>Auto-summarized</b> from {data.authored.length} memor{data.authored.length === 1 ? 'y' : 'ies'}{data.decisions.length > 0 ? ` and ${data.decisions.length} decision${data.decisions.length === 1 ? '' : 's'}` : ''} · last regen {synced}.
+            </span>
+          </div>
+        </header>
 
-      <div className="rounded-2xl border bg-card p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <h3 className="text-sm font-semibold">What they&apos;ve contributed</h3>
-          <Badge variant="outline" className="text-[9px] h-4 px-1 ml-auto text-muted-foreground">
-            {data.summaryCached ? 'cached' : 'fresh'}
-          </Badge>
-        </div>
-        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">{data.summary}</p>
-      </div>
+        <div className="wiki-art-body">
+          <p className="wiki-summary">{data.summary}</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <Building2 className="h-3.5 w-3.5 text-muted-foreground" /> Departments
-          </h3>
-          {data.departments.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No department memberships.</p>
-          ) : (
-            <div className="space-y-1.5">
-              {data.departments.map((d, i) => (
-                d.id ? (
+          {(data.departments.length > 0 || data.currentRoles.length > 0) && (
+            <>
+              <div className="wiki-sec-head">Where they sit</div>
+              <div className="wiki-topic-tags">
+                {data.departments.filter((d) => d.id && d.name).map((d, i) => (
                   <Link
-                    key={d.id + i}
+                    key={d.id! + i}
                     href={`/app/wiki?tab=hierarchy&deptId=${d.id}`}
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/40 transition-colors"
+                    className="wiki-ttag"
+                    style={{ fontFamily: 'var(--sans)', textTransform: 'none' }}
                   >
-                    <Building2 className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs font-medium flex-1">{d.name}</span>
-                    <Badge variant="outline" className="text-[9px] h-4 px-1 capitalize">{d.role}</Badge>
+                    <Building2 size={11} style={{ display: 'inline', marginRight: 4, verticalAlign: -1 }} />
+                    {d.name}
+                    <span className="ct" style={{ textTransform: 'capitalize' }}>{d.role}</span>
                   </Link>
-                ) : null
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <Briefcase className="h-3.5 w-3.5 text-muted-foreground" /> Roles
-          </h3>
-          {data.currentRoles.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No role assignments.</p>
-          ) : (
-            <div className="space-y-1.5">
-              {data.currentRoles.map((r, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs">
-                  <Shield className="h-3 w-3 text-muted-foreground" />
-                  <span className="font-medium flex-1">{r.title}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border bg-card p-5">
-        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-          Memories authored ({data.authored.length})
-        </h3>
-        {data.authored.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic">Nothing visible yet.</p>
-        ) : (
-          <div className="space-y-1.5 max-h-72 overflow-y-auto">
-            {data.authored.map((r) => (
-              <Link
-                key={r.id}
-                href={`/app/memories/${r.id}`}
-                className="block rounded-md border px-2.5 py-1.5 hover:bg-muted/40 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[9px] capitalize">{r.type}</Badge>
-                  <span className="text-xs font-medium truncate">{r.title}</span>
-                  <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
-                    {new Date(r.createdAt).toLocaleDateString()}
+                ))}
+                {data.currentRoles.map((r, i) => (
+                  <span key={i} className="wiki-ttag" style={{ fontFamily: 'var(--sans)', textTransform: 'none' }}>
+                    <Shield size={11} style={{ display: 'inline', marginRight: 4, verticalAlign: -1 }} />
+                    {r.title}
                   </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {data.decisions.length > 0 && (
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <Gavel className="h-3.5 w-3.5 text-muted-foreground" />
-            Decisions ({data.decisions.length})
-          </h3>
-          <div className="space-y-1.5">
-            {data.decisions.map((d) => (
-              <div key={d.id} className="flex items-center gap-2 text-xs">
-                <Badge variant="outline" className="text-[9px] h-4 px-1 capitalize">{d.status}</Badge>
-                <span className="flex-1 truncate">{d.title}</span>
-                <span className="text-[10px] text-muted-foreground">{new Date(d.decidedAt).toLocaleDateString()}</span>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
+
+          {data.decisions.length > 0 && (
+            <>
+              <div className="wiki-sec-head">
+                Decisions they own
+                <span className="qmark" title="Decisions where this person is listed as the owner">?</span>
+              </div>
+              <div className="wiki-dec-list">
+                {data.decisions.map((d) => {
+                  const klass = decisionStatusClass(d.status)
+                  return (
+                    <Link key={d.id} href={`/app/memories/${d.id}`} className="wiki-dec-row">
+                      <span className="id">ADR</span>
+                      <div>
+                        <div className="ttl">{d.title}</div>
+                        <div className="meta">Decided {fmtShort(d.decidedAt)}</div>
+                      </div>
+                      <span className={cn('stat', klass)}>
+                        {d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          <div className="wiki-sec-head">Memories authored</div>
+          {data.authored.length === 0 ? (
+            <p style={{ fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>Nothing visible yet.</p>
+          ) : (
+            <div className="wiki-rec-list">
+              {data.authored.slice(0, 12).map((r) => (
+                <Link key={r.id} href={`/app/memories/${r.id}`} className="wiki-rec">
+                  <span className={cn('pip', r.type)} />
+                  <div style={{ minWidth: 0 }}>
+                    <div className="ttl">{r.title}</div>
+                    <div className="meta" style={{ textTransform: 'capitalize' }}>{r.type}</div>
+                  </div>
+                  <span className="when">{fmtShort(r.createdAt)}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <TransferHistoryPanel orgId={orgId} userId={userId} />
         </div>
-      )}
-    </div>
+      </article>
+    </>
   )
 }
 
-// Separate component so we can load history independent of the main fetch —
-// keeps the page snappy for common (empty-history) cases.
 function TransferHistoryPanel({ orgId, userId }: { orgId: string; userId: string }) {
   const [events, setEvents] = useState<Array<{
     id: string; reason: string;
@@ -249,26 +268,30 @@ function TransferHistoryPanel({ orgId, userId }: { orgId: string; userId: string
   if (!loaded || events.length === 0) return null
 
   return (
-    <div className="rounded-2xl border bg-card p-5">
-      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-        <History className="h-3.5 w-3.5 text-muted-foreground" />
-        Transfer history ({events.length})
-      </h3>
-      <div className="space-y-1.5">
+    <>
+      <div className="wiki-sec-head">
+        <History size={11} style={{ marginRight: -4 }} />
+        Transfer history
+        <span className="qmark" title="Knowledge transfers in/out of this person">?</span>
+      </div>
+      <div className="wiki-rec-list">
         {events.map((e) => (
-          <div key={e.id} className="flex items-center gap-2 text-xs p-1.5">
-            <Badge variant="outline" className="text-[9px] h-4 px-1 capitalize shrink-0">{e.reason.replace('_', ' ')}</Badge>
-            <span className="flex-1 truncate">
-              {e.from.name || e.from.email} → {e.to ? (e.to.name || e.to.email) : <span className="italic text-muted-foreground">role only</span>}
-              {e.role && <span className="text-muted-foreground"> · {e.role.title}</span>}
-            </span>
-            <span className="text-[10px] text-muted-foreground shrink-0">
-              {e.recordsTransferred} memor{e.recordsTransferred === 1 ? 'y' : 'ies'} · {new Date(e.createdAt).toLocaleDateString()}
-            </span>
+          <div key={e.id} className="wiki-rec" style={{ cursor: 'default' }}>
+            <Briefcase size={12} style={{ color: 'var(--ink-3)', margin: '0 0 0 4px' }} />
+            <div style={{ minWidth: 0 }}>
+              <div className="ttl">
+                {e.from.name || e.from.email} → {e.to ? (e.to.name || e.to.email) : <span style={{ fontStyle: 'italic', color: 'var(--ink-3)' }}>role only</span>}
+              </div>
+              <div className="meta">
+                <span style={{ textTransform: 'capitalize' }}>{e.reason.replace('_', ' ')}</span>
+                {e.role && ` · ${e.role.title}`}
+                {` · ${e.recordsTransferred} memor${e.recordsTransferred === 1 ? 'y' : 'ies'}`}
+              </div>
+            </div>
+            <span className="when">{fmtShort(e.createdAt)}</span>
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }
-

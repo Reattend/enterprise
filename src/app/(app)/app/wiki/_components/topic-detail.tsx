@@ -1,19 +1,15 @@
 'use client'
 
-// Topic detail panel — records tagged with this topic across the org, grouped
-// by department. Useful for spotting where a topic crosses silos.
+// Topic detail — same data shape as before, restyled to match the design's
+// article layout: breadcrumb, serif h2 with topic name, freshness pill,
+// meta row, auto-gen strip, summary, "Appears in" dept chips, recent records.
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  Hash,
-  Sparkles,
-  AlertTriangle,
-  Building2,
-  FileText,
-  Loader2,
+  Sparkles, Loader2, AlertTriangle, ChevronRight,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 type TopicDetailData = {
   topic: string
@@ -27,7 +23,24 @@ type TopicDetailData = {
   departments: Array<{ id: string; name: string; kind: string; recordCount: number }>
 }
 
-export function TopicDetail({ orgId, topic }: { orgId: string; topic: string }) {
+function fmtRelative(iso: string) {
+  const d = new Date(iso)
+  const diff = Date.now() - d.getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m} min ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const days = Math.floor(h / 24)
+  if (days < 14) return `${days}d ago`
+  return d.toLocaleDateString()
+}
+function fmtShort(iso: string | null | undefined) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+export function TopicDetail({ orgId, topic, orgName }: { orgId: string; topic: string; orgName?: string }) {
   const [data, setData] = useState<TopicDetailData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -49,105 +62,106 @@ export function TopicDetail({ orgId, topic }: { orgId: string; topic: string }) 
 
   if (loading) {
     return (
-      <div className="rounded-2xl border bg-card p-8 flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading topic…
+      <div className="wiki-article" style={{ padding: 32, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-3)', fontSize: 13 }}>
+        <Loader2 size={14} className="animate-spin" /> Loading topic…
       </div>
     )
   }
   if (!data) return null
 
+  const synced = fmtRelative(data.summaryGeneratedAt)
+  const freshTone: 'amber' | undefined = data.stale ? 'amber' : undefined
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border bg-card overflow-hidden">
-        <div className="h-1.5 bg-gradient-to-r from-blue-500 to-cyan-500" />
-        <div className="p-5 flex items-start gap-3">
-          <div className="h-11 w-11 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
-            <Hash className="h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg font-bold tracking-tight capitalize">{data.topic}</h2>
-              {data.stale && (
-                <Badge variant="outline" className="text-[10px] gap-1 border-yellow-500/40 text-yellow-700 dark:text-yellow-400">
-                  <AlertTriangle className="h-2.5 w-2.5" /> Stale
-                </Badge>
-              )}
+    <article className="wiki-article">
+      <header className="wiki-art-hd">
+        <div className="wiki-breadcrumb">
+          {orgName && <span>{orgName}</span>}
+          {orgName && <ChevronRight size={10} strokeWidth={2} />}
+          <span>Topics</span>
+          <ChevronRight size={10} strokeWidth={2} />
+          <span style={{ color: 'var(--ink-2)', fontWeight: 500 }}>#{data.topic}</span>
+        </div>
+        <h2>
+          <span className="name">#{data.topic}</span>
+          <span className={cn('wiki-fresh', freshTone)}>
+            <span className="pulse" />
+            {data.stale ? `stale · last record ${fmtShort(data.lastRecordAt)}` : `live · synced ${synced}`}
+          </span>
+        </h2>
+        <div className="wiki-meta-row">
+          <span><b>Memories:</b> {data.recordCount.toLocaleString()}</span>
+          <span><b>Departments:</b> {data.departments.length}</span>
+          {data.lastRecordAt && <span><b>Last touched:</b> {fmtShort(data.lastRecordAt)}</span>}
+        </div>
+        <div className="wiki-gen-strip">
+          <Sparkles size={14} strokeWidth={1.8} />
+          <span>
+            <b>Auto-summarized</b> from {data.recordCount.toLocaleString()} memor{data.recordCount === 1 ? 'y' : 'ies'} across {data.departments.length} department{data.departments.length === 1 ? '' : 's'} · last regen {synced}.
+          </span>
+          <span className="right">
+            <Link
+              href={`/app/memories?tag=${encodeURIComponent(data.topic)}`}
+              style={{ color: 'var(--accent-ink)', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}
+            >
+              See memories →
+            </Link>
+          </span>
+        </div>
+      </header>
+
+      <div className="wiki-art-body">
+        <p className="wiki-summary">{data.summary}</p>
+
+        {data.departments.length > 0 && (
+          <>
+            <div className="wiki-sec-head">Appears in</div>
+            <div className="wiki-topic-tags">
+              {data.departments.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/app/wiki?tab=hierarchy&deptId=${d.id}`}
+                  className="wiki-ttag"
+                  style={{ fontFamily: 'var(--sans)', textTransform: 'none' }}
+                >
+                  {d.name}<span className="ct">{d.recordCount}</span>
+                </Link>
+              ))}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Appears in {data.recordCount} memor{data.recordCount === 1 ? 'y' : 'ies'} across {data.departments.length} department{data.departments.length === 1 ? '' : 's'}
-            </p>
-            <div className="mt-2">
-              <Link
-                href={`/app/memories?tag=${encodeURIComponent(data.topic)}`}
-                className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
-              >
-                <FileText className="h-3 w-3" /> See all underlying memories →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+          </>
+        )}
 
-      <div className="rounded-2xl border bg-card p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <h3 className="text-sm font-semibold">Summary</h3>
-          <Badge variant="outline" className="text-[9px] h-4 px-1 ml-auto text-muted-foreground">
-            {data.summaryCached ? 'cached' : 'fresh'}
-          </Badge>
-        </div>
-        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">{data.summary}</p>
-      </div>
-
-      {data.departments.length > 0 && (
-        <div className="rounded-2xl border bg-card p-5">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-            Appears in
-          </h3>
-          <div className="flex flex-wrap gap-1.5">
-            {data.departments.map((d) => (
-              <Link
-                key={d.id}
-                href={`/app/wiki?tab=hierarchy&deptId=${d.id}`}
-                className="inline-flex items-center gap-1.5 rounded-full border bg-muted/30 px-2.5 py-1 text-[11px] hover:bg-muted transition-colors"
-              >
-                {d.name}
-                <Badge variant="secondary" className="text-[9px] h-3.5 px-1">{d.recordCount}</Badge>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-2xl border bg-card p-5">
-        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-          Recent memories
-        </h3>
+        <div className="wiki-sec-head">Recent records</div>
         {data.records.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic">No memories yet.</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>No memories yet.</p>
         ) : (
-          <div className="space-y-1.5 max-h-96 overflow-y-auto">
-            {data.records.map((r) => (
-              <Link
-                key={r.id}
-                href={`/app/memories/${r.id}`}
-                className="block rounded-md border px-2.5 py-1.5 hover:bg-muted/40 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[9px] capitalize">{r.type}</Badge>
-                  <span className="text-xs font-medium truncate">{r.title}</span>
-                  <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
-                    {new Date(r.createdAt).toLocaleDateString()}
-                  </span>
+          <div className="wiki-rec-list">
+            {data.records.slice(0, 12).map((r) => (
+              <Link key={r.id} href={`/app/memories/${r.id}`} className="wiki-rec">
+                <span className={cn('pip', r.type)} />
+                <div style={{ minWidth: 0 }}>
+                  <div className="ttl">{r.title}</div>
+                  <div className="meta">
+                    <span style={{ textTransform: 'capitalize' }}>{r.type}</span>
+                    {r.summary && ` · ${r.summary.slice(0, 80)}${r.summary.length > 80 ? '…' : ''}`}
+                  </div>
                 </div>
-                {r.summary && <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{r.summary}</p>}
+                <span className="when">{fmtShort(r.createdAt)}</span>
               </Link>
             ))}
           </div>
         )}
+
+        {data.stale && (
+          <div className="wiki-risk-banner" style={{ borderColor: 'color-mix(in oklch, var(--mem-amber), white 60%)', background: 'var(--mem-amber-soft)', marginTop: 18, marginBottom: 0 }}>
+            <AlertTriangle size={16} style={{ color: 'var(--mem-amber-ink)' }} />
+            <div className="body">
+              <div className="title" style={{ color: 'var(--mem-amber-ink)' }}>This topic has gone quiet</div>
+              <div className="desc">No new mentions in the last 90 days. May be obsolete.</div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </article>
   )
 }
