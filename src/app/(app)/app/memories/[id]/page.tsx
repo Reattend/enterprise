@@ -1,62 +1,51 @@
 'use client'
 
+// Memory detail — new dashboard design (Memory.html). Hero with gradient strip
+// + serif title, two-column body (content + extracted notes on left, Details
+// gradient panel + Tags / Entities / Linked / Activity on right). All actions
+// (promote, share, on-wiki, history, edit, delete) and verification controls
+// preserved verbatim.
+
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft,
-  Lock,
-  Edit3,
-  Trash2,
-  Tag,
-  User,
-  Network,
-  ChevronRight,
-  Save,
-  Loader2,
-  Paperclip,
-  Download,
-  Calendar,
-  Gauge,
-  Gavel,
-  Lightbulb,
-  MessageSquare,
-  Zap,
-  FileText,
-  Target,
-  StickyNote,
-  PenLine,
-  Sparkles,
-  Mic,
-  Share2,
-  Users,
-  Building2,
-  Globe,
-  ShieldCheck,
-  ScrollText,
-  BookOpen,
+  ArrowLeft, Lock, Edit3, Trash2, Tag as TagIcon, User, Network, ChevronRight,
+  Save, Loader2, Paperclip, Download, Calendar, Gauge, Gavel, Lightbulb,
+  MessageSquare, Zap, FileText, Target, StickyNote, PenLine, Sparkles, Mic,
+  Share2, Users, Building2, Globe, ShieldCheck, ScrollText, BookOpen, Clock,
+  X, Check,
 } from 'lucide-react'
 import { RecordSharePanel } from '@/components/enterprise/record-share-panel'
 import { PromoteToDecisionDialog } from '@/components/enterprise/promote-to-decision-dialog'
 import { TrustBadge, computeTrustState } from '@/components/enterprise/trust-badge'
 import { useAppStore } from '@/stores/app-store'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
-const typeConfig: Record<string, { icon: any; color: string; bg: string; gradient: string; label: string }> = {
-  decision: { icon: Gavel, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-500/10', gradient: 'from-violet-500 to-purple-600', label: 'Decision' },
-  meeting: { icon: MessageSquare, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', gradient: 'from-blue-500 to-cyan-500', label: 'Meeting' },
-  idea: { icon: Zap, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', gradient: 'from-amber-500 to-orange-500', label: 'Idea' },
-  insight: { icon: Lightbulb, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', gradient: 'from-emerald-500 to-teal-500', label: 'Insight' },
-  context: { icon: FileText, color: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-500/10', gradient: 'from-slate-500 to-slate-600', label: 'Context' },
-  tasklike: { icon: Target, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10', gradient: 'from-red-500 to-rose-600', label: 'Task' },
-  note: { icon: StickyNote, color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-500/10', gradient: 'from-gray-500 to-gray-600', label: 'Note' },
-  transcript: { icon: Mic, color: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-500/10', gradient: 'from-pink-500 to-rose-500', label: 'Transcript' },
+const TYPE_META: Record<string, { icon: any; label: string }> = {
+  decision: { icon: Gavel, label: 'Decision' },
+  meeting: { icon: MessageSquare, label: 'Meeting' },
+  idea: { icon: Zap, label: 'Idea' },
+  insight: { icon: Lightbulb, label: 'Insight' },
+  context: { icon: FileText, label: 'Context' },
+  tasklike: { icon: Target, label: 'Task' },
+  note: { icon: StickyNote, label: 'Note' },
+  transcript: { icon: Mic, label: 'Transcript' },
+}
+
+function entityKindClass(kind: string): string {
+  const k = (kind || '').toLowerCase()
+  if (k === 'org' || k === 'organization') return 'org'
+  if (k === 'topic' || k === 'concept') return 'topic'
+  return ''
+}
+
+function avatarInitials(name: string): string {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
 export default function MemoryDetailPage() {
@@ -77,12 +66,13 @@ export default function MemoryDetailPage() {
   const [editContent, setEditContent] = useState('')
   const [shareOpen, setShareOpen] = useState(false)
   const [promoteOpen, setPromoteOpen] = useState(false)
+  const [verifyOpen, setVerifyOpen] = useState(false)
 
   useEffect(() => {
     fetchRecord()
-    // Fire-and-forget view ping — feeds trending + admin analytics. Fails
-    // silently so it never blocks the page.
+    // Fire-and-forget view ping — feeds trending + admin analytics.
     fetch(`/api/enterprise/records/${recordId}/view`, { method: 'POST' }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordId])
 
   async function verifyNow() {
@@ -100,9 +90,7 @@ export default function MemoryDetailPage() {
       const data = await res.json()
       setRecord(data.record)
       toast.success('Marked as verified')
-    } catch {
-      toast.error('Verify failed')
-    }
+    } catch { toast.error('Verify failed') }
   }
 
   async function setCadence(days: number | null) {
@@ -120,9 +108,7 @@ export default function MemoryDetailPage() {
       const data = await res.json()
       setRecord(data.record)
       toast.success(days ? `Cadence: every ${days} days` : 'Cadence removed')
-    } catch {
-      toast.error('Could not set cadence')
-    }
+    } catch { toast.error('Could not set cadence') }
   }
 
   const fetchRecord = async () => {
@@ -167,7 +153,6 @@ export default function MemoryDetailPage() {
       setIsEditing(false)
       toast.success('Memory saved')
 
-      // Re-analyze metadata if content changed
       if (contentChanged) {
         setReanalyzing(true)
         try {
@@ -185,17 +170,11 @@ export default function MemoryDetailPage() {
             setEditSummary(updated.summary)
             toast.success('Metadata refreshed by AI')
           }
-        } catch {
-          // Reanalysis is best-effort
-        } finally {
-          setReanalyzing(false)
-        }
+        } catch { /* best-effort */ }
+        finally { setReanalyzing(false) }
       }
-    } catch {
-      toast.error('Failed to save')
-    } finally {
-      setSaving(false)
-    }
+    } catch { toast.error('Failed to save') }
+    finally { setSaving(false) }
   }
 
   const handleDelete = async () => {
@@ -208,348 +187,423 @@ export default function MemoryDetailPage() {
       })
       toast.success('Memory deleted')
       router.push('/app/memories')
-    } catch {
-      toast.error('Failed to delete')
-    }
+    } catch { toast.error('Failed to delete') }
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="mem-page-wrap">
+        <div className="mem-page">
+          <div className="mem-empty">
+            <Loader2 size={20} className="inline animate-spin" />
+          </div>
+        </div>
       </div>
     )
   }
 
   if (!record) {
     return (
-      <div className="text-center py-20">
-        <p className="text-muted-foreground">Memory not found</p>
-        <Button className="mt-4" asChild>
-          <Link href="/app/memories">Back to Memories</Link>
-        </Button>
+      <div className="mem-page-wrap">
+        <div className="mem-page">
+          <div className="mem-empty">
+            <p>Memory not found</p>
+            <Link href="/app/memories" className="mem-btn primary" style={{ marginTop: 16 }}>
+              Back to Memories
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }
 
-  const tags = Array.isArray(record.tags) ? record.tags : []
+  const tags: string[] = Array.isArray(record.tags)
+    ? record.tags
+    : (typeof record.tags === 'string' && record.tags.startsWith('[')
+      ? (() => { try { return JSON.parse(record.tags) } catch { return [] } })()
+      : [])
   const entities = record.entities || []
   const links = record.links || []
-  const tc = typeConfig[record.type]
-  const TypeIcon = tc?.icon || FileText
+  const tm = TYPE_META[record.type] || TYPE_META.note
+  const TypeIcon = tm.icon
+
+  // Wiki jump link — first non-system tag → topic, else hierarchy.
+  const firstTag = tags.find((t: string) => t && !/^(brain-dump|decision|open-question|action-item|observation)$/i.test(t))
+  const wikiHref = firstTag
+    ? `/app/wiki?tab=topics&topic=${encodeURIComponent(String(firstTag).toLowerCase().replace(/\s+/g, '-'))}`
+    : `/app/wiki?tab=hierarchy`
+
+  // Visibility chip
+  const vis = record.visibility || 'team'
+  const visMeta: Record<string, { icon: any; label: string }> = {
+    private: { icon: Lock, label: 'Private' },
+    team: { icon: Users, label: 'Team' },
+    department: { icon: Building2, label: 'Department' },
+    org: { icon: Globe, label: 'Organization' },
+  }
+  const VisIcon = visMeta[vis]?.icon || Users
+  const visLabel = visMeta[vis]?.label || 'Team'
+
+  const cadence: number | null = record?.verifyEveryDays ?? record?.verify_every_days ?? null
+  const lastVerified = record?.lastVerifiedAt ?? record?.last_verified_at
+  const trustState = computeTrustState({
+    verifyEveryDays: record.verifyEveryDays ?? record.verify_every_days,
+    lastVerifiedAt: record.lastVerifiedAt ?? record.last_verified_at,
+  })
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-5 max-w-5xl"
-    >
-      {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back
-        </Button>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setPromoteOpen(true)} className="gap-1.5">
-            <Gavel className="h-4 w-4" /> Promote to decision
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShareOpen(true)} className="gap-1.5">
-            <Share2 className="h-4 w-4" /> Share
-          </Button>
-          {/* Jump to Wiki — opens Topics filtered to the first tag, else
-              Hierarchy filtered to the record's workspace. Gives context for
-              this record: who else touched it, adjacent knowledge. */}
-          {(() => {
-            if (!record) return null
-            const tags: string[] = Array.isArray(record.tags)
-              ? record.tags
-              : (typeof record.tags === 'string' && record.tags.startsWith('[')
-                ? (() => { try { return JSON.parse(record.tags) } catch { return [] } })()
-                : [])
-            const firstTag = tags.find((t: string) => t && !/^(brain-dump|decision|open-question|action-item|observation)$/i.test(t))
-            const wikiHref = firstTag
-              ? `/app/wiki?tab=topics&topic=${encodeURIComponent(String(firstTag).toLowerCase().replace(/\s+/g, '-'))}`
-              : `/app/wiki?tab=hierarchy`
-            return (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5" title="See this in the Wiki roll-up">
-                <Link href={wikiHref}>
-                  <BookOpen className="h-4 w-4" /> On Wiki
-                </Link>
-              </Button>
-            )
-          })()}
-          {isAdmin && activeOrg && (
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="gap-1.5"
-              title="View audit history for this memory"
-            >
-              <Link href={`/app/admin/${activeOrg.orgId}/audit?resourceId=${recordId}`}>
-                <ScrollText className="h-4 w-4" /> History
+    <div className="mem-page-wrap">
+      <div className="mem-page">
+        {/* Action bar */}
+        <div className="mem-actbar">
+          <button className="mem-back" onClick={() => router.back()}>
+            <ArrowLeft size={13} strokeWidth={2} /> Back
+          </button>
+          <div className="right">
+            <button className="mem-act-btn" onClick={() => setPromoteOpen(true)}>
+              <Gavel size={13} strokeWidth={1.8} /> Promote to decision
+            </button>
+            <button className="mem-act-btn" onClick={() => setShareOpen(true)}>
+              <Share2 size={13} strokeWidth={1.8} /> Share
+            </button>
+            <Link href={wikiHref} className="mem-act-btn" title="See this in the Wiki roll-up">
+              <BookOpen size={13} strokeWidth={1.8} /> On Wiki
+            </Link>
+            {isAdmin && activeOrg && (
+              <Link
+                href={`/app/admin/${activeOrg.orgId}/audit?resourceId=${recordId}`}
+                className="mem-act-btn"
+                title="View audit history for this memory"
+              >
+                <ScrollText size={13} strokeWidth={1.8} /> History
               </Link>
-            </Button>
-          )}
-          <Button variant="ghost" size="icon-sm" onClick={() => setIsEditing(!isEditing)}>
-            <Edit3 className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon-sm" className="text-destructive" onClick={handleDelete}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            )}
+            <button
+              className={cn('mem-act-btn', isEditing && 'primary')}
+              onClick={() => setIsEditing(!isEditing)}
+              title={isEditing ? 'Cancel edit' : 'Edit'}
+            >
+              {isEditing ? <X size={13} strokeWidth={1.8} /> : <Edit3 size={13} strokeWidth={1.8} />}
+              {isEditing ? 'Cancel' : 'Edit'}
+            </button>
+            <button
+              className="mem-act-btn danger"
+              onClick={handleDelete}
+              title="Delete"
+              aria-label="Delete"
+            >
+              <Trash2 size={13} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Header with type gradient bar */}
-      <div className="relative overflow-hidden rounded-2xl border bg-card">
-        <div className={`h-1.5 bg-gradient-to-r ${tc?.gradient || 'from-gray-400 to-gray-500'}`} />
-        <div className="p-6">
-          <div className="flex items-start gap-4">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 bg-gradient-to-br ${tc?.gradient || 'from-gray-400 to-gray-500'} text-white`}>
-              <TypeIcon className="h-5 w-5" />
+        {/* HERO */}
+        <div className="mem-hero">
+          <div className="mem-hero-strip" />
+          <div className="mem-hero-body">
+            <div className={cn('mem-hero-ico', record.type)}>
+              <TypeIcon size={22} strokeWidth={1.8} />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <Badge variant="secondary" className={`text-[10px] ${tc?.bg || ''} ${tc?.color || ''}`}>
-                  {tc?.label || record.type}
-                </Badge>
-                {record.locked && (
-                  <Badge variant="outline" className="text-[10px] gap-1">
-                    <Lock className="h-2.5 w-2.5" /> Locked
-                  </Badge>
+            <div>
+              <div className="mem-pill-row">
+                <span className={cn('mem-pill kind', record.type)}>{tm.label}</span>
+                {record.locked && <span className="mem-pill muted"><Lock size={9} style={{ display: 'inline', marginRight: 3 }} /> locked</span>}
+                {trustState && (
+                  <span className="mem-pill muted">
+                    <TrustBadge state={trustState} />
+                  </span>
                 )}
-                <TrustBadge
-                  state={computeTrustState({
-                    verifyEveryDays: record.verifyEveryDays ?? record.verify_every_days,
-                    lastVerifiedAt: record.lastVerifiedAt ?? record.last_verified_at,
-                  })}
-                />
-                {/* Owner / admin verify controls */}
-                <VerificationControls
-                  record={record}
-                  onVerify={verifyNow}
-                  onSetCadence={setCadence}
-                />
+                {!trustState && cadence == null && (
+                  <span className="mem-pill muted">no cadence</span>
+                )}
               </div>
-
               {isEditing ? (
-                <div className="space-y-3">
-                  <Input
+                <div className="mem-hero-edit">
+                  <input
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="text-xl font-bold"
                     placeholder="Title"
                   />
-                  <Textarea
+                  <textarea
                     value={editSummary}
                     onChange={(e) => setEditSummary(e.target.value)}
-                    className="text-sm"
                     rows={3}
                     placeholder="Summary"
                   />
-                  <Textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="text-sm font-mono"
-                    rows={8}
-                    placeholder="Full content…"
-                  />
-                  <div className="flex gap-2 items-center">
-                    <Button size="sm" onClick={handleSave} disabled={saving}>
-                      {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+                  <div className="actions">
+                    <button className="mem-act-btn primary" onClick={handleSave} disabled={saving}>
+                      {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                       {saving ? 'Saving…' : 'Save'}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} disabled={saving}>Cancel</Button>
+                    </button>
+                    <button className="mem-act-btn" onClick={() => setIsEditing(false)} disabled={saving}>
+                      Cancel
+                    </button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <h1 className="text-xl font-bold tracking-tight leading-snug line-clamp-2 break-words">{record.title}</h1>
-                  {record.summary && (
-                    <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{record.summary}</p>
-                  )}
+                  <h1>{record.title}</h1>
+                  {record.summary && <p>{record.summary}</p>}
                 </>
               )}
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left column - Content + Links */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Content */}
-          {record.content && !isEditing && (
-            <div className="rounded-2xl border bg-card p-5">
-              <h3 className="text-sm font-semibold mb-3">Content</h3>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                {(record.content || '').split('\n').map((line: string, i: number) => (
-                  <p key={i} className="text-sm leading-relaxed text-muted-foreground">{line || <br />}</p>
-                ))}
+        <div className="mem-grid2">
+          {/* LEFT — content + linked */}
+          <div>
+            {/* Content */}
+            <div className="mem-d-card">
+              <h3>Content</h3>
+              <div className="body">
+                {isEditing ? (
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    placeholder="Full content…"
+                  />
+                ) : record.content ? (
+                  (record.content as string).split('\n').map((line, i) => (
+                    <p key={i}>{line || ' '}</p>
+                  ))
+                ) : (
+                  <p style={{ color: 'var(--ink-3)', fontStyle: 'italic' }}>No content captured.</p>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Linked Memories */}
-          {links.length > 0 && (
-            <div className="rounded-2xl border bg-card">
-              <div className="px-5 pt-4 pb-3">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <Network className="h-4 w-4 text-muted-foreground" />
-                  Linked Memories ({links.length})
-                </h3>
-              </div>
-              <div className="px-2 pb-2">
-                {links.map((link: any) => {
-                  const linkTc = typeConfig[link.targetType]
-                  const LinkIcon = linkTc?.icon || FileText
-                  return (
-                    <Link
-                      key={link.id}
-                      href={`/app/memories/${link.targetId}`}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/50 transition-colors group"
-                    >
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${linkTc?.bg || 'bg-muted'} ${linkTc?.color || ''}`}>
-                        <LinkIcon className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium group-hover:text-primary transition-colors truncate">{link.targetTitle}</p>
-                        {link.explanation && (
-                          <p className="text-xs text-muted-foreground truncate mt-0.5">{link.explanation}</p>
-                        )}
-                      </div>
-                      <Badge variant="outline" className="text-[10px] shrink-0">{link.kind.replace(/_/g, ' ')}</Badge>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground shrink-0 transition-colors" />
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right column - Details + Tags + Entities + Attachment */}
-        <div className="space-y-4">
-          {/* Details card with colored background */}
-          <div className={`rounded-2xl overflow-hidden bg-gradient-to-br ${tc?.gradient || 'from-gray-400 to-gray-500'} p-[1px]`}>
-            <div className="rounded-[15px] bg-card">
-              <div className={`px-5 pt-4 pb-3 bg-gradient-to-br ${tc?.gradient || 'from-gray-400 to-gray-500'}`}>
-                <h3 className="text-sm font-semibold text-white">Details</h3>
-              </div>
-              <div className="p-5 space-y-4">
-                {record.confidence != null && (
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Gauge className="h-3 w-3" /> Confidence
-                      </span>
-                      {reanalyzing ? (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Sparkles className="h-3 w-3 animate-pulse text-primary" /> Re-analyzing…
-                        </span>
-                      ) : (
-                        <span className="text-xs font-bold">{Math.round(record.confidence * 100)}%</span>
-                      )}
+            {/* Attachment (if any) */}
+            {record.attachment && (
+              <div className="mem-d-card">
+                <h3>Attachment</h3>
+                <div className="body">
+                  <div className="mem-attach-card">
+                    <div className="mem-attach-icon"><Paperclip size={14} /></div>
+                    <div className="mem-attach-meta">
+                      <div className="mem-attach-name">{record.attachment.fileName}</div>
+                      <div className="mem-attach-size">{(record.attachment.fileSize / 1024).toFixed(0)} KB</div>
                     </div>
-                    <Progress value={record.confidence * 100} className="h-2" />
+                    <a
+                      href={`/api/files/${record.attachment.id}`}
+                      download
+                      className="mem-act-btn"
+                      style={{ marginLeft: 'auto' }}
+                    >
+                      <Download size={13} /> Download
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Linked memories — moved to left column for prominence when present */}
+            {links.length > 0 && (
+              <div className="mem-d-card">
+                <h3>Linked memories <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>· {links.length}</span></h3>
+                <div className="body" style={{ paddingTop: 0 }}>
+                  {links.map((link: any) => {
+                    const lm = TYPE_META[link.targetType] || TYPE_META.note
+                    const LinkIcon = lm.icon
+                    return (
+                      <Link
+                        key={link.id}
+                        href={`/app/memories/${link.targetId}`}
+                        className="mem-li-row"
+                      >
+                        <div className={cn('mem-ico', link.targetType)} style={{ width: 26, height: 26 }}>
+                          <LinkIcon size={12} strokeWidth={1.8} />
+                        </div>
+                        <span className="label">{link.targetTitle}</span>
+                        {link.kind && (
+                          <span className="ref" style={{ background: 'oklch(0.96 0.005 85)', color: 'var(--ink-3)' }}>
+                            {String(link.kind).replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        <ChevronRight size={12} className="arr" />
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — sidebar panels */}
+          <aside>
+            {/* Details (gradient) */}
+            <div className="mem-panel details">
+              <div className="head">Details</div>
+              <div className="body">
+                {record.confidence != null && (
+                  <div className="row" style={{ display: 'block', borderBottom: '1px solid oklch(1 0 0 / 0.18)', paddingBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <span className="k">
+                        <Gauge size={13} /> Confidence
+                      </span>
+                      <span className="v">
+                        {reanalyzing
+                          ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 }}><Sparkles size={11} className="animate-pulse" /> AI</span>
+                          : `${Math.round(record.confidence * 100)}%`}
+                      </span>
+                    </div>
+                    <div className="mem-conf-bar">
+                      <i style={{ width: `${Math.round(record.confidence * 100)}%` }} />
+                    </div>
                   </div>
                 )}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3" /> Created
+                <div className="row">
+                  <span className="k"><Calendar size={13} /> Created</span>
+                  <span className="v">
+                    {new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
-                  <span className="text-xs font-medium">{new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
                 {record.updatedAt && record.updatedAt !== record.createdAt && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <PenLine className="h-3 w-3" /> Edited
-                    </span>
-                    <span className="text-xs font-medium">
+                  <div className="row">
+                    <span className="k"><PenLine size={13} /> Edited</span>
+                    <span className="v">
                       {new Date(record.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
                 )}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <User className="h-3 w-3" /> Created by
-                  </span>
-                  <Badge variant="secondary" className="text-[10px]">
+                <div className="row">
+                  <span className="k"><User size={13} /> Created by</span>
+                  <span className={cn('v chip', record.createdBy === 'agent' && 'lemon')}>
                     {record.createdBy === 'agent' ? 'AI Agent' : 'You'}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <ShieldCheck className="h-3 w-3" /> Visibility
                   </span>
+                </div>
+                <div className="row">
+                  <span className="k"><ShieldCheck size={13} /> Visibility</span>
                   <button
+                    type="button"
+                    className="v chip link"
                     onClick={() => setShareOpen(true)}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
                   >
-                    {record.visibility === 'private' && <><Lock className="h-3 w-3" /> Private</>}
-                    {record.visibility === 'team' && <><Users className="h-3 w-3" /> Team</>}
-                    {record.visibility === 'department' && <><Building2 className="h-3 w-3" /> Department</>}
-                    {record.visibility === 'org' && <><Globe className="h-3 w-3" /> Organization</>}
-                    {!record.visibility && <><Users className="h-3 w-3" /> Team</>}
+                    <VisIcon size={11} /> {visLabel}
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Attachment */}
-          {record.attachment && (
-            <div className="rounded-2xl border bg-card p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
-                <Paperclip className="h-4 w-4 text-muted-foreground" /> Attachment
-              </h3>
-              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-muted/50">
-                <Paperclip className="h-4 w-4 text-primary shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium truncate">{record.attachment.fileName}</p>
-                  <p className="text-[10px] text-muted-foreground">{(record.attachment.fileSize / 1024).toFixed(0)} KB</p>
+                {record.source && (
+                  <div className="row">
+                    <span className="k"><Globe size={13} /> Source</span>
+                    <span className="v">{record.source}</span>
+                  </div>
+                )}
+                {/* Verification — last-verified + change-cadence dropdown */}
+                <div className="row" style={{ display: 'block', borderBottom: 0, paddingBottom: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span className="k"><ShieldCheck size={13} /> Verify</span>
+                    <button
+                      type="button"
+                      className="v chip link"
+                      onClick={() => setVerifyOpen(!verifyOpen)}
+                    >
+                      {cadence ? `every ${cadence}d` : 'no cadence'}
+                    </button>
+                  </div>
+                  {lastVerified && (
+                    <div style={{ fontSize: 10.5, opacity: 0.8, marginTop: 4, paddingLeft: 20 }}>
+                      Last verified {new Date(lastVerified).toLocaleDateString()}
+                    </div>
+                  )}
+                  {verifyOpen && (
+                    <div style={{ background: 'oklch(1 0 0 / 0.16)', borderRadius: 8, padding: 8, marginTop: 8, fontSize: 12 }}>
+                      <button
+                        type="button"
+                        onClick={() => { verifyNow(); setVerifyOpen(false) }}
+                        style={{ width: '100%', background: 'oklch(0.95 0.06 155)', color: 'oklch(0.35 0.12 155)', border: 0, borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontWeight: 600, fontSize: 11.5, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                      >
+                        <Check size={11} /> Mark verified now
+                      </button>
+                      <div style={{ fontSize: 9.5, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.85, margin: '6px 0 4px' }}>Cadence</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+                        {[30, 60, 90, null].map((d) => (
+                          <button
+                            key={String(d)}
+                            type="button"
+                            onClick={() => { setCadence(d); setVerifyOpen(false) }}
+                            style={{
+                              background: cadence === d ? 'oklch(1 0 0 / 0.4)' : 'oklch(1 0 0 / 0.14)',
+                              color: 'white', border: 0, borderRadius: 6, padding: '5px 8px',
+                              cursor: 'pointer', fontSize: 11, font: 'inherit', fontWeight: cadence === d ? 600 : 500,
+                            }}
+                          >
+                            {d ? `${d} days` : 'Never'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-2.5 text-xs" asChild>
-                <a href={`/api/files/${record.attachment.id}`} download>
-                  <Download className="h-3 w-3 mr-1.5" /> Download File
-                </a>
-              </Button>
             </div>
-          )}
 
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="rounded-2xl border bg-card p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
-                <Tag className="h-4 w-4 text-muted-foreground" /> Tags
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag: string) => (
-                  <span key={tag} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                    {tag}
+            {/* Tags */}
+            <div className="mem-panel">
+              <div className="head-row">
+                <span className="lab"><TagIcon size={12} strokeWidth={2} /> Tags</span>
+                <button className="more" onClick={() => setIsEditing(true)}>edit</button>
+              </div>
+              <div className="pbody">
+                {tags.length > 0 ? (
+                  tags.map((t: string) => (
+                    <span key={t} className="mem-side-tag">{t}</span>
+                  ))
+                ) : (
+                  <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>No tags yet — edit to add.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Entities */}
+            {entities.length > 0 && (
+              <div className="mem-panel">
+                <div className="head-row">
+                  <span className="lab">
+                    <User size={12} strokeWidth={2} /> Entities
+                    <span style={{ fontWeight: 400, color: 'var(--ink-3)' }}>· {entities.length}</span>
                   </span>
-                ))}
+                </div>
+                <div className="pbody" style={{ padding: '6px 14px 12px' }}>
+                  {entities.map((entity: any, i: number) => {
+                    const kindClass = entityKindClass(entity.kind)
+                    return (
+                      <div key={i} className="mem-ent">
+                        <span className={cn('mem-ent-kind', kindClass)}>{entity.kind || 'tag'}</span>
+                        <span className="mem-ent-name">
+                          {(!kindClass || kindClass === '') && (
+                            <span className="av">{avatarInitials(entity.name)}</span>
+                          )}
+                          <span>{entity.name}</span>
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Entities */}
-          {entities.length > 0 && (
-            <div className="rounded-2xl border bg-card p-5">
-              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
-                <User className="h-4 w-4 text-muted-foreground" /> Entities
-              </h3>
-              <div className="space-y-2">
-                {entities.map((entity: any, i: number) => (
-                  <div key={i} className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30">
-                    <Badge variant="secondary" className="text-[10px] shrink-0">{entity.kind}</Badge>
-                    <span className="text-sm truncate">{entity.name}</span>
+            {/* Activity */}
+            <div className="mem-panel">
+              <div className="head-row">
+                <span className="lab"><Clock size={12} strokeWidth={2} /> Activity</span>
+              </div>
+              <div className="pbody" style={{ fontSize: 12.5, color: 'var(--ink-3)', lineHeight: 1.6 }}>
+                <div>
+                  <b style={{ color: 'var(--ink-2)' }}>{record.createdBy === 'agent' ? 'AI Agent' : 'You'}</b> created · {new Date(record.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                </div>
+                {record.updatedAt && record.updatedAt !== record.createdAt && (
+                  <div>
+                    <b style={{ color: 'var(--ink-2)' }}>edited</b> · {new Date(record.updatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                   </div>
-                ))}
+                )}
+                {lastVerified && (
+                  <div>
+                    <b style={{ color: 'var(--ink-2)' }}>verified</b> · {new Date(lastVerified).toLocaleString('en-US', { month: 'short', day: 'numeric' })}
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </aside>
         </div>
       </div>
 
@@ -565,61 +619,6 @@ export default function MemoryDetailPage() {
         onOpenChange={setPromoteOpen}
         record={record}
       />
-    </motion.div>
-  )
-}
-
-function VerificationControls({
-  record,
-  onVerify,
-  onSetCadence,
-}: {
-  record: any
-  onVerify: () => void
-  onSetCadence: (days: number | null) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const cadence: number | null = record?.verifyEveryDays ?? record?.verify_every_days ?? null
-  const lastVerified = record?.lastVerifiedAt ?? record?.last_verified_at
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors rounded-full border px-2 py-0.5"
-        title="Verification cadence"
-      >
-        <ShieldCheck className="h-2.5 w-2.5" />
-        {cadence ? `every ${cadence}d` : 'no cadence'}
-      </button>
-      {open && (
-        <div
-          className="absolute top-6 left-0 z-20 rounded-lg border bg-popover shadow-md p-2 text-xs w-56 space-y-2"
-          onMouseLeave={() => setOpen(false)}
-        >
-          <div className="font-semibold mb-1">Verification</div>
-          {lastVerified && (
-            <div className="text-[10px] text-muted-foreground">Last verified {new Date(lastVerified).toLocaleDateString()}</div>
-          )}
-          <button
-            onClick={() => { onVerify(); setOpen(false) }}
-            className="w-full text-left px-2 py-1 rounded hover:bg-muted text-emerald-600"
-          >
-            Mark verified now
-          </button>
-          <div className="pt-1 border-t">
-            <div className="text-[10px] text-muted-foreground mb-1">Cadence</div>
-            {[30, 60, 90, null].map((d) => (
-              <button
-                key={String(d)}
-                onClick={() => { onSetCadence(d); setOpen(false) }}
-                className={`w-full text-left px-2 py-1 rounded hover:bg-muted ${cadence === d ? 'bg-muted font-semibold' : ''}`}
-              >
-                {d ? `Every ${d} days` : 'No cadence (never stale)'}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

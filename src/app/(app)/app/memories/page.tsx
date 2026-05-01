@@ -1,29 +1,20 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+// Memories list — new dashboard design (Memories.html). Three views:
+// timeline (default), grid, compact. All filters, share/create/import
+// dialogs, and the share-import-on-mount flow are preserved verbatim.
+
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
-  Brain, Search, Plus, Lock, Grid3X3, List, GanttChart, Network,
-  Loader2, Paperclip, Upload, FileText, X, Scale, Users, Flame,
-  Lightbulb, CircleCheckBig, PenLine, Mic, Share2, Copy, Check,
-  Mail, SlidersHorizontal, Calendar, ChevronDown,
+  Search, Plus, Lock, Loader2, Paperclip, Upload, FileText, X,
+  Scale, Users, Flame, Lightbulb, CircleCheckBig, PenLine, Mic, Share2,
+  Copy, Check, Mail, Calendar, ChevronDown, Network, ChevronRight,
+  ChevronLeft, LayoutList, LayoutGrid, Rows3, Brain,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { TourTooltip } from '@/components/app/tour-tooltip'
-import { useRouter } from 'next/navigation'
 
 type MemoryRecord = {
   id: string
@@ -45,23 +36,12 @@ type Project = {
   isDefault: boolean | null
 }
 
-const typeColors: Record<string, string> = {
-  decision: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-  meeting: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-  idea: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  insight: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-  context: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
-  tasklike: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-  note: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20',
-  transcript: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
-}
-
-const typeIcons: Record<string, any> = {
+const TYPE_ICONS: Record<string, any> = {
   decision: Scale, meeting: Users, idea: Flame, insight: Lightbulb,
   context: FileText, tasklike: CircleCheckBig, note: PenLine, transcript: Mic,
 }
 
-const sourceLabels: Record<string, string> = {
+const SOURCE_LABELS: Record<string, string> = {
   gmail: 'Gmail',
   'google-calendar': 'Calendar',
   slack: 'Slack',
@@ -95,20 +75,46 @@ const SOURCE_OPTIONS = [
   { value: 'slack', label: 'Slack' },
 ]
 
+// Category pills shown above the filter bar — quick lenses for common types.
+const CATEGORIES: Array<{ key: string; label: string }> = [
+  { key: 'all', label: 'All' },
+  { key: 'decision', label: 'Decisions' },
+  { key: 'insight', label: 'Insights' },
+  { key: 'meeting', label: 'Meetings' },
+  { key: 'idea', label: 'Ideas' },
+  { key: 'note', label: 'Notes' },
+  { key: 'tasklike', label: 'Tasks' },
+]
+
 function parseTags(tags: string | null): string[] {
   if (!tags) return []
   try { return JSON.parse(tags) } catch { return [] }
 }
 
-function formatRelativeDate(dateStr: string) {
+function formatRelativeDay(dateStr: string) {
   const d = new Date(dateStr)
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const diff = Math.floor((today.getTime() - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / 86400000)
-  if (diff === 0) return 'Today'
-  if (diff === 1) return 'Yesterday'
-  if (diff < 7) return d.toLocaleDateString('en-US', { weekday: 'long' })
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', ...(diff > 365 ? { year: 'numeric' } : {}) })
+  if (diff === 0) return `Today · ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  if (diff === 1) return `Yesterday · ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  if (diff < 7) return `${d.toLocaleDateString('en-US', { weekday: 'long' })} · ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  if (diff < 30) return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+function formatRelativeTime(dateStr: string) {
+  const d = new Date(dateStr)
+  const now = Date.now()
+  const diff = Math.floor((now - d.getTime()) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
+  // For older items, show the time only when it's today, else short date.
+  const today = new Date()
+  if (d.toDateString() === today.toDateString()) {
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  }
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 function groupByDate(recs: MemoryRecord[]) {
@@ -119,33 +125,34 @@ function groupByDate(recs: MemoryRecord[]) {
     map.get(key)!.push(r)
   }
   return Array.from(map.entries()).map(([key, items]) => ({
-    label: formatRelativeDate(items[0].createdAt),
+    label: formatRelativeDay(items[0].createdAt),
     key,
     items,
   }))
 }
 
-function MemoryTypeIcon({ type, size = 'md' }: { type: string; size?: 'sm' | 'md' }) {
-  const Icon = typeIcons[type] || PenLine
-  const bg = typeColors[type]?.split(' ').find(c => c.startsWith('bg-')) || 'bg-muted'
-  const text = typeColors[type]?.split(' ').find(c => c.startsWith('text-')) || 'text-muted-foreground'
-  const dim = size === 'sm' ? 'h-7 w-7' : 'h-9 w-9'
-  const icon = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
+function MemIcon({ type, className }: { type: string; className?: string }) {
+  const Icon = TYPE_ICONS[type] || PenLine
   return (
-    <div className={cn('flex items-center justify-center rounded-lg shrink-0', dim, bg)}>
-      <Icon className={cn(icon, text)} />
+    <div className={cn('mem-ico', type, className)}>
+      <Icon size={16} strokeWidth={1.8} />
     </div>
   )
 }
 
-function SourceBadge({ source }: { source?: string | null }) {
-  if (!source || source === 'manual') return null
+function KindTag({ type }: { type: string }) {
+  const Icon = TYPE_ICONS[type] || PenLine
+  // Display label with first letter capitalized, fall back gracefully.
+  const label = type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Note'
   return (
-    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
-      {sourceLabels[source] || source}
+    <span className={cn('mem-tag kind', type)}>
+      <span className="dot" />
+      {label}
     </span>
   )
 }
+
+const PAGE_SIZE = 50
 
 export default function MemoriesPage() {
   const router = useRouter()
@@ -159,8 +166,11 @@ export default function MemoriesPage() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [sourceFilter, setSourceFilter] = useState('all')
   const [dateRange, setDateRange] = useState('all')
-  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'timeline'>('timeline')
-  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'timeline' | 'grid' | 'compact'>('timeline')
+
+  // Counts for category pills — derived from totals per type. We pull a quick
+  // tally from the API so the badges feel honest without scanning all records.
+  const [typeCounts, setTypeCounts] = useState<Record<string, number>>({})
 
   // Share state
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
@@ -179,38 +189,18 @@ export default function MemoriesPage() {
   const [creating, setCreating] = useState(false)
   const [createMode, setCreateMode] = useState<'text' | 'file'>('text')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Bulk import state
   const [showImportDialog, setShowImportDialog] = useState(false)
   const [importFiles, setImportFiles] = useState<File[]>([])
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<{ saved: number; total: number } | null>(null)
-  const bulkInputRef = React.useRef<HTMLInputElement>(null)
-
-  const handleBulkImport = async () => {
-    if (importFiles.length === 0) return
-    setImporting(true)
-    setImportResult(null)
-    try {
-      const formData = new FormData()
-      importFiles.forEach(f => formData.append('files', f))
-      const res = await fetch('/api/upload/bulk', { method: 'POST', body: formData })
-      const data = await res.json()
-      if (res.ok) {
-        setImportResult({ saved: data.saved, total: data.total })
-        toast.success(`${data.saved} memories imported successfully.`)
-        fetchRecords()
-        setTimeout(() => { setShowImportDialog(false); setImportFiles([]); setImportResult(null) }, 2000)
-      } else {
-        toast.error(data.error || 'Import failed')
-      }
-    } catch { toast.error('Import failed') }
-    finally { setImporting(false) }
-  }
+  const [importDrag, setImportDrag] = useState(false)
+  const bulkInputRef = useRef<HTMLInputElement>(null)
 
   function buildUrl(off: number) {
-    const p = new URLSearchParams({ limit: '50', offset: String(off) })
+    const p = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(off) })
     if (typeFilter !== 'all') p.set('type', typeFilter)
     if (sourceFilter !== 'all') p.set('source', sourceFilter)
     if (dateRange !== 'all') p.set('dateRange', dateRange)
@@ -224,34 +214,30 @@ export default function MemoriesPage() {
       const data = await res.json()
       if (data.records) setRecords(data.records)
       if (data.total !== undefined) setTotal(data.total)
-      setOffset(50)
+      if (data.typeCounts) setTypeCounts(data.typeCounts)
+      setOffset(PAGE_SIZE)
     } catch {
       toast.error('Failed to load memories')
     } finally {
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeFilter, sourceFilter, dateRange])
 
   // After a new memory is created, the background AI enrichment takes
-  // ~30-60s to fill in title/summary/tags/entities. Poll that specific
-  // record with backoff until either it's enriched (title !== 'Untitled')
-  // or we hit the max attempts. No refresh required.
+  // ~30-60s to fill in title/summary/tags. Poll until enriched then swap.
   const pollUntilEnriched = useCallback(async (recordId: string) => {
     const delays = [3000, 5000, 8000, 12000, 20000, 30000]
     for (const delay of delays) {
-      await new Promise(resolve => setTimeout(resolve, delay))
+      await new Promise((resolve) => setTimeout(resolve, delay))
       try {
         const res = await fetch(`/api/records/${recordId}`)
         if (!res.ok) continue
         const data = await res.json()
         const updated = data.record
         if (!updated) continue
-        // Swap the placeholder row in-place with the enriched version
-        setRecords(prev => prev.map(r => r.id === recordId ? { ...r, ...updated } : r))
-        // Done once we have a real title
-        if (updated.title && updated.title !== 'Untitled' && updated.title.trim().length > 0) {
-          return
-        }
+        setRecords((prev) => prev.map((r) => (r.id === recordId ? { ...r, ...updated } : r)))
+        if (updated.title && updated.title !== 'Untitled' && updated.title.trim().length > 0) return
       } catch { /* retry on next tick */ }
     }
   }, [])
@@ -261,8 +247,8 @@ export default function MemoriesPage() {
     try {
       const res = await fetch(buildUrl(offset))
       const data = await res.json()
-      if (data.records) setRecords(prev => [...prev, ...data.records])
-      setOffset(prev => prev + 50)
+      if (data.records) setRecords((prev) => [...prev, ...data.records])
+      setOffset((prev) => prev + PAGE_SIZE)
     } catch {
       toast.error('Failed to load more')
     } finally {
@@ -280,13 +266,13 @@ export default function MemoriesPage() {
 
   useEffect(() => {
     fetchRecords()
-  }, [typeFilter, sourceFilter, dateRange])
+  }, [typeFilter, sourceFilter, dateRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchProjects()
   }, [])
 
-  // Import shared memory
+  // Import shared memory ─ when arriving from a shared-link
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const importToken = params.get('import')
@@ -304,7 +290,7 @@ export default function MemoriesPage() {
         if (data.recordId) router.push(`/app/memories/${data.recordId}`)
       } catch { toast.error('Failed to import memory') }
     })()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const openShareDialog = async (e: React.MouseEvent, record: MemoryRecord) => {
     e.preventDefault(); e.stopPropagation()
@@ -357,8 +343,7 @@ export default function MemoriesPage() {
         const data = await res.json()
         if (!res.ok) { toast.error(data.error || 'Failed to upload'); return }
         if (data.record) {
-          setRecords(prev => [data.record, ...prev])
-          // Auto-refresh this record as AI enrichment completes in background
+          setRecords((prev) => [data.record, ...prev])
           pollUntilEnriched(data.record.id)
         }
         toast.success('Memory saved successfully.')
@@ -379,8 +364,7 @@ export default function MemoriesPage() {
       const data = await res.json()
       if (!res.ok) { toast.error(data.error || 'Failed to create memory'); return }
       if (data.record) {
-        setRecords(prev => [data.record, ...prev])
-        // Auto-refresh this record as AI enrichment completes in background
+        setRecords((prev) => [data.record, ...prev])
         pollUntilEnriched(data.record.id)
       }
       toast.success('Memory saved successfully.')
@@ -389,697 +373,576 @@ export default function MemoriesPage() {
     finally { setCreating(false) }
   }
 
-  const filtered = records.filter(r => {
+  const handleBulkImport = async () => {
+    if (importFiles.length === 0) return
+    setImporting(true)
+    setImportResult(null)
+    try {
+      const formData = new FormData()
+      importFiles.forEach((f) => formData.append('files', f))
+      const res = await fetch('/api/upload/bulk', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (res.ok) {
+        setImportResult({ saved: data.saved, total: data.total })
+        toast.success(`${data.saved} memories imported successfully.`)
+        fetchRecords()
+        setTimeout(() => { setShowImportDialog(false); setImportFiles([]); setImportResult(null) }, 2000)
+      } else {
+        toast.error(data.error || 'Import failed')
+      }
+    } catch { toast.error('Import failed') }
+    finally { setImporting(false) }
+  }
+
+  const filtered = records.filter((r) => {
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
     const tags = parseTags(r.tags)
     return r.title.toLowerCase().includes(q) ||
       (r.summary && r.summary.toLowerCase().includes(q)) ||
-      tags.some(t => t.includes(q))
+      tags.some((t) => t.includes(q))
   })
 
-  const activeFilterCount = [typeFilter !== 'all', sourceFilter !== 'all', dateRange !== 'all'].filter(Boolean).length
+  const grouped = groupByDate(filtered)
+
+  // Header sub-line: counts per kind. If the API returned typeCounts use it,
+  // otherwise derive from currently-loaded records as a best-effort.
+  function countOf(type: string) {
+    return typeCounts[type] ?? records.filter((r) => r.type === type).length
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-5 max-w-6xl"
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <TourTooltip
-            tourKey="memories"
-            title="Your Memories"
-            description="All your processed memories live here. Click one to see details, edit tags, or explore connections."
-          >
-            <h1 className="text-2xl font-bold tracking-tight">Memories</h1>
-          </TourTooltip>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {loading ? 'Loading...' : `${total.toLocaleString()} memories`}
-            {activeFilterCount > 0 && !loading && (
-              <span className="ml-1 text-primary font-medium">· {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
-            )}
-          </p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <Button size="sm" variant="outline" onClick={() => setShowImportDialog(true)}>
-            <Upload className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Import</span>
-          </Button>
-          <Button size="sm" onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">New Memory</span>
-            <span className="sm:hidden">New</span>
-          </Button>
-        </div>
-      </div>
+    <div className="mem-page-wrap">
+      <div className="mem-page">
+        <span className="mem-crumb"><span className="dot" /> Memories</span>
 
-      {/* Type chips — decisions, insights, meetings were their own sidebar
-          entries in Personal Reattend. In Enterprise they're lenses over
-          memory. Graph stays a full page because the React-Flow canvas needs
-          the screen. */}
-      <div className="flex items-center gap-1.5 flex-wrap">
-        {[
-          { key: 'all', label: 'All' },
-          { key: 'decision', label: 'Decisions' },
-          { key: 'insight', label: 'Insights' },
-          { key: 'meeting', label: 'Meetings' },
-          { key: 'idea', label: 'Ideas' },
-          { key: 'note', label: 'Notes' },
-        ].map((t) => {
-          const active = typeFilter === t.key
-          return (
-            <button
-              key={t.key}
-              onClick={() => setTypeFilter(t.key)}
-              className={cn(
-                'rounded-full border px-3 py-1 text-xs transition-colors',
-                active
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50',
+        {/* Header */}
+        <div className="mem-head-row">
+          <div className="mem-head">
+            <h1>Memories</h1>
+            <div className="sub">
+              {loading ? 'Loading…' : (
+                <>
+                  <b>{total.toLocaleString()}</b> memories · <b>{countOf('decision').toLocaleString()}</b> decisions, <b>{countOf('meeting').toLocaleString()}</b> meetings, <b>{countOf('note').toLocaleString()}</b> notes
+                </>
               )}
-            >
-              {t.label}
+            </div>
+          </div>
+          <div className="mem-head-actions">
+            <button className="mem-btn" onClick={() => setShowImportDialog(true)}>
+              <Upload size={13} strokeWidth={1.8} />
+              Import
             </button>
-          )
-        })}
-        <div className="mx-2 h-4 w-px bg-border" />
-        <Link
-          href="/app/landscape?mode=board"
-          className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-        >
-          <Network className="h-3 w-3" /> Graph view
-        </Link>
-      </div>
+            <button className="mem-btn primary" onClick={() => setShowCreateDialog(true)}>
+              <Plus size={13} strokeWidth={2} />
+              New memory
+            </button>
+          </div>
+        </div>
 
-      {/* Search + Filter bar */}
-      <div className="space-y-2">
-        {/* Row 1: Search + view toggle + filter toggle */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
+        {/* Category pills */}
+        <div className="mem-cat-row">
+          {CATEGORIES.map((c) => {
+            const count = c.key === 'all' ? total : countOf(c.key)
+            return (
+              <button
+                key={c.key}
+                className={cn('mem-cat', typeFilter === c.key && 'active')}
+                onClick={() => setTypeFilter(c.key)}
+              >
+                {c.label}
+                <span className="n">{count.toLocaleString()}</span>
+              </button>
+            )
+          })}
+          <Link href="/app/landscape?mode=board" className="mem-cat graph">
+            <Network size={12} strokeWidth={1.8} />
+            Graph view
+          </Link>
+        </div>
+
+        {/* Filter bar */}
+        <div className="mem-filter-bar">
+          <div className="mem-filter-search">
+            <Search size={14} strokeWidth={1.7} style={{ color: 'var(--ink-3)' }} />
+            <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search memories..."
-              className="pl-9 h-9"
+              placeholder={`Search ${total.toLocaleString() || ''} memories — try "hiring freeze", "@kang", or "#pricing"…`}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                style={{ background: 'transparent', border: 0, color: 'var(--ink-3)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                aria-label="Clear search"
               >
-                <X className="h-3.5 w-3.5" />
+                <X size={12} />
               </button>
             )}
           </div>
-
-          {/* Filter toggle (mobile) */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltersOpen(v => !v)}
-            className={cn('flex items-center gap-1.5 h-9 sm:hidden shrink-0', filtersOpen && 'border-primary text-primary')}
-          >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            {activeFilterCount > 0 && (
-              <span className="bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-
-          {/* View mode + filters inline on desktop */}
-          <div className="hidden sm:flex items-center gap-2">
-            <DateRangePills value={dateRange} onChange={setDateRange} />
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[130px] h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger className="w-[130px] h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SOURCE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
+          <div className="mem-date-pills">
+            {DATE_RANGES.map((r) => (
+              <button
+                key={r.value}
+                className={cn('mem-date-pill', dateRange === r.value && 'active')}
+                onClick={() => setDateRange(r.value)}
+              >
+                {r.label}
+              </button>
+            ))}
           </div>
-
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-        </div>
-
-        {/* Row 2: mobile filters (collapsible) */}
-        <AnimatePresence>
-          {filtersOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden sm:hidden"
+          {/* Native selects for type / source — small footprint, accessible */}
+          <select
+            className="mem-select"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{ paddingRight: 28 }}
+          >
+            {TYPE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          <select
+            className="mem-select"
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            style={{ paddingRight: 28 }}
+          >
+            {SOURCE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          <div className="mem-view-switch">
+            <button
+              className={cn('mem-view-btn', viewMode === 'timeline' && 'active')}
+              onClick={() => setViewMode('timeline')}
+              title="Timeline"
+              aria-label="Timeline view"
             >
-              <div className="space-y-2 pt-1">
-                <DateRangePills value={dateRange} onChange={setDateRange} />
-                <div className="flex gap-2">
-                  <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="flex-1 h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TYPE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                    <SelectTrigger className="flex-1 h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SOURCE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => { setTypeFilter('all'); setSourceFilter('all'); setDateRange('all') }}
-                    className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
-                  >
-                    Clear all filters
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Loading */}
-      {loading && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <LayoutList size={14} />
+            </button>
+            <button
+              className={cn('mem-view-btn', viewMode === 'grid' && 'active')}
+              onClick={() => setViewMode('grid')}
+              title="Grid"
+              aria-label="Grid view"
+            >
+              <LayoutGrid size={14} />
+            </button>
+            <button
+              className={cn('mem-view-btn', viewMode === 'compact' && 'active')}
+              onClick={() => setViewMode('compact')}
+              title="Compact"
+              aria-label="Compact view"
+            >
+              <Rows3 size={14} />
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Timeline view */}
-      {!loading && viewMode === 'timeline' && (
-        <div className="space-y-8">
-          {groupByDate(filtered).map((group) => (
-            <div key={group.key}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
-                    {group.label}
-                  </span>
+        {/* Loading / Empty */}
+        {loading && (
+          <div className="mem-empty">
+            <Loader2 className="inline animate-spin" size={20} />
+          </div>
+        )}
+
+        {!loading && filtered.length === 0 && (
+          <div className="mem-empty">
+            <Brain size={36} style={{ display: 'block', margin: '0 auto 12px', opacity: 0.3 }} />
+            <p style={{ margin: 0 }}>
+              {records.length === 0 ? 'No memories yet. Capture your first one!' : 'No memories match your filters.'}
+            </p>
+            {records.length === 0 ? (
+              <button className="mem-btn primary" style={{ marginTop: 16 }} onClick={() => setShowCreateDialog(true)}>
+                <Plus size={13} /> New memory
+              </button>
+            ) : (
+              <button
+                onClick={() => { setTypeFilter('all'); setSourceFilter('all'); setDateRange('all'); setSearchQuery('') }}
+                style={{ marginTop: 12, background: 'transparent', border: 0, color: 'var(--accent-ink)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit', fontSize: 12 }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* TIMELINE */}
+        {!loading && viewMode === 'timeline' && filtered.length > 0 && (
+          <div>
+            {grouped.map((group) => (
+              <React.Fragment key={group.key}>
+                <div className="mem-day-cap">
+                  <Calendar className="icon" size={14} strokeWidth={1.8} />
+                  <span className="label">{group.label}</span>
+                  <span className="line" />
+                  <span className="count">{group.items.length}</span>
                 </div>
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-[10px] text-muted-foreground/60 shrink-0">{group.items.length}</span>
-              </div>
-
-              <div className="relative pl-4 sm:pl-6">
-                <div className="absolute left-1.5 sm:left-2.5 top-2 bottom-2 w-px bg-gradient-to-b from-border via-border to-transparent" />
-                <div className="space-y-3">
-                  {group.items.map((record, i) => (
-                    <motion.div
-                      key={record.id}
-                      initial={{ opacity: 0, x: -4 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.02 }}
-                      className="relative group/card"
-                    >
-                      <div className="absolute -left-[15px] sm:-left-[19px] top-4 h-3 w-3 rounded-full border-2 border-primary/50 bg-background group-hover/card:border-primary transition-colors" />
-                      <Link href={`/app/memories/${record.id}`}>
-                        <Card className="hover:shadow-md hover:border-primary/20 transition-all cursor-pointer">
-                          <CardContent className="p-4">
-                            <div className="flex gap-3">
-                              <MemoryTypeIcon type={record.type} size="sm" />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2 mb-1">
-                                  <h3 className="font-medium text-sm group-hover/card:text-primary transition-colors line-clamp-2 leading-snug">
-                                    {record.title}
-                                  </h3>
-                                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                                    {record.locked && <Lock className="h-3 w-3 text-muted-foreground" />}
-                                    {parseTags(record.tags).includes('attachment') && <Paperclip className="h-3 w-3 text-primary/60" />}
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {new Date(record.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                                    </span>
-                                  </div>
-                                </div>
-                                {record.summary && (
-                                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
-                                    {record.summary}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <Badge variant="secondary" className={cn('text-[10px] flex items-center gap-1', typeColors[record.type] || '')}>
-                                    {(() => { const Icon = typeIcons[record.type] || PenLine; return <Icon className="h-2.5 w-2.5" /> })()}
-                                    {record.type}
-                                  </Badge>
-                                  <SourceBadge source={record.source} />
-                                  {parseTags(record.tags).filter(t => t !== 'attachment').slice(0, 3).map(tag => (
-                                    <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
+                {group.items.map((record) => (
+                  <div className="mem-tl-row" key={record.id}>
+                    <div className="mem-tl-rail"><span className="mem-tl-dot" /></div>
+                    <Link href={`/app/memories/${record.id}`} className="mem-card">
+                      <MemIcon type={record.type} />
+                      <div className="mem-body">
+                        <div className="mem-title">{record.title}</div>
+                        {(record.summary || record.content) && (
+                          <div className="mem-desc">{record.summary || record.content}</div>
+                        )}
+                        <div className="mem-tags">
+                          <KindTag type={record.type} />
+                          {record.source && record.source !== 'manual' && (
+                            <span className="mem-tag">{SOURCE_LABELS[record.source] || record.source}</span>
+                          )}
+                          {parseTags(record.tags).filter((t) => t !== 'attachment').slice(0, 4).map((t) => (
+                            <span key={t} className="mem-tag">{t}</span>
+                          ))}
+                          {record.locked && <span className="mem-tag" title="Locked"><Lock size={9} /> locked</span>}
+                          {parseTags(record.tags).includes('attachment') && (
+                            <span className="mem-tag" title="Attachment"><Paperclip size={9} /></span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mem-meta">
+                        <div className="mem-time">{formatRelativeTime(record.createdAt)}</div>
+                        {record.confidence != null && (
+                          <div className="mem-conf">
+                            <span className="bar"><i style={{ width: `${Math.round(record.confidence * 100)}%` }} /></span>
+                            {Math.round(record.confidence * 100)}%
+                          </div>
+                        )}
+                      </div>
                       <button
+                        type="button"
+                        className="mem-card-share"
                         onClick={(e) => openShareDialog(e, record)}
-                        className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity p-1.5 rounded-md bg-background border border-border hover:bg-muted z-10"
                         title="Share"
                       >
-                        <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Share2 size={13} />
                       </button>
-                    </motion.div>
+                    </Link>
+                  </div>
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* GRID */}
+        {!loading && viewMode === 'grid' && filtered.length > 0 && (
+          <div className="mem-grid-view">
+            {filtered.map((record) => (
+              <Link key={record.id} href={`/app/memories/${record.id}`} className="mem-grid-card">
+                <div className="mem-grid-head">
+                  <MemIcon type={record.type} />
+                  <span className="mem-time">{formatRelativeTime(record.createdAt)}</span>
+                </div>
+                <div className="mem-title">{record.title}</div>
+                {(record.summary || record.content) && (
+                  <div className="mem-desc">{record.summary || record.content}</div>
+                )}
+                <div className="mem-tags">
+                  <KindTag type={record.type} />
+                  {parseTags(record.tags).filter((t) => t !== 'attachment').slice(0, 2).map((t) => (
+                    <span key={t} className="mem-tag">{t}</span>
                   ))}
                 </div>
-              </div>
+                <button
+                  type="button"
+                  className="mem-card-share"
+                  onClick={(e) => openShareDialog(e, record)}
+                  title="Share"
+                >
+                  <Share2 size={13} />
+                </button>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* COMPACT */}
+        {!loading && viewMode === 'compact' && filtered.length > 0 && (
+          <div className="mem-compact">
+            <div className="mem-cmp-head">
+              <div />
+              <div>Title</div>
+              <div>Tags</div>
+              <div>Source</div>
+              <div>When</div>
+              <div>Confidence</div>
             </div>
-          ))}
-        </div>
-      )}
+            {filtered.map((record) => {
+              const Icon = TYPE_ICONS[record.type] || PenLine
+              return (
+                <Link key={record.id} href={`/app/memories/${record.id}`} className="mem-cmp-row">
+                  <div className={cn('mem-cmp-ico mem-ico', record.type)} style={{ width: 22, height: 22 }}>
+                    <Icon size={12} strokeWidth={1.8} />
+                  </div>
+                  <div className="mem-cmp-title">{record.title}</div>
+                  <div className="mem-cmp-tags">
+                    {parseTags(record.tags).filter((t) => t !== 'attachment').slice(0, 2).map((t) => (
+                      <span key={t} className="mem-tag">{t}</span>
+                    ))}
+                  </div>
+                  <div className="mem-cmp-source">{SOURCE_LABELS[record.source || ''] || record.source || '—'}</div>
+                  <div className="mem-cmp-time">{formatRelativeTime(record.createdAt)}</div>
+                  <div className="mem-cmp-source">{record.confidence != null ? `${Math.round(record.confidence * 100)}%` : '—'}</div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
 
-      {/* Grid view */}
-      {!loading && viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((record, i) => (
-            <motion.div
-              key={record.id}
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.02 }}
-              className="relative group/card"
-            >
-              <Link href={`/app/memories/${record.id}`} className="block h-full">
-                <Card className="hover:shadow-md hover:border-primary/20 transition-all cursor-pointer h-full">
-                  <CardContent className="p-4 flex flex-col h-full">
-                    <div className="flex items-center justify-between mb-3">
-                      <Badge variant="secondary" className={cn('text-[10px] flex items-center gap-1', typeColors[record.type] || '')}>
-                        {(() => { const Icon = typeIcons[record.type] || PenLine; return <Icon className="h-3 w-3" /> })()}
-                        {record.type}
-                      </Badge>
-                      <div className="flex items-center gap-1.5">
-                        <SourceBadge source={record.source} />
-                        {record.locked && <Lock className="h-3 w-3 text-muted-foreground" />}
-                      </div>
-                    </div>
-                    <h3 className="font-medium text-sm group-hover/card:text-primary transition-colors line-clamp-2 leading-snug mb-2">
-                      {record.title}
-                    </h3>
-                    {record.summary && (
-                      <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed flex-1">
-                        {record.summary}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                      <div className="flex items-center gap-1 flex-wrap min-w-0">
-                        {parseTags(record.tags).filter(t => t !== 'attachment').slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
-                        {new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-              <button
-                onClick={(e) => openShareDialog(e, record)}
-                className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity p-1.5 rounded-md bg-background border border-border hover:bg-muted z-10"
-                title="Share"
-              >
-                <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
+        {/* Footer / pager — `Load more` is the actual control. The numeric
+            pager is decorative (single-page UI) but kept for design parity. */}
+        {!loading && filtered.length > 0 && (
+          <div className="mem-footer-stats">
+            <span>
+              Showing <b>{filtered.length.toLocaleString()}</b> of <b>{total.toLocaleString()}</b> memories
+            </span>
+            {records.length < total && (
+              <button className="mem-btn" onClick={loadMore} disabled={loadingMore}>
+                {loadingMore ? <Loader2 size={13} className="animate-spin" /> : <ChevronRight size={13} />}
+                Load more ({(total - records.length).toLocaleString()} remaining)
               </button>
-            </motion.div>
-          ))}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
-      {/* List view */}
-      {!loading && viewMode === 'list' && (
-        <div className="space-y-2">
-          {filtered.map((record, i) => (
-            <motion.div
-              key={record.id}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.02 }}
-              className="relative group/card"
-            >
-              <Link href={`/app/memories/${record.id}`}>
-                <Card className="hover:shadow-sm hover:border-primary/20 transition-all cursor-pointer">
-                  <CardContent className="p-3.5 flex gap-3">
-                    <MemoryTypeIcon type={record.type} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-sm group-hover/card:text-primary transition-colors truncate">
-                          {record.title}
-                        </h3>
-                        {parseTags(record.tags).includes('attachment') && <Paperclip className="h-3 w-3 text-primary/60 shrink-0" />}
-                        {record.locked && <Lock className="h-3 w-3 text-muted-foreground shrink-0" />}
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {record.summary || record.content || 'No summary'}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                        <Badge variant="secondary" className={cn('text-[10px]', typeColors[record.type] || '')}>
-                          {record.type}
-                        </Badge>
-                        <SourceBadge source={record.source} />
-                        {parseTags(record.tags).filter(t => t !== 'attachment').slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground shrink-0 mt-0.5">
-                      {new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
-              <button
-                onClick={(e) => openShareDialog(e, record)}
-                className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity p-1.5 rounded-md bg-background border border-border hover:bg-muted z-10"
-                title="Share"
-              >
-                <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </button>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Load more */}
-      {!loading && records.length < total && (
-        <div className="flex justify-center pt-2">
-          <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Load more ({total - records.length} remaining)
-          </Button>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {!loading && filtered.length === 0 && (
-        <div className="text-center py-16">
-          <Brain className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-          <p className="text-sm text-muted-foreground">
-            {records.length === 0
-              ? 'No memories yet. Create your first one!'
-              : 'No memories match your filters.'}
-          </p>
-          {records.length === 0 ? (
-            <Button className="mt-4" size="sm" onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Create Memory
-            </Button>
-          ) : (
-            <button
-              onClick={() => { setTypeFilter('all'); setSourceFilter('all'); setDateRange('all'); setSearchQuery('') }}
-              className="mt-3 text-sm text-primary hover:underline"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Share Dialog */}
-      <Dialog open={shareDialogOpen} onOpenChange={(open) => { setShareDialogOpen(open); if (!open) setEmailSent(false) }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-primary" />
-              Share Memory
-            </DialogTitle>
-            <DialogDescription className="line-clamp-1">{sharingRecord?.title}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Share link</label>
+      {/* Share dialog */}
+      {shareDialogOpen && (
+        <div className="mem-modal-overlay" onClick={() => setShareDialogOpen(false)}>
+          <div className="mem-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Share memory</h3>
+            <div className="desc" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {sharingRecord?.title}
+            </div>
+            <div className="body">
+              <label>Share link</label>
               {shareLoading ? (
-                <div className="flex items-center gap-2 h-9">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Generating link...</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-3)', fontSize: 13, height: 36 }}>
+                  <Loader2 size={14} className="animate-spin" />
+                  Generating link…
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input value={shareUrl} readOnly className="text-xs font-mono" />
-                  <Button variant="outline" size="sm" onClick={handleCopyLink} className="shrink-0 gap-1.5">
-                    {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={shareUrl} readOnly style={{ marginBottom: 0, fontFamily: 'var(--mono)', fontSize: 11 }} />
+                  <button className="mem-btn" onClick={handleCopyLink} disabled={!shareUrl}>
+                    {copied ? <Check size={13} /> : <Copy size={13} />}
                     {copied ? 'Copied' : 'Copy'}
-                  </Button>
+                  </button>
                 </div>
               )}
-            </div>
-            <div className="space-y-2 pt-2 border-t">
-              <label className="text-sm font-medium">Send via email</label>
+              <label style={{ marginTop: 14 }}>Send via email</label>
               {emailSent ? (
-                <div className="flex items-center gap-2 text-sm text-emerald-600">
-                  <Check className="h-4 w-4" /> Email sent!
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--mem-green)', fontSize: 13 }}>
+                  <Check size={14} /> Email sent!
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
                     type="email"
                     placeholder="colleague@company.com"
                     value={shareEmail}
                     onChange={(e) => setShareEmail(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendEmail()}
                     disabled={!shareUrl}
+                    style={{ marginBottom: 0 }}
                   />
-                  <Button size="sm" onClick={handleSendEmail} disabled={!shareEmail || !shareUrl || sendingEmail} className="shrink-0 gap-1.5">
-                    {sendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                  <button
+                    className="mem-btn primary"
+                    onClick={handleSendEmail}
+                    disabled={!shareEmail || !shareUrl || sendingEmail}
+                  >
+                    {sendingEmail ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
                     Send
-                  </Button>
+                  </button>
                 </div>
               )}
-              <p className="text-[11px] text-muted-foreground">Recipient can view and save this memory to their Reattend.</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Bulk Import Dialog */}
-      <Dialog open={showImportDialog} onOpenChange={(open) => { if (!open) { setImportFiles([]); setImportResult(null) }; setShowImportDialog(open) }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Import Memories</DialogTitle>
-            <DialogDescription>
-              Upload text files, markdown notes, or meeting transcripts. Supports .txt, .md, .csv, .json files. Up to 50 files at once.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div
-              className="border-2 border-dashed border-border/60 rounded-xl p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-muted/20 transition-all"
-              onClick={() => bulkInputRef.current?.click()}
-              onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-primary/60', 'bg-primary/5') }}
-              onDragLeave={e => { e.currentTarget.classList.remove('border-primary/60', 'bg-primary/5') }}
-              onDrop={e => {
-                e.preventDefault()
-                e.currentTarget.classList.remove('border-primary/60', 'bg-primary/5')
-                const files = Array.from(e.dataTransfer.files)
-                setImportFiles(prev => [...prev, ...files].slice(0, 50))
-              }}
-            >
-              <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground/40" />
-              <p className="text-sm font-medium">Drop files here or click to browse</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Obsidian vault, Read.ai exports, Fireflies transcripts, any text files
+              <p style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 8 }}>
+                Recipient can view and save this memory to their Reattend.
               </p>
             </div>
-            <input
-              ref={bulkInputRef}
-              type="file"
-              multiple
-              accept=".txt,.md,.csv,.json,.markdown"
-              className="hidden"
-              onChange={e => {
-                const files = Array.from(e.target.files || [])
-                setImportFiles(prev => [...prev, ...files].slice(0, 50))
-              }}
-            />
-            {importFiles.length > 0 && (
-              <div className="space-y-1 max-h-40 overflow-y-auto">
-                <p className="text-xs font-medium text-muted-foreground">{importFiles.length} file(s) selected</p>
-                {importFiles.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs px-2 py-1 bg-muted/30 rounded">
-                    <span className="truncate">{f.name}</span>
-                    <button onClick={() => setImportFiles(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive ml-2">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {importResult && (
-              <p className="text-sm text-green-600">{importResult.saved} of {importResult.total} files imported successfully.</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowImportDialog(false)}>Cancel</Button>
-            <Button onClick={handleBulkImport} disabled={importFiles.length === 0 || importing}>
-              {importing ? 'Importing...' : `Import ${importFiles.length} file(s)`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Memory Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={(open) => {
-        setShowCreateDialog(open)
-        if (!open) { setCreateMode('text'); setSelectedFile(null); setNewContent('') }
-      }}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-primary" />
-              New Memory
-            </DialogTitle>
-            <DialogDescription>Add text or upload a document. AI enriches it in the background.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex border rounded-lg p-0.5 bg-muted/30">
-              <button
-                onClick={() => setCreateMode('text')}
-                className={cn('flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors', createMode === 'text' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}
-              >
-                <FileText className="h-3.5 w-3.5" /> Text
-              </button>
-              <button
-                onClick={() => setCreateMode('file')}
-                className={cn('flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors', createMode === 'file' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}
-              >
-                <Upload className="h-3.5 w-3.5" /> Upload File
-              </button>
+            <div className="foot">
+              <button className="mem-btn" onClick={() => setShareDialogOpen(false)}>Done</button>
             </div>
-
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Project</label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a project (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id}>
-                      <span className="flex items-center gap-2">
-                        <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: p.color || '#6366f1' }} />
-                        {p.name}{p.isDefault && ' (Default)'}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {createMode === 'text' ? (
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Content</label>
-                <Textarea
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  placeholder="e.g., Decided to use React Flow for the memory graph. It supports interactive nodes, edges, and canvas interactions..."
-                  rows={5}
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Document</label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx,.txt,.md,.csv,image/*"
-                  className="hidden"
-                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                />
-                {selectedFile ? (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
-                    <Paperclip className="h-5 w-5 text-primary shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-                      <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024).toFixed(0)} KB · {selectedFile.type || 'unknown'}</p>
-                    </div>
-                    <Button variant="ghost" size="icon-sm" onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}>
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full flex flex-col items-center gap-2 p-8 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <Upload className="h-8 w-8 text-muted-foreground/50" />
-                    <div className="text-center">
-                      <p className="text-sm font-medium">Click to upload a file</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">PDF, Word, text, images (max 20MB)</p>
-                    </div>
-                  </button>
-                )}
-              </div>
-            )}
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
-            <Button
-              onClick={handleCreateMemory}
-              disabled={(createMode === 'text' ? !newContent.trim() : !selectedFile) || creating}
-            >
-              {creating ? (
-                <><Loader2 className="h-4 w-4 animate-spin mr-1" />{createMode === 'file' ? 'Uploading...' : 'Saving...'}</>
-              ) : (
-                <><Plus className="h-4 w-4 mr-1" />{createMode === 'file' ? 'Upload' : 'Submit'}</>
+        </div>
+      )}
+
+      {/* Create memory dialog */}
+      {showCreateDialog && (
+        <div className="mem-modal-overlay" onClick={() => setShowCreateDialog(false)}>
+          <div className="mem-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>New memory</h3>
+            <div className="desc">Add text or upload a document. The AI enriches it in the background.</div>
+            <div className="body">
+              <div className="mem-tabs" style={{ marginBottom: 12 }}>
+                <button
+                  className={cn('mem-tab-btn', createMode === 'text' && 'active')}
+                  onClick={() => setCreateMode('text')}
+                >
+                  <FileText size={13} /> Text
+                </button>
+                <button
+                  className={cn('mem-tab-btn', createMode === 'file' && 'active')}
+                  onClick={() => setCreateMode('file')}
+                >
+                  <Upload size={13} /> Upload file
+                </button>
+              </div>
+
+              {projects.length > 0 && (
+                <>
+                  <label>Project</label>
+                  <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)}>
+                    <option value="">Select a project (optional)</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}{p.isDefault ? ' (default)' : ''}</option>
+                    ))}
+                  </select>
+                </>
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
-  )
-}
 
-function DateRangePills({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-      {DATE_RANGES.map(r => (
-        <button
-          key={r.value}
-          onClick={() => onChange(r.value)}
-          className={cn(
-            'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors shrink-0',
-            value === r.value
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-          )}
+              {createMode === 'text' ? (
+                <>
+                  <label>Content</label>
+                  <textarea
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                    placeholder="e.g., Decided to use React Flow for the memory graph. It supports interactive nodes, edges, and canvas interactions…"
+                    autoFocus
+                  />
+                </>
+              ) : (
+                <>
+                  <label>Document</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,.md,.csv,image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  />
+                  {selectedFile ? (
+                    <div className="mem-attach-card">
+                      <div className="mem-attach-icon"><Paperclip size={14} /></div>
+                      <div className="mem-attach-meta">
+                        <div className="mem-attach-name">{selectedFile.name}</div>
+                        <div className="mem-attach-size">{(selectedFile.size / 1024).toFixed(0)} KB · {selectedFile.type || 'unknown'}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                        style={{ background: 'transparent', border: 0, color: 'var(--ink-3)', cursor: 'pointer', padding: 4 }}
+                        aria-label="Clear file"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="file-zone" onClick={() => fileInputRef.current?.click()}>
+                      <Upload size={28} style={{ display: 'block', margin: '0 auto 10px', color: 'var(--ink-3)' }} />
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Click to upload a file</div>
+                      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 4 }}>
+                        PDF · Word · text · images (max 20MB)
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            <div className="foot">
+              <button className="mem-btn" onClick={() => setShowCreateDialog(false)}>Cancel</button>
+              <button
+                className="mem-btn primary"
+                onClick={handleCreateMemory}
+                disabled={(createMode === 'text' ? !newContent.trim() : !selectedFile) || creating}
+              >
+                {creating ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                {creating ? (createMode === 'file' ? 'Uploading…' : 'Saving…') : (createMode === 'file' ? 'Upload' : 'Submit')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk import dialog */}
+      {showImportDialog && (
+        <div
+          className="mem-modal-overlay"
+          onClick={() => { setShowImportDialog(false); setImportFiles([]); setImportResult(null) }}
         >
-          {r.label}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function ViewToggle({ viewMode, setViewMode }: { viewMode: string; setViewMode: (v: any) => void }) {
-  return (
-    <div className="flex border rounded-md shrink-0">
-      <Button variant={viewMode === 'timeline' ? 'secondary' : 'ghost'} size="icon-sm" onClick={() => setViewMode('timeline')} title="Timeline">
-        <GanttChart className="h-4 w-4" />
-      </Button>
-      <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon-sm" onClick={() => setViewMode('grid')} title="Grid">
-        <Grid3X3 className="h-4 w-4" />
-      </Button>
-      <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon-sm" onClick={() => setViewMode('list')} title="List">
-        <List className="h-4 w-4" />
-      </Button>
+          <div className="mem-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Import memories</h3>
+            <div className="desc">
+              Upload text files, markdown notes, or meeting transcripts. Supports .txt, .md, .csv, .json files. Up to 50 files at once.
+            </div>
+            <div className="body">
+              <div
+                className={cn('file-zone', importDrag && 'drag')}
+                onClick={() => bulkInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setImportDrag(true) }}
+                onDragLeave={() => setImportDrag(false)}
+                onDrop={(e) => {
+                  e.preventDefault(); setImportDrag(false)
+                  const files = Array.from(e.dataTransfer.files)
+                  setImportFiles((prev) => [...prev, ...files].slice(0, 50))
+                }}
+              >
+                <Upload size={28} style={{ display: 'block', margin: '0 auto 10px', color: 'var(--ink-3)' }} />
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Drop files here or click to browse</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 4 }}>
+                  Obsidian vault, Read.ai exports, Fireflies transcripts, any text files
+                </div>
+              </div>
+              <input
+                ref={bulkInputRef}
+                type="file"
+                multiple
+                accept=".txt,.md,.csv,.json,.markdown"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || [])
+                  setImportFiles((prev) => [...prev, ...files].slice(0, 50))
+                }}
+              />
+              {importFiles.length > 0 && (
+                <div style={{ marginTop: 12, maxHeight: 160, overflowY: 'auto' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', margin: '6px 0' }}>
+                    {importFiles.length} file(s) selected
+                  </p>
+                  {importFiles.map((f, i) => (
+                    <div key={i} className="file-row">
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{f.name}</span>
+                      <button onClick={() => setImportFiles((prev) => prev.filter((_, j) => j !== i))} aria-label="Remove file">
+                        <X size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {importResult && (
+                <p style={{ fontSize: 13, color: 'var(--mem-green)', marginTop: 10 }}>
+                  {importResult.saved} of {importResult.total} files imported successfully.
+                </p>
+              )}
+            </div>
+            <div className="foot">
+              <button className="mem-btn" onClick={() => setShowImportDialog(false)}>Cancel</button>
+              <button
+                className="mem-btn primary"
+                onClick={handleBulkImport}
+                disabled={importFiles.length === 0 || importing}
+              >
+                {importing ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                {importing ? 'Importing…' : `Import ${importFiles.length} file(s)`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

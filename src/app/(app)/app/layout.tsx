@@ -21,7 +21,9 @@ import { cn } from '@/lib/utils'
 // its own height end-to-end. /app/ask needs this because its chatbox is
 // pinned to the bottom and the standard p-4 sm:p-6 + overflow-y-auto
 // wrapper would let the input drift mid-page.
-const FULL_BLEED_PATHS: string[] = ['/app/ask', '/app/brain-dump']
+// Routes that get a full-bleed canvas. Use prefix matching for paths whose
+// children should also be full-bleed (e.g. /app/memories AND /app/memories/[id]).
+const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.
@@ -31,7 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
   const pathname = usePathname()
   const router = useRouter()
-  const isFullBleed = FULL_BLEED_PATHS.includes(pathname)
+  const isFullBleed = FULL_BLEED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
   const [isMobile, setIsMobile] = useState(false)
   const [orgsLoaded, setOrgsLoaded] = useState(false)
   const [askExpertsOpen, setAskExpertsOpen] = useState(false)
