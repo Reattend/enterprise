@@ -7,10 +7,14 @@
 //
 // Mode persists via ?mode=rewind|board. Older links using mode=temporal /
 // mode=causal still resolve to the new modes for backwards compatibility.
+//
+// New chrome: violet-gradient segmented mode switch (matches the Capture
+// page's `cap-modes` control). Each mode renders its own page-shaped view
+// underneath, so the inner views own their crumb / hero / content.
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { History, Network } from 'lucide-react'
+import { RotateCcw, GitBranch } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { RewindView } from './rewind-view'
 import { BoardView } from './board-view'
@@ -18,7 +22,6 @@ import { BoardView } from './board-view'
 type Mode = 'rewind' | 'board'
 
 function normalizeMode(raw: string | null): Mode {
-  // Accept legacy values so bookmarks from the old naming still work.
   if (raw === 'board' || raw === 'causal') return 'board'
   return 'rewind'
 }
@@ -40,39 +43,37 @@ function LandscapeInner() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="inline-flex items-center rounded-full border bg-card p-0.5 shadow-sm">
-          <ModeButton active={mode === 'rewind'} onClick={() => pick('rewind')} icon={History} label="Rewind" sub="Scrub through time" />
-          <ModeButton active={mode === 'board'} onClick={() => pick('board')} icon={Network} label="Board" sub="Memory map" />
+    <div className="lsc-page-wrap">
+      <div className="lsc-page">
+        {/* Mode switch — violet-gradient pill matches design exactly */}
+        <div className="lsc-modes" role="tablist">
+          <button
+            type="button"
+            className={cn('lsc-mode-btn', mode === 'rewind' && 'active')}
+            onClick={() => pick('rewind')}
+            role="tab"
+            aria-selected={mode === 'rewind'}
+          >
+            <RotateCcw size={14} strokeWidth={1.8} />
+            Rewind
+            <span className="lab-sub">· Scrub through time</span>
+          </button>
+          <button
+            type="button"
+            className={cn('lsc-mode-btn', mode === 'board' && 'active')}
+            onClick={() => pick('board')}
+            role="tab"
+            aria-selected={mode === 'board'}
+          >
+            <GitBranch size={14} strokeWidth={1.8} />
+            Board
+            <span className="lab-sub">· Memory map</span>
+          </button>
         </div>
-      </div>
-      {mode === 'rewind' ? <RewindView /> : <BoardView />}
-    </div>
-  )
-}
 
-function ModeButton({
-  active, onClick, icon: Icon, label, sub,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: typeof History
-  label: string
-  sub: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs transition-colors',
-        active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      <span className="font-semibold">{label}</span>
-      <span className={cn('hidden sm:inline text-[10px]', active ? 'opacity-80' : 'opacity-60')}>· {sub}</span>
-    </button>
+        {mode === 'rewind' ? <RewindView /> : <BoardView />}
+      </div>
+    </div>
   )
 }
 

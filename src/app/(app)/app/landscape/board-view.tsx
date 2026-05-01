@@ -1,19 +1,33 @@
 'use client'
 
+// Board — memory map. ReactFlow canvas of records and inferred links.
+//
+// New design (Landscape.html): violet crumb, serif heading, board-card with
+// legend strip + zoom controls + filter chips. The actual graph is still
+// React Flow — node component restyled with the design's pill-shape (pip
+// dot + title + monospace sub-text). All wiring preserved verbatim:
+//
+//   - GET /api/enterprise/graph (with optional ?type=)
+//   - POST /api/enterprise/graph/links on connect-drag
+//   - DELETE /api/enterprise/graph/links?id=… on Del / Backspace
+//   - ⌘F fullscreen, / focus search, Esc exits fullscreen
+//   - Type filter chips, free-text search dimming, type-grouped circular layout
+//   - Selected-edge "Delete" pop, selected-node detail card with Open Memory link
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import {
-  ReactFlow, ReactFlowProvider, Background, Controls, MiniMap,
+  ReactFlow, ReactFlowProvider, Background, MiniMap,
   type Node, type Edge, type NodeProps, Handle, Position,
   useNodesState, useEdgesState, addEdge, type Connection, type OnConnect,
   MarkerType, type NodeMouseHandler, type EdgeMouseHandler, Panel,
+  useReactFlow,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import {
-  Network, Gavel, Lightbulb, Mic, FileText, Clock, Loader2, AlertCircle, Filter,
-  Maximize2, Minimize2, Trash2, Search, X,
+  Loader2, AlertCircle, Maximize2, Minimize2, Trash2, Search, X,
+  GitBranch, ChevronRight, Plus, Minus, Maximize,
 } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 type RecordType = 'decision' | 'insight' | 'meeting' | 'idea' | 'context' | 'tasklike' | 'note' | 'transcript'
@@ -35,54 +49,41 @@ interface GraphEdge {
   weight: number | null
 }
 
-const TYPE_META: Record<RecordType, { label: string; color: string; bg: string; icon: typeof FileText }> = {
-  decision: { label: 'Decision', color: '#8b5cf6', bg: 'bg-violet-500/15 text-violet-500', icon: Gavel },
-  insight: { label: 'Insight', color: '#f59e0b', bg: 'bg-amber-500/15 text-amber-500', icon: Lightbulb },
-  meeting: { label: 'Meeting', color: '#10b981', bg: 'bg-emerald-500/15 text-emerald-500', icon: Mic },
-  idea: { label: 'Idea', color: '#06b6d4', bg: 'bg-cyan-500/15 text-cyan-500', icon: Lightbulb },
-  context: { label: 'Context', color: '#0ea5e9', bg: 'bg-sky-500/15 text-sky-500', icon: FileText },
-  tasklike: { label: 'Task', color: '#f97316', bg: 'bg-orange-500/15 text-orange-500', icon: Clock },
-  note: { label: 'Note', color: '#64748b', bg: 'bg-slate-500/15 text-slate-500', icon: FileText },
-  transcript: { label: 'Transcript', color: '#10b981', bg: 'bg-emerald-500/15 text-emerald-500', icon: Mic },
+const TYPE_META: Record<RecordType, { label: string; color: string }> = {
+  decision:   { label: 'Decisions',   color: 'oklch(0.5 0.18 290)' },
+  meeting:    { label: 'Meetings',    color: 'oklch(0.52 0.18 275)' },
+  insight:    { label: 'Insights',    color: 'oklch(0.65 0.10 200)' },
+  idea:       { label: 'Ideas',       color: 'oklch(0.78 0.13 75)' },
+  context:    { label: 'Context',     color: 'oklch(0.72 0.008 270)' },
+  tasklike:   { label: 'Tasks',       color: 'oklch(0.62 0.16 25)' },
+  note:       { label: 'Notes',       color: 'oklch(0.72 0.008 270)' },
+  transcript: { label: 'Transcripts', color: 'oklch(0.5 0.16 350)' },
 }
 
-const EDGE_KINDS = ['related_to', 'same_topic', 'contradicts', 'leads_to', 'continuation_of', 'causes', 'blocks', 'supports'] as const
-
-function MemoryNode({ data, selected }: NodeProps<Node<{ title: string; type: RecordType; dimmed?: boolean }>>) {
-  const meta = TYPE_META[data.type] || TYPE_META.note
-  const Icon = meta.icon
+// Memory node — design's pill-shape with pip dot, title, optional sub label
+function MemoryNode({ data, selected }: NodeProps<Node<{ title: string; type: RecordType; sub?: string; dimmed?: boolean }>>) {
   return (
-    <div
-      className={cn(
-        'rounded border bg-card shadow-sm flex items-start gap-2 p-2.5 w-[180px] transition-opacity',
-        selected ? 'border-primary ring-1 ring-primary/40' : 'border-border',
-        data.dimmed && 'opacity-25',
-      )}
-    >
+    <div className={cn('lsc-rf-node', selected && 'selected', data.dimmed && 'dimmed')}>
       <Handle
         type="target"
         position={Position.Top}
-        style={{ width: 8, height: 8, background: 'hsl(var(--primary))', border: '2px solid hsl(var(--background))' }}
+        style={{ width: 7, height: 7, background: 'oklch(0.52 0.18 275)', border: '2px solid white' }}
       />
       <Handle
         type="source"
         position={Position.Bottom}
-        style={{ width: 8, height: 8, background: 'hsl(var(--primary))', border: '2px solid hsl(var(--background))' }}
+        style={{ width: 7, height: 7, background: 'oklch(0.52 0.18 275)', border: '2px solid white' }}
       />
-      <div className={cn('h-6 w-6 rounded flex items-center justify-center shrink-0', meta.bg)}>
-        <Icon className="h-3 w-3" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[11px] font-medium leading-tight line-clamp-2">{data.title}</div>
-        <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{meta.label}</div>
-      </div>
+      <span className={cn('pip', data.type)} />
+      <span className="ttl">{data.title}</span>
+      {data.sub && <span className="sub">{data.sub}</span>}
     </div>
   )
 }
 
 const nodeTypes = { memory: MemoryNode }
 
-// Type-grouped circular layout
+// Type-grouped circular layout — same algorithm as before, just inline.
 function layout(nodes: GraphNode[]): Map<string, { x: number; y: number }> {
   const positions = new Map<string, { x: number; y: number }>()
   const byType = new Map<RecordType, GraphNode[]>()
@@ -111,10 +112,10 @@ function layout(nodes: GraphNode[]): Map<string, { x: number; y: number }> {
 }
 
 function edgeStyle(kind: string) {
-  if (kind === 'contradicts') return { stroke: '#e11d48', strokeWidth: 1.5, animated: true }
-  if (kind === 'continuation_of' || kind === 'leads_to') return { stroke: '#6366f1', strokeWidth: 1.5, animated: false }
-  if (kind === 'blocks') return { stroke: '#f97316', strokeWidth: 1.5, animated: false }
-  return { stroke: 'hsl(var(--border))', strokeWidth: 1, animated: false }
+  if (kind === 'contradicts') return { stroke: 'oklch(0.62 0.16 25)', strokeWidth: 1.5, animated: true }
+  if (kind === 'continuation_of' || kind === 'leads_to') return { stroke: 'oklch(0.52 0.18 275)', strokeWidth: 1.5, animated: false }
+  if (kind === 'blocks') return { stroke: 'oklch(0.62 0.18 30)', strokeWidth: 1.5, animated: false }
+  return { stroke: 'oklch(0.72 0.008 270)', strokeWidth: 1, animated: false }
 }
 
 export function BoardView() {
@@ -126,7 +127,6 @@ export function BoardView() {
   const [fullscreen, setFullscreen] = useState(false)
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
-  const canvasRef = useRef<HTMLDivElement>(null)
 
   async function reload() {
     setErr(null)
@@ -164,8 +164,8 @@ export function BoardView() {
         source: e.from,
         target: e.to,
         label: e.kind === 'contradicts' ? '⚠ contradicts' : e.kind.replace('_', ' '),
-        labelStyle: { fontSize: 10, fill: 'hsl(var(--muted-foreground))' },
-        labelBgStyle: { fill: 'hsl(var(--background))', fillOpacity: 0.9 },
+        labelStyle: { fontSize: 10, fill: 'oklch(0.52 0.01 270)' },
+        labelBgStyle: { fill: 'white', fillOpacity: 0.9 },
         style: { stroke: st.stroke, strokeWidth: st.strokeWidth },
         animated: st.animated,
         markerEnd: { type: MarkerType.ArrowClosed, color: st.stroke },
@@ -180,19 +180,18 @@ export function BoardView() {
   useEffect(() => { setStateNodes(rfNodes) }, [rfNodes, setStateNodes])
   useEffect(() => { setStateEdges(rfEdges) }, [rfEdges, setStateEdges])
 
-  // Create a new edge on drag-release
+  // Create a new edge on drag-release — optimistic add, then resync on success.
   const onConnect: OnConnect = useCallback(async (conn: Connection) => {
     if (!conn.source || !conn.target) return
-    // Optimistic render
     const tempId = `temp-${Date.now()}`
     setStateEdges((eds) => addEdge({
       id: tempId,
       source: conn.source!,
       target: conn.target!,
       label: 'related to',
-      labelStyle: { fontSize: 10, fill: 'hsl(var(--muted-foreground))' },
-      style: { stroke: 'hsl(var(--primary))', strokeWidth: 1.5 },
-      markerEnd: { type: MarkerType.ArrowClosed, color: 'hsl(var(--primary))' },
+      labelStyle: { fontSize: 10, fill: 'oklch(0.52 0.01 270)' },
+      style: { stroke: 'oklch(0.52 0.18 275)', strokeWidth: 1.5 },
+      markerEnd: { type: MarkerType.ArrowClosed, color: 'oklch(0.52 0.18 275)' },
     }, eds))
     try {
       const res = await fetch('/api/enterprise/graph/links', {
@@ -205,13 +204,13 @@ export function BoardView() {
         }),
       })
       if (!res.ok) throw new Error('create failed')
-      await reload() // resync with server truth
+      await reload()
     } catch {
       setStateEdges((eds) => eds.filter((e) => e.id !== tempId))
     }
   }, [setStateEdges]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard shortcuts: delete selected edge
+  // Keyboard shortcuts — preserved from the old implementation.
   useEffect(() => {
     const handler = async (ev: KeyboardEvent) => {
       if (ev.key === 'Delete' || ev.key === 'Backspace') {
@@ -226,7 +225,7 @@ export function BoardView() {
       if (ev.key === 'Escape' && fullscreen) setFullscreen(false)
       if (ev.key === '/' && !(ev.target as HTMLElement).closest('input, textarea')) {
         ev.preventDefault()
-        document.getElementById('graph-search-input')?.focus()
+        document.getElementById('lsc-board-search-input')?.focus()
       }
       if (ev.key === 'f' && (ev.metaKey || ev.ctrlKey)) {
         ev.preventDefault()
@@ -235,16 +234,13 @@ export function BoardView() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [selectedEdgeId, fullscreen, setStateEdges])
+  }, [selectedEdgeId, fullscreen, setStateEdges]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onEdgeClick: EdgeMouseHandler = useCallback((_, edge) => {
-    setSelectedEdgeId(edge.id)
-    setSelectedNodeId(null)
+    setSelectedEdgeId(edge.id); setSelectedNodeId(null)
   }, [])
-
   const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
-    setSelectedNodeId(node.id)
-    setSelectedEdgeId(null)
+    setSelectedNodeId(node.id); setSelectedEdgeId(null)
   }, [])
 
   const selectedNode = nodes?.find((n) => n.id === selectedNodeId)
@@ -258,212 +254,296 @@ export function BoardView() {
     return m
   }, [nodes])
 
-  const containerClasses = fullscreen
-    ? 'fixed inset-0 z-50 bg-background flex flex-col'
-    : 'h-[calc(100vh-8rem)] flex flex-col gap-3'
+  const totalNodes = nodes?.length ?? 0
+  const totalEdges = edges.length
+
+  // Zoom % state lives at this level so the bar can display it. The actual
+  // zoom calls happen inside ReactFlowProvider via ZoomBridge below.
+  const [zoomPct, setZoomPct] = useState(100)
 
   return (
-    <div ref={canvasRef} className={containerClasses}>
-      {/* Header (hidden in fullscreen) */}
+    <>
       {!fullscreen && (
-        <div className="flex-shrink-0">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/10 to-indigo-500/10 text-violet-700 dark:text-violet-400 text-[11px] font-medium uppercase tracking-wider mb-2">
-            <Network className="h-3 w-3" /> Board
+        <>
+          <span className="lsc-crumb accent">
+            <GitBranch size={9} strokeWidth={2} /> Board
+          </span>
+          <div className="lsc-head">
+            <h1>The shape of your <em>memory</em>.</h1>
+            <p className="sub">
+              Every record clustered by type, linked by inferred relationships. Drag between handles to create new links.
+              Use <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--ink-3)', border: '1px solid var(--line)', padding: '2px 6px', borderRadius: 5, background: 'var(--bg)' }}>⌘F</span> fullscreen ·{' '}
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--ink-3)', border: '1px solid var(--line)', padding: '2px 6px', borderRadius: 5, background: 'var(--bg)' }}>/</span> search ·{' '}
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--ink-3)', border: '1px solid var(--line)', padding: '2px 6px', borderRadius: 5, background: 'var(--bg)' }}>Del</span> remove link.
+            </p>
           </div>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="font-display text-3xl tracking-tight">The shape of your memory</h1>
-              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                Every record clustered by type, linked by inferred relationships. Drag between handles to create new links.
-                <span className="inline-flex items-center gap-1 ml-2">
-                  <kbd className="text-[10px] font-mono bg-muted rounded px-1">⌘F</kbd> fullscreen ·
-                  <kbd className="text-[10px] font-mono bg-muted rounded px-1 ml-1">/</kbd> search ·
-                  <kbd className="text-[10px] font-mono bg-muted rounded px-1 ml-1">Del</kbd> remove link
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        </>
       )}
 
       {err && (
-        <div className="flex items-center gap-2 text-sm text-destructive border border-destructive/30 bg-destructive/10 rounded p-2 flex-shrink-0">
-          <AlertCircle className="h-4 w-4" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--mem-rose)', border: '1px solid color-mix(in oklch, var(--mem-rose), white 60%)', background: 'var(--mem-rose-soft)', borderRadius: 8, padding: 10, marginBottom: 12 }}>
+          <AlertCircle size={14} />
           {err}
         </div>
       )}
 
-      <Card className="flex-1 overflow-hidden p-0 relative rounded-none sm:rounded">
-        {nodes === null ? (
-          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Building graph…
+      <div className={cn('lsc-board-card', fullscreen && 'fullscreen')} style={fullscreen ? {
+        position: 'fixed', inset: 0, zIndex: 50, borderRadius: 0, border: 0,
+      } : undefined}>
+        <div className="lsc-board-bar">
+          <div className="lsc-legend">
+            {(['meeting', 'decision', 'tasklike', 'insight', 'idea', 'note'] as RecordType[]).map((t) => {
+              const count = typeCounts.get(t) ?? 0
+              if (count === 0 && nodes && nodes.length > 0) return null
+              return (
+                <span key={t} className="lg">
+                  <span className="sw" style={{ background: TYPE_META[t].color }} />
+                  {TYPE_META[t].label} · {count}
+                </span>
+              )
+            })}
           </div>
-        ) : nodes.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-center p-8">
-            <div>
-              <Network className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-              <div className="font-medium mb-1">No memories yet</div>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Capture a few memories and the graph will render the relationships as soon as they&apos;re inferred.
-              </p>
-            </div>
+          <div className="right">
+            <BoardSearchAndZoom
+              query={query}
+              onQuery={setQuery}
+              fullscreen={fullscreen}
+              onToggleFullscreen={() => setFullscreen((f) => !f)}
+              zoomPct={zoomPct}
+            />
           </div>
-        ) : (
-          <ReactFlowProvider>
-            <ReactFlow
-              nodes={stateNodes}
-              edges={stateEdges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={onNodeClick}
-              onEdgeClick={onEdgeClick}
-              onPaneClick={() => { setSelectedEdgeId(null); setSelectedNodeId(null) }}
-              nodeTypes={nodeTypes}
-              fitView
-              fitViewOptions={{ padding: 0.2 }}
-              minZoom={0.08}
-              maxZoom={2.5}
-              proOptions={{ hideAttribution: true }}
-              connectionLineStyle={{ stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+        </div>
+
+        {/* Filter chips strip */}
+        <div className="lsc-filter-row">
+          <div className="lsc-filter-chips">
+            <button
+              type="button"
+              className={cn('lsc-fchip', typeFilter === '' && 'active')}
+              onClick={() => setTypeFilter('')}
             >
-              <Background gap={24} size={1} color="hsl(var(--border))" />
-              <Controls showInteractive={false} />
-              <MiniMap
-                nodeColor={(n) => {
-                  const t = (n.data as { type: RecordType }).type
-                  return TYPE_META[t]?.color ?? '#64748b'
-                }}
-                maskColor="hsl(var(--background) / 0.6)"
-                style={{ background: 'hsl(var(--card))' }}
-              />
-
-              {/* Top-left: search + filters */}
-              <Panel position="top-left" className="m-2 flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input
-                    id="graph-search-input"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search nodes"
-                    className="h-8 pl-7 pr-7 w-[240px] text-[13px] bg-background/90 backdrop-blur"
-                  />
-                  {query && (
-                    <button
-                      onClick={() => setQuery('')}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 bg-background/90 backdrop-blur border border-border rounded-md h-8 px-1.5">
-                  <Filter className="h-3 w-3 text-muted-foreground" />
-                  <button
-                    onClick={() => setTypeFilter('')}
-                    className={cn(
-                      'text-[11px] px-1.5 py-0.5 rounded transition-colors',
-                      typeFilter === '' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    All ({nodes?.length ?? 0})
-                  </button>
-                  {(['decision', 'meeting', 'insight', 'note'] as RecordType[]).map((t) => {
-                    const count = typeCounts.get(t) ?? 0
-                    if (count === 0 && typeFilter !== t) return null
-                    return (
-                      <button
-                        key={t}
-                        onClick={() => setTypeFilter((f) => (f === t ? '' : t))}
-                        className={cn(
-                          'text-[11px] px-1.5 py-0.5 rounded transition-colors',
-                          typeFilter === t ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        {TYPE_META[t].label} ({count})
-                      </button>
-                    )
-                  })}
-                </div>
-              </Panel>
-
-              {/* Top-right: fullscreen toggle */}
-              <Panel position="top-right" className="m-2">
+              All types
+            </button>
+            {(['decision', 'meeting', 'insight', 'idea', 'tasklike', 'note'] as RecordType[]).map((t) => {
+              const count = typeCounts.get(t) ?? 0
+              if (count === 0 && typeFilter !== t) return null
+              return (
                 <button
-                  onClick={() => setFullscreen((f) => !f)}
-                  className="h-8 w-8 flex items-center justify-center rounded bg-background/90 backdrop-blur border border-border text-muted-foreground hover:text-foreground transition-colors"
-                  title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (⌘F)'}
+                  key={t}
+                  type="button"
+                  className={cn('lsc-fchip', typeFilter === t && 'active')}
+                  onClick={() => setTypeFilter((f) => (f === t ? '' : t))}
                 >
-                  {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+                  {TYPE_META[t].label} · {count}
                 </button>
-              </Panel>
+              )
+            })}
+          </div>
+          <span className="lsc-board-meta">
+            {totalNodes.toLocaleString()} nodes · {totalEdges.toLocaleString()} links
+          </span>
+        </div>
 
-              {/* Selected edge delete panel */}
-              {selectedEdgeId && (
-                <Panel position="bottom-center" className="mb-6">
-                  <div className="flex items-center gap-2 bg-background/95 backdrop-blur border border-border rounded-md px-3 py-2 shadow-lg">
-                    <span className="text-xs text-muted-foreground">Link selected</span>
-                    <button
-                      onClick={async () => {
-                        setStateEdges((eds) => eds.filter((e) => e.id !== selectedEdgeId))
-                        await fetch(`/api/enterprise/graph/links?id=${selectedEdgeId}`, { method: 'DELETE' })
-                        setSelectedEdgeId(null)
-                        await reload()
-                      }}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/15 text-xs"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </button>
-                  </div>
-                </Panel>
-              )}
+        {/* The canvas */}
+        <div className={cn('lsc-board', fullscreen && 'fullscreen')}>
+          {nodes === null ? (
+            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: 'var(--ink-3)' }}>
+              <Loader2 size={14} className="animate-spin" style={{ marginRight: 8 }} />
+              Building graph…
+            </div>
+          ) : nodes.length === 0 ? (
+            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 32 }}>
+              <div>
+                <GitBranch size={32} style={{ color: 'var(--ink-3)', margin: '0 auto 12px' }} />
+                <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--ink)' }}>No memories yet</div>
+                <p style={{ fontSize: 13, color: 'var(--ink-3)', maxWidth: 280 }}>
+                  Capture a few memories and the graph will render the relationships as soon as they&apos;re inferred.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <ReactFlowProvider>
+              <ReactFlow
+                nodes={stateNodes}
+                edges={stateEdges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                onEdgeClick={onEdgeClick}
+                onPaneClick={() => { setSelectedEdgeId(null); setSelectedNodeId(null) }}
+                onMoveEnd={(_, vp) => setZoomPct(Math.round(vp.zoom * 100))}
+                nodeTypes={nodeTypes}
+                fitView
+                fitViewOptions={{ padding: 0.2 }}
+                minZoom={0.08}
+                maxZoom={2.5}
+                proOptions={{ hideAttribution: true }}
+                connectionLineStyle={{ stroke: 'oklch(0.52 0.18 275)', strokeWidth: 2 }}
+              >
+                <ZoomBridge onZoomChange={setZoomPct} />
+                <Background gap={22} size={1} color="oklch(0.86 0.005 85)" />
+                <MiniMap
+                  nodeColor={(n) => {
+                    const t = (n.data as { type: RecordType }).type
+                    return TYPE_META[t]?.color ?? 'oklch(0.72 0.008 270)'
+                  }}
+                  maskColor="oklch(0.985 0.005 85 / 0.6)"
+                />
 
-              {/* Selected node detail panel */}
-              {selectedNode && (
-                <Panel position="bottom-right" className="m-4 max-w-sm">
-                  <Card className="p-3 shadow-lg bg-background/95 backdrop-blur">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="text-sm font-medium pr-2">{selectedNode.title}</div>
+                {/* Selected edge popover */}
+                {selectedEdgeId && (
+                  <Panel position="bottom-center" className="m-6">
+                    <div className="lsc-edge-pop">
+                      <span>Link selected</span>
                       <button
-                        onClick={() => setSelectedNodeId(null)}
-                        className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground"
+                        type="button"
+                        onClick={async () => {
+                          setStateEdges((eds) => eds.filter((e) => e.id !== selectedEdgeId))
+                          await fetch(`/api/enterprise/graph/links?id=${selectedEdgeId}`, { method: 'DELETE' })
+                          setSelectedEdgeId(null)
+                          await reload()
+                        }}
                       >
-                        <X className="h-3 w-3" />
+                        <Trash2 size={11} /> Delete
                       </button>
                     </div>
-                    <div className="text-[11px] text-muted-foreground space-y-1">
-                      <div className="flex items-center gap-1">
-                        <span className="uppercase tracking-wider">{TYPE_META[selectedNode.type]?.label}</span>
-                        <span>·</span>
-                        <span>{connectedEdgeCount} connection{connectedEdgeCount === 1 ? '' : 's'}</span>
-                      </div>
-                      <div>Updated {new Date(selectedNode.updatedAt).toLocaleDateString()}</div>
-                    </div>
-                    {selectedNode.tags.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {selectedNode.tags.slice(0, 6).map((t) => (
-                          <span key={t} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">#{t}</span>
-                        ))}
-                      </div>
-                    )}
-                  </Card>
-                </Panel>
-              )}
-            </ReactFlow>
-          </ReactFlowProvider>
-        )}
-      </Card>
+                  </Panel>
+                )}
 
-      {fullscreen && (
-        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[60] bg-background/95 backdrop-blur border border-border rounded-full px-3 py-1 text-[11px] text-muted-foreground shadow-lg flex items-center gap-2">
-          <Network className="h-3 w-3" />
-          Memory graph
-          <span className="opacity-60">· Esc to exit</span>
+                {/* Selected node detail card */}
+                {selectedNode && (
+                  <Panel position="bottom-right" className="m-4">
+                    <div className="lsc-nodecard">
+                      <div className="ttl-row">
+                        <div className="ttl">{selectedNode.title}</div>
+                        <button
+                          type="button"
+                          className="x"
+                          onClick={() => setSelectedNodeId(null)}
+                          aria-label="Close"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                      <div className="meta">
+                        {TYPE_META[selectedNode.type]?.label} · {connectedEdgeCount} connection{connectedEdgeCount === 1 ? '' : 's'} · updated {new Date(selectedNode.updatedAt).toLocaleDateString()}
+                      </div>
+                      {selectedNode.tags.length > 0 && (
+                        <div className="row">
+                          {selectedNode.tags.slice(0, 6).map((t) => (
+                            <span key={t} className="t">#{t}</span>
+                          ))}
+                        </div>
+                      )}
+                      <Link href={`/app/memories/${selectedNode.id}`} className="open">
+                        Open memory <ChevronRight size={11} strokeWidth={2} />
+                      </Link>
+                    </div>
+                  </Panel>
+                )}
+              </ReactFlow>
+            </ReactFlowProvider>
+          )}
+        </div>
+      </div>
+
+      {!fullscreen && (
+        <div className="lsc-foot-note">
+          <AlertCircle size={14} strokeWidth={1.8} />
+          <div>
+            Drag any node to rearrange. Drag between two nodes to create a manual link — the AI will ask you to label the relationship (e.g. <i>supersedes</i>, <i>contradicts</i>, <i>follows from</i>). Inferred links are dotted; manual links are solid.
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
+}
+
+// Search bar + zoom controls + fullscreen toggle — sit in the board-bar
+// chrome (outside the ReactFlow canvas). The zoom buttons broadcast a
+// window CustomEvent that ZoomBridge inside the canvas translates into
+// real ReactFlow zoomIn / zoomOut / fitView calls.
+function BoardSearchAndZoom({
+  query, onQuery, fullscreen, onToggleFullscreen, zoomPct,
+}: {
+  query: string
+  onQuery: (v: string) => void
+  fullscreen: boolean
+  onToggleFullscreen: () => void
+  zoomPct: number
+}) {
+  return (
+    <>
+      <div className="lsc-board-search">
+        <Search size={12} style={{ color: 'var(--ink-3)' }} />
+        <input
+          id="lsc-board-search-input"
+          value={query}
+          onChange={(e) => onQuery(e.target.value)}
+          placeholder="Search nodes ( / )"
+        />
+        {query && (
+          <button type="button" onClick={() => onQuery('')} aria-label="Clear search">
+            <X size={11} />
+          </button>
+        )}
+      </div>
+      <div className="lsc-zoom" role="group" aria-label="Zoom">
+        <button
+          type="button"
+          title="Zoom out"
+          onClick={() => window.dispatchEvent(new CustomEvent('lsc-board-zoom', { detail: { dir: 'out' } }))}
+        >
+          <Minus size={12} />
+        </button>
+        <span className="lvl">{zoomPct}%</span>
+        <button
+          type="button"
+          title="Zoom in"
+          onClick={() => window.dispatchEvent(new CustomEvent('lsc-board-zoom', { detail: { dir: 'in' } }))}
+        >
+          <Plus size={12} />
+        </button>
+        <button
+          type="button"
+          title="Fit to screen"
+          onClick={() => window.dispatchEvent(new CustomEvent('lsc-board-zoom', { detail: { fit: true } }))}
+        >
+          <Maximize size={12} />
+        </button>
+      </div>
+      <button
+        type="button"
+        className="lsc-ibtn"
+        onClick={onToggleFullscreen}
+        title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (⌘F)'}
+        aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+      >
+        {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+      </button>
+    </>
+  )
+}
+
+// ZoomBridge — listens for the window 'lsc-board-zoom' events emitted by
+// the chrome zoom buttons and dispatches them to the actual ReactFlow
+// instance. Mounted *inside* the ReactFlowProvider so useReactFlow() works.
+function ZoomBridge({ onZoomChange }: { onZoomChange: (pct: number) => void }) {
+  const { zoomIn, zoomOut, fitView, getZoom } = useReactFlow()
+  useEffect(() => {
+    const sync = () => {
+      // setTimeout so we read the zoom *after* RF applies the change.
+      setTimeout(() => onZoomChange(Math.round(getZoom() * 100)), 50)
+    }
+    const handler = (e: Event) => {
+      const { detail } = e as CustomEvent<{ dir?: 'in' | 'out'; fit?: boolean }>
+      if (detail?.fit) { fitView({ padding: 0.2 }); sync(); return }
+      if (detail?.dir === 'in') { zoomIn(); sync(); return }
+      if (detail?.dir === 'out') { zoomOut(); sync(); return }
+    }
+    window.addEventListener('lsc-board-zoom', handler)
+    return () => window.removeEventListener('lsc-board-zoom', handler)
+  }, [zoomIn, zoomOut, fitView, getZoom, onZoomChange])
+  return null
 }

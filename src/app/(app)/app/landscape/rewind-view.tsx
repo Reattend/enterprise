@@ -2,21 +2,23 @@
 
 // Rewind — scrub the org through time.
 //
-// Drag the slider to any past month. The page re-fetches the org's state as
-// of that instant and animates the counts + visible memories + active
-// decisions to match. Feels like a video scrubber; every number is a real
-// historical query.
+// New design (Landscape.html): amber crumb, serif heading, pill-shaped scrub
+// card with custom track + knob, four-stat row in serif numerals, twin
+// "Decisions active / Most recent memories" panels.
 //
-// The point-in-time semantics are important: decisions superseded last week
-// show as *active* if the slider is before they were superseded. Same for
-// reversals. This is temporal memory made visible.
+// Wiring preserved from the original implementation:
+//   - 24-month tick array
+//   - Debounced fetch on slider scrub (250ms) hitting /api/enterprise/timeline
+//   - Anchor selector (all / topic / person / dept) with optional value input
+//   - Play / pause / restart with 600ms tick
+//   - Same point-in-time semantics: counts + decisions + recent memories at
+//     the chosen month-end.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import {
-  History, Loader2, Calendar, Gavel, FileText, Sparkles, ArrowRight,
-  PlayCircle, PauseCircle, RotateCcw,
+  Loader2, Calendar, Gavel, FileText, Sparkles, RotateCcw, Play, Pause,
+  ChevronRight, History,
 } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
@@ -37,8 +39,6 @@ type TimelineState = {
   activeDecisions: Array<{ id: string; title: string; decidedAt: string; decidedByUserId: string | null }>
 }
 
-// Build slider ticks from the earliest possible date (2 years back as a
-// reasonable default) to today, at month granularity.
 function buildTicks(months: number): Date[] {
   const now = new Date()
   const ticks: Date[] = []
@@ -50,6 +50,30 @@ function buildTicks(months: number): Date[] {
 }
 
 const RANGE_MONTHS = 24
+// Show 5 evenly-spaced visual ticks on the scrub track (start, +25%, +50%, +75%, end).
+const TICK_PCTS = [0, 25, 50, 75, 100]
+
+function fmtMonth(d: Date) {
+  return d.toLocaleString(undefined, { month: 'long', year: 'numeric' })
+}
+function fmtMonthShort(d: Date) {
+  return d.toLocaleString(undefined, { month: 'short', year: 'numeric' })
+}
+function relDays(then: string) {
+  const d = new Date(then)
+  const diff = Math.floor((Date.now() - d.getTime()) / 86400000)
+  if (diff <= 0) return 'Today'
+  if (diff === 1) return 'Yesterday'
+  if (diff < 30) return `${diff} days`
+  if (diff < 365) return `${Math.floor(diff / 30)} mo`
+  return d.toLocaleDateString()
+}
+
+const TYPE_LABEL: Record<string, string> = {
+  decision: 'Decision', meeting: 'Meeting', insight: 'Insight',
+  idea: 'Idea', context: 'Context', tasklike: 'Task',
+  note: 'Note', transcript: 'Transcript',
+}
 
 export function RewindView() {
   const { activeEnterpriseOrgId, hasHydratedStore } = useAppStore()
@@ -58,18 +82,16 @@ export function RewindView() {
   const [anchor, setAnchor] = useState<'all' | 'topic' | 'person' | 'dept'>('all')
   const [value, setValue] = useState('')
   const [state, setState] = useState<TimelineState | null>(null)
+  const [prevYearState, setPrevYearState] = useState<TimelineState | null>(null)
   const [loading, setLoading] = useState(false)
   const [playing, setPlaying] = useState(false)
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Debounced fetch — when the user scrubs quickly, don't flood the server.
+  // Debounced fetch — coalesce fast scrubs into one network call.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (!activeEnterpriseOrgId || !hasHydratedStore) return
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    // 250ms is the sweet spot for slider scrubbing — long enough to coalesce
-    // a fast drag into one fetch, short enough that releasing the slider
-    // feels instantaneous.
     debounceRef.current = setTimeout(() => { fetchState() }, 250)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,25 +102,34 @@ export function RewindView() {
     setLoading(true)
     try {
       const at = ticks[index]
-      // Use the last day of the month at 23:59:59 so "state at March 2026"
-      // includes everything that happened through March.
       const endOfMonth = new Date(at.getFullYear(), at.getMonth() + 1, 0, 23, 59, 59).toISOString()
-      const params = new URLSearchParams({
-        orgId: activeEnterpriseOrgId,
-        at: endOfMonth,
-        anchor,
-      })
+      const params = new URLSearchParams({ orgId: activeEnterpriseOrgId, at: endOfMonth, anchor })
       if (anchor !== 'all' && value.trim()) params.set('value', value.trim())
       const res = await fetch(`/api/enterprise/timeline?${params.toString()}`)
       if (!res.ok) return
       const data = await res.json() as TimelineState
       setState(data)
+
+      // Fetch the year-prior state so the "delta vs Apr 2025" line is real.
+      // Skip if we'd be asking about a date before our 24-month window.
+      if (index >= 12) {
+        const prevAt = ticks[index - 12]
+        const prevEnd = new Date(prevAt.getFullYear(), prevAt.getMonth() + 1, 0, 23, 59, 59).toISOString()
+        const prevParams = new URLSearchParams({ orgId: activeEnterpriseOrgId, at: prevEnd, anchor })
+        if (anchor !== 'all' && value.trim()) prevParams.set('value', value.trim())
+        try {
+          const prevRes = await fetch(`/api/enterprise/timeline?${prevParams.toString()}`)
+          if (prevRes.ok) setPrevYearState(await prevRes.json())
+          else setPrevYearState(null)
+        } catch { setPrevYearState(null) }
+      } else {
+        setPrevYearState(null)
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  // Playback mode: auto-advance one tick every 600ms. Great for demos.
   function togglePlay() {
     if (playing) {
       if (playTimerRef.current) clearInterval(playTimerRef.current)
@@ -107,7 +138,6 @@ export function RewindView() {
       return
     }
     setPlaying(true)
-    // If we're at the end, rewind to the start before playing.
     if (index >= ticks.length - 1) setIndex(0)
     playTimerRef.current = setInterval(() => {
       setIndex((prev) => {
@@ -123,95 +153,94 @@ export function RewindView() {
   }
   useEffect(() => () => { if (playTimerRef.current) clearInterval(playTimerRef.current) }, [])
 
+  function step(delta: number) {
+    setIndex((prev) => Math.max(0, Math.min(ticks.length - 1, prev + delta)))
+  }
+  function restart() {
+    setIndex(0); setPlaying(false)
+    if (playTimerRef.current) clearInterval(playTimerRef.current)
+  }
+
   const at = ticks[index]
-  const sparkMax = Math.max(1, ...(state?.monthlyCounts.map((m) => m.records) || [1]))
+  const isToday = index === ticks.length - 1
+  const fillPct = (index / (ticks.length - 1)) * 100
 
   if (!hasHydratedStore) return null
   if (!activeEnterpriseOrgId) return (
-    <div className="py-20 text-center">
-      <History className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-      <p className="text-sm text-muted-foreground">Select an organization to scrub the timeline.</p>
+    <div style={{ padding: '80px 0', textAlign: 'center' }}>
+      <History size={32} style={{ color: 'var(--ink-3)', margin: '0 auto 12px' }} />
+      <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Select an organization to scrub the timeline.</p>
     </div>
   )
 
+  function delta(curr: number | undefined, prev: number | undefined) {
+    if (curr == null || prev == null) return null
+    const d = curr - prev
+    if (d === 0) return '±0'
+    return `${d > 0 ? '+' : ''}${d.toLocaleString()}`
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="space-y-5 w-full"
-    >
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700 dark:text-amber-400 text-[11px] font-medium uppercase tracking-wider mb-2">
-            <History className="h-3 w-3" /> Rewind
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">Scrub the org through time</h1>
-          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Drag the slider or press play. See what the organization looked like on any past month: which decisions were active, what memories existed, how knowledge has grown.
-          </p>
-        </div>
+    <>
+      <span className="lsc-crumb amber">
+        <RotateCcw size={9} strokeWidth={2} /> Rewind
+      </span>
+      <div className="lsc-head">
+        <h1>Scrub the org through <em>time</em>.</h1>
+        <p className="sub">
+          Drag the slider or press play. See what the organization looked like on any past month — which decisions were active, what memories existed, how knowledge has grown. Every number on this page is a real point-in-time query against the org&apos;s state.
+        </p>
       </div>
 
-      {/* Slider */}
-      <div className="rounded-2xl border bg-card p-5 space-y-4 relative overflow-hidden shadow-sm">
-        {/* Sparkline behind the slider — always reserves 32px of height so
-            the surrounding layout doesn't shift between fetches when bars
-            re-render. */}
-        <div className="flex items-end gap-0.5 h-8 -mb-3 opacity-25 pointer-events-none">
-          {(state?.monthlyCounts ?? []).map((m, i) => (
-            <div
-              key={m.month}
-              className={cn(
-                'flex-1 bg-amber-500 rounded-t',
-                i <= index - (RANGE_MONTHS + 1 - (state?.monthlyCounts.length ?? 0)) && 'bg-amber-600',
-              )}
-              style={{ height: `${Math.max(2, (m.records / sparkMax) * 100)}%` }}
-              title={`${m.month}: ${m.records} memories`}
+      {/* Scrub card */}
+      <div className="lsc-rew-card">
+        <div className="lsc-scrub-wrap">
+          <div className="lsc-scrub">
+            <div className="lsc-scrub-fill" style={{ width: `${fillPct}%` }} />
+            {TICK_PCTS.map((p) => (
+              <div key={p} className="lsc-scrub-tick" style={{ left: `${p}%` }} />
+            ))}
+            <div className="lsc-scrub-knob" style={{ left: `${fillPct}%` }} />
+            <input
+              type="range"
+              className="lsc-scrub-input"
+              min={0}
+              max={ticks.length - 1}
+              value={index}
+              onChange={(e) => setIndex(parseInt(e.target.value))}
+              aria-label="Scrub timeline"
             />
-          ))}
-        </div>
-
-        <div className="relative z-10">
-          <input
-            type="range"
-            min={0}
-            max={ticks.length - 1}
-            value={index}
-            onChange={(e) => setIndex(parseInt(e.target.value))}
-            className="w-full accent-amber-500 cursor-pointer"
-          />
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-1">
-            <span>{ticks[0].toLocaleString(undefined, { month: 'short', year: 'numeric' })}</span>
-            <span className="text-sm font-bold text-foreground tabular-nums">
-              <Calendar className="h-3 w-3 inline mr-1 text-amber-500" />
-              {at.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
-              {index === ticks.length - 1 && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(today)</span>}
-            </span>
-            <span>{ticks[ticks.length - 1].toLocaleString(undefined, { month: 'short', year: 'numeric' })}</span>
+          </div>
+          <div className="lsc-scrub-ends">
+            <span>{fmtMonthShort(ticks[0])}</span>
+            <span>{fmtMonthShort(ticks[ticks.length - 1])}</span>
+          </div>
+          <div className="lsc-scrub-now">
+            <Calendar size={14} strokeWidth={1.8} style={{ color: 'var(--ink-3)' }} />
+            <b>{fmtMonth(at)}</b>
+            {isToday && <span className="today">(today)</span>}
           </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={togglePlay}
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
-          >
-            {playing ? <PauseCircle className="h-3.5 w-3.5" /> : <PlayCircle className="h-3.5 w-3.5" />}
+        <div className="lsc-play-row">
+          <button className="lsc-pbtn primary" onClick={togglePlay}>
+            {playing ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" />}
             {playing ? 'Pause' : 'Play'}
           </button>
-          <button
-            onClick={() => { setIndex(0); setPlaying(false); if (playTimerRef.current) clearInterval(playTimerRef.current) }}
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
-            title="Restart from the beginning"
-          >
-            <RotateCcw className="h-3.5 w-3.5" /> Restart
+          <button className="lsc-pbtn" onClick={restart} title="Restart from the beginning">
+            <RotateCcw size={12} strokeWidth={2} /> Restart
           </button>
-          <div className="flex-1" />
+          <button className="lsc-pbtn" onClick={() => step(-1)} title="Step backwards 1 month">
+            <ChevronRight size={12} strokeWidth={2} style={{ transform: 'rotate(180deg)' }} />
+            ±1mo
+          </button>
+          <button className="lsc-pbtn" onClick={() => step(1)} title="Step forwards 1 month">
+            <ChevronRight size={12} strokeWidth={2} />
+          </button>
           <select
+            className="lsc-scope"
             value={anchor}
             onChange={(e) => setAnchor(e.target.value as typeof anchor)}
-            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+            title="Filter scope"
           >
             <option value="all">All org</option>
             <option value="topic">Topic / tag</option>
@@ -223,137 +252,134 @@ export function RewindView() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder={anchor === 'topic' ? 'tag or keyword' : anchor === 'person' ? 'user id' : 'dept id'}
-              className="h-8 rounded-md border border-input bg-background px-2 text-xs w-40"
+              className="lsc-scope-input"
             />
           )}
-          {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+          {loading && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--ink-3)' }} />}
         </div>
       </div>
 
-      {/* State at this instant */}
-      {state && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <AnimatedMetric label="Memories existing" value={state.counts.recordsExisting} tone="blue" />
-          <AnimatedMetric label="Active decisions" value={state.counts.activeDecisions} tone="violet" />
-          <AnimatedMetric label="Already reversed" value={state.counts.reversedByThen} tone="red" />
-          <AnimatedMetric label="Already superseded" value={state.counts.supersededByThen} tone="yellow" />
-        </div>
-      )}
+      {/* Stats */}
+      <div className="lsc-stat-grid">
+        <Stat
+          tone="acc"
+          label="Memories existing"
+          value={state?.counts.recordsExisting ?? 0}
+          delta={prevYearState ? `${delta(state?.counts.recordsExisting, prevYearState?.counts.recordsExisting)} vs ${fmtMonthShort(ticks[Math.max(0, index - 12)])}` : undefined}
+        />
+        <Stat
+          tone="dec"
+          label="Active decisions"
+          value={state?.counts.activeDecisions ?? 0}
+          delta={prevYearState ? `${delta(state?.counts.activeDecisions, prevYearState?.counts.activeDecisions)} vs ${fmtMonthShort(ticks[Math.max(0, index - 12)])}` : undefined}
+        />
+        <Stat
+          tone="rev"
+          label="Already reversed"
+          value={state?.counts.reversedByThen ?? 0}
+          delta={prevYearState ? `${delta(state?.counts.reversedByThen, prevYearState?.counts.reversedByThen)} this period` : undefined}
+        />
+        <Stat
+          tone="sup"
+          label="Already superseded"
+          value={state?.counts.supersededByThen ?? 0}
+          delta={prevYearState ? `${delta(state?.counts.supersededByThen, prevYearState?.counts.supersededByThen)} this period` : undefined}
+        />
+      </div>
 
-      {/* What was active at that moment */}
+      {/* Twin panels */}
       {state && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div className="px-4 py-3 border-b bg-muted/20 flex items-center gap-2">
-              <Gavel className="h-3.5 w-3.5 text-violet-500" />
-              <div className="text-sm font-semibold">Decisions active at {at.toLocaleString(undefined, { month: 'short', year: 'numeric' })}</div>
-            </div>
-            {state.activeDecisions.length === 0 ? (
-              <div className="p-8 text-center text-xs text-muted-foreground">
-                No decisions were active yet at this moment.
-              </div>
-            ) : (
-              <div className="divide-y">
-                {state.activeDecisions.map((d) => (
-                  <div
+        <div className="lsc-rew-grid">
+          <div className="lsc-panel">
+            <h3>
+              <Gavel size={16} strokeWidth={1.8} />
+              Decisions active at {fmtMonthShort(at)}
+            </h3>
+            <div className="body">
+              {state.activeDecisions.length === 0 ? (
+                <div style={{ padding: '32px 0', textAlign: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+                  No decisions were active yet at this moment.
+                </div>
+              ) : (
+                state.activeDecisions.slice(0, 6).map((d) => (
+                  <Link
                     key={d.id}
-                    className="px-4 py-2.5 text-xs flex items-start gap-2"
+                    href={`/app/memories/${d.id}`}
+                    className="lsc-item linkable"
                   >
-                    <Gavel className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{d.title}</div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                    <span className="pip dec" />
+                    <div>
+                      <div className="ttl">{d.title}</div>
+                      <div className="meta">
                         Decided {new Date(d.decidedAt).toLocaleDateString()}
+                        {d.decidedByUserId && ` · @${d.decidedByUserId.slice(0, 8)}`}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div className="px-4 py-3 border-b bg-muted/20 flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-              <div className="text-sm font-semibold">Most recent memories as of then</div>
-            </div>
-            {state.topRecords.length === 0 ? (
-              <div className="p-8 text-center text-xs text-muted-foreground">
-                No memories existed yet.
-              </div>
-            ) : (
-              <div className="divide-y">
-                {state.topRecords.map((r) => (
-                  <Link
-                    key={r.id}
-                    href={`/app/memories/${r.id}`}
-                    className="block px-4 py-2.5 text-xs hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className={cn('rounded px-1 py-0.5 text-[9px] uppercase tracking-wide', typeBadge(r.type))}>{r.type}</span>
-                      <span className="truncate font-medium flex-1">{r.title}</span>
-                      <ArrowRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-                    </div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">
-                      Captured {new Date(r.createdAt).toLocaleDateString()}
-                    </div>
+                    <span className="when">{relDays(d.decidedAt)}</span>
                   </Link>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="lsc-panel">
+            <h3>
+              <Sparkles size={16} strokeWidth={1.8} />
+              Most recent memories as of then
+            </h3>
+            <div className="body">
+              {state.topRecords.length === 0 ? (
+                <div style={{ padding: '32px 0', textAlign: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+                  No memories existed yet.
+                </div>
+              ) : (
+                state.topRecords.slice(0, 6).map((r) => {
+                  const pipClass = r.type === 'decision' ? 'dec' : 'acc'
+                  return (
+                    <Link
+                      key={r.id}
+                      href={`/app/memories/${r.id}`}
+                      className="lsc-item linkable"
+                    >
+                      <span className={cn('pip', pipClass)} />
+                      <div>
+                        <div className="ttl">{r.title}</div>
+                        <div className="meta">
+                          {TYPE_LABEL[r.type] || r.type}
+                          {r.summary && ` · ${r.summary.slice(0, 60)}${r.summary.length > 60 ? '…' : ''}`}
+                        </div>
+                      </div>
+                      <span className="when">
+                        {new Date(r.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
+                    </Link>
+                  )
+                })
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Context strip */}
+      {/* Foot note */}
       {state && (
-        <div className="rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">
-          <FileText className="h-3 w-3 inline mr-1" />
-          {state.counts.publishedPolicies} polic{state.counts.publishedPolicies === 1 ? 'y' : 'ies'} already published as of{' '}
-          <strong className="text-foreground">{at.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</strong>.
-          Every number on this page is a real historical query against the org&apos;s point-in-time state.
+        <div className="lsc-foot-note">
+          <FileText size={14} strokeWidth={1.8} />
+          <div>
+            <b>{state.counts.publishedPolicies} polic{state.counts.publishedPolicies === 1 ? 'y' : 'ies'}</b> already published as of <b>{fmtMonth(at)}</b>. Every number on this page is a real historical query against the org&apos;s point-in-time state — useful for audits, onboarding new exec hires, and answering &ldquo;what did we know on X day?&rdquo;
+          </div>
         </div>
       )}
-    </motion.div>
+    </>
   )
 }
 
-function AnimatedMetric({ label, value, tone }: { label: string; value: number; tone: 'blue' | 'violet' | 'red' | 'yellow' }) {
-  const tones: Record<string, { dot: string; text: string }> = {
-    blue:   { dot: 'bg-blue-500',   text: 'text-blue-600 dark:text-blue-400' },
-    violet: { dot: 'bg-violet-500', text: 'text-violet-600 dark:text-violet-400' },
-    red:    { dot: 'bg-red-500',    text: 'text-red-600 dark:text-red-400' },
-    yellow: { dot: 'bg-yellow-500', text: 'text-yellow-600 dark:text-yellow-400' },
-  }
-  const t = tones[tone]
+function Stat({ tone, label, value, delta }: { tone: 'acc' | 'dec' | 'rev' | 'sup'; label: string; value: number; delta?: string }) {
   return (
-    <div className="rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-shadow min-h-[88px]">
-      <div className="flex items-center gap-1.5">
-        <span className={cn('h-1.5 w-1.5 rounded-full', t.dot)} />
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">{label}</span>
-      </div>
-      {/* Simple cross-fade on value change — no scale bump. The key prop drives
-          a single quick fade on each new fetch, far calmer than the old scale
-          1.15 → 1 animation that fired on every cluster of metrics simultaneously. */}
-      <motion.div
-        key={value}
-        initial={{ opacity: 0.5 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.18 }}
-        className={cn('text-3xl font-bold tabular-nums mt-1.5', t.text)}
-      >
-        {value.toLocaleString()}
-      </motion.div>
+    <div className={cn('lsc-stat', tone)}>
+      <div className="lab"><span className="dot" /> {label}</div>
+      <div className="num">{value.toLocaleString()}</div>
+      {delta && <div className="delta">{delta}</div>}
     </div>
   )
-}
-
-function typeBadge(type: string): string {
-  const map: Record<string, string> = {
-    decision: 'bg-violet-500/15 text-violet-700 dark:text-violet-400',
-    insight: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
-    meeting: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',
-    note: 'bg-slate-500/15 text-slate-700 dark:text-slate-400',
-  }
-  return map[type] || 'bg-muted text-muted-foreground'
 }
