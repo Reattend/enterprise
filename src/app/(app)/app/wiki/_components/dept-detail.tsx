@@ -152,7 +152,7 @@ export function DeptDetail({ deptId, orgName }: { deptId: string; orgName?: stri
             <b>Auto-generated</b> from {data.recordCount.toLocaleString()} memor{data.recordCount === 1 ? 'y' : 'ies'} · last regen {synced}. Edits you make are kept on regen.
           </span>
           <span className="right">
-            <Link href={`/app/memories?dept=${encodeURIComponent(data.dept.id)}`} style={{ color: 'var(--accent-ink)', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={`/app/memories?dept=${encodeURIComponent(data.dept.id)}`} style={{ color: 'var(--brand-ink)', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}>
               See memories →
             </Link>
           </span>

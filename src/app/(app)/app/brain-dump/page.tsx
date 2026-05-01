@@ -616,7 +616,7 @@ export default function BrainDumpPage() {
           {/* RIGHT — preview panel */}
           <aside className="cap-preview">
             <div className="cap-pv-head">
-              <Sparkles className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+              <Sparkles className="h-4 w-4" style={{ color: 'var(--brand)' }} />
               <span className="title">What the AI sees</span>
               <span className="live"><span className="dot" /> Live</span>
             </div>

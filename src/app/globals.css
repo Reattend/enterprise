@@ -166,10 +166,21 @@
     line-height: 1.5;
   }
   /* Headings use the display serif inside admin/cockpit pages.
-     Scoped via .enterprise-shell wrapper so marketing pages keep their type. */
+     Scoped via .enterprise-shell wrapper so marketing pages keep their type.
+     Lock to weight 400 — Instrument Serif only ships a single weight, so
+     `font-bold` would synth-bold and look gummy. */
   .enterprise-shell h1,
-  .enterprise-shell .font-display {
+  .enterprise-shell .font-display,
+  .enterprise-shell .serif {
     font-family: var(--font-display), 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+    letter-spacing: -0.015em;
+    font-weight: 400 !important;
+  }
+  /* Section headings (h2) inside the shell pick up the serif by default
+     too — Notion / Bloomberg / editorial vibe. Pages that want a sans
+     section title can opt out with class="font-sans". */
+  .enterprise-shell h2 {
+    font-family: var(--font-display), 'Iowan Old Style', Georgia, serif;
     letter-spacing: -0.01em;
     font-weight: 400;
   }
@@ -177,13 +188,110 @@
   input, select, textarea, button {
     font-size: inherit;
   }
+  /* Mono — JetBrains Mono on every kbd / code / pre inside the shell. */
+  .enterprise-shell kbd,
+  .enterprise-shell code,
+  .enterprise-shell pre,
+  .enterprise-shell .mono {
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  }
 }
 
-/* Enterprise-themed ambient tweaks */
+/* ────────────────────────────────────────────────────────────────────
+ * Enterprise palette — design system tokens in OKLCH-equivalent HSL.
+ *
+ * shadcn variables are HSL-component triplets consumed via
+ * `hsl(var(--background))`. We override them inside `.enterprise-shell`
+ * so every untouched page (admin, agents, integrations, settings, etc.)
+ * automatically picks up the warm-cream + indigo-violet palette without
+ * touching its JSX.
+ *
+ * Conversions are HSL approximations of:
+ *   --bg     oklch(0.985 0.005 85)  ≈ 48 25% 98%   warm cream canvas
+ *   --panel  oklch(1 0 0)           = 0 0% 100%    pure white card
+ *   --rail   oklch(0.97 0.005 85)   ≈ 48 20% 96%   subtler than bg
+ *   --line   oklch(0.92 0.005 270)  ≈ 258 8% 91%   default border
+ *   --ink    oklch(0.18 0.01 270)   ≈ 258 12% 13%  primary text
+ *   --ink-3  oklch(0.52 0.01 270)   ≈ 258 6% 50%   muted label
+ *   --accent oklch(0.52 0.18 275)   ≈ 258 52% 53%  indigo-violet
+ *   --green  oklch(0.62 0.13 155)   ≈ 155 45% 45%
+ *   --rose   oklch(0.62 0.16 25)    ≈ 15 65% 55%
+ * ──────────────────────────────────────────────────────────────────── */
 .enterprise-shell {
-  /* Subtle noise/grain for editorial feel could go here in future.
-     For now keep it clean. */
+  /* Surfaces */
+  --background: 48 25% 98%;
+  --foreground: 258 12% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 258 12% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 258 12% 13%;
+
+  /* Primary indigo-violet — matches the design's --brand */
+  --primary: 258 52% 53%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Soft surfaces */
+  --secondary: 258 30% 95%;
+  --secondary-foreground: 258 22% 32%;
+  --muted: 48 20% 96%;
+  --muted-foreground: 258 6% 50%;
+  /* shadcn `--accent` is the soft hover surface. NOT our brand accent —
+     that's `--brand` defined in dashboard.css. Keeps menu/dropdown hovers
+     visible inside the shell. */
+  --accent: 258 30% 95%;
+  --accent-foreground: 258 22% 32%;
+
+  --destructive: 15 65% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 258 8% 91%;
+  --input: 258 8% 91%;
+  --ring: 258 52% 53%;
+
+  /* Softer corners — design uses 8-14px on cards, 9-10px on buttons.
+     0.625rem = 10px. Tailwind's rounded → 10px, rounded-lg → 14px. */
+  --radius: 0.625rem;
+
+  /* Sidebar (matches --rail) */
+  --sidebar: 48 20% 96%;
+  --sidebar-foreground: 258 12% 13%;
+  --sidebar-border: 258 8% 91%;
+  --sidebar-accent: 258 30% 95%;
+  --sidebar-accent-foreground: 258 22% 32%;
 }
+
+.dark .enterprise-shell {
+  --background: 258 10% 12%;
+  --foreground: 48 25% 98%;
+  --card: 258 10% 16%;
+  --card-foreground: 48 25% 98%;
+  --popover: 258 10% 16%;
+  --popover-foreground: 48 25% 98%;
+
+  --primary: 258 60% 65%;
+  --primary-foreground: 258 10% 12%;
+
+  --secondary: 258 8% 22%;
+  --secondary-foreground: 48 20% 90%;
+  --muted: 258 8% 22%;
+  --muted-foreground: 258 6% 65%;
+  --accent: 258 8% 22%;
+  --accent-foreground: 48 25% 98%;
+
+  --destructive: 15 65% 55%;
+  --destructive-foreground: 48 25% 98%;
+
+  --border: 258 8% 25%;
+  --input: 258 8% 25%;
+  --ring: 258 60% 65%;
+
+  --sidebar: 258 10% 10%;
+  --sidebar-foreground: 48 25% 98%;
+  --sidebar-border: 258 8% 25%;
+  --sidebar-accent: 258 8% 22%;
+  --sidebar-accent-foreground: 48 25% 98%;
+}
+
 .enterprise-shell ::selection {
   @apply bg-primary/25 text-foreground;
 }

@@ -560,7 +560,7 @@ export default function MemoriesPage() {
             ) : (
               <button
                 onClick={() => { setTypeFilter('all'); setSourceFilter('all'); setDateRange('all'); setSearchQuery('') }}
-                style={{ marginTop: 12, background: 'transparent', border: 0, color: 'var(--accent-ink)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit', fontSize: 12 }}
+                style={{ marginTop: 12, background: 'transparent', border: 0, color: 'var(--brand-ink)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit', fontSize: 12 }}
               >
                 Clear filters
               </button>

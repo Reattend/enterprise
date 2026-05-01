@@ -122,7 +122,7 @@ export default function HomePage() {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, marginBottom: 22 }}>
         <div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 36, lineHeight: 1, letterSpacing: '-0.01em', margin: 0, color: 'var(--ink)' }}>
-            {phrase}, <em style={{ fontStyle: 'italic', color: 'var(--accent-ink)' }}>{first}</em>.
+            {phrase}, <em style={{ fontStyle: 'italic', color: 'var(--brand-ink)' }}>{first}</em>.
           </h1>
           <p style={{ color: 'var(--ink-3)', margin: '6px 0 0', fontSize: 14 }}>
             Here&apos;s what needs your attention in <b style={{ color: 'var(--ink)', fontWeight: 600 }}>{orgName}</b> · {todayStr}
@@ -135,7 +135,7 @@ export default function HomePage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px',
               borderRadius: 9, fontSize: 13, fontWeight: 550, fontFamily: 'inherit',
-              border: '1px solid var(--accent)', background: 'var(--accent)', color: 'white', cursor: 'pointer',
+              border: '1px solid var(--brand)', background: 'var(--brand)', color: 'white', cursor: 'pointer',
             }}
           >
             <Plus className="h-3.5 w-3.5" /> Capture
@@ -188,7 +188,7 @@ export default function HomePage() {
       {/* Meeting block */}
       <section style={{ border: '1px solid var(--line)', borderRadius: 14, background: 'var(--panel)', marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px' }}>
-          <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--accent-soft)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', flex: 'none' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--brand-soft)', color: 'var(--brand-ink)', display: 'grid', placeItems: 'center', flex: 'none' }}>
             <CalendarIcon className="h-4 w-4" />
           </div>
           <div style={{ flex: 1 }}>
@@ -260,13 +260,13 @@ export default function HomePage() {
         <div style={{ border: '1px solid var(--line)', borderRadius: 14, background: 'var(--panel)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
             <span style={{ fontWeight: 600, fontSize: 14.5 }}>Recent memories</span>
-            <Link href="/app/memories" style={{ marginLeft: 'auto', color: 'var(--accent-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
+            <Link href="/app/memories" style={{ marginLeft: 'auto', color: 'var(--brand-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
               All memories →
             </Link>
           </div>
           {recent.length === 0 && !loading && (
             <div style={{ padding: '32px 18px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
-              No memories yet. <Link href="/app/brain-dump" style={{ color: 'var(--accent-ink)', textDecoration: 'none' }}>Capture your first →</Link>
+              No memories yet. <Link href="/app/brain-dump" style={{ color: 'var(--brand-ink)', textDecoration: 'none' }}>Capture your first →</Link>
             </div>
           )}
           {recent.map((r, i) => (
@@ -312,13 +312,13 @@ export default function HomePage() {
           <div style={{ border: '1px solid var(--line)', borderRadius: 14, background: 'var(--panel)', marginTop: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
               <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Sync status</span>
-              <Link href="/app/integrations" style={{ marginLeft: 'auto', color: 'var(--accent-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/app/integrations" style={{ marginLeft: 'auto', color: 'var(--brand-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
                 Manage →
               </Link>
             </div>
             {sync.length === 0 && !loading && (
               <div style={{ padding: '24px 18px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
-                No connectors yet. <Link href="/app/integrations" style={{ color: 'var(--accent-ink)', textDecoration: 'none' }}>Connect one →</Link>
+                No connectors yet. <Link href="/app/integrations" style={{ color: 'var(--brand-ink)', textDecoration: 'none' }}>Connect one →</Link>
               </div>
             )}
             {sync.map((p, i) => {
@@ -339,7 +339,7 @@ export default function HomePage() {
                   </span>
                   <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12 }}>
                     {p.lastSyncedAt ? timeAgo(p.lastSyncedAt) + ' ago'
-                      : <Link href="/app/integrations" style={{ color: 'var(--accent-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>Connect</Link>}
+                      : <Link href="/app/integrations" style={{ color: 'var(--brand-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>Connect</Link>}
                   </span>
                 </div>
               )
@@ -362,11 +362,11 @@ function StatCard({ icon, tone, cap, val, foot }: {
   val: number | string
   foot: string
 }) {
-  const bg = tone === 'accent' ? 'var(--accent-soft)'
+  const bg = tone === 'accent' ? 'var(--brand-soft)'
     : tone === 'amber' ? 'var(--amber-soft)'
     : tone === 'green' ? 'var(--green-soft)'
     : 'oklch(0.95 0.005 270)'
-  const fg = tone === 'accent' ? 'var(--accent-ink)'
+  const fg = tone === 'accent' ? 'var(--brand-ink)'
     : tone === 'amber' ? 'var(--amber-ink)'
     : tone === 'green' ? 'oklch(0.4 0.12 155)'
     : 'var(--ink)'
@@ -396,7 +396,7 @@ function QuickAction({ icon, label, href, external }: {
   } as const
   const inner = (
     <>
-      <span style={{ color: 'var(--accent)' }}>{icon}</span>
+      <span style={{ color: 'var(--brand)' }}>{icon}</span>
       {label}
       <ChevronRight className="h-3 w-3" style={{ marginLeft: 'auto', color: 'var(--ink-4)' }} />
     </>

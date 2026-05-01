@@ -102,7 +102,7 @@ export function TopicDetail({ orgId, topic, orgName }: { orgId: string; topic: s
           <span className="right">
             <Link
               href={`/app/memories?tag=${encodeURIComponent(data.topic)}`}
-              style={{ color: 'var(--accent-ink)', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}
+              style={{ color: 'var(--brand-ink)', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}
             >
               See memories →
             </Link>

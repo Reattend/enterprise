@@ -14,9 +14,14 @@
   --ink-4: oklch(0.72 0.008 270);
   --line: oklch(0.92 0.005 270);
   --line-2: oklch(0.96 0.004 270);
-  --accent: oklch(0.52 0.18 275);
-  --accent-soft: oklch(0.94 0.04 275);
-  --accent-ink: oklch(0.32 0.14 275);
+  /* Indigo-violet brand accent — kept under `--brand*` to avoid colliding
+     with shadcn's HSL `--accent` (which globals.css redefines inside the
+     shell as a soft hover surface). Both palettes coexist cleanly: use
+     `var(--brand)` for the violet violet design accent, Tailwind's
+     `bg-accent` for the soft hover surface. */
+  --brand: oklch(0.52 0.18 275);
+  --brand-soft: oklch(0.94 0.04 275);
+  --brand-ink: oklch(0.32 0.14 275);
   --serif: "Instrument Serif", "Times New Roman", serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: "Inter", system-ui, sans-serif;
@@ -78,7 +83,7 @@
 }
 .enterprise-shell .rail .brand-tag {
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em;
-  color: var(--accent-ink); margin-top: 2px;
+  color: var(--brand-ink); margin-top: 2px;
   text-transform: uppercase;
 }
 .enterprise-shell .rail-collapse {
@@ -133,7 +138,7 @@
 .enterprise-shell .rail-nav a .ico {
   width: 16px; height: 16px; color: var(--ink-3); flex-shrink: 0;
 }
-.enterprise-shell .rail-nav a.active .ico { color: var(--accent); }
+.enterprise-shell .rail-nav a.active .ico { color: var(--brand); }
 .enterprise-shell .rail-nav a .badge {
   margin-left: auto; font-size: 10px; color: var(--ink-3);
   background: oklch(0.95 0.005 85); border-radius: 999px;
@@ -240,13 +245,13 @@
 }
 .enterprise-shell .plan-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  background: var(--accent-soft); color: var(--accent-ink);
+  background: var(--brand-soft); color: var(--brand-ink);
   padding: 5px 10px; border-radius: 999px;
   font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em;
-  border: 1px solid color-mix(in oklch, var(--accent), white 75%);
+  border: 1px solid color-mix(in oklch, var(--brand), white 75%);
   text-transform: capitalize; text-decoration: none;
 }
-.enterprise-shell .plan-pill:hover { background: color-mix(in oklch, var(--accent-soft), white 30%); }
+.enterprise-shell .plan-pill:hover { background: color-mix(in oklch, var(--brand-soft), white 30%); }
 .enterprise-shell .icon-btn {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid transparent; background: transparent;
@@ -308,7 +313,7 @@
   text-align: center; margin: 0 0 28px;
   color: var(--ink);
 }
-.enterprise-shell .chat-greeting em { font-style: italic; color: var(--accent-ink); }
+.enterprise-shell .chat-greeting em { font-style: italic; color: var(--brand-ink); }
 
 .enterprise-shell .examples-label {
   font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
@@ -331,7 +336,7 @@
 .enterprise-shell .example .arrow { margin-left: auto; color: var(--ink-3); }
 .enterprise-shell .example .glyph {
   width: 18px; height: 18px; border-radius: 5px;
-  background: var(--accent-soft); color: var(--accent-ink);
+  background: var(--brand-soft); color: var(--brand-ink);
   display: grid; place-items: center; flex: none;
 }
 
@@ -389,8 +394,8 @@
 .enterprise-shell .cap-page { padding: 26px 32px 64px; max-width: 1280px; margin: 0 auto; }
 .enterprise-shell .cap-crumb {
   font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--accent-ink); display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); font-weight: 600;
+  color: var(--brand-ink); display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; background: var(--brand-soft); font-weight: 600;
 }
 .enterprise-shell .cap-head { text-align: left; margin: 14px 0 22px; }
 .enterprise-shell .cap-head h1 {
@@ -398,7 +403,7 @@
   letter-spacing: -0.015em; margin: 8px 0 6px; color: var(--ink);
   font-weight: 400;
 }
-.enterprise-shell .cap-head h1 em { font-style: italic; color: var(--accent-ink); }
+.enterprise-shell .cap-head h1 em { font-style: italic; color: var(--brand-ink); }
 .enterprise-shell .cap-head p { color: var(--ink-3); margin: 0; max-width: 64ch; font-size: 14px; }
 .enterprise-shell .cap-head .kbd {
   font-family: var(--mono); font-size: 10.5px; color: var(--ink-3);
@@ -452,16 +457,16 @@
 
 .enterprise-shell .cap-dropzone {
   margin: 18px; padding: 38px 24px;
-  border: 1.5px dashed color-mix(in oklch, var(--accent), white 50%);
-  border-radius: 14px; background: color-mix(in oklch, var(--accent-soft), white 50%);
+  border: 1.5px dashed color-mix(in oklch, var(--brand), white 50%);
+  border-radius: 14px; background: color-mix(in oklch, var(--brand-soft), white 50%);
   text-align: center;
   transition: background .12s, border-color .12s;
   cursor: pointer;
 }
-.enterprise-shell .cap-dropzone.drag { background: var(--accent-soft); border-color: var(--accent); }
+.enterprise-shell .cap-dropzone.drag { background: var(--brand-soft); border-color: var(--brand); }
 .enterprise-shell .cap-dz-icon {
   width: 48px; height: 48px; border-radius: 12px;
-  background: var(--panel); color: var(--accent);
+  background: var(--panel); color: var(--brand);
   display: inline-grid; place-items: center;
   box-shadow: 0 1px 2px oklch(0 0 0 / 0.04); border: 1px solid var(--line);
   margin-bottom: 12px;
@@ -580,7 +585,7 @@
 .enterprise-shell .cap-pv-cap .count {
   font-family: var(--mono); padding: 1px 6px; border-radius: 4px; font-size: 10px;
 }
-.enterprise-shell .cap-pv-cap .count.accent { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .cap-pv-cap .count.accent { background: var(--brand-soft); color: var(--brand-ink); }
 .enterprise-shell .cap-pv-cap .count.amber { background: oklch(0.96 0.04 80); color: oklch(0.45 0.11 60); }
 .enterprise-shell .cap-pv-cap .count.green { background: oklch(0.95 0.04 155); color: oklch(0.4 0.12 155); }
 .enterprise-shell .cap-pv-cap .count.ink { background: oklch(0.95 0.005 270); color: var(--ink); }
@@ -591,7 +596,7 @@
   font-size: 13px; color: var(--ink);
 }
 .enterprise-shell .cap-pv-item .pip { width: 8px; height: 8px; border-radius: 2px; margin-top: 7px; }
-.enterprise-shell .cap-pv-item .pip.dec { background: var(--accent); border-radius: 50%; }
+.enterprise-shell .cap-pv-item .pip.dec { background: var(--brand); border-radius: 50%; }
 .enterprise-shell .cap-pv-item .pip.act { background: oklch(0.62 0.13 155); }
 .enterprise-shell .cap-pv-item .pip.que {
   background: oklch(0.78 0.13 75); border-radius: 1px; transform: rotate(45deg);
@@ -626,7 +631,7 @@
 .enterprise-shell .cap-pv-foot .meta { font-size: 11.5px; color: var(--ink-3); }
 .enterprise-shell .cap-pv-foot .meta b { color: var(--ink); }
 .enterprise-shell .cap-pv-foot .right {
-  margin-left: auto; color: var(--accent-ink);
+  margin-left: auto; color: var(--brand-ink);
   font-size: 12.5px; font-weight: 600; text-decoration: none;
   background: transparent; border: 0; cursor: pointer; font: inherit;
 }
@@ -687,10 +692,10 @@
   font-size: 13px; color: var(--ink-2); text-decoration: none;
   padding: 4px 0;
 }
-.enterprise-shell .cap-result-row:hover { color: var(--accent-ink); }
+.enterprise-shell .cap-result-row:hover { color: var(--brand-ink); }
 .enterprise-shell .cap-result-row .badge {
   font-size: 9.5px; padding: 2px 6px; border-radius: 4px;
-  background: var(--accent-soft); color: var(--accent-ink);
+  background: var(--brand-soft); color: var(--brand-ink);
   font-family: var(--mono); flex-shrink: 0;
 }
 .enterprise-shell .cap-rejected {
@@ -732,8 +737,8 @@
 /* Crumb pill — same shape as cap-crumb */
 .enterprise-shell .mem-crumb {
   font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--accent-ink); display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); font-weight: 600;
+  color: var(--brand-ink); display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; background: var(--brand-soft); font-weight: 600;
 }
 .enterprise-shell .mem-crumb .dot {
   display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor;
@@ -791,7 +796,7 @@
 }
 .enterprise-shell .mem-cat.active .n { opacity: 0.85; }
 .enterprise-shell .mem-cat.graph { margin-left: auto; color: var(--ink-2); }
-.enterprise-shell .mem-cat.graph svg { color: var(--accent); }
+.enterprise-shell .mem-cat.graph svg { color: var(--brand); }
 
 /* Filter bar */
 .enterprise-shell .mem-filter-bar {
@@ -887,7 +892,7 @@
   text-decoration: none; color: inherit; position: relative;
 }
 .enterprise-shell .mem-card:hover {
-  border-color: color-mix(in oklch, var(--accent), white 60%);
+  border-color: color-mix(in oklch, var(--brand), white 60%);
   box-shadow: 0 1px 2px oklch(0 0 0 / 0.03), 0 6px 20px -12px oklch(0.45 0.2 280 / 0.18);
 }
 .enterprise-shell .mem-card:active { transform: translateY(1px); }
@@ -895,7 +900,7 @@
   width: 36px; height: 36px; border-radius: 9px;
   display: grid; place-items: center; flex: none;
 }
-.enterprise-shell .mem-ico.meeting { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .mem-ico.meeting { background: var(--brand-soft); color: var(--brand-ink); }
 .enterprise-shell .mem-ico.decision { background: oklch(0.94 0.04 290); color: oklch(0.4 0.16 290); }
 .enterprise-shell .mem-ico.note { background: oklch(0.96 0.005 85); color: var(--ink-2); }
 .enterprise-shell .mem-ico.task,
@@ -923,7 +928,7 @@
   font-weight: 500;
 }
 .enterprise-shell .mem-tag.kind { font-weight: 600; }
-.enterprise-shell .mem-tag.kind.meeting { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .mem-tag.kind.meeting { background: var(--brand-soft); color: var(--brand-ink); }
 .enterprise-shell .mem-tag.kind.decision { background: oklch(0.94 0.04 290); color: oklch(0.4 0.16 290); }
 .enterprise-shell .mem-tag.kind.task,
 .enterprise-shell .mem-tag.kind.tasklike { background: var(--mem-rose-soft); color: var(--mem-rose); }
@@ -954,7 +959,7 @@
 }
 .enterprise-shell .mem-conf .bar i {
   position: absolute; left: 0; top: 0; bottom: 0;
-  background: var(--accent); border-radius: 2px;
+  background: var(--brand); border-radius: 2px;
 }
 
 /* Quick share button overlay */
@@ -988,7 +993,7 @@
   transition: border-color .12s, box-shadow .12s; position: relative;
 }
 .enterprise-shell .mem-grid-card:hover {
-  border-color: color-mix(in oklch, var(--accent), white 60%);
+  border-color: color-mix(in oklch, var(--brand), white 60%);
   box-shadow: 0 6px 20px -12px oklch(0.45 0.2 280 / 0.18);
 }
 .enterprise-shell .mem-grid-head {
@@ -1119,10 +1124,10 @@
 }
 .enterprise-shell .mem-hero-ico {
   width: 56px; height: 56px; border-radius: 12px;
-  background: var(--accent-soft); color: var(--accent-ink);
+  background: var(--brand-soft); color: var(--brand-ink);
   display: grid; place-items: center;
 }
-.enterprise-shell .mem-hero-ico.meeting { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .mem-hero-ico.meeting { background: var(--brand-soft); color: var(--brand-ink); }
 .enterprise-shell .mem-hero-ico.decision { background: oklch(0.94 0.04 290); color: oklch(0.4 0.16 290); }
 .enterprise-shell .mem-hero-ico.note { background: oklch(0.96 0.005 85); color: var(--ink-2); }
 .enterprise-shell .mem-hero-ico.task,
@@ -1136,7 +1141,7 @@
   font-size: 10.5px; padding: 2px 8px; border-radius: 5px;
   font-weight: 600; letter-spacing: 0.04em;
 }
-.enterprise-shell .mem-pill.kind { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .mem-pill.kind { background: var(--brand-soft); color: var(--brand-ink); }
 .enterprise-shell .mem-pill.kind.decision { background: oklch(0.94 0.04 290); color: oklch(0.4 0.16 290); }
 .enterprise-shell .mem-pill.kind.task,
 .enterprise-shell .mem-pill.kind.tasklike { background: var(--mem-rose-soft); color: var(--mem-rose); }
@@ -1191,7 +1196,7 @@
   margin: 8px 0; font-size: 14px; color: var(--ink-2); line-height: 1.65;
 }
 .enterprise-shell .mem-d-card .body p b { color: var(--ink); font-weight: 600; }
-.enterprise-shell .mem-d-card .body a { color: var(--accent-ink); word-break: break-all; }
+.enterprise-shell .mem-d-card .body a { color: var(--brand-ink); word-break: break-all; }
 .enterprise-shell .mem-d-card textarea {
   width: 100%; border: 1px solid var(--line); border-radius: 8px;
   background: var(--bg); padding: 10px 12px;
@@ -1311,7 +1316,7 @@
 .enterprise-shell .mem-li-row .ref {
   font-family: var(--mono); font-size: 11px;
   padding: 1px 6px; border-radius: 4px;
-  background: var(--accent-soft); color: var(--accent-ink); flex: none;
+  background: var(--brand-soft); color: var(--brand-ink); flex: none;
 }
 .enterprise-shell .mem-li-row .label {
   flex: 1; min-width: 0;
@@ -1326,7 +1331,7 @@
 }
 .enterprise-shell .mem-attach-icon {
   width: 28px; height: 28px; border-radius: 6px;
-  background: var(--accent-soft); color: var(--accent-ink);
+  background: var(--brand-soft); color: var(--brand-ink);
   display: grid; place-items: center; flex-shrink: 0;
 }
 .enterprise-shell .mem-attach-meta { flex: 1; min-width: 0; }
@@ -1390,16 +1395,16 @@
 }
 .enterprise-shell .mem-modal textarea { resize: vertical; min-height: 100px; }
 .enterprise-shell .mem-modal .file-zone {
-  border: 2px dashed color-mix(in oklch, var(--accent), white 60%);
-  background: color-mix(in oklch, var(--accent-soft), white 50%);
+  border: 2px dashed color-mix(in oklch, var(--brand), white 60%);
+  background: color-mix(in oklch, var(--brand-soft), white 50%);
   border-radius: 12px; padding: 28px 16px; text-align: center;
   cursor: pointer; transition: background .12s, border-color .12s;
 }
 .enterprise-shell .mem-modal .file-zone:hover {
-  background: var(--accent-soft); border-color: var(--accent);
+  background: var(--brand-soft); border-color: var(--brand);
 }
 .enterprise-shell .mem-modal .file-zone.drag {
-  background: var(--accent-soft); border-color: var(--accent);
+  background: var(--brand-soft); border-color: var(--brand);
 }
 .enterprise-shell .mem-modal .file-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -1433,7 +1438,7 @@
   padding: 4px 10px; border-radius: 999px; font-weight: 600;
 }
 .enterprise-shell .lsc-crumb.amber { color: var(--mem-amber-ink); background: var(--mem-amber-soft); }
-.enterprise-shell .lsc-crumb.accent { color: var(--accent-ink); background: var(--accent-soft); }
+.enterprise-shell .lsc-crumb.accent { color: var(--brand-ink); background: var(--brand-soft); }
 .enterprise-shell .lsc-crumb .dot {
   display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor;
 }
@@ -1578,8 +1583,8 @@
 .enterprise-shell .lsc-stat .delta {
   font-size: 11px; color: var(--ink-3); margin-top: 4px; font-variant-numeric: tabular-nums;
 }
-.enterprise-shell .lsc-stat.acc .num { color: var(--accent-ink); }
-.enterprise-shell .lsc-stat.acc .dot { background: var(--accent); }
+.enterprise-shell .lsc-stat.acc .num { color: var(--brand-ink); }
+.enterprise-shell .lsc-stat.acc .dot { background: var(--brand); }
 .enterprise-shell .lsc-stat.dec .num { color: oklch(0.4 0.16 290); }
 .enterprise-shell .lsc-stat.dec .dot { background: oklch(0.5 0.18 290); }
 .enterprise-shell .lsc-stat.rev .num { color: var(--mem-rose); }
@@ -1618,7 +1623,7 @@
   width: 8px; height: 8px; border-radius: 50%; margin: 6px 0 0 6px;
 }
 .enterprise-shell .lsc-item .pip.dec { background: oklch(0.5 0.18 290); }
-.enterprise-shell .lsc-item .pip.acc { background: var(--accent); }
+.enterprise-shell .lsc-item .pip.acc { background: var(--brand); }
 .enterprise-shell .lsc-item .pip.rev { background: var(--mem-rose); }
 .enterprise-shell .lsc-item .pip.sup { background: var(--mem-amber); }
 .enterprise-shell .lsc-item .ttl { font-weight: 550; }
@@ -1754,18 +1759,18 @@
   transition: opacity .12s;
 }
 .enterprise-shell .lsc-rf-node:hover {
-  border-color: color-mix(in oklch, var(--accent), white 60%);
+  border-color: color-mix(in oklch, var(--brand), white 60%);
 }
 .enterprise-shell .lsc-rf-node.selected {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft), 0 6px 14px -10px oklch(0.45 0.2 280 / 0.4);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft), 0 6px 14px -10px oklch(0.45 0.2 280 / 0.4);
 }
 .enterprise-shell .lsc-rf-node.dimmed { opacity: 0.25; }
 .enterprise-shell .lsc-rf-node .pip {
   width: 8px; height: 8px; border-radius: 50%; flex: none;
 }
 .enterprise-shell .lsc-rf-node .pip.decision { background: oklch(0.5 0.18 290); }
-.enterprise-shell .lsc-rf-node .pip.meeting { background: var(--accent); }
+.enterprise-shell .lsc-rf-node .pip.meeting { background: var(--brand); }
 .enterprise-shell .lsc-rf-node .pip.note,
 .enterprise-shell .lsc-rf-node .pip.context { background: var(--ink-4); }
 .enterprise-shell .lsc-rf-node .pip.tasklike { background: var(--mem-rose); }
@@ -1808,7 +1813,7 @@
 .enterprise-shell .lsc-nodecard .open {
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: 10px; font-size: 12px; font-weight: 600;
-  color: var(--accent-ink); text-decoration: none;
+  color: var(--brand-ink); text-decoration: none;
 }
 .enterprise-shell .lsc-nodecard .open:hover { text-decoration: underline; }
 .enterprise-shell .lsc-nodecard .x {
@@ -1875,7 +1880,7 @@
   font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 10px; border-radius: 999px; font-weight: 600;
-  color: var(--accent-ink); background: var(--accent-soft);
+  color: var(--brand-ink); background: var(--brand-soft);
 }
 
 .enterprise-shell .wiki-head {
@@ -1924,7 +1929,7 @@
 }
 .enterprise-shell .wiki-tab:hover { color: var(--ink); }
 .enterprise-shell .wiki-tab.active {
-  color: var(--accent-ink); border-bottom-color: var(--accent);
+  color: var(--brand-ink); border-bottom-color: var(--brand);
 }
 .enterprise-shell .wiki-tab .count {
   font-family: var(--mono); font-size: 11px; color: var(--ink-3);
@@ -1961,9 +1966,9 @@
 }
 .enterprise-shell .wiki-tnode:hover { background: oklch(0.97 0.005 85); color: var(--ink); }
 .enterprise-shell .wiki-tnode.active {
-  background: var(--accent-soft); color: var(--accent-ink); font-weight: 600;
+  background: var(--brand-soft); color: var(--brand-ink); font-weight: 600;
 }
-.enterprise-shell .wiki-tnode.active .ico { color: var(--accent-ink); }
+.enterprise-shell .wiki-tnode.active .ico { color: var(--brand-ink); }
 .enterprise-shell .wiki-tnode .ico {
   width: 14px; height: 14px; color: var(--ink-3); flex: none;
 }
@@ -1975,7 +1980,7 @@
   font-family: var(--mono); font-size: 10.5px; color: var(--ink-4);
   flex-shrink: 0;
 }
-.enterprise-shell .wiki-tnode.active .ct { color: var(--accent-ink); opacity: 0.7; }
+.enterprise-shell .wiki-tnode.active .ct { color: var(--brand-ink); opacity: 0.7; }
 .enterprise-shell .wiki-tnode .stale-dot {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--mem-amber); flex-shrink: 0;
@@ -2047,9 +2052,9 @@
 .enterprise-shell .wiki-gen-strip {
   display: flex; align-items: center; gap: 10px;
   margin-top: 14px; padding: 10px 12px;
-  background: linear-gradient(90deg, var(--accent-soft), oklch(0.97 0.02 280));
-  border: 1px solid color-mix(in oklch, var(--accent-soft), white 30%);
-  border-radius: 10px; font-size: 12.5px; color: var(--accent-ink);
+  background: linear-gradient(90deg, var(--brand-soft), oklch(0.97 0.02 280));
+  border: 1px solid color-mix(in oklch, var(--brand-soft), white 30%);
+  border-radius: 10px; font-size: 12.5px; color: var(--brand-ink);
 }
 .dark .enterprise-shell .wiki-gen-strip {
   background: linear-gradient(90deg, oklch(0.32 0.05 280), oklch(0.30 0.04 280));
@@ -2087,7 +2092,7 @@
   cursor: help;
 }
 .enterprise-shell .wiki-sec-head .right {
-  margin-left: 0; font-size: 11px; color: var(--accent-ink);
+  margin-left: 0; font-size: 11px; color: var(--brand-ink);
   text-decoration: none; text-transform: none; letter-spacing: 0;
   font-weight: 600;
 }
@@ -2103,7 +2108,7 @@
 }
 .enterprise-shell .wiki-ttag:hover {
   background: oklch(0.97 0.005 85);
-  border-color: color-mix(in oklch, var(--accent), white 70%);
+  border-color: color-mix(in oklch, var(--brand), white 70%);
 }
 .enterprise-shell .wiki-ttag .ct { color: var(--ink-3); margin-left: 4px; }
 
@@ -2119,7 +2124,7 @@
 .enterprise-shell .wiki-dec-row:hover { background: oklch(0.985 0.005 85); }
 .enterprise-shell .wiki-dec-row .id {
   font-family: var(--mono); font-size: 11px;
-  color: var(--accent-ink); background: var(--accent-soft);
+  color: var(--brand-ink); background: var(--brand-soft);
   padding: 3px 7px; border-radius: 5px;
   text-align: center; font-weight: 600;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -2208,7 +2213,7 @@
 .enterprise-shell .wiki-rec .pip {
   width: 8px; height: 8px; border-radius: 50%; margin: 0 0 0 6px;
 }
-.enterprise-shell .wiki-rec .pip.meeting { background: var(--accent); }
+.enterprise-shell .wiki-rec .pip.meeting { background: var(--brand); }
 .enterprise-shell .wiki-rec .pip.decision { background: oklch(0.5 0.18 290); }
 .enterprise-shell .wiki-rec .pip.note,
 .enterprise-shell .wiki-rec .pip.context { background: var(--ink-4); }
