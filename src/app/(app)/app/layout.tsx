@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils'
 // its own height end-to-end. /app/ask needs this because its chatbox is
 // pinned to the bottom and the standard p-4 sm:p-6 + overflow-y-auto
 // wrapper would let the input drift mid-page.
-const FULL_BLEED_PATHS: string[] = ['/app/ask']
+const FULL_BLEED_PATHS: string[] = ['/app/ask', '/app/brain-dump']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.

@@ -1,25 +1,17 @@
 'use client'
 
-// Brain Dump — give us the firehose, we'll split it into structured parts.
-//
-// Flow:
-//   1. User types or speaks a stream-of-consciousness dump.
-//   2. Preview: Claude parses into decisions / questions / actions / facts.
-//   3. User deselects anything they don't want + edits titles inline.
-//   4. Commit: each selected item becomes its own record, ingest job runs.
+// Capture — give us the firehose, we'll split it into structured parts.
+// New design pulled from claude.ai/design Capture.html: two-column layout
+// with composer (left) and "What Lattice sees" preview (right). All existing
+// wiring (parse, commit, uploadFile, saveLink, toggleRecord, scope picker)
+// is preserved verbatim — only the surrounding chrome changed.
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
-  Brain, Sparkles, Loader2, Check, X, Gavel, HelpCircle, CheckSquare,
-  Info, ArrowRight, Mic, Square, BrainCircuit, FileUp, LinkIcon, Upload,
-  Target, ChevronDown,
+  Sparkles, Loader2, Check, Mic, Square, FileUp, Link as LinkIcon,
+  Upload, Target, ChevronDown, MessageSquare, Globe,
 } from 'lucide-react'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
@@ -32,13 +24,6 @@ interface DumpItem {
   sourceSpan?: string | null
 }
 
-const KIND_META: Record<ItemKind, { label: string; icon: any; color: string }> = {
-  decision: { label: 'Decision', icon: Gavel, color: 'text-violet-500 bg-violet-500/10' },
-  question: { label: 'Open question', icon: HelpCircle, color: 'text-blue-500 bg-blue-500/10' },
-  action: { label: 'Action', icon: CheckSquare, color: 'text-emerald-500 bg-emerald-500/10' },
-  fact: { label: 'Fact', icon: Info, color: 'text-slate-500 bg-slate-500/10' },
-}
-
 type Mode = 'firehose' | 'file' | 'link'
 
 interface Team {
@@ -47,6 +32,27 @@ interface Team {
   departmentPath: string
   workspaceId: string
   projects: Array<{ id: string; name: string; isDefault: boolean }>
+}
+
+const KIND_LABEL: Record<ItemKind, string> = {
+  decision: 'Decision',
+  question: 'Open question',
+  action: 'Action',
+  fact: 'Fact',
+}
+
+const PIP_CLASS: Record<ItemKind, string> = {
+  decision: 'pip dec',
+  question: 'pip que',
+  action: 'pip act',
+  fact: 'pip fct',
+}
+
+const COUNT_CLASS: Record<ItemKind, string> = {
+  decision: 'count accent',
+  question: 'count amber',
+  action: 'count green',
+  fact: 'count ink',
 }
 
 export default function BrainDumpPage() {
@@ -60,9 +66,6 @@ export default function BrainDumpPage() {
   const [committing, setCommitting] = useState(false)
   const [result, setResult] = useState<{ created: Array<{ id: string; title: string; kind: ItemKind }>; skippedDupes: string[] } | null>(null)
 
-  // Scope picker — same behavior the old CaptureDrawer had. Loaded once per
-  // org. Defaults to the first team + default project so most people can
-  // skip it entirely.
   const [teams, setTeams] = useState<Team[]>([])
   const [showScope, setShowScope] = useState(false)
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null)
@@ -87,23 +90,30 @@ export default function BrainDumpPage() {
 
   const activeTeam = teams.find((t) => t.teamId === selectedTeam)
 
-  // File upload state — Brain Dump's File tab. PDFs / DOCX / images go through
-  // /api/upload which extracts text and creates a record.
   const [fileUploading, setFileUploading] = useState(false)
   const [fileDragOver, setFileDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Link tab — paste a URL, create a `[Link]` record that the ingest job
-  // enriches by fetching page content.
   const [linkUrl, setLinkUrl] = useState('')
   const [linkNote, setLinkNote] = useState('')
   const [linkSaving, setLinkSaving] = useState(false)
 
-  // Voice capture — tap mic to speak, same pipeline as capture drawer, but
-  // the transcript goes into the textarea instead of creating a memory.
   const [recording, setRecording] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<BlobPart[]>([])
+
+  // ⌘1/⌘2/⌘3 mode shortcuts (matches design's keyboard hint).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return
+      if (result || items) return // don't switch mode mid-review
+      if (e.key === '1') { e.preventDefault(); setMode('firehose') }
+      else if (e.key === '2') { e.preventDefault(); setMode('file') }
+      else if (e.key === '3') { e.preventDefault(); setMode('link') }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [result, items])
 
   async function toggleRecord() {
     if (recording) {
@@ -123,9 +133,6 @@ export default function BrainDumpPage() {
         const fd = new FormData()
         fd.append('audio', blob, 'brain-dump.webm')
         toast.loading('Transcribing…', { id: 'brain-transcribe' })
-        // Reuse the voice endpoint but we only want the transcript — the
-        // endpoint also creates a record. For brain dump we'd rather just
-        // capture the transcript. Call a dedicated transcribe path.
         const res = await fetch('/api/records/voice?transcriptOnly=1', { method: 'POST', body: fd })
         toast.dismiss('brain-transcribe')
         if (!res.ok) {
@@ -140,7 +147,7 @@ export default function BrainDumpPage() {
       mr.start()
       mediaRecorderRef.current = mr
       setRecording(true)
-    } catch (err) {
+    } catch {
       toast.error('Mic access denied')
     }
   }
@@ -168,7 +175,6 @@ export default function BrainDumpPage() {
       const data = await res.json()
       setItems(data.items || [])
       setRejectedReason(data.rejectedReason || null)
-      // Pre-select all items by default — user can deselect.
       setSelected(new Set(Array.from({ length: (data.items || []).length }, (_, i) => i)))
     } finally {
       setParsing(false)
@@ -307,354 +313,399 @@ export default function BrainDumpPage() {
     setItems((prev) => prev ? prev.map((it, idx) => idx === i ? { ...it, ...patch } : it) : prev)
   }
 
-  // ── Render ──────────────────────────────────────────────
+  // Group items by kind for the preview panel.
+  const grouped: Record<ItemKind, Array<{ idx: number; item: DumpItem }>> = {
+    decision: [], action: [], question: [], fact: [],
+  }
+  ;(items || []).forEach((it, idx) => grouped[it.kind].push({ idx, item: it }))
+  const counts = {
+    decision: grouped.decision.length,
+    action: grouped.action.length,
+    question: grouped.question.length,
+    fact: grouped.fact.length,
+  }
+
+  const charCount = rawText.length
+  const detectedItems = items?.length ?? Math.max(0, Math.round(charCount / 64))
+  const meterText = items
+    ? `${charCount.toLocaleString()} chars · ${items.length} items detected`
+    : `${charCount.toLocaleString()} chars · ~ ${detectedItems} items detected`
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto space-y-5"
-    >
-      <div className="text-center space-y-2 py-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500/10 to-pink-500/10 text-fuchsia-600 text-[11px] font-medium uppercase tracking-wider">
-          <BrainCircuit className="h-3 w-3" /> Capture
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {mode === 'firehose' && 'Give me the firehose'}
-          {mode === 'file' && 'Drop a file'}
-          {mode === 'link' && 'Paste a link'}
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-          {mode === 'firehose' && 'Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts — you review and commit in one click.'}
-          {mode === 'file' && 'PDF, Word, image, or audio. the AI extracts the text, creates a memory, and links it to what you already know.'}
-          {mode === 'link' && 'Save any URL as a memory. The ingest job fetches the page title, extracts key content, and enriches it in the background.'}
+    <div className="cap-page">
+      <span className="cap-crumb">
+        <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: 'currentColor' }} />
+        Capture
+      </span>
+
+      <div className="cap-head">
+        <h1>Drop, dictate, or <em>drag in</em> anything.</h1>
+        <p>
+          One inbox for every kind of input. The AI pulls out the decisions, actions, open questions and facts — you review and commit in one click. Press <span className="kbd">⌘1</span> <span className="kbd">⌘2</span> <span className="kbd">⌘3</span> to switch modes.
         </p>
       </div>
 
-      {/* Tab bar — three capture modes. "Firehose" is the hero; File + Link
-          are first-class alternatives so this page is the single New Memory
-          surface for the whole app. */}
       {!result && !items && (
-        <div className="flex items-center justify-center gap-1 border-b">
-          <TabButton active={mode === 'firehose'} onClick={() => setMode('firehose')} icon={BrainCircuit} label="Firehose" />
-          <TabButton active={mode === 'file'} onClick={() => setMode('file')} icon={FileUp} label="File" />
-          <TabButton active={mode === 'link'} onClick={() => setMode('link')} icon={LinkIcon} label="Link" />
-        </div>
-      )}
-
-      {!result && mode === 'firehose' && (
-        <div className="rounded-2xl border-2 border-fuchsia-500/20 bg-card p-4 shadow-lg">
-          {/* Scope picker — which team + project this dump lands in. Hidden
-              behind a chevron so the 95% case (default team / default project)
-              doesn't see any extra UI. Moved here from the old CaptureDrawer. */}
-          {teams.length > 0 && (
-            <div className="mb-3">
-              <button
-                type="button"
-                onClick={() => setShowScope(!showScope)}
-                className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Target className="h-3 w-3" />
-                <span>
-                  Scope: <strong className="text-foreground">{activeTeam?.teamName || 'default'}</strong>
-                  {selectedProject && activeTeam?.projects.find((p) => p.id === selectedProject) && (
-                    <> · {activeTeam.projects.find((p) => p.id === selectedProject)!.name}</>
-                  )}
-                </span>
-                <ChevronDown className={cn('h-3 w-3 transition-transform', showScope && 'rotate-180')} />
-              </button>
-              {showScope && (
-                <div className="mt-2 rounded-md border bg-muted/30 p-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Team</label>
-                    <select
-                      value={selectedTeam ?? ''}
-                      onChange={(e) => {
-                        const newTeam = e.target.value
-                        setSelectedTeam(newTeam)
-                        const t = teams.find((tt) => tt.teamId === newTeam)
-                        const def = t?.projects.find((p) => p.isDefault) || t?.projects[0]
-                        setSelectedProject(def?.id ?? null)
-                      }}
-                      className="w-full h-7 text-xs rounded border border-input bg-background px-2"
-                    >
-                      {teams.map((t) => (
-                        <option key={t.teamId} value={t.teamId}>{t.departmentPath} · {t.teamName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Project</label>
-                    <select
-                      value={selectedProject ?? ''}
-                      onChange={(e) => setSelectedProject(e.target.value || null)}
-                      className="w-full h-7 text-xs rounded border border-input bg-background px-2"
-                      disabled={!activeTeam || activeTeam.projects.length === 0}
-                    >
-                      {activeTeam?.projects.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}{p.isDefault ? ' (default)' : ''}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          <Textarea
-            value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
-            placeholder={'"We had a 30-min meeting with the CFO. He wants to freeze hiring in Q4 but we pushed back on frontline. Action for me: draft the exemption memo by Friday. Partha flagged the AWS bill being up 34% — need to dig in. Open question: do we still sponsor the BANGALORE.JS conf this year? Marketing says yes, finance says no. We agreed I\'d decide by next Mon."'}
-            rows={10}
-            className="border-0 shadow-none focus-visible:ring-0 text-sm resize-none font-sans"
-            disabled={parsing || committing}
-          />
-          <div className="flex items-center justify-between pt-3 border-t">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleRecord}
-                disabled={parsing || committing}
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs transition-colors',
-                  recording ? 'bg-red-500 border-red-500 text-white' : 'hover:bg-muted',
-                )}
-              >
-                {recording ? <Square className="h-3 w-3 fill-white" /> : <Mic className="h-3 w-3" />}
-                {recording ? 'Stop' : 'Talk'}
-              </button>
-              <span className="text-[11px] text-muted-foreground">
-                {rawText.length} chars · the AI parses into structured items
-              </span>
-            </div>
-            <Button
-              onClick={parse}
-              disabled={parsing || committing || rawText.trim().length < 50}
-              className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95"
-            >
-              {parsing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-              Structure this
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {!result && mode === 'file' && (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setFileDragOver(true) }}
-          onDragLeave={() => setFileDragOver(false)}
-          onDrop={onDrop}
-          className={cn(
-            'rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
-            fileDragOver ? 'border-fuchsia-500 bg-fuchsia-500/5' : 'border-fuchsia-500/30 bg-card',
-          )}
-        >
-          <div className="mx-auto h-12 w-12 rounded-full bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center mb-3">
-            <Upload className="h-5 w-5" />
-          </div>
-          <p className="font-semibold mb-1">Drop a file here, or click to pick one</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            PDF · Word · image · audio · video — up to 20MB. Text is extracted and indexed.
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.mp3,.m4a,.wav,.webm,.mp4"
-            hidden
-            onChange={(e) => {
-              const f = e.target.files?.[0]
-              if (f) uploadFile(f)
-            }}
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={fileUploading}
-            className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95"
+        <div className="cap-modes" role="tablist">
+          <button
+            type="button"
+            className={cn('cap-mode-btn', mode === 'firehose' && 'active')}
+            onClick={() => setMode('firehose')}
           >
-            {fileUploading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <FileUp className="h-4 w-4 mr-1" />}
-            {fileUploading ? 'Uploading…' : 'Choose file'}
-          </Button>
-        </div>
-      )}
-
-      {!result && mode === 'link' && (
-        <div className="rounded-2xl border-2 border-fuchsia-500/20 bg-card p-4 shadow-lg space-y-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1.5 block">URL</label>
-            <Input
-              type="url"
-              value={linkUrl}
-              onChange={(e) => setLinkUrl(e.target.value)}
-              placeholder="https://..."
-              onKeyDown={(e) => { if (e.key === 'Enter') saveLink() }}
-              disabled={linkSaving}
-            />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1.5 block">Note (optional)</label>
-            <Textarea
-              value={linkNote}
-              onChange={(e) => setLinkNote(e.target.value)}
-              rows={3}
-              placeholder="Why this matters, what you want to remember…"
-              disabled={linkSaving}
-            />
-          </div>
-          <div className="flex items-center justify-end pt-2 border-t">
-            <Button
-              onClick={saveLink}
-              disabled={linkSaving || !linkUrl.trim()}
-              className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95"
-            >
-              {linkSaving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <LinkIcon className="h-4 w-4 mr-1" />}
-              Save link
-            </Button>
-          </div>
+            <MessageSquare className="ico" />
+            Firehose
+            <span className="cap-mode-kbd">⌘1</span>
+          </button>
+          <button
+            type="button"
+            className={cn('cap-mode-btn', mode === 'file' && 'active')}
+            onClick={() => setMode('file')}
+          >
+            <FileUp className="ico" />
+            File
+            <span className="cap-mode-kbd">⌘2</span>
+          </button>
+          <button
+            type="button"
+            className={cn('cap-mode-btn', mode === 'link' && 'active')}
+            onClick={() => setMode('link')}
+          >
+            <Globe className="ico" />
+            Link
+            <span className="cap-mode-kbd">⌘3</span>
+          </button>
         </div>
       )}
 
       {rejectedReason && !items?.length && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-sm text-yellow-800 dark:text-yellow-300">
-          {rejectedReason}
-        </div>
+        <div className="cap-rejected">{rejectedReason}</div>
       )}
 
-      {items && items.length > 0 && !result && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="text-sm">
-              Found <strong>{items.length}</strong> items · {selected.size} selected
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setSelected(new Set(items.map((_, i) => i)))}>
-                Select all
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-                Clear
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {items.map((it, i) => {
-              const meta = KIND_META[it.kind]
-              const Icon = meta.icon
-              const chosen = selected.has(i)
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    'rounded-xl border bg-card p-3 transition-colors',
-                    chosen ? 'border-primary/40' : 'border-border opacity-60',
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <button
-                      onClick={() => toggleSelected(i)}
-                      className={cn(
-                        'mt-1 h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors',
-                        chosen ? 'bg-primary border-primary text-primary-foreground' : 'border-border hover:bg-muted',
-                      )}
-                    >
-                      {chosen && <Check className="h-3 w-3" />}
-                    </button>
-                    <div className={cn('h-6 w-6 rounded flex items-center justify-center shrink-0', meta.color)}>
-                      <Icon className="h-3 w-3" />
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 uppercase tracking-wide">{meta.label}</Badge>
-                      </div>
-                      <Input
-                        value={it.title}
-                        onChange={(e) => editItem(i, { title: e.target.value })}
-                        className="text-sm font-medium h-7 border-0 shadow-none focus-visible:ring-0 px-0"
-                      />
-                      {it.detail && (
-                        <p className="text-xs text-muted-foreground">{it.detail}</p>
-                      )}
-                      {it.sourceSpan && (
-                        <p className="text-[10px] text-muted-foreground/80 italic border-l-2 border-border pl-2">
-                          "{it.sourceSpan}"
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-2 border-t">
-            <Button variant="ghost" onClick={reset} disabled={committing}>Start over</Button>
-            <Button
-              onClick={commit}
-              disabled={committing || selected.size === 0}
-              className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:opacity-95"
-            >
-              {committing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <ArrowRight className="h-4 w-4 mr-1" />}
-              Create {selected.size} memor{selected.size === 1 ? 'y' : 'ies'}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {result && (
-        <div className="rounded-2xl border bg-gradient-to-br from-emerald-500/5 to-transparent p-5 space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center">
+      {result ? (
+        <div className="cap-result">
+          <div className="cap-result-head">
+            <div className="cap-result-icon">
               <Check className="h-4 w-4" />
             </div>
             <div>
-              <div className="font-semibold">Created {result.created.length} memor{result.created.length === 1 ? 'y' : 'ies'}</div>
-              <div className="text-xs text-muted-foreground">
+              <div className="cap-result-title">
+                Created {result.created.length} memor{result.created.length === 1 ? 'y' : 'ies'}
+              </div>
+              <div className="cap-result-sub">
                 Triage is running in the background — the AI will re-title and link them to related memories in ~30s.
               </div>
             </div>
           </div>
           {result.skippedDupes.length > 0 && (
-            <div className="text-xs text-muted-foreground">
+            <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
               Skipped {result.skippedDupes.length} duplicate{result.skippedDupes.length === 1 ? '' : 's'} — already in your memory.
             </div>
           )}
-          <div className="space-y-1 max-h-48 overflow-y-auto">
+          <div className="cap-result-list">
             {result.created.map((r) => (
-              <Link key={r.id} href={`/app/memories/${r.id}`} className="flex items-center gap-2 text-xs hover:text-primary transition-colors">
-                <Badge variant="outline" className="text-[9px] h-4 px-1">{KIND_META[r.kind].label}</Badge>
-                <span className="truncate">{r.title}</span>
+              <Link key={r.id} href={`/app/memories/${r.id}`} className="cap-result-row">
+                <span className="badge">{KIND_LABEL[r.kind]}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
               </Link>
             ))}
           </div>
-          <div className="flex items-center gap-2 pt-2">
-            <Button onClick={reset} className="bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:opacity-95">
-              <BrainCircuit className="h-4 w-4 mr-1" /> Dump again
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/app/memories">See all memories</Link>
-            </Button>
+          <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
+            <button onClick={reset} className="cap-commit">
+              <Sparkles className="h-4 w-4" /> Capture again
+            </button>
+            <Link href="/app/memories" className="cap-ftool" style={{ textDecoration: 'none' }}>
+              See all memories
+            </Link>
           </div>
         </div>
-      )}
-    </motion.div>
-  )
-}
+      ) : (
+        <div className="cap-grid">
+          {/* LEFT — composer */}
+          <div className="cap-composer">
+            {/* Scope picker — same behavior the old version had. Default-on
+                hidden behind a chevron so the 95% case sees no extra UI. */}
+            {teams.length > 0 && mode === 'firehose' && (
+              <div className="cap-scope-bar">
+                <button
+                  type="button"
+                  onClick={() => setShowScope(!showScope)}
+                  className="cap-scope-toggle"
+                >
+                  <Target className="h-3 w-3" />
+                  <span>
+                    Scope: <b>{activeTeam?.teamName || 'default'}</b>
+                    {selectedProject && activeTeam?.projects.find((p) => p.id === selectedProject) && (
+                      <> · {activeTeam.projects.find((p) => p.id === selectedProject)!.name}</>
+                    )}
+                  </span>
+                  <ChevronDown className={cn('h-3 w-3 transition-transform', showScope && 'rotate-180')} />
+                </button>
+                {showScope && (
+                  <div className="cap-scope-fields">
+                    <div>
+                      <label className="cap-scope-label">Team</label>
+                      <select
+                        value={selectedTeam ?? ''}
+                        onChange={(e) => {
+                          const newTeam = e.target.value
+                          setSelectedTeam(newTeam)
+                          const t = teams.find((tt) => tt.teamId === newTeam)
+                          const def = t?.projects.find((p) => p.isDefault) || t?.projects[0]
+                          setSelectedProject(def?.id ?? null)
+                        }}
+                      >
+                        {teams.map((t) => (
+                          <option key={t.teamId} value={t.teamId}>{t.departmentPath} · {t.teamName}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="cap-scope-label">Project</label>
+                      <select
+                        value={selectedProject ?? ''}
+                        onChange={(e) => setSelectedProject(e.target.value || null)}
+                        disabled={!activeTeam || activeTeam.projects.length === 0}
+                      >
+                        {activeTeam?.projects.map((p) => (
+                          <option key={p.id} value={p.id}>{p.name}{p.isDefault ? ' (default)' : ''}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
-function TabButton({
-  active, onClick, icon: Icon, label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: any
-  label: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-1.5 px-4 py-2 text-sm border-b-2 -mb-px transition-colors',
-        active ? 'border-fuchsia-500 text-foreground font-medium' : 'border-transparent text-muted-foreground hover:text-foreground',
+            {mode === 'firehose' && (
+              <>
+                <div className="cap-firehose-body">
+                  <textarea
+                    value={rawText}
+                    onChange={(e) => setRawText(e.target.value)}
+                    placeholder='Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts — you review and commit in one click.'
+                    disabled={parsing || committing}
+                  />
+                </div>
+                <div className="cap-comp-foot">
+                  <button
+                    type="button"
+                    onClick={toggleRecord}
+                    disabled={parsing || committing}
+                    className={cn('cap-ftool rec', recording && 'live')}
+                  >
+                    {recording ? (
+                      <>
+                        <Square className="h-3 w-3 fill-current" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <span className="pulse" />
+                        Talk
+                      </>
+                    )}
+                  </button>
+                  <span className="cap-meter">{meterText}</span>
+                  <button
+                    type="button"
+                    className="cap-commit"
+                    onClick={items ? commit : parse}
+                    disabled={parsing || committing || (!items && rawText.trim().length < 50) || (items != null && selected.size === 0)}
+                  >
+                    {(parsing || committing) ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5" />
+                    )}
+                    {items
+                      ? `Commit ${selected.size} memor${selected.size === 1 ? 'y' : 'ies'}`
+                      : 'Structure & commit'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {mode === 'file' && (
+              <>
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setFileDragOver(true) }}
+                  onDragLeave={() => setFileDragOver(false)}
+                  onDrop={onDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn('cap-dropzone', fileDragOver && 'drag')}
+                >
+                  <div className="cap-dz-icon">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                  <p className="cap-dz-title">Drop a file here, or click to pick one</p>
+                  <p className="cap-dz-sub">PDF · Word · image · audio · video — up to 20 MB. Text is extracted, transcribed, and indexed.</p>
+                  <div className="cap-dz-types">
+                    <span className="cap-type-chip">PDF</span>
+                    <span className="cap-type-chip">DOCX</span>
+                    <span className="cap-type-chip">MD</span>
+                    <span className="cap-type-chip">PNG / JPG</span>
+                    <span className="cap-type-chip">MP3 / WAV</span>
+                    <span className="cap-type-chip">MP4 / MOV</span>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.mp3,.m4a,.wav,.webm,.mp4"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      if (f) uploadFile(f)
+                    }}
+                  />
+                </div>
+                <div className="cap-comp-foot">
+                  <span className="cap-meter">
+                    {fileUploading ? 'Uploading…' : 'Up to 20 MB · text + audio + video supported'}
+                  </span>
+                  <button
+                    type="button"
+                    className="cap-commit"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={fileUploading}
+                  >
+                    {fileUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileUp className="h-3.5 w-3.5" />}
+                    Choose file
+                  </button>
+                </div>
+              </>
+            )}
+
+            {mode === 'link' && (
+              <>
+                <div className="cap-link-body">
+                  <div className="cap-link-input">
+                    <LinkIcon className="cap-link-fav h-4 w-4" />
+                    <input
+                      type="url"
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') saveLink() }}
+                      placeholder="Paste a URL — Notion page, Slack thread, Google Doc, GitHub issue, YouTube…"
+                      disabled={linkSaving}
+                    />
+                  </div>
+                  <textarea
+                    value={linkNote}
+                    onChange={(e) => setLinkNote(e.target.value)}
+                    placeholder="Note (optional) — why this matters, what you want to remember…"
+                    disabled={linkSaving}
+                    className="cap-link-note"
+                  />
+                </div>
+                <div className="cap-comp-foot">
+                  <span className="cap-meter">Page content + comments are fetched in the background.</span>
+                  <button
+                    type="button"
+                    className="cap-commit"
+                    onClick={saveLink}
+                    disabled={linkSaving || !linkUrl.trim()}
+                  >
+                    {linkSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LinkIcon className="h-3.5 w-3.5" />}
+                    Fetch & commit
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* RIGHT — preview panel */}
+          <aside className="cap-preview">
+            <div className="cap-pv-head">
+              <Sparkles className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+              <span className="title">What the AI sees</span>
+              <span className="live"><span className="dot" /> Live</span>
+            </div>
+
+            {!items && !parsing && (
+              <div className="cap-empty">
+                <span className="glyph">~</span>
+                {mode === 'firehose' && 'Start typing on the left. We\'ll surface decisions, actions and questions as you go.'}
+                {mode === 'file' && 'Drop a file to extract structured items — decisions, action items, key facts.'}
+                {mode === 'link' && 'Paste a URL to capture and enrich a page in your memory.'}
+              </div>
+            )}
+
+            {parsing && (
+              <div className="cap-empty">
+                <Loader2 className="inline h-4 w-4 animate-spin" style={{ marginRight: 8 }} />
+                Structuring your dump…
+              </div>
+            )}
+
+            {items && items.length > 0 && (
+              <>
+                {(['decision', 'action', 'question', 'fact'] as ItemKind[]).map((kind) => {
+                  if (counts[kind] === 0) return null
+                  return (
+                    <div key={kind} className="cap-pv-section">
+                      <div className="cap-pv-cap">
+                        {kind === 'decision' && 'Decisions'}
+                        {kind === 'action' && 'Actions'}
+                        {kind === 'question' && 'Open questions'}
+                        {kind === 'fact' && 'Facts'}
+                        <span className={COUNT_CLASS[kind]}>{counts[kind]}</span>
+                      </div>
+                      {grouped[kind].map(({ idx, item }) => (
+                        <div
+                          key={idx}
+                          className={cn('cap-pv-item', !selected.has(idx) && 'unselected')}
+                        >
+                          <span className={PIP_CLASS[kind]} />
+                          <div className="body">
+                            <input
+                              value={item.title}
+                              onChange={(e) => editItem(idx, { title: e.target.value })}
+                            />
+                            {item.detail && <div className="detail">{item.detail}</div>}
+                            {item.sourceSpan && (
+                              <div className="tags">
+                                <span className="t" title={item.sourceSpan}>source</span>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            className="x"
+                            onClick={() => toggleSelected(idx)}
+                            title={selected.has(idx) ? 'Remove from commit' : 'Add back to commit'}
+                          >
+                            {selected.has(idx) ? '×' : '+'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })}
+                <div className="cap-pv-foot">
+                  <span className="meta">
+                    <b>{items.length}</b> items · <b>{selected.size}</b> selected
+                    {activeTeam && <> · routed to <b>{activeTeam.teamName}</b></>}
+                  </span>
+                  <button
+                    type="button"
+                    className="right"
+                    onClick={() => setShowScope(true)}
+                  >
+                    Edit routing →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {items && items.length === 0 && !parsing && (
+              <div className="cap-empty">
+                <span className="glyph">∅</span>
+                Nothing structured found in that dump.
+              </div>
+            )}
+          </aside>
+        </div>
       )}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-    </button>
+    </div>
   )
 }

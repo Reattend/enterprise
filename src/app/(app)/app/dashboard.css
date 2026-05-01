@@ -380,3 +380,323 @@
 .enterprise-shell .composer-hint .kbd-inline {
   font-family: var(--mono); color: var(--ink-2);
 }
+
+/* ============================================================
+ * Capture page (brain-dump) — extracted from design's Capture.html.
+ * Two-column composer | preview panel layout.
+ * ============================================================ */
+
+.enterprise-shell .cap-page { padding: 26px 32px 64px; max-width: 1280px; margin: 0 auto; }
+.enterprise-shell .cap-crumb {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent-ink); display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); font-weight: 600;
+}
+.enterprise-shell .cap-head { text-align: left; margin: 14px 0 22px; }
+.enterprise-shell .cap-head h1 {
+  font-family: var(--serif); font-size: 44px; line-height: 1.05;
+  letter-spacing: -0.015em; margin: 8px 0 6px; color: var(--ink);
+  font-weight: 400;
+}
+.enterprise-shell .cap-head h1 em { font-style: italic; color: var(--accent-ink); }
+.enterprise-shell .cap-head p { color: var(--ink-3); margin: 0; max-width: 64ch; font-size: 14px; }
+.enterprise-shell .cap-head .kbd {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-3);
+  border: 1px solid var(--line); padding: 2px 6px; border-radius: 5px; background: var(--bg);
+}
+
+.enterprise-shell .cap-modes {
+  display: inline-flex; padding: 4px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--line);
+  gap: 2px; margin-bottom: 18px;
+}
+.enterprise-shell .cap-mode-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 8px;
+  font: inherit; font-size: 13px; font-weight: 550;
+  color: var(--ink-3); background: transparent; border: 0; cursor: pointer;
+  transition: color .12s;
+}
+.enterprise-shell .cap-mode-btn:hover { color: var(--ink); }
+.enterprise-shell .cap-mode-btn.active {
+  background: var(--ink); color: white;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
+}
+.enterprise-shell .cap-mode-btn .ico { width: 14px; height: 14px; }
+.enterprise-shell .cap-mode-kbd {
+  font-family: var(--mono); font-size: 10px; padding: 1px 5px; border-radius: 4px;
+  background: oklch(0.94 0.005 85); color: var(--ink-3); margin-left: 2px;
+}
+.enterprise-shell .cap-mode-btn.active .cap-mode-kbd {
+  background: oklch(0.3 0.01 270); color: oklch(0.78 0.005 270);
+}
+
+.enterprise-shell .cap-grid {
+  display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start;
+}
+@media (max-width: 1024px) {
+  .enterprise-shell .cap-grid { grid-template-columns: 1fr; }
+}
+
+.enterprise-shell .cap-composer {
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .cap-firehose-body { padding: 18px 20px 8px; }
+.enterprise-shell .cap-firehose-body textarea {
+  width: 100%; border: 0; outline: 0; resize: none;
+  font: inherit; font-size: 14.5px; color: var(--ink); line-height: 1.55;
+  background: transparent; min-height: 220px;
+}
+.enterprise-shell .cap-firehose-body textarea::placeholder { color: var(--ink-3); }
+
+.enterprise-shell .cap-dropzone {
+  margin: 18px; padding: 38px 24px;
+  border: 1.5px dashed color-mix(in oklch, var(--accent), white 50%);
+  border-radius: 14px; background: color-mix(in oklch, var(--accent-soft), white 50%);
+  text-align: center;
+  transition: background .12s, border-color .12s;
+  cursor: pointer;
+}
+.enterprise-shell .cap-dropzone.drag { background: var(--accent-soft); border-color: var(--accent); }
+.enterprise-shell .cap-dz-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--panel); color: var(--accent);
+  display: inline-grid; place-items: center;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04); border: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.enterprise-shell .cap-dz-title { font-size: 15px; font-weight: 600; margin: 0; color: var(--ink); }
+.enterprise-shell .cap-dz-sub { color: var(--ink-3); font-size: 12.5px; margin: 4px 0 14px; }
+.enterprise-shell .cap-dz-types {
+  display: inline-flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 10px;
+}
+.enterprise-shell .cap-type-chip {
+  font-size: 10.5px; padding: 2px 7px; border-radius: 5px;
+  background: var(--panel); color: var(--ink-2);
+  font-family: var(--mono); border: 1px solid var(--line);
+}
+
+.enterprise-shell .cap-link-body { padding: 18px 20px; }
+.enterprise-shell .cap-link-input {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 14px; background: var(--bg);
+}
+.enterprise-shell .cap-link-input input {
+  flex: 1; border: 0; outline: 0; font: inherit; font-size: 14.5px;
+  background: transparent; color: var(--ink);
+}
+.enterprise-shell .cap-link-input input::placeholder { color: var(--ink-3); }
+.enterprise-shell .cap-link-fav { color: var(--ink-3); }
+.enterprise-shell .cap-link-note {
+  margin-top: 12px;
+  width: 100%; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); padding: 10px 14px;
+  font: inherit; font-size: 14px; color: var(--ink);
+  resize: none; outline: 0; min-height: 88px;
+}
+.enterprise-shell .cap-link-note::placeholder { color: var(--ink-3); }
+
+.enterprise-shell .cap-comp-foot {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 16px; border-top: 1px solid var(--line);
+  background: oklch(0.98 0.003 85);
+}
+.dark .enterprise-shell .cap-comp-foot { background: oklch(0.20 0.01 270); }
+.enterprise-shell .cap-ftool {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--panel);
+  font-size: 12.5px; color: var(--ink-2); cursor: pointer;
+  font: inherit; transition: background .12s;
+}
+.enterprise-shell .cap-ftool:hover { background: oklch(0.96 0.005 85); }
+.enterprise-shell .cap-ftool:disabled { opacity: 0.5; cursor: default; }
+.enterprise-shell .cap-ftool.rec {
+  color: oklch(0.45 0.16 25);
+  border-color: color-mix(in oklch, oklch(0.62 0.16 25), white 70%);
+}
+.enterprise-shell .cap-ftool.rec.live {
+  background: oklch(0.62 0.16 25); color: white;
+  border-color: oklch(0.62 0.16 25);
+}
+.enterprise-shell .cap-ftool .pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: oklch(0.62 0.16 25);
+  animation: cap-pulse 1.4s ease-in-out infinite;
+}
+.enterprise-shell .cap-ftool.live .pulse { background: white; }
+@keyframes cap-pulse {
+  0%,100% { transform: scale(1); opacity: 1 }
+  50% { transform: scale(1.4); opacity: 0.5 }
+}
+.enterprise-shell .cap-meter {
+  color: var(--ink-3); font-size: 12px; font-family: var(--mono);
+}
+.enterprise-shell .cap-commit {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 10px;
+  font: inherit; font-weight: 600; font-size: 13px;
+  color: white; cursor: pointer; border: 0;
+  background: linear-gradient(135deg, oklch(0.6 0.2 285), oklch(0.45 0.2 280) 70%);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.3) inset, 0 6px 14px -8px oklch(0.45 0.2 280 / 0.5);
+  transition: filter .12s;
+}
+.enterprise-shell .cap-commit:hover { filter: brightness(1.05); }
+.enterprise-shell .cap-commit:disabled { opacity: 0.5; cursor: default; filter: none; }
+
+/* RIGHT — preview panel */
+.enterprise-shell .cap-preview {
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); position: sticky; top: 80px;
+}
+.enterprise-shell .cap-pv-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid var(--line);
+}
+.enterprise-shell .cap-pv-head .title { font-weight: 600; font-size: 14px; color: var(--ink); }
+.enterprise-shell .cap-pv-head .live {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; color: var(--ink-3);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-left: auto;
+}
+.enterprise-shell .cap-pv-head .live .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: oklch(0.62 0.13 155);
+  box-shadow: 0 0 0 3px oklch(0.62 0.13 155 / 0.18);
+  animation: cap-blip 2s ease-in-out infinite;
+}
+@keyframes cap-blip { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+.enterprise-shell .cap-pv-section { padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+.enterprise-shell .cap-pv-section:last-child { border-bottom: 0; }
+.enterprise-shell .cap-pv-cap {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.enterprise-shell .cap-pv-cap .count {
+  font-family: var(--mono); padding: 1px 6px; border-radius: 4px; font-size: 10px;
+}
+.enterprise-shell .cap-pv-cap .count.accent { background: var(--accent-soft); color: var(--accent-ink); }
+.enterprise-shell .cap-pv-cap .count.amber { background: oklch(0.96 0.04 80); color: oklch(0.45 0.11 60); }
+.enterprise-shell .cap-pv-cap .count.green { background: oklch(0.95 0.04 155); color: oklch(0.4 0.12 155); }
+.enterprise-shell .cap-pv-cap .count.ink { background: oklch(0.95 0.005 270); color: var(--ink); }
+
+.enterprise-shell .cap-pv-item {
+  display: grid; grid-template-columns: 16px 1fr 18px;
+  gap: 10px; padding: 7px 0; align-items: flex-start;
+  font-size: 13px; color: var(--ink);
+}
+.enterprise-shell .cap-pv-item .pip { width: 8px; height: 8px; border-radius: 2px; margin-top: 7px; }
+.enterprise-shell .cap-pv-item .pip.dec { background: var(--accent); border-radius: 50%; }
+.enterprise-shell .cap-pv-item .pip.act { background: oklch(0.62 0.13 155); }
+.enterprise-shell .cap-pv-item .pip.que {
+  background: oklch(0.78 0.13 75); border-radius: 1px; transform: rotate(45deg);
+}
+.enterprise-shell .cap-pv-item .pip.fct { background: var(--ink-4); border-radius: 50%; }
+.enterprise-shell .cap-pv-item .body { line-height: 1.45; min-width: 0; }
+.enterprise-shell .cap-pv-item .body input {
+  width: 100%; border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 13px; color: var(--ink); padding: 0;
+}
+.enterprise-shell .cap-pv-item .body .detail { font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+.enterprise-shell .cap-pv-item .tags {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+}
+.enterprise-shell .cap-pv-item .tags .t {
+  font-size: 10.5px; padding: 1px 6px; border-radius: 4px;
+  background: oklch(0.96 0.005 85); color: var(--ink-3);
+  font-family: var(--mono);
+}
+.enterprise-shell .cap-pv-item .x {
+  color: var(--ink-4); cursor: pointer; background: transparent;
+  border: 0; font-size: 16px; line-height: 1; padding: 0;
+  font-family: inherit;
+}
+.enterprise-shell .cap-pv-item .x:hover { color: var(--ink); }
+.enterprise-shell .cap-pv-item.unselected { opacity: 0.4; }
+
+.enterprise-shell .cap-pv-foot {
+  display: flex; align-items: center; padding: 12px 16px;
+  border-top: 1px solid var(--line); gap: 10px;
+}
+.enterprise-shell .cap-pv-foot .meta { font-size: 11.5px; color: var(--ink-3); }
+.enterprise-shell .cap-pv-foot .meta b { color: var(--ink); }
+.enterprise-shell .cap-pv-foot .right {
+  margin-left: auto; color: var(--accent-ink);
+  font-size: 12.5px; font-weight: 600; text-decoration: none;
+  background: transparent; border: 0; cursor: pointer; font: inherit;
+}
+.enterprise-shell .cap-pv-foot .right:hover { text-decoration: underline; }
+
+.enterprise-shell .cap-empty {
+  padding: 40px 16px; text-align: center; color: var(--ink-3); font-size: 13px;
+}
+.enterprise-shell .cap-empty .glyph {
+  font-family: var(--serif); font-style: italic; font-size: 32px;
+  color: var(--ink-4); display: block; margin-bottom: 6px;
+}
+
+.enterprise-shell .cap-scope-bar {
+  padding: 10px 20px; border-bottom: 1px solid var(--line-2);
+  background: oklch(0.99 0.003 85);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.dark .enterprise-shell .cap-scope-bar { background: oklch(0.20 0.01 270); }
+.enterprise-shell .cap-scope-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 11.5px; color: var(--ink-3);
+  background: transparent; border: 0; cursor: pointer; padding: 0;
+}
+.enterprise-shell .cap-scope-toggle:hover { color: var(--ink); }
+.enterprise-shell .cap-scope-toggle b { color: var(--ink); font-weight: 600; }
+.enterprise-shell .cap-scope-fields {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px; width: 100%;
+}
+.enterprise-shell .cap-scope-fields select {
+  width: 100%; height: 30px; font-size: 12px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink); padding: 0 8px;
+  font: inherit;
+}
+.enterprise-shell .cap-scope-label {
+  display: block; font-size: 9.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; font-weight: 600;
+}
+
+.enterprise-shell .cap-result {
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); padding: 22px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.enterprise-shell .cap-result-head { display: flex; align-items: center; gap: 12px; }
+.enterprise-shell .cap-result-icon {
+  height: 36px; width: 36px; border-radius: 50%;
+  background: oklch(0.95 0.04 155); color: oklch(0.4 0.12 155);
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.enterprise-shell .cap-result-title { font-weight: 600; font-size: 15px; color: var(--ink); }
+.enterprise-shell .cap-result-sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.enterprise-shell .cap-result-list { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow-y: auto; }
+.enterprise-shell .cap-result-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--ink-2); text-decoration: none;
+  padding: 4px 0;
+}
+.enterprise-shell .cap-result-row:hover { color: var(--accent-ink); }
+.enterprise-shell .cap-result-row .badge {
+  font-size: 9.5px; padding: 2px 6px; border-radius: 4px;
+  background: var(--accent-soft); color: var(--accent-ink);
+  font-family: var(--mono); flex-shrink: 0;
+}
+.enterprise-shell .cap-rejected {
+  border: 1px solid color-mix(in oklch, oklch(0.78 0.13 75), white 60%);
+  background: oklch(0.96 0.04 80);
+  color: oklch(0.45 0.11 60);
+  border-radius: 12px; padding: 12px 14px; font-size: 13px;
+  margin-bottom: 14px;
+}
