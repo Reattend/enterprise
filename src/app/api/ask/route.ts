@@ -393,7 +393,18 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, session } = await requireAuth()
     const userEmail = session?.user?.email || ''
-    const { question, history, agentId } = await req.json() as { question: string; history?: ChatMessage[]; agentId?: string }
+    const {
+      question, history, agentId,
+      previewOnly,    // Tasks compose: skip LLM, return retrieved sources only
+      excludeIds,     // Tasks compose: drop these record IDs from the final set
+    } = await req.json() as {
+      question: string
+      history?: ChatMessage[]
+      agentId?: string
+      previewOnly?: boolean
+      excludeIds?: string[]
+    }
+    const excludeSet = new Set((excludeIds || []).filter((s): s is string => typeof s === 'string'))
 
     if (!question) {
       return new Response(JSON.stringify({ error: 'question is required' }), {
@@ -409,6 +420,15 @@ export async function POST(req: NextRequest) {
     if (isSandboxEmail(userEmail)) {
       const fixtureId = matchSandboxQuestion(question)
       const fx = (fixtureId && SANDBOX_CHAT[fixtureId]) || SANDBOX_CHAT_FALLBACK
+      // previewOnly: skip the streamed answer, return the fixture sources
+      // as JSON. Mirrors the live endpoint's preview short-circuit below.
+      if (previewOnly) {
+        const sources = (fx.sources || [])
+          .filter((s: { id: string }) => !excludeSet.has(s.id))
+        return new Response(JSON.stringify({ sources }), {
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        })
+      }
       const encoder = new TextEncoder()
       const fullText = `${fx.answer}`
       // Stream in small chunks so the UI animates the typing effect
@@ -829,6 +849,13 @@ Offers:
       return ranked.map(r => byId.get(r.id)).filter((r): r is NonNullable<typeof candidates[number]> => !!r)
     }).catch(() => candidates.slice(0, 10))
 
+    // Drop user-excluded sources (Tasks compose × on a chip). Done AFTER
+    // rerank so the dropped ID is taken out of the ranked set; the prompt
+    // and the X-Sources header both reflect the final list.
+    if (excludeSet.size > 0) {
+      top = top.filter((r) => !excludeSet.has(r.id))
+    }
+
     if (top.length === 0) {
       const encoder = new TextEncoder()
       return new Response(encoder.encode("You don't have any memories saved yet. Here's how to get started:\n\n1. Click **New Memory** in the top right to paste meeting notes, decisions, or ideas\n2. Connect your **Gmail**, **Google Calendar**, or **Slack** from Settings → Integrations to auto-import\n3. Use the **desktop app** to capture thoughts on the fly\n\nOnce you have a few memories saved, come back and ask me anything — I'll connect the dots across everything you've captured.\n\nFollow-up questions:\n- How do I connect my Gmail?\n- What kinds of content should I save?\n- Can you show me an example of what this looks like with real memories?\n\nOffers:\n- If you want, I can walk you through the setup process step by step\n- Do you want me to explain what types of questions work best?"), {
@@ -1018,6 +1045,25 @@ Follow-up questions:
 Offers:
 - If you want, I can [concrete action — draft an email, create a brief, map out a timeline, etc.]
 - Do you want me to [another concrete action tied to the memories]`
+
+    // ─── Preview short-circuit ─────────────────────────────
+    // Tasks compose calls /api/ask with previewOnly=true to surface the
+    // memory-source chip strip BEFORE the user clicks Draft. We've done
+    // the full retrieval (FTS + vector + RBAC + reranker) but skip the
+    // generation call — same shape the X-Sources header carries when
+    // the regular endpoint streams an answer.
+    if (previewOnly) {
+      const sources = top.map((r) => ({
+        id: r.id,
+        title: r.title,
+        type: r.type,
+        workspace: wsNameMap.get(r.workspaceId) || 'Personal',
+        date: formatDate(r.occurredAt || r.createdAt),
+      }))
+      return new Response(JSON.stringify({ sources }), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      })
+    }
 
     const stream = await llm.generateTextStream(prompt)
 

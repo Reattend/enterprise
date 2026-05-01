@@ -79,6 +79,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
   const [streaming, setStreaming] = useState(false)
   const [answer, setAnswer] = useState('')
   const [sources, setSources] = useState<SourceMeta[]>([])
+  const [previewLoading, setPreviewLoading] = useState(false)
   const [droppedIds, setDroppedIds] = useState<Set<string>>(new Set())
   const [version, setVersion] = useState(0) // increments on each draft
   const [draftMs, setDraftMs] = useState(0)
@@ -87,6 +88,9 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
   const [refining, setRefining] = useState(false)
   const [copied, setCopied] = useState(false)
   const draftRef = useRef<HTMLDivElement>(null)
+  // AbortController for inflight previews — when the user keeps typing we
+  // cancel the previous request so we don't show stale chips.
+  const previewAbortRef = useRef<AbortController | null>(null)
 
   const canSubmit = mode.fields.every((f) => !f.required || (fields[f.key] || '').trim().length > 0)
 
@@ -95,6 +99,54 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
 
   // Visible sources (after the user dropped some).
   const visibleSources = useMemo(() => sources.filter((s) => !droppedIds.has(s.id)), [sources, droppedIds])
+
+  // ─── Preview retrieval ────────────────────────────────────
+  // The first time the user fills in enough of the form to make a coherent
+  // ask, fetch the memory sources that WOULD be used — so the chip strip
+  // appears above the Draft button instead of showing up post-hoc. Re-runs
+  // (debounced 600ms) when the topic / key fields change. We skip the
+  // preview call once a draft has been generated — at that point the
+  // user is iterating, the chips already reflect reality, and another
+  // preview would just churn.
+  //
+  // Watches a JSON snapshot of the fields so React only re-runs when an
+  // actual value changes (not on every render).
+  const fieldsKey = JSON.stringify(fields)
+  useEffect(() => {
+    // Stop bothering once the user has a draft — they're iterating now.
+    if (answer || streaming) return
+    if (!canSubmit) return
+    const handle = setTimeout(async () => {
+      previewAbortRef.current?.abort()
+      const ac = new AbortController()
+      previewAbortRef.current = ac
+      setPreviewLoading(true)
+      try {
+        const res = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: mode.buildPrompt(fields),
+            previewOnly: true,
+          }),
+          signal: ac.signal,
+        })
+        if (!res.ok) return
+        const data = await res.json() as { sources?: SourceMeta[] }
+        // Keep the user's drops if a re-preview returns the same IDs.
+        // (Drops are scoped to a draft session, not invalidated by typing.)
+        setSources(data.sources || [])
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return
+        // Quiet failure — preview is non-blocking. The Draft button still
+        // works; sources will populate from X-Sources when the user submits.
+      } finally {
+        if (previewAbortRef.current === ac) setPreviewLoading(false)
+      }
+    }, 600)
+    return () => clearTimeout(handle)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldsKey, canSubmit, answer, streaming])
 
   // Citation lookup: map [1] → first source, [2] → second, etc.
   // Sources arrive in retrieval-rank order from the server.
@@ -140,15 +192,20 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
     const prompt = mode.buildPrompt(fields)
     setStreaming(true)
     setAnswer('')
-    setSources([])
-    setDroppedIds(new Set())
+    // Carry the user's pre-draft drops into the actual generate call —
+    // those IDs are what the × on a chip is supposed to mean. The set is
+    // reset only between distinct drafts (handled via Redraft below).
+    const excluded = Array.from(droppedIds)
     setHistory([{ role: 'user', content: `[${mode.label}]\n${JSON.stringify(fields, null, 2)}` }])
     const t0 = performance.now()
     try {
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: prompt }),
+        body: JSON.stringify({
+          question: prompt,
+          excludeIds: excluded,
+        }),
       })
       if (!res.ok || !res.body) {
         toast.error(res.status === 401 ? 'Sign in required' : 'Draft failed — check LLM API key in env')
