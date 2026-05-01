@@ -40,11 +40,15 @@
   --line-2: oklch(0.26 0.01 270);
 }
 
-/* ---------- App grid (sidebar + main) ---------- */
+/* ---------- App grid (sidebar + main) ----------
+ * `height: 100vh` (not min-height) — the parent .enterprise-shell is
+ * h-screen/overflow-hidden, so the grid must be exactly viewport-tall.
+ * With min-height the grid would grow when banners stack, pushing inner
+ * scroll containers off-screen and breaking scroll on long pages. */
 .enterprise-shell .app-grid {
   display: grid;
   grid-template-columns: 232px 1fr;
-  min-height: 100vh;
+  height: 100vh;
 }
 .enterprise-shell.sidebar-collapsed .app-grid {
   grid-template-columns: 64px 1fr;
@@ -53,6 +57,56 @@
   .enterprise-shell .app-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- Collapsed sidebar (icon-only) ----------
+ * When `.sidebar-collapsed` is on the shell, hide every text label in
+ * the rail and center the remaining glyphs. The toggle button itself
+ * stays visible so the user can re-expand. Recent-questions section
+ * disappears entirely (titles are too long to fit). */
+.enterprise-shell.sidebar-collapsed .rail { padding: 16px 8px; }
+.enterprise-shell.sidebar-collapsed .rail .brand {
+  justify-content: center; padding: 0 0 12px; gap: 0;
+}
+/* The middle div of `.brand` holds brand-name + brand-tag (no class on it),
+   the brand-mark and rail-collapse are siblings. Hide the unnamed div. */
+.enterprise-shell.sidebar-collapsed .rail .brand > div:not(.brand-mark) {
+  display: none;
+}
+.enterprise-shell.sidebar-collapsed .rail .rail-collapse {
+  margin-left: 0; margin-top: 6px;
+}
+.enterprise-shell.sidebar-collapsed .rail .brand {
+  flex-direction: column;
+}
+
+.enterprise-shell.sidebar-collapsed .rail .rail-cta,
+.enterprise-shell.sidebar-collapsed .rail .rail-cta-2 {
+  padding: 11px 0; justify-content: center; gap: 0;
+}
+.enterprise-shell.sidebar-collapsed .rail .rail-cta > span,
+.enterprise-shell.sidebar-collapsed .rail .rail-cta-2 > span {
+  display: none;
+}
+
+.enterprise-shell.sidebar-collapsed .rail .rail-nav a {
+  padding: 9px 0; justify-content: center; gap: 0;
+}
+.enterprise-shell.sidebar-collapsed .rail .rail-nav a > span,
+.enterprise-shell.sidebar-collapsed .rail .rail-nav a .badge {
+  display: none;
+}
+/* Hide section labels and the entire recents list — too long for 64px. */
+.enterprise-shell.sidebar-collapsed .rail .rail-section,
+.enterprise-shell.sidebar-collapsed .rail .rail-recent {
+  display: none;
+}
+
+.enterprise-shell.sidebar-collapsed .rail .rail-user {
+  padding: 6px; justify-content: center;
+}
+.enterprise-shell.sidebar-collapsed .rail .rail-user > div:not(.rail-avatar) {
+  display: none;
 }
 
 /* ---------- Primary rail (sidebar) ---------- */
@@ -279,7 +333,7 @@
 /* ---------- Chat surface ---------- */
 .enterprise-shell .chat-wrap {
   display: flex; flex-direction: column;
-  height: 100%; min-height: 0; position: relative;
+  flex: 1; min-height: 0; width: 100%; position: relative;
 }
 .enterprise-shell .chat-toolbar {
   display: flex; align-items: center; gap: 8px;
@@ -391,7 +445,14 @@
  * Two-column composer | preview panel layout.
  * ============================================================ */
 
-.enterprise-shell .cap-page { padding: 26px 32px 64px; max-width: 1280px; margin: 0 auto; }
+/* Capture page is full-bleed — make it the scroll container itself
+ * (no separate -wrap because the original markup uses .cap-page as the
+ * single page wrapper). flex:1 + overflow-y:auto so a tall preview
+ * panel can scroll without breaking the parent flex chain. */
+.enterprise-shell .cap-page {
+  padding: 26px 32px 64px; max-width: 1280px; margin: 0 auto;
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
+}
 .enterprise-shell .cap-crumb {
   font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--brand-ink); display: inline-flex; align-items: center; gap: 6px;
@@ -724,8 +785,13 @@
   --mem-teal-soft: oklch(0.95 0.04 200);
 }
 
+/* Scroll wrap for full-bleed pages — `flex: 1; min-height: 0` instead of
+ * `height: 100%` so it grows to fill the parent flex column AND lets its
+ * own overflow-y handle the scroll. `height: 100%` is unreliable inside
+ * flex columns when the chain back to a definite-height ancestor passes
+ * through `flex: 1` siblings. */
 .enterprise-shell .mem-page-wrap {
-  height: 100%; width: 100%; overflow-y: auto;
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
 }
 .enterprise-shell .mem-page {
   padding: 22px 32px 64px;
@@ -1429,7 +1495,7 @@
   width: 100%;
 }
 .enterprise-shell .lsc-page-wrap {
-  height: 100%; width: 100%; overflow-y: auto;
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
 }
 
 .enterprise-shell .lsc-crumb {
@@ -1867,7 +1933,7 @@
  * ============================================================ */
 
 .enterprise-shell .wiki-page-wrap {
-  height: 100%; width: 100%; overflow-y: auto;
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
 }
 .enterprise-shell .wiki-page {
   padding: 22px 32px 64px;
