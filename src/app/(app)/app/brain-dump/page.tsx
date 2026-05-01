@@ -15,6 +15,7 @@ import {
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
+import { emit, SCOPES } from '@/lib/data-bus'
 
 type ItemKind = 'decision' | 'question' | 'action' | 'fact'
 interface DumpItem {
@@ -208,6 +209,8 @@ export default function BrainDumpPage() {
       const data = await res.json()
       setResult(data)
       toast.success(`Created ${data.created.length} memor${data.created.length === 1 ? 'y' : 'ies'}`)
+      // Tell every memories list / home / wiki tab to refetch.
+      emit(SCOPES.memories)
     } finally {
       setCommitting(false)
     }

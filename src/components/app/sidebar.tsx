@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Home, Settings, LogOut, User, ListFilterPlus, Database, Proportions,
+  Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
   PanelLeft, Loader2, Check,
 } from 'lucide-react'
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAppStore } from '@/stores/app-store'
+import { useRevalidate, SCOPES } from '@/lib/data-bus'
 import { cn } from '@/lib/utils'
 
 // New dashboard sidebar — visual structure from the claude.ai/design Chat.html
@@ -62,6 +63,13 @@ export function AppSidebar() {
     const interval = setInterval(fetchInboxUnread, 60_000)
     return () => clearInterval(interval)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-fetch on bus broadcasts + tab focus so a name change, new chat,
+  // org rename, or notification clear shows up without a manual reload.
+  useRevalidate([SCOPES.user], fetchUser)
+  useRevalidate([SCOPES.chats], fetchChats)
+  useRevalidate([SCOPES.inbox], fetchInboxUnread)
+  useRevalidate([SCOPES.orgs], fetchEnterpriseOrgs)
 
   async function fetchUser() {
     try {
@@ -155,13 +163,13 @@ export function AppSidebar() {
   function renderRail({ onNavigate }: { onNavigate?: () => void }) {
     return (
       <>
-        {/* Brand + collapse */}
+        {/* Brand + collapse — uses the actual product mark from /public.
+            Two SVGs swapped via [data-theme] CSS so the same markup works
+            in light and dark mode. No border on the mark. */}
         <div className="brand">
           <div className="brand-mark">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
-              <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" />
-              <path d="M12 3v18M4 7.5l8 4.5 8-4.5" />
-            </svg>
+            <img src="/black_logo.svg" alt="Reattend" className="brand-img light" />
+            <img src="/white_logo.svg" alt="Reattend" className="brand-img dark" />
           </div>
           <div>
             <div className="brand-name">Reattend</div>
@@ -233,16 +241,12 @@ export function AppSidebar() {
 
         <div style={{ flex: 1 }} />
 
-        {/* Bottom: Agents + Settings */}
+        {/* Bottom: Agents only — Settings lives in the user dropdown below. */}
         <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10, marginTop: 10 }}>
           <nav className="rail-nav">
             <Link href="/app/agents" className={isActive('/app/agents') ? 'active' : ''} onClick={onNavigate}>
               <HatGlasses className="ico" />
               <span>Agents</span>
-            </Link>
-            <Link href="/app/settings" className={isActive('/app/settings') ? 'active' : ''} onClick={onNavigate}>
-              <Settings className="ico" />
-              <span>Settings</span>
             </Link>
           </nav>
         </div>

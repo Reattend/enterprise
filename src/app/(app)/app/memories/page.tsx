@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { emit, useRevalidate, SCOPES } from '@/lib/data-bus'
 
 type MemoryRecord = {
   id: string
@@ -272,6 +273,11 @@ export default function MemoriesPage() {
     fetchProjects()
   }, [])
 
+  // Refetch when a memory is created elsewhere (brain-dump, share import,
+  // chrome extension, etc.) or when the tab regains focus.
+  useRevalidate([SCOPES.memories], fetchRecords)
+  useRevalidate([SCOPES.projects], fetchProjects)
+
   // Import shared memory ─ when arriving from a shared-link
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -347,6 +353,7 @@ export default function MemoriesPage() {
           pollUntilEnriched(data.record.id)
         }
         toast.success('Memory saved successfully.')
+      emit(SCOPES.memories)
         setShowCreateDialog(false); setNewContent(''); setSelectedFile(null); setSelectedProjectId(''); setCreateMode('text')
       } catch { toast.error('Failed to upload file') }
       finally { setCreating(false) }
@@ -368,6 +375,7 @@ export default function MemoriesPage() {
         pollUntilEnriched(data.record.id)
       }
       toast.success('Memory saved successfully.')
+      emit(SCOPES.memories)
       setShowCreateDialog(false); setNewContent(''); setSelectedProjectId('')
     } catch { toast.error('Failed to create memory') }
     finally { setCreating(false) }

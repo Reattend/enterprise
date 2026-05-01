@@ -14,14 +14,14 @@
   --ink-4: oklch(0.72 0.008 270);
   --line: oklch(0.92 0.005 270);
   --line-2: oklch(0.96 0.004 270);
-  /* Indigo-violet brand accent — kept under `--brand*` to avoid colliding
-     with shadcn's HSL `--accent` (which globals.css redefines inside the
-     shell as a soft hover surface). Both palettes coexist cleanly: use
-     `var(--brand)` for the violet violet design accent, Tailwind's
-     `bg-accent` for the soft hover surface. */
-  --brand: oklch(0.52 0.18 275);
-  --brand-soft: oklch(0.94 0.04 275);
-  --brand-ink: oklch(0.32 0.14 275);
+  /* Rust-orange brand accent — matches the Control Room rail button
+     (#c86d4b ≈ oklch(0.62 0.13 36)). Used by every primary CTA, badge
+     and accent text in the new dashboard pages. Kept under `--brand*`
+     to avoid colliding with shadcn's HSL `--accent` (which globals.css
+     redefines inside the shell as a soft hover surface). */
+  --brand: oklch(0.62 0.13 36);
+  --brand-soft: oklch(0.95 0.04 50);
+  --brand-ink: oklch(0.4 0.13 30);
   --serif: "Instrument Serif", "Times New Roman", serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: "Inter", system-ui, sans-serif;
@@ -125,12 +125,18 @@
   margin-bottom: 14px;
 }
 .enterprise-shell .rail .brand-mark {
-  width: 30px; height: 30px; border-radius: 7px;
-  background: transparent; color: var(--ink);
+  width: 30px; height: 30px;
+  background: transparent;
   display: grid; place-items: center;
-  border: 1.5px solid var(--ink);
   flex-shrink: 0;
 }
+.enterprise-shell .rail .brand-mark .brand-img {
+  width: 28px; height: 28px; display: block;
+}
+/* Light mode: show black logo, hide white. Dark mode: invert. */
+.enterprise-shell .rail .brand-mark .brand-img.dark { display: none; }
+.dark .enterprise-shell .rail .brand-mark .brand-img.light { display: none; }
+.dark .enterprise-shell .rail .brand-mark .brand-img.dark { display: block; }
 .enterprise-shell .rail .brand-name {
   font-family: var(--sans); font-size: 17px; font-weight: 700;
   letter-spacing: -0.01em; color: var(--ink); line-height: 1.05;
@@ -159,11 +165,13 @@
   justify-content: center;
   transition: filter .15s ease, transform .05s ease, background .15s ease;
 }
+/* Control Room — flat rust orange #c86d4b. No gradient, slight inset
+ * highlight for tactility, soft shadow keyed to the same hue. */
 .enterprise-shell .rail-cta {
-  background: linear-gradient(135deg, oklch(0.62 0.16 25), oklch(0.5 0.14 30) 60%, oklch(0.42 0.1 35));
-  box-shadow: 0 1px 0 oklch(1 0 0 / 0.25) inset, 0 6px 14px -8px oklch(0.45 0.14 30 / 0.45);
+  background: #c86d4b;
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
 }
-.enterprise-shell .rail-cta:hover { filter: brightness(1.05); }
+.enterprise-shell .rail-cta:hover { background: #b85e3e; }
 .enterprise-shell .rail-cta-2 {
   background: oklch(0.16 0.01 270);
   margin-bottom: 4px;
@@ -606,9 +614,9 @@
   padding: 9px 16px; border-radius: 10px;
   font: inherit; font-weight: 600; font-size: 13px;
   color: white; cursor: pointer; border: 0;
-  background: linear-gradient(135deg, oklch(0.6 0.2 285), oklch(0.45 0.2 280) 70%);
-  box-shadow: 0 1px 0 oklch(1 0 0 / 0.3) inset, 0 6px 14px -8px oklch(0.45 0.2 280 / 0.5);
-  transition: filter .12s;
+  background: #c86d4b;
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
+  transition: background .12s;
 }
 .enterprise-shell .cap-commit:hover { filter: brightness(1.05); }
 .enterprise-shell .cap-commit:disabled { opacity: 0.5; cursor: default; filter: none; }
@@ -1534,7 +1542,7 @@
 }
 .enterprise-shell .lsc-mode-btn:hover { color: var(--ink); }
 .enterprise-shell .lsc-mode-btn.active {
-  background: linear-gradient(135deg, oklch(0.6 0.2 285), oklch(0.45 0.2 280));
+  background: #c86d4b;
   color: white; box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
 }
 .enterprise-shell .lsc-mode-btn .lab-sub {
@@ -2342,3 +2350,213 @@
   text-decoration: none;
 }
 .enterprise-shell .wiki-risk-banner .action:hover { text-decoration: underline; }
+
+/* ============================================================
+ * Integrations page — dense provider grid with real brand logos.
+ * Classes prefixed `int-`.
+ * ============================================================ */
+
+.enterprise-shell .int-page-wrap {
+  flex: 1; min-height: 0; width: 100%; overflow-y: auto;
+}
+.enterprise-shell .int-page {
+  padding: 22px 32px 64px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.enterprise-shell .int-crumb {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-weight: 600;
+  color: var(--brand-ink); background: var(--brand-soft);
+}
+
+.enterprise-shell .int-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; margin: 8px 0 22px; flex-wrap: wrap;
+}
+.enterprise-shell .int-head h1 {
+  font-family: var(--serif); font-size: 42px; line-height: 1.05;
+  letter-spacing: -0.015em; margin: 8px 0 6px;
+  font-weight: 400; color: var(--ink);
+}
+.enterprise-shell .int-head .sub {
+  color: var(--ink-3); margin: 0; max-width: 70ch; font-size: 14px;
+}
+
+.enterprise-shell .int-triage-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 9px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink); font: inherit; font-size: 12.5px; font-weight: 550;
+  cursor: pointer; text-decoration: none;
+  transition: background .12s;
+}
+.enterprise-shell .int-triage-btn:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .int-triage-btn svg { color: var(--brand); }
+
+/* Section header — same shape as wiki-sec-head */
+.enterprise-shell .int-sec-head {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+  margin: 22px 0 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.enterprise-shell .int-sec-head::after {
+  content: ""; flex: 1; height: 1px; background: var(--line-2);
+}
+.enterprise-shell .int-sec-head .meta {
+  font-size: 11px; color: var(--ink-3);
+  font-family: var(--mono); text-transform: none; letter-spacing: 0;
+  font-weight: 400;
+}
+
+/* Provider grid */
+.enterprise-shell .int-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+@media (max-width: 1100px) {
+  .enterprise-shell .int-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .enterprise-shell .int-grid { grid-template-columns: 1fr; }
+}
+
+.enterprise-shell .int-card {
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--panel); padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .12s, box-shadow .12s;
+}
+.enterprise-shell .int-card:hover {
+  border-color: color-mix(in oklch, var(--brand), white 60%);
+}
+.enterprise-shell .int-card.connected {
+  border-color: color-mix(in oklch, var(--mem-green), white 60%);
+}
+.enterprise-shell .int-card.error {
+  border-color: color-mix(in oklch, var(--mem-rose), white 60%);
+}
+
+.enterprise-shell .int-card-head {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.enterprise-shell .int-logo {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: oklch(0.985 0.005 85);
+  border: 1px solid var(--line-2);
+  flex-shrink: 0;
+}
+.enterprise-shell .int-logo svg { width: 20px; height: 20px; display: block; }
+.enterprise-shell .int-card-body { flex: 1; min-width: 0; }
+.enterprise-shell .int-card-name {
+  font-size: 13.5px; font-weight: 600; color: var(--ink);
+  display: flex; align-items: center; gap: 6px;
+}
+.enterprise-shell .int-card-desc {
+  font-size: 11.5px; color: var(--ink-3); line-height: 1.45; margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.enterprise-shell .int-status-pill {
+  font-size: 9.5px; padding: 1px 6px; border-radius: 4px;
+  font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.enterprise-shell .int-status-pill.connected {
+  background: var(--mem-green-soft); color: oklch(0.4 0.13 155);
+}
+.enterprise-shell .int-status-pill.error {
+  background: var(--mem-rose-soft); color: var(--mem-rose);
+}
+.enterprise-shell .int-status-pill.roadmap {
+  background: var(--mem-amber-soft); color: var(--mem-amber-ink);
+}
+.enterprise-shell .int-meta-line {
+  font-size: 10.5px; color: var(--ink-4);
+  font-family: var(--mono); margin-top: 3px;
+}
+.enterprise-shell .int-error-line {
+  font-size: 10.5px; color: var(--mem-rose); margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.enterprise-shell .int-actions {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  border-top: 1px solid var(--line-2); padding-top: 10px; margin-top: 2px;
+}
+.enterprise-shell .int-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 7px;
+  border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink-2); font: inherit; font-size: 11.5px; font-weight: 550;
+  cursor: pointer; transition: background .12s;
+}
+.enterprise-shell .int-btn:hover { background: oklch(0.97 0.005 85); }
+.enterprise-shell .int-btn:disabled { opacity: 0.55; cursor: default; }
+.enterprise-shell .int-btn.primary {
+  background: #c86d4b; color: white; border-color: #c86d4b;
+}
+.enterprise-shell .int-btn.primary:hover { background: #b85e3e; }
+.enterprise-shell .int-btn.danger {
+  color: var(--mem-rose); margin-left: auto;
+  border-color: transparent; background: transparent;
+}
+.enterprise-shell .int-btn.danger:hover { background: var(--mem-rose-soft); }
+
+.enterprise-shell .int-setup-hint {
+  margin-top: 6px; padding: 7px 10px;
+  border-radius: 7px; font-size: 10.5px; line-height: 1.45;
+  background: var(--mem-amber-soft); color: var(--mem-amber-ink);
+  border: 1px solid color-mix(in oklch, var(--mem-amber), white 70%);
+}
+.enterprise-shell .int-setup-hint b { font-weight: 600; }
+
+.enterprise-shell .int-empty-card {
+  border: 1px dashed var(--line); border-radius: 12px;
+  background: oklch(0.99 0.003 85);
+  padding: 24px 18px; text-align: center; color: var(--ink-3);
+  font-size: 13px;
+}
+.enterprise-shell .int-empty-card .glyph {
+  display: inline-grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--brand-soft); color: var(--brand-ink);
+  margin-bottom: 10px;
+}
+.enterprise-shell .int-empty-card h3 {
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  margin: 0 0 4px;
+  font-family: var(--sans);
+  letter-spacing: 0;
+}
+.enterprise-shell .int-empty-card p {
+  margin: 0; font-size: 12px; max-width: 50ch;
+  display: inline-block; line-height: 1.5;
+}
+
+/* Security footer */
+.enterprise-shell .int-security {
+  margin-top: 26px; padding: 14px 16px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: oklch(0.985 0.003 85);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.dark .enterprise-shell .int-security { background: oklch(0.20 0.01 270); }
+.enterprise-shell .int-security svg {
+  color: var(--brand); flex: none; margin-top: 2px;
+}
+.enterprise-shell .int-security h3 {
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  margin: 0 0 6px; font-family: var(--sans); letter-spacing: 0;
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.enterprise-shell .int-security ul {
+  margin: 0; padding-left: 18px; font-size: 12px;
+  color: var(--ink-3); line-height: 1.55;
+}
+.enterprise-shell .int-security li { margin: 2px 0; }

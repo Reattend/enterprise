@@ -42,6 +42,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { TourTooltip } from '@/components/app/tour-tooltip'
 import { useAppStore } from '@/stores/app-store'
+import { emit, SCOPES } from '@/lib/data-bus'
 
 interface UserData {
   id: string
@@ -395,6 +396,9 @@ export default function SettingsPage() {
       setWorkspace(prev => prev ? { ...prev, name: data.name } : prev)
       // Update global store so sidebar/topbar reflect the change instantly
       setWorkspaceInfo(data.name, workspaceType || 'personal')
+      // Broadcast so any other consumer (sidebar org switcher, layout)
+      // re-fetches and shows the new name without a manual refresh.
+      emit([SCOPES.user, SCOPES.orgs])
       toast.success('Workspace name updated')
     } catch {
       toast.error('Failed to update workspace')
@@ -417,6 +421,9 @@ export default function SettingsPage() {
       const data = await res.json()
       if (res.ok && data.user) {
         setUser(data.user)
+        // Broadcast so the sidebar avatar / name and topbar greeting
+        // refresh immediately, without waiting for a tab refresh.
+        emit(SCOPES.user)
         toast.success('Profile updated')
       } else {
         toast.error(data.error || 'Failed to update')

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Plus, ChevronRight, ChevronDown, Network, Building, Users2, AlertCircle, List, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OrgChart } from '@/components/enterprise/org-chart'
+import { emit, SCOPES } from '@/lib/data-bus'
 
 type Kind = string // free-text per-org taxonomy
 
@@ -115,6 +116,9 @@ export default function DepartmentsPage({ params }: { params: { orgId: string } 
       setForm({ name: '', kind: kinds[0]?.label || 'department', parentId: '' })
       setShowCreate(false)
       await load()
+      // Broadcast — wiki tabs, sidebar org-tree, etc. should refetch
+      // their dept lists so the new node appears without a page reload.
+      emit([SCOPES.teams, SCOPES.orgs])
     } finally {
       setBusy(false)
     }

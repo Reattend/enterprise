@@ -15,6 +15,7 @@ import { StoreHydrator } from '@/components/app/store-hydrator'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
 import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
+import { useRevalidate, SCOPES } from '@/lib/data-bus'
 import { cn } from '@/lib/utils'
 
 // Routes that get a full-bleed canvas (no padding) so the page can manage
@@ -23,7 +24,7 @@ import { cn } from '@/lib/utils'
 // wrapper would let the input drift mid-page.
 // Routes that get a full-bleed canvas. Use prefix matching for paths whose
 // children should also be full-bleed (e.g. /app/memories AND /app/memories/[id]).
-const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki']
+const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki', '/app/integrations']
 
 // Routes a user with zero orgs is allowed to stay on. Everything else redirects
 // to onboarding. Reattend Enterprise is org-only — no personal workspace home.
@@ -77,29 +78,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   //
   // Replaced with our own fetch, gated by a real loaded flag. Only after
   // the response resolves do we consider running the redirect.
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const res = await fetch('/api/enterprise/organizations')
-        if (cancelled) return
-        if (res.ok) {
-          const data = await res.json()
-          const memberships = (data.organizations ?? []) as Array<{
-            orgId: string; orgName: string; orgSlug: string; orgPlan: string; orgDeployment: string; role: 'super_admin' | 'admin' | 'member' | 'guest'
-          }>
-          // Mirror sidebar's hydration so all consumers share the same source.
-          useAppStore.getState().setEnterpriseOrgs(memberships)
-          if (memberships.length > 0 && !useAppStore.getState().activeEnterpriseOrgId) {
-            useAppStore.getState().setActiveEnterpriseOrgId(memberships[0].orgId)
-          }
+  // Org-membership fetch — extracted so the data bus can re-trigger it
+  // when an org name / role changes elsewhere in the app, and so the
+  // tab-focus listener (added below via useRevalidate) keeps the cached
+  // sidebar / topbar metadata fresh.
+  const fetchOrgs = React.useCallback(async () => {
+    try {
+      const res = await fetch('/api/enterprise/organizations')
+      if (res.ok) {
+        const data = await res.json()
+        const memberships = (data.organizations ?? []) as Array<{
+          orgId: string; orgName: string; orgSlug: string; orgPlan: string; orgDeployment: string; role: 'super_admin' | 'admin' | 'member' | 'guest'
+        }>
+        useAppStore.getState().setEnterpriseOrgs(memberships)
+        if (memberships.length > 0 && !useAppStore.getState().activeEnterpriseOrgId) {
+          useAppStore.getState().setActiveEnterpriseOrgId(memberships[0].orgId)
         }
-      } finally {
-        if (!cancelled) setOrgsLoaded(true)
       }
-    })()
-    return () => { cancelled = true }
+    } finally {
+      setOrgsLoaded(true)
+    }
   }, [])
+  useEffect(() => { fetchOrgs() }, [fetchOrgs])
+  // Revalidate when an `orgs` or `user` mutation broadcasts, when the
+  // tab regains focus, or when the page becomes visible after being
+  // hidden. This is what makes a name change in Settings show up in
+  // the sidebar without a manual refresh.
+  useRevalidate([SCOPES.orgs, SCOPES.user], fetchOrgs)
 
   useEffect(() => {
     if (!orgsLoaded) return

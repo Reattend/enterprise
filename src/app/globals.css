@@ -226,8 +226,10 @@
   --popover: 0 0% 100%;
   --popover-foreground: 258 12% 13%;
 
-  /* Primary indigo-violet — matches the design's --brand */
-  --primary: 258 52% 53%;
+  /* Primary = rust orange #c86d4b. Used by every shadcn `bg-primary`
+     button and `text-primary` accent across the dashboard, so all
+     CTAs look consistent with the Control Room rail button. */
+  --primary: 19 53% 54%;
   --primary-foreground: 0 0% 100%;
 
   /* Soft surfaces */
@@ -246,7 +248,7 @@
 
   --border: 258 8% 91%;
   --input: 258 8% 91%;
-  --ring: 258 52% 53%;
+  --ring: 19 53% 54%;
 
   /* Softer corners — design uses 8-14px on cards, 9-10px on buttons.
      0.625rem = 10px. Tailwind's rounded → 10px, rounded-lg → 14px. */
@@ -268,7 +270,7 @@
   --popover: 258 10% 16%;
   --popover-foreground: 48 25% 98%;
 
-  --primary: 258 60% 65%;
+  --primary: 19 55% 60%;
   --primary-foreground: 258 10% 12%;
 
   --secondary: 258 8% 22%;
@@ -283,7 +285,7 @@
 
   --border: 258 8% 25%;
   --input: 258 8% 25%;
-  --ring: 258 60% 65%;
+  --ring: 19 55% 60%;
 
   --sidebar: 258 10% 10%;
   --sidebar-foreground: 48 25% 98%;
