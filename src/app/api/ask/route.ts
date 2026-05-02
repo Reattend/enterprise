@@ -12,6 +12,7 @@ import {
   filterToAccessibleRecords,
 } from '@/lib/enterprise'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
+import { consumeAiQuery } from '@/lib/billing/gates'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { matchSandboxQuestion, SANDBOX_CHAT, SANDBOX_CHAT_FALLBACK } from '@/lib/sandbox/fixtures'
 
@@ -411,6 +412,32 @@ export async function POST(req: NextRequest) {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    // ─── Free-tier AI quota gate ─────────────────────────
+    // Free users get 100 questions per calendar month; paid tiers are
+    // unlimited. previewOnly skips the LLM (just retrieves sources) so it
+    // doesn't count. Sandbox users are exempt — they hit fixtures, not the
+    // model, and we don't want demo flow to ever 429.
+    if (!previewOnly && !isSandboxEmail(userEmail)) {
+      const quota = await consumeAiQuery(userId)
+      if (!quota.ok) {
+        return new Response(
+          JSON.stringify({
+            error: 'ai_quota_exceeded',
+            message: 'You\'ve used your 100 free questions for this month.',
+            resetAt: quota.resetAt,
+            upgradeUrl: '/pricing',
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Reattend-Reason': 'ai-quota-exceeded',
+            },
+          },
+        )
+      }
     }
 
     // ─── Sandbox short-circuit ─────────────────────────────

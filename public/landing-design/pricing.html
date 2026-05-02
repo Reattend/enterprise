@@ -4,17 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reattend — Pricing</title>
-  <meta name="description" content="Three plans, one product. Same memory engine, same RBAC, same security posture." />
+  <meta name="description" content="Reattend pricing: free forever for individuals, $19/seat/month Professional, $29/seat/month Enterprise. 45-day no-card trial on paid tiers." />
+
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
   <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
   <link rel="apple-touch-icon" href="/icon-128.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Geist:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
-  <link rel="stylesheet" href="/landing-design/pricing.css?v=1" />
+  <link rel="stylesheet" href="/landing-design/page.css?v=2" />
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0J0Y3SL5CY"></script>
@@ -24,377 +25,635 @@
     gtag('js', new Date());
     gtag('config', 'G-0J0Y3SL5CY');
   </script>
-</head>
-<body>
 
-  <!-- ============== TOPBAR ============== -->
-  <header class="topbar">
-    <div class="topbar-inner">
+  <!-- Paddle.js for the checkout overlay. The client token is intentionally
+       public (same model as Stripe's publishable key). Server-side
+       transactions still require the secret API key. -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
+  <style>
+    .pr-hero {
+      padding: clamp(72px, 10vw, 120px) var(--pad) clamp(40px, 5vw, 64px);
+      max-width: 980px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .pr-eye {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pr-eye::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .pr-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      font-weight: 400;
+      margin: 0 0 24px;
+    }
+    .pr-hero h1 em { font-style: italic; color: var(--accent); }
+    .pr-hero p {
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 64ch;
+      margin: 0 auto;
+      text-wrap: pretty;
+    }
+
+    .pr-toggle {
+      max-width: 1120px;
+      margin: 32px auto 16px;
+      padding: 0 var(--pad);
+      display: flex;
+      justify-content: center;
+    }
+    .pr-toggle-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      padding: 4px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+    }
+    .pr-toggle-btn {
+      padding: 8px 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      background: transparent;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .pr-toggle-btn.active {
+      background: oklch(0.18 0.02 270);
+      color: #fff;
+    }
+    .pr-toggle-save {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-left: 4px;
+    }
+
+    .pr-tiers {
+      max-width: 1120px;
+      margin: 32px auto 0;
+      padding: 0 var(--pad);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .pr-tiers { grid-template-columns: 1fr; } }
+
+    .pr-tier {
+      padding: 32px 28px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .pr-tier.featured {
+      background: oklch(0.18 0.02 270);
+      color: #fff;
+      border-color: oklch(0.18 0.02 270);
+      transform: scale(1.02);
+      box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+    }
+    .pr-tier.featured .pr-tier-name,
+    .pr-tier.featured .pr-tier-price-num,
+    .pr-tier.featured .pr-tier-feat { color: #fff; }
+    .pr-tier.featured .pr-tier-tag,
+    .pr-tier.featured .pr-tier-price-unit { color: oklch(0.78 0.01 270); }
+    .pr-tier.featured .pr-tier-feat::before { background: oklch(0.85 0.10 280); }
+
+    .pr-tier-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .pr-tier-name {
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .pr-tier-blurb {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--ink-2);
+      margin: -4px 0 12px;
+    }
+    .pr-tier.featured .pr-tier-blurb { color: oklch(0.82 0.01 270); }
+
+    .pr-tier-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .pr-tier.featured .pr-tier-price { border-color: rgba(255,255,255,0.12); }
+    .pr-tier-price-num {
+      font-family: var(--serif);
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .pr-tier-price-unit {
+      font-size: 13px;
+      color: var(--ink-3);
+    }
+
+    .pr-tier-feats {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .pr-tier-feat {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .pr-tier-feat::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+    .pr-tier-feat b { font-weight: 500; }
+
+    .pr-tier-cta {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background .18s ease, transform .15s ease;
+      font-family: inherit;
+      text-decoration: none;
+    }
+    .pr-tier-cta.primary {
+      background: oklch(0.18 0.02 270);
+      color: #fff;
+    }
+    .pr-tier-cta.primary:hover { background: oklch(0.12 0.02 270); transform: translateY(-1px); }
+    .pr-tier-cta.ghost {
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--rule);
+    }
+    .pr-tier-cta.ghost:hover { background: var(--bg-paper); transform: translateY(-1px); }
+    .pr-tier-cta:disabled { opacity: 0.6; cursor: progress; }
+
+    .pr-tier-trial-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--ink-3);
+      text-align: center;
+      margin-top: 8px;
+    }
+    .pr-tier.featured .pr-tier-trial-note { color: oklch(0.78 0.01 270); }
+
+    .pr-faq {
+      max-width: 980px;
+      margin: 96px auto 0;
+      padding: 0 var(--pad);
+    }
+    .pr-faq h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin: 0 0 36px;
+      text-align: center;
+      color: var(--ink);
+    }
+    .pr-faq h2 em { font-style: italic; color: var(--accent); }
+    .pr-faq-list {
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: var(--bg-paper);
+      overflow: hidden;
+    }
+    .pr-faq-list details { border-bottom: 1px solid var(--rule); }
+    .pr-faq-list details:last-child { border-bottom: none; }
+    .pr-faq-list summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 20px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      transition: background .15s ease;
+    }
+    .pr-faq-list summary::-webkit-details-marker { display: none; }
+    .pr-faq-list summary:hover { background: oklch(0.97 0.005 70); }
+    .pr-faq-list .icon-plus {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      color: var(--ink-3);
+      font-size: 18px;
+      transition: transform .25s ease;
+    }
+    .pr-faq-list details[open] .icon-plus { transform: rotate(45deg); color: var(--accent); }
+    .pr-faq-list details[open] summary { background: oklch(0.97 0.005 70); }
+    .pr-faq-list .ans {
+      padding: 0 24px 22px;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--ink-2);
+    }
+    .pr-faq-list .ans b { color: var(--ink); font-weight: 500; }
+
+    .pr-final-cta {
+      max-width: 1120px;
+      margin: 96px auto 120px;
+      padding: 0 var(--pad);
+      text-align: center;
+    }
+    .pr-final-cta h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin: 0 0 16px;
+      color: var(--ink);
+    }
+    .pr-final-cta h2 em { font-style: italic; color: var(--accent); }
+    .pr-final-cta p {
+      font-size: 16px;
+      color: var(--ink-2);
+      margin: 0 auto 28px;
+      max-width: 56ch;
+      line-height: 1.55;
+    }
+
+    .pr-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 22px;
+      background: oklch(0.96 0.06 25);
+      border: 1px solid oklch(0.78 0.18 25);
+      border-radius: 10px;
+      color: oklch(0.35 0.18 25);
+      font-size: 14px;
+      box-shadow: 0 12px 30px -12px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      max-width: 480px;
+      text-align: center;
+    }
+    .pr-toast.show { display: block; }
+
+    .pfade { opacity: 0; transform: translateY(10px); transition: opacity .7s ease, transform .7s ease; }
+    .pfade.in { opacity: 1; transform: none; }
+  </style>
+</head>
+<body data-screen-label="Pricing">
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+      <span class="brand-word">Reattend</span>
+      <span class="ent-tag">Enterprise</span>
+    </a>
+    <nav class="nav">
+      <a class="nav-item" href="/">Home</a>
+      <a class="nav-item" href="/product">Product</a>
+      <a class="nav-item" href="/integrations">Integrations</a>
+      <a class="nav-item" href="/pricing" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Pricing</a>
+      <a class="nav-item" href="/compliance">Compliance</a>
+    </nav>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-ghost" href="/login">Sign in</a>
+      <a class="btn btn-outline" href="/sandbox">Try for free</a>
+      <a class="btn btn-primary btn-fill" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<section class="pr-hero">
+  <div class="pr-eye pfade">Pricing</div>
+  <h1 class="pfade">Free to start. <em>Generous when you grow.</em></h1>
+  <p class="pfade">Reattend is free for one person, forever. Add a teammate and we charge per seat. Annual billing saves 20%. Every paid plan starts with a 45-day trial — no card required.</p>
+</section>
+
+<div class="pr-toggle pfade">
+  <div class="pr-toggle-inner">
+    <button class="pr-toggle-btn active" data-cycle="monthly">Monthly</button>
+    <button class="pr-toggle-btn" data-cycle="annual">Annual <span class="pr-toggle-save">— save 20%</span></button>
+  </div>
+</div>
+
+<div class="pr-tiers">
+  <article class="pr-tier pfade">
+    <div>
+      <div class="pr-tier-tag">Free</div>
+      <h3 class="pr-tier-name">Free</h3>
+      <p class="pr-tier-blurb">For one person to try Reattend forever.</p>
+    </div>
+    <div class="pr-tier-price">
+      <div class="pr-tier-price-num">$0</div>
+      <div class="pr-tier-price-unit">forever</div>
+    </div>
+    <ul class="pr-tier-feats">
+      <li class="pr-tier-feat"><span><b>1 user</b>, single workspace</span></li>
+      <li class="pr-tier-feat"><span><b>100</b> AI questions per month</span></li>
+      <li class="pr-tier-feat"><span><b>90-day</b> rolling memory retention</span></li>
+      <li class="pr-tier-feat"><span>Manual capture + Chrome extension manual pin</span></li>
+      <li class="pr-tier-feat"><span>Memory list, decision log (read), graph view</span></li>
+      <li class="pr-tier-feat"><span>Email support, ~3 business days</span></li>
+    </ul>
+    <a class="pr-tier-cta ghost" href="/login?callbackUrl=/app">Get started — no card</a>
+    <div class="pr-tier-trial-note">No payment ever required</div>
+  </article>
+
+  <article class="pr-tier featured pfade">
+    <div>
+      <div class="pr-tier-tag">Most popular</div>
+      <h3 class="pr-tier-name">Professional</h3>
+      <p class="pr-tier-blurb">For solo operators and teams up to 10.</p>
+    </div>
+    <div class="pr-tier-price">
+      <div class="pr-tier-price-num" data-tier="professional" data-price-monthly="$19" data-price-annual="$15.20">$19</div>
+      <div class="pr-tier-price-unit"><span data-tier-unit="professional">per seat / month</span></div>
+    </div>
+    <ul class="pr-tier-feats">
+      <li class="pr-tier-feat"><span><b>1–10 seats</b>, individual or team</span></li>
+      <li class="pr-tier-feat"><span><b>Unlimited</b> AI questions and memory retention</span></li>
+      <li class="pr-tier-feat"><span><b>200+ integrations</b> (Slack, Notion, Gmail, Linear, GitHub…)</span></li>
+      <li class="pr-tier-feat"><span><b>Chrome extension auto-ingest</b> on whitelisted sites</span></li>
+      <li class="pr-tier-feat"><span>Decision log + Time Machine + Memory cockpit</span></li>
+      <li class="pr-tier-feat"><span>Email support, ~1 business day</span></li>
+    </ul>
+    <button class="pr-tier-cta primary" data-checkout="professional" style="background: #fff; color: oklch(0.18 0.02 270);">Start 45-day free trial</button>
+    <div class="pr-tier-trial-note">No card required · cancel anytime</div>
+  </article>
+
+  <article class="pr-tier pfade">
+    <div>
+      <div class="pr-tier-tag">For organizations</div>
+      <h3 class="pr-tier-name">Enterprise</h3>
+      <p class="pr-tier-blurb">For organizations that need governance and audit.</p>
+    </div>
+    <div class="pr-tier-price">
+      <div class="pr-tier-price-num" data-tier="enterprise" data-price-monthly="$29" data-price-annual="$23.20">$29</div>
+      <div class="pr-tier-price-unit"><span data-tier-unit="enterprise">per seat / month</span></div>
+    </div>
+    <ul class="pr-tier-feats">
+      <li class="pr-tier-feat"><span><b>5+ seats</b> minimum, no upper limit</span></li>
+      <li class="pr-tier-feat"><span>Everything in Professional, plus:</span></li>
+      <li class="pr-tier-feat"><span><b>Two-tier RBAC</b> (org + department)</span></li>
+      <li class="pr-tier-feat"><span><b>SSO / SAML</b>, custom domains, SCIM</span></li>
+      <li class="pr-tier-feat"><span><b>Hash-chained audit log</b> + admin cockpit</span></li>
+      <li class="pr-tier-feat"><span>Exit Interview Agent + Onboarding Genie</span></li>
+      <li class="pr-tier-feat"><span>Same-business-day support + Slack channel</span></li>
+    </ul>
+    <button class="pr-tier-cta ghost" data-checkout="enterprise">Start 45-day free trial</button>
+    <div class="pr-tier-trial-note">5-seat minimum · cancel anytime</div>
+  </article>
+</div>
+
+<section class="pr-faq">
+  <h2 class="pfade">Common <em>questions</em>.</h2>
+  <div class="pr-faq-list pfade">
+    <details>
+      <summary>What happens after the 45-day trial ends?<span class="icon-plus">+</span></summary>
+      <div class="ans">If you haven't added a card, your account quietly downgrades to <b>Free</b> on day 46. <b>Your data stays exactly as it was</b> — every memory, decision, and connection. Free-tier limits (100 questions/month, 90-day rolling retention, 1 user) apply going forward. You can upgrade at any time and everything snaps back.</div>
+    </details>
+    <details>
+      <summary>Do I need a credit card to start the trial?<span class="icon-plus">+</span></summary>
+      <div class="ans"><b>No.</b> Sign in with email, pick Professional or Enterprise, and you're in for 45 days. We'll email you near the end of the trial; if you add a card before then, you continue uninterrupted. If not, automatic downgrade to Free.</div>
+    </details>
+    <details>
+      <summary>How is "per seat" counted?<span class="icon-plus">+</span></summary>
+      <div class="ans">A seat is one person who can sign into your workspace. Adding a teammate to your org adds a seat to your bill on the next invoice cycle. Removing someone removes the seat at the end of that cycle (no proration sting). Enterprise has a 5-seat minimum; Professional caps at 10.</div>
+    </details>
+    <details>
+      <summary>Can I switch between Professional and Enterprise?<span class="icon-plus">+</span></summary>
+      <div class="ans">Yes, anytime, in-product (Settings → Billing). Upgrades are immediate and prorated. Downgrades take effect at the end of your current billing period.</div>
+    </details>
+    <details>
+      <summary>What about taxes / VAT / GST?<span class="icon-plus">+</span></summary>
+      <div class="ans">Reattend uses Paddle as our merchant of record. Paddle handles all tax collection and remittance for the 30+ jurisdictions where it's required (EU VAT, India GST, US state sales tax, etc.). Your invoice shows the tax line; you don't need to file anything on our behalf.</div>
+    </details>
+    <details>
+      <summary>What if I want on-premise deployment?<span class="icon-plus">+</span></summary>
+      <div class="ans">On-prem (or single-tenant cloud) is available for Enterprise customers under a custom contract. Common for government and regulated-industry buyers. <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="color:var(--accent); text-decoration:underline;">Book a demo</a> and we'll scope it together.</div>
+    </details>
+    <details>
+      <summary>How do I cancel?<span class="icon-plus">+</span></summary>
+      <div class="ans">Settings → Billing → Manage subscription opens Paddle's customer portal where you can cancel in two clicks. Your account drops to Free at the end of the period; data stays intact.</div>
+    </details>
+  </div>
+</section>
+
+<section class="pr-final-cta pfade">
+  <h2>Ready to start <em>remembering?</em></h2>
+  <p>Free for one person, forever. 45-day trial on every paid plan. Switch tiers anytime.</p>
+  <div style="display:inline-flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+    <a class="btn btn-primary btn-fill" href="/sandbox">Try the live sandbox</a>
+    <a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
+  </div>
+</section>
+
+<div class="pr-toast" id="pr-toast"></div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
       <a class="brand" href="/">
-        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" />
+        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
         <span class="ent-tag">Enterprise</span>
       </a>
-      <nav class="nav">
-        <a class="nav-item" href="/">Home</a>
-        <a class="nav-item" href="/product">Product</a>
-        <a class="nav-item" href="/#integrations">Integrations</a>
-        <a class="nav-item" href="/pricing" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Pricing</a>
-        <a class="nav-item" href="/compliance">Compliance</a>
-      </nav>
-      <div style="display:flex; gap:8px;">
-        <a class="btn btn-outline" href="/login">Sign in</a>
-        <a class="btn btn-primary btn-fill" href="/register">Try for free</a>
-      </div>
+      <p>Organizational memory for teams that can't afford to forget.</p>
     </div>
-  </header>
-
-  <!-- ============== HERO ============== -->
-  <section class="pricing-hero">
-    <div class="reveal">
-      <div class="eyebrow" style="display:inline-flex;">
-        <span class="eyebrow-dot"></span>
-        Pricing
-      </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="/login">Sign in</a>
+      <a href="/integrations">Integrations</a>
     </div>
-    <h1 class="reveal">Three plans, <em>one</em> product.</h1>
-    <p class="lede reveal">Same memory engine, same RBAC, same security posture. The plans differ in deployment, scale, and how much we hold your hand.</p>
-    <div class="reveal">
-      <div class="billing-toggle" id="billingToggle">
-        <span class="bt-opt active" data-mode="month">Monthly</span>
-        <span class="bt-opt" data-mode="year">Annual <span class="save">−15%</span></span>
-      </div>
+    <div class="footer-col">
+      <h5>Capabilities</h5>
+      <a href="/product#capture">Capture</a>
+      <a href="/product#connect">Connect</a>
+      <a href="/product#recall">Recall</a>
+      <a href="/product#run">Run</a>
+      <a href="/product#govern">Govern</a>
+      <a href="/product#deploy">Deploy</a>
     </div>
-  </section>
-
-  <!-- ============== PLAN GRID ============== -->
-  <section class="plan-grid-section">
-    <div class="plan-grid">
-
-      <!-- Team -->
-      <div class="plan pfade">
-        <div class="plan-head">
-          <h3>Team</h3>
-        </div>
-        <p class="plan-blurb">Org memory for the team. Capture, decisions, recall, agents, the Chrome extension. Everything you need to stop forgetting.</p>
-        <div class="plan-price">
-          <span class="amount" data-month="$19" data-year="$16">$19</span>
-          <span class="unit">/seat/month</span>
-        </div>
-        <a class="btn btn-primary btn-fill" href="/register">Start 30-day trial</a>
-        <ul class="plan-feats">
-          <li>Up to 200 seats</li>
-          <li>Org hierarchy + two-tier RBAC</li>
-          <li>Decision log + Blast Radius</li>
-          <li>Time Machine (24-month history)</li>
-          <li>Onboarding Genie</li>
-          <li>Exit Interview Agent + Handoff Generator</li>
-          <li>Self-healing dashboard</li>
-          <li>Chat + DeepThink (AI-powered)</li>
-          <li>Chrome extension + ambient surfacing</li>
-          <li>Slack / Notion / MS Teams integrations</li>
-          <li>OCR pipeline (basic — image-only)</li>
-          <li>GDPR data controls + WORM audit log</li>
-          <li class="dim">Meeting recorder + auto-transcripts</li>
-          <li class="opt">SAML SSO <span class="badge">(available)</span></li>
-          <li class="dim">On-premise / dedicated tenant</li>
-        </ul>
-      </div>
-
-      <!-- Pro (featured) -->
-      <div class="plan featured pfade">
-        <div class="plan-head">
-          <h3>Pro</h3>
-          <span class="plan-tag">Most picked</span>
-        </div>
-        <p class="plan-blurb">Everything in Team plus the meeting layer. A bot joins your Zoom / Meet / Teams calls, transcribes, and feeds the org memory automatically.</p>
-        <div class="plan-price">
-          <span class="amount" data-month="$29" data-year="$25">$29</span>
-          <span class="unit">/seat/month</span>
-        </div>
-        <a class="btn btn-primary btn-fill" href="/register">Start 30-day trial</a>
-        <ul class="plan-feats">
-          <li>Everything in Team</li>
-          <li>Meeting recorder bot (Zoom / Meet / Teams)</li>
-          <li>Automatic transcription with speaker labels</li>
-          <li>AI summary with decisions and action items extracted</li>
-          <li>Transcripts saved as memory records (RBAC-respecting)</li>
-          <li>Calendar auto-join (opt-in per meeting)</li>
-          <li>Per-user recording quota included (40 hours/month)</li>
-          <li>Audio retention configurable (default 30 days, transcripts forever)</li>
-          <li>Replaces Fireflies / Otter / Granola in your stack</li>
-          <li class="opt">SAML SSO <span class="badge">(available)</span></li>
-        </ul>
-      </div>
-
-      <!-- Enterprise -->
-      <div class="plan pfade">
-        <div class="plan-head">
-          <h3>Enterprise</h3>
-        </div>
-        <p class="plan-blurb">For 200+ seats, regulated industries, or anyone needing dedicated infrastructure.</p>
-        <div class="plan-price">
-          <span class="amount long">Custom</span>
-        </div>
-        <a class="btn btn-primary btn-fill" href="mailto:sales@reattend.com">Talk to sales</a>
-        <ul class="plan-feats">
-          <li>Unlimited seats</li>
-          <li>Everything in Pro</li>
-          <li>SAML SSO + SCIM provisioning</li>
-          <li>Dedicated tenant (Postgres + isolated app)</li>
-          <li>EU / US / APAC data residency</li>
-          <li>Customer-managed KMS</li>
-          <li>Advanced OCR (multi-page PDF + cloud Textract)</li>
-          <li>Field-level encryption (opt-in)</li>
-          <li>SOC 2 Type II report (when available)</li>
-          <li>Priority support + named CSM</li>
-          <li>Custom retention + legal hold workflows</li>
-          <li class="opt">On-premise deployment <span class="badge">(optional)</span></li>
-          <li class="opt">BAA for HIPAA <span class="badge">(optional)</span></li>
-        </ul>
-      </div>
-
-      <!-- Government -->
-      <div class="plan pfade">
-        <div class="plan-head">
-          <h3>Government</h3>
-        </div>
-        <p class="plan-blurb">For state, federal, and law-enforcement-adjacent orgs. On-prem first; assisted onboarding included.</p>
-        <div class="plan-price">
-          <span class="amount long">Quote</span>
-        </div>
-        <a class="btn btn-primary btn-fill" href="mailto:gov@reattend.com">Request quote</a>
-        <ul class="plan-feats">
-          <li>Everything in Enterprise</li>
-          <li>On-premise deployment (default)</li>
-          <li>On-prem Rabbit LLM — zero egress</li>
-          <li>Assisted onboarding (trainer dispatched)</li>
-          <li>Paper digitization (we scan + OCR your archives)</li>
-          <li>StateRAMP Moderate alignment + SSP</li>
-          <li>CJIS addendum + management control agreement</li>
-          <li class="opt">PIV / CAC card authentication <span class="badge">(on request)</span></li>
-          <li class="opt">FedRAMP Moderate prep <span class="badge">(roadmap)</span></li>
-          <li class="opt">FIPS-validated crypto modules <span class="badge">(optional)</span></li>
-          <li class="opt">Air-gapped deployment <span class="badge">(optional)</span></li>
-        </ul>
-      </div>
-
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/coming-soon?topic=Careers">Careers</a>
+      <a href="/coming-soon?topic=Blog">Blog</a>
+      <a href="/coming-soon?topic=Press">Press</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
     </div>
-  </section>
-
-  <!-- ============== CAPABILITIES INCLUDED ============== -->
-  <section class="cap-section">
-    <div style="max-width: var(--maxw); margin: 0 auto 40px; text-align:center;">
-      <div class="eyebrow pfade" style="display:inline-flex; margin-bottom: 16px;">
-        <span class="eyebrow-dot"></span>
-        In every plan
-      </div>
-      <h2 class="pfade" style="font-family: var(--serif); font-size: clamp(32px, 4vw, 48px); letter-spacing:-0.02em; line-height: 1.1; max-width: 22ch; margin: 0 auto;">The whole memory stack — across every tier.</h2>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="/coming-soon?topic=Docs">Docs</a>
+      <a href="/coming-soon?topic=Changelog">Changelog</a>
+      <a href="/compliance">Trust</a>
+      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+      <a href="/coming-soon?topic=SOC%202">SOC 2</a>
+      <a href="/coming-soon?topic=HIPAA">HIPAA</a>
     </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;"><a href="/privacy" style="color:inherit;">Privacy</a><a href="/terms" style="color:inherit;">Terms</a><a href="/compliance" style="color:inherit;">Compliance</a><a href="/support" style="color:inherit;">Support</a></span>
+  </div>
+</footer>
 
-    <div class="cap-grid">
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-        </span>
-        <h4>Decision graph + Blast Radius</h4>
-        <p>Every decision logged with rationale + alternatives. "If we reverse this, what breaks?" — calculated, not guessed.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 0 1 4 4v3M8 9V6a4 4 0 0 1 4-4M5 9h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9z"/><path d="M12 14v3"/></svg>
-        </span>
-        <h4>Exit Interview Agent</h4>
-        <p>The AI pre-reads the departing person's memory footprint, asks 10–15 targeted questions, writes the handoff doc.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
-        </span>
-        <h4>Onboarding Genie</h4>
-        <p>New hire form → personalized first-week packet (decisions to know, people to meet, policies to ack).</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
-        </span>
-        <h4>OCR pipeline</h4>
-        <p>Scanned PDF / image → Tesseract or Textract → PII redaction → searchable memory record.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
-        </span>
-        <h4>WORM audit log</h4>
-        <p>Every audit row sha256-linked to the prior. Tamper-detectable. Verify chain on demand.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="8" r="3"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
-        </span>
-        <h4>Two-tier RBAC</h4>
-        <p>Org role + dept role. Record-level visibility. The LLM never sees what the user can't.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.61.49 1.51 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </span>
-        <h4>Time Machine</h4>
-        <p>Scrub through 24 months. See what the org knew at any point — what was decided, reversed, what existed.</p>
-      </div>
-      <div class="cap-card pfade">
-        <span class="cap-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 13h6M9 17h6"/></svg>
-        </span>
-        <h4>GDPR controls</h4>
-        <p>Self-serve data export + right-to-erasure. Hashed marker for regulator verification.</p>
-      </div>
-    </div>
-  </section>
+<script>
+  // Reveal-on-scroll
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }
+  }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
 
-  <!-- ============== FAQ ============== -->
-  <section class="pricing-faq-section">
-    <div class="pricing-faq pfade">
-      <h2>A few quick answers</h2>
-      <dl>
-        <div>
-          <dt>Is there a free trial?</dt>
-          <dd>30 days on Team and Pro, no credit card required. Enterprise and Government go through sales so we land you on the right deployment.</dd>
-        </div>
-        <div>
-          <dt>What is the difference between Team and Pro?</dt>
-          <dd>Pro adds the meeting recorder. A bot joins your Zoom, Meet, or Teams calls, transcribes them, extracts decisions and action items, and saves the result as a memory record (still RBAC-respecting). It replaces Fireflies, Otter, or Granola in your stack. Everything else is identical to Team.</dd>
-        </div>
-        <div>
-          <dt>Per-seat. What counts as a seat?</dt>
-          <dd>Any active user with an org membership. Guests (read-only on explicit shares) don't count. Admins do.</dd>
-        </div>
-        <div>
-          <dt>How much meeting recording is included on Pro?</dt>
-          <dd>40 hours per user per month, transcribed and summarised. Audio is retained for 30 days by default; transcripts and summaries stay forever. Heavier usage available on request.</dd>
-        </div>
-        <div>
-          <dt>On-prem — what does that actually mean?</dt>
-          <dd>The full stack runs inside your network: app, database, and the LLM (via on-prem Rabbit). Zero egress to Reattend. Customer manages updates on their cadence; we provide signed tarball releases.</dd>
-        </div>
-        <div>
-          <dt>How fast can we go live?</dt>
-          <dd>Team: 30 minutes (Slack + Notion connectors are 1-click). Enterprise dedicated: 1–2 weeks. Government on-prem with paper digitization: 6–12 weeks depending on legacy archive size.</dd>
-        </div>
-        <div>
-          <dt>What about the AI engine?</dt>
-          <dd>Cloud deployment uses our managed AI stack — frontier reasoning models for answering plus a fast model for triage. Year-2 we ship on-prem Rabbit so the model lives on your hardware. You can swap at any time.</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
+  // Billing-cycle toggle: swaps the displayed price + unit on each tier card.
+  let activeCycle = 'monthly';
+  document.querySelectorAll('.pr-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCycle = btn.dataset.cycle;
+      document.querySelectorAll('.pr-toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('[data-tier]').forEach(el => {
+        el.textContent = activeCycle === 'monthly' ? el.dataset.priceMonthly : el.dataset.priceAnnual;
+      });
+      document.querySelectorAll('[data-tier-unit]').forEach(el => {
+        el.textContent = activeCycle === 'monthly' ? 'per seat / month' : 'per seat / month, billed annually';
+      });
+    });
+  });
 
-  <!-- Contact line -->
-  <p class="contact-line pfade">
-    Questions? <a href="mailto:sales@reattend.com">sales@reattend.com</a> &nbsp;·&nbsp; Security review? <a href="mailto:trust@reattend.com">trust@reattend.com</a>
-  </p>
-
-  <!-- ============== FOOTER ============== -->
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-col footer-brand">
-        <a class="brand" href="/">
-          <img class="brand-logo" src="/black_logo.svg" alt="Reattend" />
-          <span class="ent-tag">Enterprise</span>
-        </a>
-        <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Product</h5>
-        <a href="/product">Product</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/compliance">Compliance</a>
-        <a href="/login">Sign in</a>
-        <a href="/#integrations">Integrations</a>
-      </div>
-      <div class="footer-col">
-        <h5>Capabilities</h5>
-        <a href="/product#capture">Capture</a>
-        <a href="/product#connect">Connect</a>
-        <a href="/product#recall">Recall</a>
-        <a href="/product#run">Run</a>
-        <a href="/product#govern">Govern</a>
-        <a href="/product#deploy">Deploy</a>
-      </div>
-      <div class="footer-col">
-        <h5>Company</h5>
-        <a href="/about">About</a>
-        <a href="/coming-soon">Careers</a>
-        <a href="/coming-soon">Blog</a>
-        <a href="/coming-soon">Press</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-        <a href="/coming-soon">Support</a>
-        <a href="/coming-soon">Contact</a>
-      </div>
-      <div class="footer-col">
-        <h5>Resources</h5>
-        <a href="/coming-soon">Docs</a>
-        <a href="/coming-soon">Changelog</a>
-        <a href="/compliance">Trust</a>
-        <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
-        <a href="/coming-soon">SOC 2</a>
-        <a href="/coming-soon">HIPAA</a>
-        <a href="/coming-soon">GDPR</a>
-        <a href="/coming-soon">DPA</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Reattend Technologies Private Limited</span>
-      <span style="display:flex; gap:24px;">
-        <a href="/privacy" style="color:inherit;">Privacy</a>
-        <a href="/terms" style="color:inherit;">Terms</a>
-        <a href="/compliance" style="color:inherit;">Compliance</a>
-        <a href="/coming-soon" style="color:inherit;">Support</a>
-      </span>
-    </div>
-  </footer>
-
-  <script>
-    // === Reveal observer
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            e.target.classList.add("in");
-            e.target.classList.add("revealed");
-            io.unobserve(e.target);
+  // Initialize Paddle.js with the public client token. The token is safe to
+  // ship in plain HTML — it only authorizes opening checkouts on approved
+  // domains, never to charge cards directly.
+  const PADDLE_TOKEN = 'live_3250f5e8888be722522f090dcba';
+  let paddleReady = false;
+  if (typeof Paddle !== 'undefined') {
+    try {
+      Paddle.Environment.set('production');
+      Paddle.Initialize({
+        token: PADDLE_TOKEN,
+        eventCallback: (data) => {
+          if (data && data.name === 'checkout.completed') {
+            window.location.href = '/app/settings/billing?success=1';
           }
-        }
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
-    );
-    document.querySelectorAll(".pfade, .reveal").forEach((el) => io.observe(el));
+        },
+      });
+      paddleReady = true;
+    } catch (err) {
+      console.warn('[pricing] Paddle init failed:', err);
+    }
+  }
 
-    // === Billing toggle
-    const toggle = document.getElementById("billingToggle");
-    const opts = toggle.querySelectorAll(".bt-opt");
-    const amounts = document.querySelectorAll(".plan-price .amount[data-month]");
-    opts.forEach((opt) => {
-      opt.addEventListener("click", () => {
-        opts.forEach((o) => o.classList.remove("active"));
-        opt.classList.add("active");
-        const mode = opt.dataset.mode;
-        amounts.forEach((a) => {
-          a.textContent = mode === "year" ? a.dataset.year : a.dataset.month;
+  const toastEl = document.getElementById('pr-toast');
+  function showToast(message, ms = 4500) {
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), ms);
+  }
+
+  // Checkout: POST /api/billing/checkout to mint a transaction, then open
+  // the Paddle.js overlay. If the user isn't logged in, /api/billing/checkout
+  // returns 401 → bounce to /login with a return path.
+  document.querySelectorAll('[data-checkout]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const tier = btn.dataset.checkout;
+      const cycle = activeCycle;
+      const seats = tier === 'enterprise' ? 5 : 1;
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = 'Loading…';
+      try {
+        const res = await fetch('/api/billing/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier, cycle, seats }),
+          credentials: 'same-origin',
         });
-      });
-    });
-
-    // === Button fill helpers
-    document.querySelectorAll(".btn-fill, .btn-fill-dark").forEach((btn) => {
-      btn.addEventListener("mouseenter", function () {
-        if (!btn.querySelector(".btn-fill-bg")) {
-          const bg = document.createElement("span");
-          bg.className = "btn-fill-bg";
-          btn.prepend(bg);
+        if (res.status === 401) {
+          window.location.href = '/login?callbackUrl=' + encodeURIComponent('/pricing');
+          return;
         }
-      });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.transactionId) {
+          throw new Error(data.error || ('Checkout failed (HTTP ' + res.status + ')'));
+        }
+        if (!paddleReady) {
+          throw new Error('Payment overlay didn\'t load — please refresh and try again.');
+        }
+        Paddle.Checkout.open({
+          transactionId: data.transactionId,
+          settings: {
+            theme: 'light',
+            displayMode: 'overlay',
+            successUrl: window.location.origin + '/app/settings/billing?success=1',
+          },
+        });
+      } catch (err) {
+        showToast((err && err.message) || 'Could not start checkout. Try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
     });
-  </script>
+  });
+</script>
 </body>
 </html>

@@ -11,6 +11,7 @@ import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
 import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
 import { SandboxBanner } from '@/components/enterprise/sandbox-banner'
+import { TrialBanner } from '@/components/billing/trial-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
 import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
@@ -132,6 +133,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex flex-col min-h-0 overflow-hidden">
           <AppTopbar />
           <SandboxBanner />
+          <TrialBanner />
           <InboxBanner />
           <AnnouncementBanner orgId={activeEnterpriseOrgId} />
           <PolicyPendingBanner />

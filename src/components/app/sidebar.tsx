@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
-  PanelLeft, Loader2, Check, Network,
+  PanelLeft, Loader2, Check, Network, CreditCard,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -305,6 +305,9 @@ export function AppSidebar() {
 
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href="/app/settings"><User className="h-3.5 w-3.5 mr-2" /> Account settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/app/settings/billing"><CreditCard className="h-3.5 w-3.5 mr-2" /> Billing & plan</Link>
               </DropdownMenuItem>
               {activeEnterpriseOrgId && (
                 <DropdownMenuItem asChild className="cursor-pointer">

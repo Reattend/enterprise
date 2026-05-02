@@ -1,4 +1,4 @@
-import { db, schema } from '../db'
+import { db, schema, sqlite } from '../db'
 import { eq, and, lt, inArray } from 'drizzle-orm'
 import { runTriageAgent, runEmbeddingJob, runLinkingAgent, runIngestJob } from '../ai/agents'
 
@@ -234,7 +234,36 @@ export function ensurePeriodicWorker(): void {
     processAllPendingJobs().catch(console.error)
   }, PERIODIC_RETRY_MS)
 
+  // Trial-expiry sweep (hourly): finds users whose trial has ended without a
+  // Paddle subscription and bumps them down to Free. The lazy gate in
+  // getOrCreateSubscription does the same on read, but a periodic sweep
+  // ensures the row reflects reality even before the user next loads /app.
+  setInterval(async () => {
+    try {
+      const now = new Date().toISOString()
+      const result = sqlite
+        .prepare(
+          `UPDATE subscriptions
+             SET tier = 'free',
+                 status = 'expired',
+                 seat_count = 1,
+                 updated_at = ?
+           WHERE tier IN ('professional', 'enterprise')
+             AND paddle_subscription_id IS NULL
+             AND trial_ends_at IS NOT NULL
+             AND trial_ends_at < ?`,
+        )
+        .run(now, now)
+      if (result.changes > 0) {
+        console.log(`[Worker] Trial-expiry sweep: downgraded ${result.changes} expired trial(s) to Free`)
+      }
+    } catch (err) {
+      console.error('[Worker] Trial-expiry sweep failed:', err)
+    }
+  }, 60 * 60 * 1000) // hourly
+
   console.log('[Worker] Periodic retry scheduler started (every 30 min)')
+  console.log('[Worker] Trial-expiry sweep started (hourly)')
 }
 
 // ─── Triage new raw items ─────────────────────────────────
