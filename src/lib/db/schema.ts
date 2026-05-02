@@ -296,17 +296,29 @@ export const plans = sqliteTable('plans', {
 export const subscriptions = sqliteTable('subscriptions', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  planKey: text('plan_key').notNull(), // 'normal' | 'smart'
+  planKey: text('plan_key').notNull(), // legacy ('normal' | 'smart') — kept for back-compat with old Personal Reattend rows
   status: text('status', { enum: ['active', 'trialing', 'canceled', 'past_due', 'expired'] }).notNull().default('active'),
+  // Tier is the source of truth for what the user can access. 'free' is the
+  // default for any signup; 'professional' / 'enterprise' are flipped by
+  // Paddle webhooks once a subscription is active.
+  tier: text('tier', { enum: ['free', 'professional', 'enterprise'] }).notNull().default('free'),
+  seatCount: integer('seat_count').notNull().default(1),
+  billingCycle: text('billing_cycle', { enum: ['monthly', 'annual'] }),
+  paddlePriceId: text('paddle_price_id'),
   trialEndsAt: text('trial_ends_at'),
-  renewsAt: text('renews_at'),
+  currentPeriodEnd: text('current_period_end'),
+  renewsAt: text('renews_at'), // legacy alias of currentPeriodEnd; kept until callers migrated
   paddleSubscriptionId: text('paddle_subscription_id'),
   paddleCustomerId: text('paddle_customer_id'),
+  // Free-tier monthly AI quota tracking. Worker resets these on the 1st of each month.
+  aiQueriesThisMonth: integer('ai_queries_this_month').notNull().default(0),
+  aiQueriesResetAt: text('ai_queries_reset_at'),
   meta: text('meta'), // JSON
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
 }, (table) => ({
   userIdx: index('sub_user_idx').on(table.userId),
+  paddleSubIdx: index('sub_paddle_sub_idx').on(table.paddleSubscriptionId),
 }))
 
 // ─── Integrations ───────────────────────────────────────

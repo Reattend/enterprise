@@ -1059,5 +1059,32 @@ try {
   console.error('exit_interviews migration:', e.message)
 }
 
+// ─── Billing: extend subscriptions for Paddle + tier model ──────────────────
+// Adds the columns the new TIER_LIMITS gate code reads. Idempotent — wraps
+// each ALTER in its own try/catch since SQLite throws if the column exists.
+try {
+  const cols = [
+    "ALTER TABLE subscriptions ADD COLUMN tier TEXT NOT NULL DEFAULT 'free';",
+    "ALTER TABLE subscriptions ADD COLUMN seat_count INTEGER NOT NULL DEFAULT 1;",
+    "ALTER TABLE subscriptions ADD COLUMN billing_cycle TEXT;", // 'monthly' | 'annual'
+    "ALTER TABLE subscriptions ADD COLUMN paddle_price_id TEXT;",
+    "ALTER TABLE subscriptions ADD COLUMN current_period_end TEXT;",
+    // Free-tier monthly AI quota tracking. Reset by the worker on the 1st.
+    "ALTER TABLE subscriptions ADD COLUMN ai_queries_this_month INTEGER NOT NULL DEFAULT 0;",
+    "ALTER TABLE subscriptions ADD COLUMN ai_queries_reset_at TEXT;",
+  ]
+  for (const sql of cols) {
+    try { sqlite.exec(sql) } catch (e: any) {
+      if (!/duplicate column name/i.test(e.message)) throw e
+    }
+  }
+  // Backfill: any rows that predate the tier column → 'free' (don't accidentally
+  // grant Pro/Enterprise to old free signups).
+  sqlite.exec("UPDATE subscriptions SET tier = 'free' WHERE tier IS NULL OR tier = ''")
+  console.log('✓ subscriptions billing columns')
+} catch (e: any) {
+  console.error('subscriptions billing migration:', e.message)
+}
+
 console.log('Database migration complete!')
 sqlite.close()
