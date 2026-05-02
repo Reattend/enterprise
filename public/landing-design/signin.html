@@ -5,27 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reattend — Sign in</title>
   <meta name="description" content="Sign in to Reattend with your work email." />
+  <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
+  <link rel="apple-touch-icon" href="/icon-128.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Geist:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
 
   <style>
     /* =============== Sign-in page =============== */
+    /* Single-page layout: full viewport height, no scroll. The two-col shell
+       fills the entire screen; topbar + footer are intentionally omitted so
+       the sign-in card stands alone, like a focused product surface. */
+    html, body { height: 100%; }
     body {
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     .si-shell {
       flex: 1;
       display: grid;
       grid-template-columns: 1.05fr 1fr;
-      min-height: calc(100vh - 0px);
+      height: 100vh;
       position: relative;
     }
 
@@ -552,22 +558,6 @@
 </head>
 <body data-screen-label="Sign In">
 
-  <!-- ============== SLIM TOPBAR ============== -->
-  <header class="si-topbar">
-    <a class="si-brand" href="/">
-      <img src="/black_logo.svg" alt="Reattend" width="28" height="28" style="display:block;" />
-      <span>Reattend</span>
-      <span class="ent-tag">Enterprise</span>
-    </a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/product">Product</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/compliance">Compliance</a>
-      <a href="mailto:sales@reattend.com">Need help?</a>
-    </nav>
-  </header>
-
   <!-- ============== TWO-COL SHELL ============== -->
   <main class="si-shell">
 
@@ -593,12 +583,6 @@
         <div class="orb-tag t3 green"><span class="ic"></span>Linear · 1,574</div>
       </div>
 
-      <div class="si-foot">
-        <span>SOC 2 Type II</span>
-        <span>HIPAA · BAA</span>
-        <span>ISO 27001</span>
-        <a href="/compliance">Trust center →</a>
-      </div>
     </section>
 
     <!-- ====== RIGHT: form ====== -->
@@ -634,23 +618,6 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
             </button>
           </form>
-
-          <div class="sso-divider">or continue with</div>
-          <div class="sso-row">
-            <button class="sso-btn" type="button">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
-              Google
-            </button>
-            <button class="sso-btn" type="button">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="8" height="8" fill="#F25022"/>
-                <rect x="13" y="3" width="8" height="8" fill="#7FBA00"/>
-                <rect x="3" y="13" width="8" height="8" fill="#00A4EF"/>
-                <rect x="13" y="13" width="8" height="8" fill="#FFB900"/>
-              </svg>
-              Microsoft
-            </button>
-          </div>
 
           <p class="legal">
             By continuing you agree to our <a href="/terms">Terms</a> and <a href="#">Privacy Policy</a>. New to Reattend? <a href="#">Talk to sales</a>.
