@@ -37,9 +37,18 @@ This is a fork of Reattend Personal (`~/Desktop/Final Reattend/reattend/`). `ENT
 
 **Standard deploy** (after `git push`):
 ```bash
-ssh root@167.99.158.143 "cd /var/www/enterprise && git pull && rm -rf .next && npm run build && pm2 reload enterprise"
+ssh root@167.99.158.143 "cd /var/www/enterprise && git pull && rm -rf .next && npm run build && pm2 restart enterprise --update-env"
 ```
 Always include `npx tsx src/lib/db/migrate.ts` if schema changed.
+
+**Use `pm2 restart`, not `pm2 reload`.** `reload` is graceful and keeps the
+old Node process alive — but that process has cached the pre-rebuild
+`.next` paths in memory. After `rm -rf .next && npm run build`, requests
+to dynamic routes start failing with `Cannot find module
+'.next/server/pages/_error.js'` (or similar) and nginx surfaces 502s.
+`restart` kills + respawns the process so it re-reads `.next` from disk.
+`--update-env` re-reads `.env.local` so changes to `NEXTAUTH_URL` /
+`NEXTAUTH_SECRET` actually take effect.
 
 ---
 
@@ -160,7 +169,7 @@ Test suite (`npm run test:rbac`) ships with 36 assertions, runs every build.
 - "Resume" → read `today.md` and continue.
 - **Never name AI vendors (Claude / Sonnet / Haiku / Anthropic / Groq / Llama) in user-facing copy.** Always "the AI" / "managed frontier AI" / "the model". Internal `//` code comments are fine.
 - Demo data is mission-critical. Run `npm run seed:demo -- demo-presenter@reattend.com` before every sales demo.
-- Deploy is `git push` → `ssh ... && pull && rm -rf .next && build && pm2 reload`. Always rm `.next` to clear stale page chunks.
+- Deploy is `git push` → `ssh ... && pull && rm -rf .next && build && pm2 restart enterprise --update-env`. Always rm `.next` to clear stale page chunks. Always `restart`, not `reload` — see deploy section for why.
 - Pre-commit hook is `tsc --noEmit`. Don't bypass it.
 
 ---
