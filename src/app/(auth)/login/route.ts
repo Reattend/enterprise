@@ -20,7 +20,10 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      // No browser cache: /login carries the OTP submit JS, and we ship
+      // bug fixes here often. A stale cached page can leave users stuck
+      // on a broken submit handler for up to 5 min after deploy.
+      'Cache-Control': 'no-store, must-revalidate',
     },
   })
 }
