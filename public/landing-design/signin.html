@@ -654,6 +654,11 @@
               <button class="resend" type="button" id="resendBtn" disabled>Resend code</button>
             </div>
 
+            <p class="hint" id="otpError" style="display:none; color: oklch(0.45 0.18 25); margin-top: 6px;">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+              <span id="otpErrorMsg"></span>
+            </p>
+
             <button class="si-submit" type="submit" id="otpSubmit" disabled>
               <span class="label">Verify &amp; continue</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
@@ -661,7 +666,7 @@
           </form>
 
           <p class="legal">
-            Tip: enter <code style="font-family:var(--mono); background:var(--bg-2); padding:2px 6px; border-radius:4px; border:1px solid var(--rule);">123456</code> for the demo. Didn't receive it? Check spam, then <a href="#" id="resendInline">resend</a>.
+            Check your inbox for a six-digit code from Reattend. Didn't receive it? Check spam, or use the resend button above.
           </p>
         </div>
 
@@ -674,16 +679,9 @@
           </div>
           <div class="ribbon">Verified · Welcome back</div>
           <h2>You're in. Loading your <em>memory.</em></h2>
-          <p class="lede">Reconnecting your sources and warming the recall index. This usually takes a couple of seconds.</p>
+          <p class="lede">Warming your recall index. This takes a couple of seconds.</p>
 
-          <div class="si-success-meta">
-            <div class="row"><span class="k">Workspace</span><span class="v" id="successWorkspace">Acme Corp · Production</span></div>
-            <div class="row"><span class="k">Region</span><span class="v">eu-west-1 · GDPR</span></div>
-            <div class="row"><span class="k">Last seen</span><span class="v">2 hours ago · macOS</span></div>
-            <div class="row"><span class="k">Memories</span><span class="v">24,193 · 98.7% coverage</span></div>
-          </div>
-
-          <a class="si-submit" href="/" style="text-decoration:none;">
+          <a class="si-submit" href="/app" style="text-decoration:none;">
             <span class="label">Open dashboard</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 5 19 12 13 19"/></svg>
           </a>
@@ -885,6 +883,8 @@
           input.classList.remove('filled')
         }
         otpInputs.forEach(x => x.classList.remove('error'))
+        const errEl = document.getElementById('otpError')
+        if (errEl) errEl.style.display = 'none'
         maybeEnableSubmit()
       })
       input.addEventListener('keydown', (e) => {
@@ -934,6 +934,12 @@
             otpInputs.forEach(i => i.classList.add('error'))
             resetOtpSubmit()
             otpSubmit.disabled = true
+            const errorEl = document.getElementById('otpError')
+            const errorMsg = document.getElementById('otpErrorMsg')
+            if (errorEl && errorMsg) {
+              errorMsg.textContent = (data && data.error) || 'That code didn\'t work. Try again.'
+              errorEl.style.display = 'flex'
+            }
             setTimeout(() => {
               otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); i.classList.remove('error') })
               otpInputs[0].focus()
