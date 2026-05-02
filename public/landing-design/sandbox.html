@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Try as someone else</title>
+  <meta name="description" content="Pick a role and we drop you into a pre-loaded demo organization to feel Reattend from the inside." />
+
+  <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
+  <link rel="apple-touch-icon" href="/icon-128.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Geist:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+  <link rel="stylesheet" href="/landing-design/page.css?v=2" />
+  <style>
+    /* Sandbox-specific */
+    .sandbox-hero {
+      padding: clamp(72px, 10vw, 120px) var(--pad) clamp(32px, 4vw, 48px);
+      text-align: center;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .sandbox-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      font-weight: 400;
+      margin: 0 0 24px;
+      color: var(--ink);
+    }
+    .sandbox-hero h1 .quiet {
+      color: var(--ink-3);
+      font-style: italic;
+    }
+    .sandbox-hero p {
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 56ch;
+      margin: 0 auto;
+      text-wrap: pretty;
+    }
+    .sandbox-hero p em { color: var(--ink); font-style: italic; }
+
+    .sandbox-notice {
+      max-width: 720px;
+      margin: 36px auto 0;
+      padding: 18px 22px;
+      background: oklch(0.99 0.005 70);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .sandbox-notice svg { flex-shrink: 0; margin-top: 2px; }
+    .sandbox-notice .text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink-2);
+    }
+    .sandbox-notice .text b { color: var(--ink); font-weight: 500; }
+    .sandbox-notice .text em { color: var(--accent); font-style: italic; }
+
+    /* Persona grid */
+    .persona-grid {
+      max-width: 1200px;
+      margin: 56px auto 0;
+      padding: 0 var(--pad);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1000px) { .persona-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .persona-grid { grid-template-columns: 1fr; } }
+
+    .persona {
+      position: relative;
+      border-radius: 16px;
+      padding: 26px 26px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .persona:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -20px rgba(0,0,0,0.18); }
+
+    .persona.peach    { background: oklch(0.95 0.04 50); }
+    .persona.lavender { background: oklch(0.93 0.04 290); }
+    .persona.sky      { background: oklch(0.93 0.04 240); }
+    .persona.mint     { background: oklch(0.93 0.04 160); }
+    .persona.slate    { background: oklch(0.94 0.01 270); }
+
+    .persona-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .persona-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.6);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink);
+    }
+    .persona-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .persona h3 {
+      font-family: var(--sans);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .persona .role {
+      font-size: 13px;
+      color: var(--ink-2);
+      margin: 0;
+    }
+    .persona .summary {
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .persona-bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .persona-bullets li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 12.5px;
+      color: var(--ink-2);
+    }
+    .persona-bullets li::before {
+      content: '';
+      width: 14px;
+      height: 1px;
+      background: var(--ink-3);
+      flex-shrink: 0;
+    }
+
+    .persona-cta {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: oklch(0.18 0.02 270);
+      color: #fff;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background .18s ease;
+      font-family: inherit;
+    }
+    .persona-cta:hover { background: oklch(0.12 0.02 270); }
+    .persona-cta:disabled { opacity: 0.6; cursor: progress; }
+    .persona-cta .arr { transition: transform .18s ease; }
+    .persona-cta:hover:not(:disabled) .arr { transform: translateX(3px); }
+
+    .sandbox-foot-note {
+      max-width: 720px;
+      margin: 80px auto 120px;
+      padding: 0 var(--pad);
+      text-align: center;
+      font-size: 14px;
+      color: var(--ink-3);
+      font-family: var(--mono);
+    }
+    .sandbox-foot-note a { color: var(--accent); text-decoration: none; }
+    .sandbox-foot-note a:hover { text-decoration: underline; }
+
+    .sandbox-error {
+      max-width: 720px;
+      margin: 24px auto 0;
+      padding: 14px 18px;
+      background: oklch(0.96 0.06 25);
+      border: 1px solid oklch(0.78 0.18 25);
+      border-radius: 10px;
+      color: oklch(0.35 0.18 25);
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .sandbox-error.show { display: block; }
+
+    .enter-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .enter-overlay.show { display: flex; opacity: 1; }
+    .enter-card {
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 420px;
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.4);
+    }
+    .enter-card .pulse {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin: 0 auto 24px;
+      animation: pulseRing 1.5s ease-out infinite;
+      box-shadow: 0 0 0 0 oklch(0.55 0.20 280 / 0.5);
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 oklch(0.55 0.20 280 / 0.5); }
+      100% { box-shadow: 0 0 0 30px oklch(0.55 0.20 280 / 0); }
+    }
+    .enter-card h4 {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 400;
+      margin: 0 0 8px;
+      color: var(--ink);
+    }
+    .enter-card p {
+      font-size: 14px;
+      color: var(--ink-2);
+      margin: 0;
+      font-family: var(--mono);
+    }
+
+    .pfade { opacity: 0; transform: translateY(10px); transition: opacity .7s ease, transform .7s ease; }
+    .pfade.in { opacity: 1; transform: none; }
+  </style>
+</head>
+<body data-screen-label="Sandbox">
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+      <span class="brand-word">Reattend</span>
+      <span class="ent-tag">Enterprise</span>
+    </a>
+    <nav class="nav">
+      <a class="nav-item" href="/">Home</a>
+      <a class="nav-item" href="/product">Product</a>
+      <a class="nav-item" href="/integrations">Integrations</a>
+      <a class="nav-item" href="/pricing">Pricing</a>
+      <a class="nav-item" href="/compliance">Compliance</a>
+    </nav>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-ghost" href="/login">Sign in</a>
+      <a class="btn btn-primary btn-fill" href="/sandbox">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<section class="sandbox-hero">
+  <h1 class="pfade">Try Reattend Enterprise<br /><span class="quiet">as someone else.</span></h1>
+  <p class="pfade">Pick a role. We'll drop you into a pre-loaded demo org — <em>Ministry of Finance</em> with 22 members, 12 decisions, 5 policies, 3 agents, and a completed exit interview.</p>
+  <div class="sandbox-notice pfade">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <div class="text"><b>AI runs in guided-demo mode in the sandbox.</b> Ask Chat, Oracle, and the agents will serve <em>pre-canned scripted responses</em> that show what the real answer would look like on your org's data. Every sandbox session also gets a list of suggested questions that trigger full demos. Your real deployment runs the live AI on your own memory graph.</div>
+  </div>
+  <div class="sandbox-error" id="sandbox-error"></div>
+</section>
+
+<div class="persona-grid">
+  <article class="persona peach pfade">
+    <div class="persona-head">
+      <div class="persona-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l5 4 5-7 5 7 5-4-2 12H4z"/></svg>
+      </div>
+      <span class="persona-tag">Super Admin</span>
+    </div>
+    <div>
+      <h3>Aarti Mehta</h3>
+      <p class="role">Secretary · Super Admin</p>
+    </div>
+    <p class="summary">See everything. Org-wide memory, every department, audit log, policy graph.</p>
+    <ul class="persona-bullets">
+      <li>Every department</li>
+      <li>All decisions + blast radius</li>
+      <li>Audit trail + hash chain</li>
+      <li>Self-healing contradictions</li>
+    </ul>
+    <button class="persona-cta" data-role="super_admin" data-name="Aarti">Try as Aarti <span class="arr">→</span></button>
+  </article>
+
+  <article class="persona lavender pfade">
+    <div class="persona-head">
+      <div class="persona-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </div>
+      <span class="persona-tag">Admin</span>
+    </div>
+    <div>
+      <h3>Hiroshi Tanaka</h3>
+      <p class="role">Joint Secretary · Admin</p>
+    </div>
+    <p class="summary">Run the org. Member management, policy publishing, announcements.</p>
+    <ul class="persona-bullets">
+      <li>Cross-department view</li>
+      <li>Publish policies</li>
+      <li>Compose broadcasts</li>
+      <li>Exit interview agent</li>
+    </ul>
+    <button class="persona-cta" data-role="admin" data-name="Hiroshi">Try as Hiroshi <span class="arr">→</span></button>
+  </article>
+
+  <article class="persona sky pfade">
+    <div class="persona-head">
+      <div class="persona-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg>
+      </div>
+      <span class="persona-tag">Dept Head</span>
+    </div>
+    <div>
+      <h3>Adaeze Okonkwo</h3>
+      <p class="role">Director, International Taxation</p>
+    </div>
+    <p class="summary">Run a department. Manage decisions, agents, members, and your dept's full memory graph.</p>
+    <ul class="persona-bullets">
+      <li>International Taxation memory</li>
+      <li>Meeting prep + prior context</li>
+      <li>Team members + agents</li>
+      <li>Verify &amp; publish records</li>
+    </ul>
+    <button class="persona-cta" data-role="dept_head" data-name="Adaeze">Try as Adaeze <span class="arr">→</span></button>
+  </article>
+
+  <article class="persona mint pfade">
+    <div class="persona-head">
+      <div class="persona-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      </div>
+      <span class="persona-tag">Member</span>
+    </div>
+    <div>
+      <h3>Sofia Martinez</h3>
+      <p class="role">Deputy Director, Cross-Border Tax</p>
+    </div>
+    <p class="summary">Work the day. Ask, meeting prep, prompts, personal memory.</p>
+    <ul class="persona-bullets">
+      <li>Department memory (read)</li>
+      <li>Ask Chat + Oracle</li>
+      <li>Personal inbox</li>
+      <li>Prompt library</li>
+    </ul>
+    <button class="persona-cta" data-role="member" data-name="Sofia">Try as Sofia <span class="arr">→</span></button>
+  </article>
+
+  <article class="persona slate pfade">
+    <div class="persona-head">
+      <div class="persona-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+      </div>
+      <span class="persona-tag">Guest</span>
+    </div>
+    <div>
+      <h3>Daniel Schwartz</h3>
+      <p class="role">External Legal Advisor · Guest</p>
+    </div>
+    <p class="summary">Scoped access. Only sees what's explicitly shared. No write access.</p>
+    <ul class="persona-bullets">
+      <li>Only explicitly shared records</li>
+      <li>No write, no delete</li>
+      <li>No policy acks</li>
+      <li>No admin surfaces</li>
+    </ul>
+    <button class="persona-cta" data-role="guest" data-name="Daniel">Try as Daniel <span class="arr">→</span></button>
+  </article>
+</div>
+
+<p class="sandbox-foot-note pfade">No signup required. Sessions reset every 24 hours.<br />Want a real account? <a href="/login">Sign in</a> or <a href="mailto:sales@reattend.ai">talk to sales</a>.</p>
+
+<div class="enter-overlay" id="enter-overlay" aria-hidden="true">
+  <div class="enter-card">
+    <div class="pulse"></div>
+    <h4>Loading <span id="entering-name">…</span>'s memory</h4>
+    <p>Spinning up demo org · 22 members · 12 decisions</p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+        <span class="ent-tag">Enterprise</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget.</p>
+    </div>
+    <div class="footer-col"><h5>Product</h5><a href="/product">Product</a><a href="/pricing">Pricing</a><a href="/compliance">Compliance</a><a href="/login">Sign in</a><a href="/integrations">Integrations</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="/about">About</a><a href="/coming-soon?topic=Careers">Careers</a><a href="/coming-soon?topic=Blog">Blog</a><a href="/coming-soon?topic=Press">Press</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a><a href="/coming-soon?topic=Contact">Contact</a></div>
+    <div class="footer-col"><h5>Resources</h5><a href="/coming-soon?topic=Docs">Docs</a><a href="/coming-soon?topic=Changelog">Changelog</a><a href="/compliance">Trust</a><a href="/coming-soon?topic=Status">Status</a><a href="/coming-soon?topic=SOC%202">SOC 2</a><a href="/coming-soon?topic=HIPAA">HIPAA</a><a href="/coming-soon?topic=GDPR">GDPR</a><a href="/coming-soon?topic=DPA">DPA</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;"><a href="/privacy" style="color:inherit;">Privacy</a><a href="/terms" style="color:inherit;">Terms</a><a href="/compliance" style="color:inherit;">Compliance</a><a href="/support" style="color:inherit;">Support</a></span>
+  </div>
+</footer>
+
+<script>
+  // Reveal-on-scroll
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }
+  }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
+
+  // Persona launch — replicates the React signIn('sso-ticket', ...) flow:
+  //   1. POST /api/sandbox/launch  → ticket
+  //   2. GET  /api/auth/csrf       → csrfToken
+  //   3. POST /api/auth/callback/sso-ticket  → session cookie + url
+  //   4. window.location.href = url
+  const overlay = document.getElementById('enter-overlay');
+  const errorEl = document.getElementById('sandbox-error');
+  let launching = false;
+
+  async function launch(role, name, btn) {
+    if (launching) return;
+    launching = true;
+    errorEl.classList.remove('show');
+    document.getElementById('entering-name').textContent = name;
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.querySelectorAll('.persona-cta').forEach(b => { b.disabled = true; });
+    try {
+      const launchRes = await fetch('/api/sandbox/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      });
+      if (!launchRes.ok) {
+        const body = await launchRes.json().catch(() => ({}));
+        throw new Error(body.error || 'launch failed (' + launchRes.status + ')');
+      }
+      const { ticket } = await launchRes.json();
+
+      const csrfRes = await fetch('/api/auth/csrf');
+      const { csrfToken } = await csrfRes.json();
+
+      const params = new URLSearchParams();
+      params.set('csrfToken', csrfToken);
+      params.set('ticket', ticket);
+      params.set('callbackUrl', '/app');
+      params.set('json', 'true');
+      const signInRes = await fetch('/api/auth/callback/sso-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+        credentials: 'same-origin',
+      });
+      const data = await signInRes.json().catch(() => ({}));
+      if (data.error) throw new Error(data.error);
+      window.location.href = data.url || '/app';
+    } catch (err) {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('.persona-cta').forEach(b => { b.disabled = false; });
+      launching = false;
+      errorEl.textContent = (err && err.message) || 'Could not launch sandbox. Please try again.';
+      errorEl.classList.add('show');
+    }
+  }
+
+  document.querySelectorAll('.persona-cta').forEach(btn => {
+    btn.addEventListener('click', () => {
+      launch(btn.dataset.role, btn.dataset.name, btn);
+    });
+  });
+</script>
+</body>
+</html>

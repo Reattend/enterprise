@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reattend — Support</title>
+  <meta name="description" content="Real humans, real email. We respond to every message — there is no support queue or chatbot wall." />
+
+  <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
+  <link rel="apple-touch-icon" href="/icon-128.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Geist:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/landing-design/styles.css?v=16" />
+  <link rel="stylesheet" href="/landing-design/page.css?v=2" />
+  <style>
+    .sup-hero {
+      padding: clamp(72px, 10vw, 120px) var(--pad) clamp(40px, 5vw, 64px);
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .sup-eye {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sup-eye::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .sup-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 7vw, 80px);
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      font-weight: 400;
+      margin: 0 0 24px;
+    }
+    .sup-hero h1 em { font-style: italic; color: var(--accent); }
+    .sup-hero p {
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 64ch;
+      margin: 0 auto;
+      text-wrap: pretty;
+    }
+    .sup-hero p b { color: var(--ink); font-weight: 500; }
+
+    .sup-grid {
+      max-width: 1120px;
+      margin: 24px auto 0;
+      padding: 0 var(--pad);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 800px) { .sup-grid { grid-template-columns: 1fr; } }
+
+    .sup-card {
+      position: relative;
+      padding: 26px 28px;
+      background: var(--bg-paper);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sup-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -16px rgba(0,0,0,0.14);
+      border-color: oklch(0.84 0.02 270);
+    }
+    .sup-card-head {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .sup-card h3 {
+      font-family: var(--sans);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .sup-icon {
+      width: 36px; height: 36px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: oklch(0.96 0.01 270);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink);
+    }
+    .sup-card .sup-email {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sup-card .sup-email:hover { color: oklch(0.40 0.18 280); }
+    .sup-card .sup-email::after {
+      content: '↗';
+      font-size: 12px;
+      transition: transform .15s ease;
+    }
+    .sup-card .sup-email:hover::after { transform: translate(2px, -2px); }
+    .sup-card .sup-blurb {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-2);
+      margin: 0;
+    }
+    .sup-card .sup-sla {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      padding-top: 8px;
+      border-top: 1px dashed var(--rule);
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .sup-resources {
+      max-width: 1120px;
+      margin: 80px auto 0;
+      padding: 0 var(--pad);
+    }
+    .sup-section-h {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3vw, 36px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin: 0 0 28px;
+      color: var(--ink);
+    }
+    .sup-resources-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .sup-res-link {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .sup-res-link:hover { background: var(--bg-paper); border-color: oklch(0.84 0.02 270); }
+    .sup-res-link .ic {
+      width: 32px; height: 32px; flex-shrink: 0;
+      border-radius: 8px;
+      background: oklch(0.94 0.03 280);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sup-res-link .lbl { flex: 1; }
+    .sup-res-link .lbl .t { font-size: 14.5px; font-weight: 500; color: var(--ink); }
+    .sup-res-link .lbl .d { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+    .sup-res-link .arr { color: var(--ink-3); transition: transform .15s ease; }
+    .sup-res-link:hover .arr { transform: translateX(3px); color: var(--accent); }
+
+    .sup-tshoot {
+      max-width: 1120px;
+      margin: 80px auto 0;
+      padding: 0 var(--pad);
+    }
+    .sup-tshoot-h {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .sup-tshoot-h .ic {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: oklch(0.96 0.01 80);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sup-tshoot-blurb {
+      font-size: 14.5px;
+      color: var(--ink-2);
+      max-width: 60ch;
+      margin: 0 0 24px;
+      line-height: 1.55;
+    }
+    .sup-faq {
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: var(--bg-paper);
+      overflow: hidden;
+    }
+    .sup-faq details { border-bottom: 1px solid var(--rule); }
+    .sup-faq details:last-child { border-bottom: none; }
+    .sup-faq summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 22px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      transition: background .15s ease;
+    }
+    .sup-faq summary::-webkit-details-marker { display: none; }
+    .sup-faq summary:hover { background: oklch(0.97 0.005 70); }
+    .sup-faq .icon-plus {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      color: var(--ink-3);
+      font-size: 18px;
+      font-weight: 400;
+      transition: transform .25s ease;
+    }
+    .sup-faq details[open] .icon-plus { transform: rotate(45deg); color: var(--accent); }
+    .sup-faq details[open] summary { background: oklch(0.97 0.005 70); }
+    .sup-faq .ans {
+      padding: 0 22px 22px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--ink-2);
+    }
+    .sup-faq .ans b { color: var(--ink); font-weight: 500; }
+    .sup-faq .ans code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: oklch(0.94 0.01 270);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+
+    .sup-cta-line {
+      max-width: 1120px;
+      margin: 80px auto 120px;
+      padding: 28px 32px;
+      background: oklch(0.18 0.02 270);
+      color: oklch(0.95 0.005 70);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+    .sup-cta-line h3 {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.5vw, 30px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin: 0;
+    }
+    .sup-cta-line p {
+      font-size: 14px;
+      color: oklch(0.78 0.01 270);
+      margin: 0;
+      line-height: 1.55;
+    }
+    .sup-cta-line a {
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+      padding-bottom: 1px;
+      align-self: center;
+    }
+    .sup-cta-line a:hover { border-color: #fff; }
+
+    .pfade { opacity: 0; transform: translateY(10px); transition: opacity .7s ease, transform .7s ease; }
+    .pfade.in { opacity: 1; transform: none; }
+  </style>
+</head>
+<body data-screen-label="Support">
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+      <span class="brand-word">Reattend</span>
+      <span class="ent-tag">Enterprise</span>
+    </a>
+    <nav class="nav">
+      <a class="nav-item" href="/">Home</a>
+      <a class="nav-item" href="/product">Product</a>
+      <a class="nav-item" href="/integrations">Integrations</a>
+      <a class="nav-item" href="/pricing">Pricing</a>
+      <a class="nav-item" href="/compliance">Compliance</a>
+    </nav>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-ghost" href="/login">Sign in</a>
+      <a class="btn btn-primary btn-fill" href="/sandbox">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<section class="sup-hero">
+  <div class="sup-eye pfade">Support</div>
+  <h1 class="pfade">How can we <em>help?</em></h1>
+  <p class="pfade">Reattend is built and operated by <b>Reattend Technologies Private Limited</b>. We respond to every email — there is no support queue or chatbot wall. Pick the route below that matches your question.</p>
+</section>
+
+<div class="sup-grid">
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Product help</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:pb@reattend.ai">pb@reattend.ai</a>
+    <p class="sup-blurb">Anything about using Reattend — the web app, the Chrome extension, the sandbox, or the public landing pages.</p>
+    <div class="sup-sla">Reply: ~1 business day</div>
+  </article>
+
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Security disclosures</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12z"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:security@reattend.ai">security@reattend.ai</a>
+    <p class="sup-blurb">Vulnerability reports, suspected incidents, or coordinated-disclosure requests. PGP key on request.</p>
+    <div class="sup-sla">Acknowledge: within 1 business day</div>
+  </article>
+
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Privacy &amp; data requests</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1.5"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:privacy@reattend.ai">privacy@reattend.ai</a>
+    <p class="sup-blurb">GDPR / CCPA / DPDP requests, DPAs, sub-processor lists, and any data-controller-to-processor escalation.</p>
+    <div class="sup-sla">Reply: within 30 days</div>
+  </article>
+
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Sales &amp; on-prem</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:sales@reattend.ai">sales@reattend.ai</a>
+    <p class="sup-blurb">Enterprise plan quote, Government on-prem deployment, pilot programs, security review participation.</p>
+    <div class="sup-sla">Reply: same business day</div>
+  </article>
+
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Trust &amp; compliance</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:trust@reattend.ai">trust@reattend.ai</a>
+    <p class="sup-blurb">SOC 2 / StateRAMP / CJIS questions, audit-log verification, customer-specific control matrices.</p>
+    <div class="sup-sla">Reply: within 2 business days</div>
+  </article>
+
+  <article class="sup-card pfade">
+    <div class="sup-card-head">
+      <div><h3>Contact (general)</h3></div>
+      <div class="sup-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+    </div>
+    <a class="sup-email" href="mailto:hello@reattend.ai">hello@reattend.ai</a>
+    <p class="sup-blurb">For everything else. Read by a human, every time.</p>
+    <div class="sup-sla">Reply: usually within hours</div>
+  </article>
+</div>
+
+<section class="sup-resources">
+  <h2 class="sup-section-h pfade">Self-serve resources</h2>
+  <div class="sup-resources-list">
+    <a class="sup-res-link pfade" href="/sandbox">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      <div class="lbl"><div class="t">Try the live sandbox</div><div class="d">5 personas. Pre-loaded demo org. No signup.</div></div>
+      <span class="arr">→</span>
+    </a>
+    <a class="sup-res-link pfade" href="/pricing">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <div class="lbl"><div class="t">Pricing &amp; plans</div><div class="d">Team / Enterprise / Government tiers + feature matrix</div></div>
+      <span class="arr">→</span>
+    </a>
+    <a class="sup-res-link pfade" href="/compliance">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12z"/></svg></div>
+      <div class="lbl"><div class="t">Compliance posture</div><div class="d">Controls today, certs roadmap, data residency</div></div>
+      <span class="arr">→</span>
+    </a>
+    <a class="sup-res-link pfade" href="/privacy">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="lbl"><div class="t">Privacy policy</div><div class="d">What we collect, retain, and never share</div></div>
+      <span class="arr">→</span>
+    </a>
+    <a class="sup-res-link pfade" href="/terms">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="lbl"><div class="t">Terms &amp; Conditions</div><div class="d">Master agreement and acceptable use</div></div>
+      <span class="arr">→</span>
+    </a>
+    <a class="sup-res-link pfade" href="/product">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
+      <div class="lbl"><div class="t">Product walkthrough</div><div class="d">Capture · Connect · Recall · Run · Govern · Deploy</div></div>
+      <span class="arr">→</span>
+    </a>
+  </div>
+</section>
+
+<section class="sup-tshoot">
+  <div class="sup-tshoot-h pfade">
+    <div class="ic" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+    </div>
+    <h2 class="sup-section-h" style="margin: 0;">Chrome extension troubleshooting</h2>
+  </div>
+  <p class="sup-tshoot-blurb pfade">The four issues we see most often. If none of these match, <a href="mailto:pb@reattend.ai" style="color:var(--accent); text-decoration:underline; text-underline-offset:3px;">email us a screenshot</a> — we usually reply within a business day.</p>
+
+  <div class="sup-faq pfade">
+    <details>
+      <summary>Floating logo pin not appearing on a page?<span class="icon-plus">+</span></summary>
+      <div class="ans">The extension only activates on hostnames in your <b>personal whitelist</b> or your <b>org admin's policy</b>. Open the toolbar icon → Settings to add the domain. If your admin manages the policy, ask them to add it; you'll see the change within a minute of policy push.</div>
+    </details>
+    <details>
+      <summary>Capture flashes <code>=</code> instead of <code>✓</code>?<span class="icon-plus">+</span></summary>
+      <div class="ans">The server detected a near-duplicate within the last three minutes. <b>Wait, or change the content</b> meaningfully (different selection, different page, or different note text). Reattend deduplicates aggressively to keep your memory graph clean — the equals sign means "we already have this."</div>
+    </details>
+    <details>
+      <summary>Extension says <b>token rejected</b>?<span class="icon-plus">+</span></summary>
+      <div class="ans">Open <code>/app/settings → API keys</code>, generate a new token, paste it into the extension Options page. If you're on SSO, the token may have expired with the parent session — sign in again to mint a fresh one.</div>
+    </details>
+    <details>
+      <summary>Sidebar won't open?<span class="icon-plus">+</span></summary>
+      <div class="ans">Reload the extension from <code>chrome://extensions</code> and try <code>Alt+Shift+A</code>. If that doesn't work, fully sign out of Chrome and back in (this resets the extension's privileged page handle). Last resort: uninstall + reinstall — your settings sync from the cloud.</div>
+    </details>
+    <details>
+      <summary>None of those help?<span class="icon-plus">+</span></summary>
+      <div class="ans">Email <a href="mailto:pb@reattend.ai" style="color:var(--accent);">pb@reattend.ai</a> with a screenshot of the extension popup and the page you were on. Include your Chrome version (<code>chrome://version</code>) and the extension version (toolbar icon → About). We usually reply within a business day.</div>
+    </details>
+  </div>
+</section>
+
+<aside class="sup-cta-line pfade">
+  <h3>Status, breach disclosures, and incident timelines.</h3>
+  <p>Live status page · 90-day post-mortem archive · Incident comms within 4 hours of confirmation.</p>
+  <a href="/coming-soon?topic=Status">View status →</a>
+</aside>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+        <span class="ent-tag">Enterprise</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget.</p>
+    </div>
+    <div class="footer-col"><h5>Product</h5><a href="/product">Product</a><a href="/pricing">Pricing</a><a href="/compliance">Compliance</a><a href="/login">Sign in</a><a href="/integrations">Integrations</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="/about">About</a><a href="/coming-soon?topic=Careers">Careers</a><a href="/coming-soon?topic=Blog">Blog</a><a href="/coming-soon?topic=Press">Press</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a><a href="/coming-soon?topic=Contact">Contact</a></div>
+    <div class="footer-col"><h5>Resources</h5><a href="/coming-soon?topic=Docs">Docs</a><a href="/coming-soon?topic=Changelog">Changelog</a><a href="/compliance">Trust</a><a href="/coming-soon?topic=Status">Status</a><a href="/coming-soon?topic=SOC%202">SOC 2</a><a href="/coming-soon?topic=HIPAA">HIPAA</a><a href="/coming-soon?topic=GDPR">GDPR</a><a href="/coming-soon?topic=DPA">DPA</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;"><a href="/privacy" style="color:inherit;">Privacy</a><a href="/terms" style="color:inherit;">Terms</a><a href="/compliance" style="color:inherit;">Compliance</a><a href="/support" style="color:inherit;">Support</a></span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }
+  }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>
