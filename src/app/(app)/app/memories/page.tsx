@@ -179,6 +179,13 @@ export default function MemoriesPage() {
   // tally from the API so the badges feel honest without scanning all records.
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({})
 
+  // Personal-memories migration banner — shown when the user has memories in
+  // their personal workspace that aren't visible to the active org. Caused by
+  // the pre-fix routing bug where /api/records POST defaulted to personal.
+  // The banner is the one-click escape hatch.
+  const [importInfo, setImportInfo] = useState<{ count: number; targetName: string | null } | null>(null)
+  const [migrating, setMigrating] = useState(false)
+
   // Share state
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [sharingRecord, setSharingRecord] = useState<MemoryRecord | null>(null)
@@ -283,6 +290,39 @@ export default function MemoriesPage() {
   // chrome extension, etc.) or when the tab regains focus.
   useRevalidate([SCOPES.memories], fetchRecords)
   useRevalidate([SCOPES.projects], fetchProjects)
+
+  // Fetch the personal-memory migration preview whenever the active org
+  // changes. Returns 0/null when there's nothing to migrate.
+  const fetchImportInfo = useCallback(async () => {
+    if (!activeOrgId) { setImportInfo(null); return }
+    try {
+      const res = await fetch(`/api/enterprise/organizations/${activeOrgId}/import-personal`)
+      if (!res.ok) { setImportInfo(null); return }
+      const data = await res.json() as { eligibleCount: number; targetWorkspace: { id: string; name: string } | null }
+      setImportInfo({ count: data.eligibleCount, targetName: data.targetWorkspace?.name ?? null })
+    } catch { setImportInfo(null) }
+  }, [activeOrgId])
+  useEffect(() => { fetchImportInfo() }, [fetchImportInfo])
+  useRevalidate([SCOPES.memories, SCOPES.orgs], fetchImportInfo)
+
+  async function migratePersonal() {
+    if (!activeOrgId || !importInfo || importInfo.count === 0) return
+    setMigrating(true)
+    try {
+      const res = await fetch(`/api/enterprise/organizations/${activeOrgId}/import-personal`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error || 'Migration failed'); return }
+      toast.success(`Moved ${data.moved} memor${data.moved === 1 ? 'y' : 'ies'} to ${data.targetWorkspace?.name || 'team workspace'}`)
+      // Refresh everything that might show the moved records.
+      emit([SCOPES.memories, SCOPES.orgs])
+      fetchRecords()
+      fetchImportInfo()
+    } finally {
+      setMigrating(false)
+    }
+  }
 
   // Import shared memory ─ when arriving from a shared-link
   useEffect(() => {
@@ -434,6 +474,33 @@ export default function MemoriesPage() {
     <div className="mem-page-wrap">
       <div className="mem-page">
         <span className="mem-crumb"><span className="dot" /> Memories</span>
+
+        {/* Personal-memories migration banner — surfaces when the user has
+            captures stuck in their personal workspace (legacy routing bug)
+            and there's a team workspace they can move them to. */}
+        {importInfo && importInfo.count > 0 && importInfo.targetName && (
+          <div className="mem-import-banner">
+            <div className="ic">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M3 9h18M9 21V9M3 21h18V3H3z" />
+              </svg>
+            </div>
+            <div className="body">
+              <b>{importInfo.count} memor{importInfo.count === 1 ? 'y is' : 'ies are'}</b> in your personal workspace and not visible to your team. Move them to <b>{importInfo.targetName}</b> so they show up on Home, Landscape, and the cockpit.
+            </div>
+            <button
+              type="button"
+              className="mem-btn primary"
+              onClick={migratePersonal}
+              disabled={migrating}
+            >
+              {migrating
+                ? <Loader2 size={13} className="animate-spin" />
+                : <ChevronRight size={13} />}
+              {migrating ? 'Moving…' : `Move to ${importInfo.targetName}`}
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mem-head-row">
