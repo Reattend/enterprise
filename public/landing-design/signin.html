@@ -852,8 +852,8 @@
           devCode = data.dev || null
           currentEmail = v
           emailEcho.textContent = v
-          emailPill.textContent = v
-          successWs.textContent = workspaceFromEmail(v)
+          if (emailPill) emailPill.textContent = v
+          if (successWs) successWs.textContent = workspaceFromEmail(v)
           resetEmailSubmit()
           setStep('otp')
           setTimeout(() => otpInputs[0] && otpInputs[0].focus(), 320)
