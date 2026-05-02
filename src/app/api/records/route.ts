@@ -21,8 +21,46 @@ export async function GET(req: NextRequest) {
     const projectId = params.get('project_id')
     const search = params.get('search')
     const dateRange = params.get('dateRange') // 'today' | 'week' | 'month'
+    const orgId = params.get('orgId') // active enterprise org from client
     const limit = parseInt(params.get('limit') || '50')
     const offset = parseInt(params.get('offset') || '0')
+
+    // Build the set of workspaces the user is allowed to LIST records from.
+    // Always includes their personal workspace (the auth default). When
+    // orgId is provided, also includes every workspace linked to that org
+    // they're a member of — admins/super_admins get every org workspace.
+    // RBAC still runs on the result; this filter just shapes the candidate
+    // set so we don't query records the user has no path to anyway.
+    const accessibleWsIds = new Set<string>([workspaceId])
+    if (orgId) {
+      const orgLinks = await db
+        .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+      const orgWsIds = orgLinks.map((l) => l.workspaceId)
+      if (orgWsIds.length > 0) {
+        const myMemberships = await db
+          .select({ workspaceId: schema.workspaceMembers.workspaceId })
+          .from(schema.workspaceMembers)
+          .where(and(
+            eq(schema.workspaceMembers.userId, userId),
+            inArray(schema.workspaceMembers.workspaceId, orgWsIds),
+          ))
+        for (const m of myMemberships) accessibleWsIds.add(m.workspaceId)
+        // Admin auto-access — super_admin / admin sees all org workspaces.
+        const orgRole = await db
+          .select({ role: schema.organizationMembers.role })
+          .from(schema.organizationMembers)
+          .where(and(
+            eq(schema.organizationMembers.userId, userId),
+            eq(schema.organizationMembers.organizationId, orgId),
+          ))
+          .limit(1)
+        if (orgRole[0] && (orgRole[0].role === 'super_admin' || orgRole[0].role === 'admin')) {
+          for (const wsId of orgWsIds) accessibleWsIds.add(wsId)
+        }
+      }
+    }
 
     const sourceFilter = source === 'integrations'
       ? isNotNull(schema.records.source)
@@ -44,7 +82,7 @@ export async function GET(req: NextRequest) {
     }
 
     let whereClause = and(
-      eq(schema.records.workspaceId, workspaceId),
+      inArray(schema.records.workspaceId, Array.from(accessibleWsIds)),
       ne(schema.records.triageStatus, 'needs_review'),
       type ? eq(schema.records.type, type as any) : undefined,
       sourceFilter,

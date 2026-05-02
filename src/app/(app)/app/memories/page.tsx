@@ -218,6 +218,10 @@ export default function MemoriesPage() {
     if (typeFilter !== 'all') p.set('type', typeFilter)
     if (sourceFilter !== 'all') p.set('source', sourceFilter)
     if (dateRange !== 'all') p.set('dateRange', dateRange)
+    // Tells the API to also include records from team workspaces in this
+    // org (the user's accessible ones). Without it, /api/records only
+    // returns the personal workspace — which is empty after migration.
+    if (activeOrgId) p.set('orgId', activeOrgId)
     return `/api/records?${p}`
   }
 
@@ -236,7 +240,7 @@ export default function MemoriesPage() {
       setLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typeFilter, sourceFilter, dateRange])
+  }, [typeFilter, sourceFilter, dateRange, activeOrgId])
 
   // After a new memory is created, the background AI enrichment takes
   // ~30-60s to fill in title/summary/tags. Poll until enriched then swap.
@@ -280,7 +284,7 @@ export default function MemoriesPage() {
 
   useEffect(() => {
     fetchRecords()
-  }, [typeFilter, sourceFilter, dateRange]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [typeFilter, sourceFilter, dateRange, activeOrgId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchProjects()
