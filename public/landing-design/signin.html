@@ -961,12 +961,13 @@
             body: params.toString(),
             credentials: 'same-origin',
           })
-          // NextAuth returns either { url } on success, or { url: '...?error=...' } on failure.
-          // It can also 302 redirect (when json=true is ignored) — treat both.
-          let data = {}
-          try { data = await res.json() } catch {}
-          const okUrl = data.url && !data.url.includes('error=')
-          if (!okUrl) {
+          // NextAuth returns 302 → /app on success (cookies are set during the
+          // 302 response, browser follows the redirect). On bad code it 302s
+          // to /login?error=... Either way fetch follows the redirect, so we
+          // detect outcome by inspecting res.url.
+          const finalUrl = res.url || ''
+          const isError = finalUrl.includes('/login?') && finalUrl.includes('error=')
+          if (isError) {
             // 401 here is most often "code already consumed" — happens when a
             // previous verify succeeded server-side but the response was lost
             // (pm2 restart, network blip). Auto-resend a fresh code so the
@@ -977,7 +978,12 @@
             const errorEl = document.getElementById('otpError')
             const errorMsg = document.getElementById('otpErrorMsg')
             if (errorEl && errorMsg) {
-              errorMsg.textContent = (data && data.error) || 'That code didn\'t work.'
+              // Pull NextAuth's error code from the redirected URL, e.g.
+              // /login?error=CredentialsSignin → "CredentialsSignin" → friendly text
+              const errParam = (finalUrl.match(/error=([^&]+)/) || [])[1] || ''
+              errorMsg.textContent = errParam === 'CredentialsSignin'
+                ? 'That code didn\'t work.'
+                : (errParam || 'That code didn\'t work.')
               errorEl.style.display = 'flex'
             }
             // Auto-resend fresh OTP (silent) so the user just needs to type
@@ -1002,11 +1008,11 @@
           }
           stopCountdown()
           setStep('success')
-          // Brief beat for the design's success animation, then redirect to
-          // the URL NextAuth gave us (it'll have the right path even if we
-          // requested a relative one). Don't reset otpSubmitting; the page
-          // is navigating away.
-          setTimeout(() => { window.location.href = data.url || callbackUrl }, 700)
+          // Brief beat for the design's success animation, then hard-navigate
+          // to the destination. fetch already followed the 302 → cookies are
+          // now in the browser; this navigation will hit /app middleware,
+          // find the session, and render the dashboard.
+          setTimeout(() => { window.location.href = callbackUrl }, 700)
         } catch (err) {
           // Network error (502, offline, etc.) — DON'T retry automatically.
           // The server may have already consumed the OTP. Show the error
