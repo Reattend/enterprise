@@ -183,7 +183,10 @@ function OnboardingChecklist({ data, orgId }: { data: OverviewData; orgId: strin
       meta: data.knowledgeGravity.length > 0
         ? data.knowledgeGravity.slice(0, 3).map((d) => d.name).join(', ')
         : undefined,
-      done: data.knowledgeGravity.some((d) => d.kind === 'team' || d.kind === 'department'),
+      // Strict: only `kind === 'team'` counts. Plain departments don't
+      // get a backing workspace, so marking them as "done" hid the very
+      // bug this checklist was supposed to surface.
+      done: data.knowledgeGravity.some((d) => d.kind === 'team'),
       cta: 'Done',
       href: `/app/admin/${orgId}/departments`,
     },

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
-  PanelLeft, Loader2, Check,
+  PanelLeft, Loader2, Check, Network,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -33,6 +33,7 @@ const NAV_ITEMS = [
   { href: '/app/memories', icon: Database,        label: 'Memories' },
   { href: '/app/landscape', icon: Proportions,    label: 'Landscape' },
   { href: '/app/wiki',     icon: BookOpen,        label: 'Wiki' },
+  { href: '/app/hierarchy', icon: Network,        label: 'Hierarchy' },
   { href: '/app/policies', icon: Columns4,        label: 'Policies' },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
 ]

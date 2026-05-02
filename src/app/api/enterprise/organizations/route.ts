@@ -140,6 +140,18 @@ export async function POST(req: NextRequest) {
       status: 'active',
     })
 
+    // Auto-provision a "General" team + workspace so the org has somewhere
+    // for memories to land from day one. Without this, every Capture flow
+    // falls back to the user's personal workspace and org-scoped views
+    // (home, landscape, cockpit) read empty until an admin manually
+    // creates a team.
+    try {
+      const { provisionDefaultTeam } = await import('@/lib/enterprise/auto-team')
+      await provisionDefaultTeam({ organizationId: orgId, ownerUserId: userId })
+    } catch (e) {
+      console.error('[org.create] default-team provision failed', e)
+    }
+
     // Seed the 10 default agents so the org's Agents page isn't empty on
     // day one. Admins can edit prompts or archive any of them later.
     try {

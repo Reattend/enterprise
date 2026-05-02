@@ -3568,3 +3568,42 @@
   font-size: 12.5px; color: var(--ink-3); text-align: center;
 }
 .dark .enterprise-shell .cr-empty { background: oklch(0.20 0.01 270); }
+
+/* ============================================================
+ * Hierarchy page — visual org chart + linear roll-up.
+ * ============================================================ */
+
+.enterprise-shell .hierarchy-canvas {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); height: 540px; overflow: hidden;
+  position: relative;
+}
+.enterprise-shell .hierarchy-list {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--panel); overflow: hidden;
+}
+.enterprise-shell .hierarchy-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-top: 1px solid var(--line-2);
+  text-decoration: none; color: inherit;
+  font-size: 13px;
+  transition: background .12s;
+}
+.enterprise-shell .hierarchy-row:first-child { border-top: 0; }
+.enterprise-shell .hierarchy-row:hover { background: oklch(0.985 0.005 85); }
+.enterprise-shell .hierarchy-row .name {
+  font-weight: 550; color: var(--ink);
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.enterprise-shell .hierarchy-row .kind {
+  font-size: 10.5px; padding: 2px 7px; border-radius: 5px;
+  background: oklch(0.96 0.005 85); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+}
+.enterprise-shell .hierarchy-row .meta {
+  font-size: 11.5px; color: var(--ink-3);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.enterprise-shell .hierarchy-row .chev { color: var(--ink-4); }

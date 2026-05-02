@@ -135,6 +135,13 @@ export default function DepartmentsPage({ params }: { params: { orgId: string } 
 
   const tree = rows ? buildTree(rows) : []
 
+  // Detect the "no team yet" trap. Until at least one team-kind dept
+  // exists, every memory captured by anyone in this org falls into the
+  // user's personal workspace and never appears on home / landscape /
+  // cockpit. Surface a CTA so the admin can fix it in one click.
+  const hasTeam = (rows ?? []).some((r) => r.kind === 'team')
+  const showZeroTeamCta = rows !== null && !hasTeam
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -145,6 +152,27 @@ export default function DepartmentsPage({ params }: { params: { orgId: string } 
           <Plus className="h-4 w-4 mr-1" /> New
         </Button>
       </div>
+
+      {showZeroTeamCta && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/[0.06] p-4 flex items-start gap-3">
+          <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="text-sm font-medium">This org has no <code className="text-xs px-1 rounded bg-amber-500/15">kind: team</code> department yet</div>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Departments are pure hierarchy boxes. <b>Teams</b> are where memory actually lives — each team-kind dept gets a backing workspace + default project. Without one, captures fall into individuals&apos; personal workspaces and the cockpit reads zero.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => {
+              setForm({ name: 'General', kind: 'team', parentId: '' })
+              setShowCreate(true)
+            }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" /> Add a team
+          </Button>
+        </div>
+      )}
 
       {showCreate && (
         <Card className="p-4">
