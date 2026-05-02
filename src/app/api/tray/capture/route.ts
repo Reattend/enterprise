@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, desc, gt } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
+import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { processAllPendingJobs } from '@/lib/jobs/worker'
 import { z } from 'zod'
 
@@ -151,11 +152,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Resolve the target workspace using the same logic as /api/records and
+    // the brain-dump endpoint. Without this, every extension capture lands
+    // in the user's *personal* workspace (the one the API token was issued
+    // against) and is invisible to org views — exactly the trap the
+    // dashboard captures used to hit. Extension can pass org_id /
+    // workspace_id in the metadata to override the default routing.
+    const requestedWorkspaceId =
+      typeof metadata?.workspace_id === 'string' ? metadata.workspace_id : undefined
+    const requestedOrgId =
+      typeof metadata?.org_id === 'string' ? metadata.org_id : undefined
+    const resolved = await resolveTargetWorkspace({
+      userId: auth.userId,
+      requestedWorkspaceId,
+      orgId: requestedOrgId,
+      fallbackWorkspaceId: auth.workspaceId,
+    })
+    const targetWorkspaceId = resolved.workspaceId
+
     // --- Dedup: skip if a very similar capture was made in the last 3 minutes ---
     const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString()
     const recentItems = await db.query.rawItems.findMany({
       where: and(
-        eq(schema.rawItems.workspaceId, auth.workspaceId),
+        eq(schema.rawItems.workspaceId, targetWorkspaceId),
         gt(schema.rawItems.createdAt, threeMinutesAgo),
       ),
       orderBy: [desc(schema.rawItems.createdAt)],
@@ -172,7 +191,7 @@ export async function POST(req: NextRequest) {
     const id = crypto.randomUUID()
     await db.insert(schema.rawItems).values({
       id,
-      workspaceId: auth.workspaceId,
+      workspaceId: targetWorkspaceId,
       text,
       occurredAt: occurred_at || new Date().toISOString(),
       metadata: metadata ? JSON.stringify({ ...metadata, capturedBy: 'tray' }) : JSON.stringify({ capturedBy: 'tray' }),
@@ -183,7 +202,7 @@ export async function POST(req: NextRequest) {
     await db.insert(schema.jobQueue).values({
       type: 'triage',
       payload: JSON.stringify({ rawItemId: id }),
-      workspaceId: auth.workspaceId,
+      workspaceId: targetWorkspaceId,
     })
 
     // Fire-and-forget: process the queued triage job in the background

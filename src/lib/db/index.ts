@@ -78,6 +78,39 @@ try {
     console.log(`[db] FTS5 backfill complete: ${rows.length} records indexed`)
   }
 
+  // Keep records_fts.workspace_id in sync with records.workspace_id.
+  // Without this, bulk UPDATE on records (e.g. the personal-memory
+  // migration) leaves FTS rows pointing at the OLD workspace, breaking
+  // /api/enterprise/search which filters by accessible workspace IDs.
+  // Triggers cover future writes; the one-shot UPDATE heals existing drift.
+  sqlite.exec(`
+    CREATE TRIGGER IF NOT EXISTS records_fts_workspace_sync
+    AFTER UPDATE OF workspace_id ON records
+    BEGIN
+      UPDATE records_fts SET workspace_id = NEW.workspace_id WHERE record_id = NEW.id;
+    END;
+  `)
+  // One-shot heal on startup (idempotent — UPDATE with WHERE clause that
+  // only touches drifted rows). Safe to run every cold boot.
+  const drifted = (sqlite.prepare(`
+    SELECT COUNT(*) as c FROM records_fts f
+    JOIN records r ON r.id = f.record_id
+    WHERE f.workspace_id != r.workspace_id
+  `).get() as { c: number }).c
+  if (drifted > 0) {
+    console.log(`[db] FTS5 workspace_id drift detected on ${drifted} rows — healing`)
+    sqlite.exec(`
+      UPDATE records_fts SET workspace_id = (
+        SELECT workspace_id FROM records WHERE id = records_fts.record_id
+      )
+      WHERE EXISTS (
+        SELECT 1 FROM records WHERE id = records_fts.record_id
+        AND records.workspace_id != records_fts.workspace_id
+      )
+    `)
+    console.log('[db] FTS5 heal complete')
+  }
+
   ftsReady = true
   console.log('[db] FTS5 search index ready')
 } catch (e) {

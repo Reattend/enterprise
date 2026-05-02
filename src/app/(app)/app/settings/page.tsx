@@ -939,31 +939,10 @@ export default function SettingsPage() {
 
         {/* Preferences */}
         <TabsContent value="preferences" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Palette className="h-4 w-4" /> Appearance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Theme</p>
-                  <p className="text-xs text-muted-foreground">Choose between light and dark mode.</p>
-                </div>
-                <Select defaultValue="dark">
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Theme switcher was a dead control (defaultValue with no
+              onValueChange) — removed. Theme is system-driven via the
+              `<html class="dark">` toggle in the layout. Bring it back
+              when we have a real theme provider wired up. */}
 
           <Card>
             <CardHeader>

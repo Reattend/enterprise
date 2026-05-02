@@ -257,7 +257,13 @@ export function AppSidebar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="rail-user" type="button">
-                <div className="rail-avatar">{initials}</div>
+                <div className="rail-avatar">
+                  {user?.avatarUrl ? (
+                    /* Render actual photo when set; alt covers screen-readers
+                       and shows initials briefly if the data URL fails. */
+                    <img src={user.avatarUrl} alt={initials} />
+                  ) : initials}
+                </div>
                 <div style={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
                   <div className="rail-user-name">
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
