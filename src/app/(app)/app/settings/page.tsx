@@ -1094,7 +1094,7 @@ export default function SettingsPage() {
                     <ol className="text-xs text-muted-foreground mt-2 space-y-1 list-decimal list-inside">
                       <li>Generate a key below with name &ldquo;Chrome Extension&rdquo;. Copy it (shown once).</li>
                       <li>Install: <a className="text-primary hover:underline" target="_blank" rel="noreferrer" href="https://github.com/Reattend/enterprise-extension#install">github.com/Reattend/enterprise-extension</a> — load unpacked until Chrome Web Store release.</li>
-                      <li>Open the extension&apos;s options page, paste your token, set base URL to <code className="bg-background px-1 py-0.5 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : 'https://enterprise.reattend.com'}</code>.</li>
+                      <li>Open the extension&apos;s options page, paste your token, set base URL to <code className="bg-background px-1 py-0.5 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : 'https://reattend.com'}</code>.</li>
                       <li>Pick which apps to track (or inherit your org&apos;s required list from admin policy).</li>
                     </ol>
                   </div>

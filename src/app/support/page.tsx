@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { SiteNav } from '@/components/landing/site-nav'
 import { SiteFooter } from '@/components/landing/site-footer'
 
-// Public support page. Reachable via https://enterprise.reattend.com/support
-// — required for the Chrome Web Store listing's Support URL field. UI is
-// intentionally bare; Sprint O proper will polish.
+// Public support page. Reachable via https://reattend.com/support, required
+// for the Chrome Web Store listing's Support URL field. UI is intentionally
+// bare; Sprint O proper will polish.
 
 const CONTACTS: Array<{ subject: string; email: string; description: string }> = [
   {
@@ -75,27 +75,27 @@ export default function SupportPage() {
           <ul className="space-y-2 text-[14px] text-neutral-600 leading-relaxed">
             <li>
               <strong className="text-[#1a1a2e]">Try the live sandbox</strong> —{' '}
-              <Link href="/sandbox" className="text-[#4F46E5] hover:underline">enterprise.reattend.com/sandbox</Link>
+              <Link href="/sandbox" className="text-[#4F46E5] hover:underline">reattend.com/sandbox</Link>
               . Five role personas, fully populated demo organization, no signup required.
             </li>
             <li>
               <strong className="text-[#1a1a2e]">Pricing + plan comparison</strong> —{' '}
-              <Link href="/pricing" className="text-[#4F46E5] hover:underline">enterprise.reattend.com/pricing</Link>
+              <Link href="/pricing" className="text-[#4F46E5] hover:underline">reattend.com/pricing</Link>
               . Team / Enterprise / Government tiers and feature matrix.
             </li>
             <li>
               <strong className="text-[#1a1a2e]">Compliance posture</strong> —{' '}
-              <Link href="/compliance" className="text-[#4F46E5] hover:underline">enterprise.reattend.com/compliance</Link>
+              <Link href="/compliance" className="text-[#4F46E5] hover:underline">reattend.com/compliance</Link>
               . Controls today, certs roadmap, data residency, security disclosures.
             </li>
             <li>
               <strong className="text-[#1a1a2e]">Privacy policy</strong> —{' '}
-              <Link href="/privacy" className="text-[#4F46E5] hover:underline">enterprise.reattend.com/privacy</Link>
+              <Link href="/privacy" className="text-[#4F46E5] hover:underline">reattend.com/privacy</Link>
               {' '}— what data we collect, retain, and never share.
             </li>
             <li>
               <strong className="text-[#1a1a2e]">Terms &amp; Conditions</strong> —{' '}
-              <Link href="/terms" className="text-[#4F46E5] hover:underline">enterprise.reattend.com/terms</Link>
+              <Link href="/terms" className="text-[#4F46E5] hover:underline">reattend.com/terms</Link>
               .
             </li>
           </ul>

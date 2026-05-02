@@ -1,10 +1,12 @@
 // ─── Enterprise deployment mode ─────────────────────────────────────────────
-// This codebase is Reattend Enterprise (deployed to enterprise.reattend.com).
-// It is a separate product from reattend.com (Personal + Teams).
+// This codebase is Reattend, deployed to reattend.com (canonical) and
+// enterprise.reattend.com (legacy host, redirects to canonical). It was
+// originally forked from Reattend Personal; the Personal product is being
+// sunset and a future Personal product will fork back from this codebase.
 //
-// All Personal/Team workspace concepts are vestigial here — they come from the
-// Personal fork that this codebase was cloned from. The enterprise UI should
-// never surface them. The only identity in this product is the Organization.
+// All Personal/Team workspace concepts are vestigial here, inherited from the
+// fork. The UI should never surface them. The only identity in this product
+// is the Organization.
 //
 // Users here must sign in with an organization-provided email. Personal email
 // providers (gmail, hotmail, yahoo, etc.) are rejected at invite-create and

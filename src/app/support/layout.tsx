@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'Support · Reattend Enterprise',
   description: 'Reach the Reattend Enterprise team for product help, security disclosures, billing, and on-prem deployment questions.',
   alternates: {
-    canonical: 'https://enterprise.reattend.com/support',
+    canonical: 'https://reattend.com/support',
   },
 }
 
