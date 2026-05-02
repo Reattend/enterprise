@@ -917,11 +917,18 @@
       })
     })
 
+    // OTP submit guard: prevents double-fires from Enter-key + click,
+    // from the paste auto-submit colliding with a manual submit, or from
+    // a 502 retry consuming a code that already succeeded server-side.
+    let otpSubmitting = false
+
     if (otpForm) {
       otpForm.addEventListener('submit', async (e) => {
         e.preventDefault()
+        if (otpSubmitting) return
         const code = otpInputs.map(i => i.value).join('')
         if (code.length !== 6) return
+        otpSubmitting = true
         setSubmitLoading(otpSubmit, 'Verifying…')
         try {
           const res = await fetch('/api/auth/verify-otp', {
@@ -931,28 +938,57 @@
           })
           const data = await res.json().catch(() => ({}))
           if (!res.ok) {
+            // 401 here is most often "code already consumed" — happens when a
+            // previous verify succeeded server-side but the response was lost
+            // (pm2 restart, network blip). Auto-resend a fresh code so the
+            // user doesn't get stuck retyping a code that will never work.
             otpInputs.forEach(i => i.classList.add('error'))
             resetOtpSubmit()
             otpSubmit.disabled = true
             const errorEl = document.getElementById('otpError')
             const errorMsg = document.getElementById('otpErrorMsg')
             if (errorEl && errorMsg) {
-              errorMsg.textContent = (data && data.error) || 'That code didn\'t work. Try again.'
+              errorMsg.textContent = (data && data.error) || 'That code didn\'t work.'
               errorEl.style.display = 'flex'
             }
+            // Auto-resend fresh OTP (silent) so the user just needs to type
+            // the new code from the latest email.
+            try {
+              await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentEmail }),
+              })
+              if (errorEl && errorMsg) {
+                errorMsg.textContent = 'That code didn\'t work — we sent a fresh one. Check your inbox.'
+              }
+              startCountdown()
+            } catch { /* user can use the manual Resend button */ }
             setTimeout(() => {
               otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); i.classList.remove('error') })
               otpInputs[0].focus()
+              otpSubmitting = false
             }, 600)
             return
           }
           stopCountdown()
           setStep('success')
           // Brief beat for the design's success animation, then redirect.
+          // Don't reset otpSubmitting; the page is navigating away.
           setTimeout(() => { window.location.href = callbackUrl }, 700)
         } catch (err) {
+          // Network error (502, offline, etc.) — DON'T retry automatically.
+          // The server may have already consumed the OTP. Show the error
+          // and let the user click Resend to get a fresh code.
           resetOtpSubmit()
           otpSubmit.disabled = false
+          otpSubmitting = false
+          const errorEl = document.getElementById('otpError')
+          const errorMsg = document.getElementById('otpErrorMsg')
+          if (errorEl && errorMsg) {
+            errorMsg.textContent = 'Network hiccup — please click Resend code and try again with the fresh one.'
+            errorEl.style.display = 'flex'
+          }
         }
       })
     }
