@@ -7,6 +7,13 @@ const nextConfig = {
       'fastembed',
       'onnxruntime-node',
       '@anush008/tokenizers',
+      // pdf-parse v2 wraps pdfjs-dist, which dynamically imports its worker
+      // chunk at runtime. Bundling it via webpack rewrites the worker path
+      // into .next/server/chunks where the .mjs file doesn't exist, so
+      // every PDF upload throws "Setting up fake worker failed". Externalize
+      // both packages so they resolve from node_modules at runtime.
+      'pdf-parse',
+      'pdfjs-dist',
     ],
   },
   // Strip Next.js font preload Link headers from API routes.

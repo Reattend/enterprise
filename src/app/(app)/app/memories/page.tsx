@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { emit, useRevalidate, SCOPES } from '@/lib/data-bus'
+import { useAppStore } from '@/stores/app-store'
 
 type MemoryRecord = {
   id: string
@@ -157,6 +158,11 @@ const PAGE_SIZE = 50
 
 export default function MemoriesPage() {
   const router = useRouter()
+  // Active org from the store — passed to /api/records and /api/upload so
+  // the create defaults to a team workspace instead of personal. Without
+  // this the new memory only shows up under My memories, never on the
+  // org wiki / landscape / cockpit.
+  const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const [records, setRecords] = useState<MemoryRecord[]>([])
   const [total, setTotal] = useState(0)
   const [offset, setOffset] = useState(0)
@@ -345,6 +351,7 @@ export default function MemoriesPage() {
         const formData = new FormData()
         formData.append('file', selectedFile)
         if (selectedProjectId) formData.append('project_id', selectedProjectId)
+        if (activeOrgId) formData.append('org_id', activeOrgId)
         const res = await fetch('/api/upload', { method: 'POST', body: formData })
         const data = await res.json()
         if (!res.ok) { toast.error(data.error || 'Failed to upload'); return }
@@ -366,7 +373,11 @@ export default function MemoriesPage() {
       const res = await fetch('/api/records', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent.trim(), project_id: selectedProjectId || undefined }),
+        body: JSON.stringify({
+          content: newContent.trim(),
+          project_id: selectedProjectId || undefined,
+          orgId: activeOrgId || undefined,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error || 'Failed to create memory'); return }

@@ -93,6 +93,9 @@ export function ChatView() {
   const [chatId, setChatId] = useState<string | null>(null)
   // Track which message's sources are expanded (collapsed by default)
   const [openSourceIds, setOpenSourceIds] = useState<Set<string>>(new Set())
+  // Same pattern for the reasoning trace — closed by default, opens on
+  // click. Was rendered unconditionally before; users found it noisy.
+  const [openTraceIds, setOpenTraceIds] = useState<Set<string>>(new Set())
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
   // Default the model from the URL so legacy `?mode=oracle` links still
@@ -151,14 +154,14 @@ export function ChatView() {
     if (chatIdParam) {
       if (chatIdParam !== chatId) {
         setMessages([])
-        setOpenSourceIds(new Set())
+        setOpenSourceIds(new Set()); setOpenTraceIds(new Set())
         loadChat(chatIdParam)
       }
     } else {
       // No ?chat= param → new chat
       setMessages([])
       setChatId(null)
-      setOpenSourceIds(new Set())
+      setOpenSourceIds(new Set()); setOpenTraceIds(new Set())
     }
   }, [chatIdParam]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -373,7 +376,7 @@ export function ChatView() {
   const startNewChat = () => {
     setMessages([])
     setChatId(null)
-    setOpenSourceIds(new Set())
+    setOpenSourceIds(new Set()); setOpenTraceIds(new Set())
     window.history.replaceState(null, '', '/app/ask')
   }
 
@@ -384,6 +387,23 @@ export function ChatView() {
       else next.add(msgId)
       return next
     })
+  }
+  const toggleTrace = (msgId: string) => {
+    setOpenTraceIds(prev => {
+      const next = new Set(prev)
+      if (next.has(msgId)) next.delete(msgId)
+      else next.add(msgId)
+      return next
+    })
+  }
+
+  // Hedge phrases the LLM emits when it has thin grounding. Used to gate
+  // follow-up pills — there's no point asking "want me to dig deeper?"
+  // when the answer literally said "I don't have any information about X".
+  const HEDGE_RE = /\b(i (?:don't|do not) (?:have|know|see)|i'?m (?:not sure|uncertain)|no (?:information|memories|records|context)|nothing (?:saved|captured|on record)|(?:can(?:not|'t)|unable to) (?:find|answer))\b/i
+  function isLowConfidence(content: string, sourceCount: number) {
+    if (sourceCount === 0) return true
+    return HEDGE_RE.test(content.slice(0, 600))
   }
 
   const giveFeedback = async (msgId: string, vote: 'up' | 'down') => {
@@ -650,12 +670,25 @@ export function ChatView() {
                         </div>
                       )}
 
-                      {/* Reasoning trace — animates the retrieval pipeline
-                          that produced this answer. Only rendered for assistant
-                          messages with a trace payload. */}
+                      {/* Reasoning trace — collapsible. Closed by default so
+                          the answer is the focus; click the chevron to replay
+                          the retrieval pipeline that produced this answer. */}
                       {msg.trace ? (
-                        <div className="ml-10">
-                          <ReasoningTrace trace={msg.trace} active={false} />
+                        <div className="ml-10 space-y-1.5">
+                          <button
+                            onClick={() => toggleTrace(msg.id)}
+                            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors font-medium"
+                          >
+                            <Sparkles className="h-3 w-3" />
+                            Reasoning trace ({msg.trace.steps?.length ?? 0} steps)
+                            {openTraceIds.has(msg.id)
+                              ? <ChevronDown className="h-3 w-3 ml-0.5" />
+                              : <ChevronRight className="h-3 w-3 ml-0.5" />
+                            }
+                          </button>
+                          {openTraceIds.has(msg.id) && (
+                            <ReasoningTrace trace={msg.trace} active={false} />
+                          )}
                         </div>
                       ) : null}
 
@@ -702,10 +735,13 @@ export function ChatView() {
                         </div>
                       )}
 
-                      {/* Follow-up questions — what the user might ask next */}
-                      {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && !streaming && (
+                      {/* Follow-up questions — capped at 2, suppressed when
+                          the answer was low-confidence (no sources or hedge
+                          phrases like "I don't have information"). */}
+                      {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && !streaming &&
+                       !isLowConfidence(msg.content, msg.sources?.length ?? 0) && (
                         <div className="ml-10 flex flex-wrap gap-2 pt-1">
-                          {msg.followUps.map(q => (
+                          {msg.followUps.slice(0, 2).map(q => (
                             <button
                               key={q}
                               onClick={() => sendMessage(q)}

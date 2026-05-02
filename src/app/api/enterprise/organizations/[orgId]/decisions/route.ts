@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, inArray } from 'drizzle-orm'
 import {
   requireOrgAuth,
   isAuthResponse,
@@ -108,6 +108,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     //   1. Explicit workspaceId (advanced users / API callers)
     //   2. The workspace linked to the given department
     //   3. For non-team depts: fall back to the first descendant team's workspace
+    //   4. As a last resort: any workspace linked to the org
     let workspaceId: string | undefined = rawWorkspaceId
     if (!workspaceId && departmentId) {
       const direct = await db
@@ -120,11 +121,56 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
         .limit(1)
       if (direct[0]) {
         workspaceId = direct[0].workspaceId
+      } else {
+        // Walk descendants — collect all dept ids reachable from this dept,
+        // then pick the first one that has an auto-provisioned workspace.
+        // Tree is small enough that an in-memory BFS beats a recursive CTE.
+        const allDepts = await db
+          .select({ id: schema.departments.id, parentId: schema.departments.parentId })
+          .from(schema.departments)
+          .where(eq(schema.departments.organizationId, orgId))
+        const childrenByParent = new Map<string, string[]>()
+        for (const d of allDepts) {
+          const arr = childrenByParent.get(d.parentId || '') || []
+          arr.push(d.id)
+          childrenByParent.set(d.parentId || '', arr)
+        }
+        const queue: string[] = [...(childrenByParent.get(departmentId) || [])]
+        const descendantIds: string[] = []
+        while (queue.length) {
+          const id = queue.shift()!
+          descendantIds.push(id)
+          for (const c of childrenByParent.get(id) || []) queue.push(c)
+        }
+        if (descendantIds.length > 0) {
+          const descendantLink = await db
+            .select()
+            .from(schema.workspaceOrgLinks)
+            .where(and(
+              eq(schema.workspaceOrgLinks.organizationId, orgId),
+              inArray(schema.workspaceOrgLinks.departmentId, descendantIds),
+            ))
+            .limit(1)
+          if (descendantLink[0]) {
+            workspaceId = descendantLink[0].workspaceId
+          }
+        }
       }
+    }
+    // Last-resort fallback: any workspace tied to this org. Better than
+    // throwing — a decision still lands somewhere queryable, even if the
+    // owning department is a non-team. Admin can recategorize later.
+    if (!workspaceId) {
+      const orgWs = await db
+        .select()
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+        .limit(1)
+      if (orgWs[0]) workspaceId = orgWs[0].workspaceId
     }
     if (!workspaceId) {
       return NextResponse.json(
-        { error: 'no workspace linked to this department', hint: 'create a team-kind sub-department to get an auto-provisioned workspace' },
+        { error: 'no workspace linked to this org yet', hint: 'create a team-kind department from Settings → Departments to get an auto-provisioned workspace' },
         { status: 400 },
       )
     }

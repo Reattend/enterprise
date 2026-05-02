@@ -6,6 +6,7 @@ import { requireAuth } from '@/lib/auth'
 import { getAskLLM } from '@/lib/ai/llm'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import { auditForAllUserOrgs, extractRequestMeta } from '@/lib/enterprise'
+import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_BRAIN_DUMP } from '@/lib/sandbox/fixtures'
@@ -46,12 +47,20 @@ export async function POST(req: NextRequest) {
     const { workspaceId: defaultWorkspaceId, userId, session } = await requireAuth()
     const userEmail = session?.user?.email || 'unknown'
     const body = await req.json()
-    const { rawText, commit, items: commitItems, workspaceId: overrideWorkspaceId, projectId } = body as {
+    const {
+      rawText, commit, items: commitItems,
+      workspaceId: overrideWorkspaceId,
+      projectId,
+      orgId,        // Active enterprise org from the client store
+      saveAsOne,    // Skip AI extraction; commit raw text as a single record
+    } = body as {
       rawText?: string
       commit?: boolean
       items?: DumpItem[]
       workspaceId?: string
       projectId?: string
+      orgId?: string
+      saveAsOne?: boolean
     }
 
     // Sandbox: preview-only; commit path is a no-op that reports success.
@@ -78,23 +87,29 @@ export async function POST(req: NextRequest) {
     }
 
     if (commit === true) {
-      // Allow committing to a specific workspace (team scope) or fall back to
-      // the user's default. Validated below against workspace_members to
-      // prevent cross-org poison.
-      let targetWorkspaceId = defaultWorkspaceId
-      if (overrideWorkspaceId && overrideWorkspaceId !== defaultWorkspaceId) {
-        const membership = await db.select()
-          .from(schema.workspaceMembers)
-          .where(and(
-            eq(schema.workspaceMembers.workspaceId, overrideWorkspaceId),
-            eq(schema.workspaceMembers.userId, userId),
-          ))
-          .limit(1)
-        if (membership[0]) {
-          targetWorkspaceId = overrideWorkspaceId
-        }
-      }
-      return handleCommit({ workspaceId: targetWorkspaceId, userId, userEmail, items: commitItems || [], projectId, req })
+      // Resolve the workspace via the shared resolver — honors explicit
+      // override, falls back to the active org's first team workspace,
+      // then to personal. Same semantics as /api/records POST.
+      const resolved = await resolveTargetWorkspace({
+        userId,
+        requestedWorkspaceId: overrideWorkspaceId,
+        orgId,
+        fallbackWorkspaceId: defaultWorkspaceId,
+      })
+      return handleCommit({ workspaceId: resolved.workspaceId, userId, userEmail, items: commitItems || [], projectId, req })
+    }
+
+    // saveAsOne short-circuit: skip the LLM extraction and return a single
+    // synthetic item the client can commit verbatim. Lets users opt out of
+    // the firehose split when they really mean "this whole text = one note".
+    if (saveAsOne === true && rawText && rawText.trim().length > 0) {
+      const text = rawText.trim()
+      const title = text.split('\n').find((l) => l.trim().length > 0)?.slice(0, 80) || 'Captured note'
+      return NextResponse.json({
+        items: [{ kind: 'fact', title, detail: text, sourceSpan: null }],
+        rejectedReason: null,
+        savedAsOne: true,
+      })
     }
 
     if (!rawText || rawText.trim().length < 50) {

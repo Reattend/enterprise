@@ -60,6 +60,10 @@ export default function BrainDumpPage() {
   const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const [mode, setMode] = useState<Mode>('firehose')
   const [rawText, setRawText] = useState('')
+  // When true, skip the AI extraction and save the whole text as a
+  // single fact-kind memory. Useful when the user pastes a discrete
+  // note that they don't want split into bullets.
+  const [saveAsOne, setSaveAsOne] = useState(false)
   const [parsing, setParsing] = useState(false)
   const [items, setItems] = useState<DumpItem[] | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -154,8 +158,13 @@ export default function BrainDumpPage() {
   }
 
   async function parse() {
-    if (rawText.trim().length < 50) {
-      toast.error('Dump a bit more — at least 50 characters so there is something to structure.')
+    // Lower the minimum when "Save as 1 memory" is on — short notes are
+    // valid in that mode (you're just saving the text verbatim).
+    const min = saveAsOne ? 1 : 50
+    if (rawText.trim().length < min) {
+      toast.error(saveAsOne
+        ? 'Type something first.'
+        : 'Dump a bit more — at least 50 characters so there is something to structure.')
       return
     }
     setParsing(true)
@@ -166,7 +175,7 @@ export default function BrainDumpPage() {
       const res = await fetch('/api/enterprise/brain-dump', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rawText }),
+        body: JSON.stringify({ rawText, saveAsOne }),
       })
       if (!res.ok) {
         const b = await res.json().catch(() => ({}))
@@ -199,6 +208,9 @@ export default function BrainDumpPage() {
           items: toCommit,
           workspaceId: activeTeam?.workspaceId,
           projectId: selectedProject || undefined,
+          // Tells the server to default to a team workspace in this org
+          // when the user didn't pick a specific scope.
+          orgId: activeOrgId || undefined,
         }),
       })
       if (!res.ok) {
@@ -236,6 +248,8 @@ export default function BrainDumpPage() {
     try {
       const fd = new FormData()
       fd.append('file', file)
+      if (activeTeam?.workspaceId) fd.append('workspace_id', activeTeam.workspaceId)
+      if (activeOrgId) fd.append('org_id', activeOrgId)
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       if (!res.ok) {
         const b = await res.json().catch(() => ({}))
@@ -275,6 +289,8 @@ export default function BrainDumpPage() {
           content: linkNote ? `${url}\n\n${linkNote}` : url,
           type: 'context',
           source: 'url',
+          orgId: activeOrgId || undefined,
+          workspaceId: activeTeam?.workspaceId,
         }),
       })
       if (!res.ok) {
@@ -509,11 +525,25 @@ export default function BrainDumpPage() {
                     )}
                   </button>
                   <span className="cap-meter">{meterText}</span>
+                  <label
+                    className="cap-ftool"
+                    style={{ cursor: 'pointer', userSelect: 'none' }}
+                    title="Skip the AI split. Saves your text as one memory."
+                  >
+                    <input
+                      type="checkbox"
+                      checked={saveAsOne}
+                      onChange={(e) => setSaveAsOne(e.target.checked)}
+                      style={{ accentColor: 'var(--brand)', marginRight: 6 }}
+                      disabled={parsing || committing || !!items}
+                    />
+                    Save as 1 memory
+                  </label>
                   <button
                     type="button"
                     className="cap-commit"
                     onClick={items ? commit : parse}
-                    disabled={parsing || committing || (!items && rawText.trim().length < 50) || (items != null && selected.size === 0)}
+                    disabled={parsing || committing || (!items && rawText.trim().length < (saveAsOne ? 1 : 50)) || (items != null && selected.size === 0)}
                   >
                     {(parsing || committing) ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -522,7 +552,7 @@ export default function BrainDumpPage() {
                     )}
                     {items
                       ? `Commit ${selected.size} memor${selected.size === 1 ? 'y' : 'ies'}`
-                      : 'Structure & commit'}
+                      : saveAsOne ? 'Save memory' : 'Structure & commit'}
                   </button>
                 </div>
               </>

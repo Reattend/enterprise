@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, desc, inArray, ne, count, isNotNull, gte } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
+import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import {
   auditForAllUserOrgs,
@@ -98,20 +99,34 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId, userId, session } = await requireAuth()
+    const auth = await requireAuth()
+    const { userId, session } = auth
     const userEmail = session?.user?.email || 'unknown'
     const body = await req.json()
-    const { content, project_id } = body
+    const { content, project_id, orgId, workspaceId: requestedWorkspaceId } = body as {
+      content?: string
+      project_id?: string
+      orgId?: string         // Active enterprise org from the client store
+      workspaceId?: string   // Explicit team workspace override
+    }
 
     if (!content) {
       return NextResponse.json({ error: 'content is required' }, { status: 400 })
     }
 
+    // Resolve the right workspace. If the user is in an enterprise org,
+    // route the memory to a team workspace (not personal) so it shows up
+    // on org dashboards / wiki / landscape. Personal is the safety net.
+    const resolved = await resolveTargetWorkspace({
+      userId,
+      requestedWorkspaceId,
+      orgId,
+      fallbackWorkspaceId: auth.workspaceId,
+    })
+    const workspaceId = resolved.workspaceId
+
     // Content-hash dedup: if the exact same content was ingested before in
     // this workspace, return the existing record instead of creating a duplicate.
-    // This catches the common "two people paste the same email" / "Nango +
-    // Chrome extension both captured it" cases. The legacy 30s window check
-    // is now redundant but kept inside findExactDuplicate's normalization.
     const dup = await findExactDuplicate(workspaceId, content)
     if (dup.hit) {
       const existing = await db.query.records.findFirst({

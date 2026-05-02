@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
+import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 import path from 'path'
@@ -74,11 +75,24 @@ async function extractText(buffer: Buffer, mimeType: string, fileName: string): 
 // POST /api/upload — upload a file, extract text, create a memory record
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId, userId } = await requireAuth()
+    const auth = await requireAuth()
+    const { userId } = auth
 
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     const projectId = formData.get('project_id') as string | null
+    // Same workspace-routing trick the JSON /api/records POST uses: when
+    // the client is in an org context it sends `org_id`; we route the
+    // upload to a team workspace instead of the user's personal one.
+    const requestedOrgId = formData.get('org_id') as string | null
+    const requestedWsId = formData.get('workspace_id') as string | null
+    const resolved = await resolveTargetWorkspace({
+      userId,
+      requestedWorkspaceId: requestedWsId,
+      orgId: requestedOrgId,
+      fallbackWorkspaceId: auth.workspaceId,
+    })
+    const workspaceId = resolved.workspaceId
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
