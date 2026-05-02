@@ -940,13 +940,34 @@
         otpSubmitting = true
         setSubmitLoading(otpSubmit, 'Verifying…')
         try {
-          const res = await fetch('/api/auth/verify-otp', {
+          // Use NextAuth's credentials callback (id='otp') instead of a custom
+          // endpoint. NextAuth sets the session cookie itself with the exact
+          // attributes its own getToken/auth() expects, avoiding the Chrome
+          // "Set-Cookie silently dropped" trap that hits hand-rolled cookies
+          // through Route Handlers.
+          const csrfRes = await fetch('/api/auth/csrf')
+          const csrfJson = await csrfRes.json().catch(() => ({}))
+          const csrfToken = csrfJson.csrfToken
+          if (!csrfToken) throw new Error('Could not get CSRF token')
+          const params = new URLSearchParams()
+          params.set('csrfToken', csrfToken)
+          params.set('email', currentEmail)
+          params.set('code', code)
+          params.set('callbackUrl', callbackUrl)
+          params.set('json', 'true')
+          const res = await fetch('/api/auth/callback/otp', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentEmail, code }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+            credentials: 'same-origin',
+            redirect: 'manual',
           })
-          const data = await res.json().catch(() => ({}))
-          if (!res.ok) {
+          // NextAuth returns either { url } on success, or { url: '...?error=...' } on failure.
+          // It can also 302 redirect (when json=true is ignored) — treat both.
+          let data = {}
+          try { data = await res.json() } catch {}
+          const okUrl = data.url && !data.url.includes('error=')
+          if (!okUrl) {
             // 401 here is most often "code already consumed" — happens when a
             // previous verify succeeded server-side but the response was lost
             // (pm2 restart, network blip). Auto-resend a fresh code so the
@@ -982,9 +1003,11 @@
           }
           stopCountdown()
           setStep('success')
-          // Brief beat for the design's success animation, then redirect.
-          // Don't reset otpSubmitting; the page is navigating away.
-          setTimeout(() => { window.location.href = callbackUrl }, 700)
+          // Brief beat for the design's success animation, then redirect to
+          // the URL NextAuth gave us (it'll have the right path even if we
+          // requested a relative one). Don't reset otpSubmitting; the page
+          // is navigating away.
+          setTimeout(() => { window.location.href = data.url || callbackUrl }, 700)
         } catch (err) {
           // Network error (502, offline, etc.) — DON'T retry automatically.
           // The server may have already consumed the OTP. Show the error
