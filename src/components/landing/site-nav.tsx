@@ -25,9 +25,15 @@ export function SiteNav() {
         <Link href="/compliance" className="hover:text-[#1a1a2e] transition-colors">Compliance</Link>
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 px-3.5 h-8 bg-[#1a1a2e] text-white text-[12px] font-semibold rounded-full hover:bg-[#2d2b55] transition-colors"
+          className="inline-flex items-center px-3.5 h-8 border border-[#1a1a2e]/15 text-[#1a1a2e] text-[12px] font-semibold rounded-full hover:bg-neutral-50 transition-colors"
         >
           Sign in
+        </Link>
+        <Link
+          href="/sandbox"
+          className="inline-flex items-center px-3.5 h-8 bg-[#1a1a2e] text-white text-[12px] font-semibold rounded-full hover:bg-[#2d2b55] transition-colors"
+        >
+          Try for free
         </Link>
       </div>
     </nav>
