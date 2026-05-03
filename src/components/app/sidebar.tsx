@@ -220,10 +220,12 @@ export function AppSidebar() {
           })}
         </nav>
 
-        {/* Recent chats */}
-        {recentChats && recentChats.length > 0 && (
+        {/* Recent chats — capped at 10, only this section scrolls within
+            the rail. Takes all remaining vertical space so it adapts to the
+            viewport height without ever clipping items. */}
+        {recentChats && recentChats.length > 0 ? (
           <>
-            <div className="rail-section" style={{ marginTop: 18 }}>Recent questions</div>
+            <div className="rail-section" style={{ marginTop: 18, flexShrink: 0 }}>Recent questions</div>
             <nav className="rail-recent">
               {recentChats.slice(0, 10).map((chat) => (
                 <Link
@@ -238,9 +240,9 @@ export function AppSidebar() {
               ))}
             </nav>
           </>
+        ) : (
+          <div style={{ flex: 1 }} />
         )}
-
-        <div style={{ flex: 1 }} />
 
         {/* Bottom: Agents only — Settings lives in the user dropdown below. */}
         <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10, marginTop: 10 }}>
