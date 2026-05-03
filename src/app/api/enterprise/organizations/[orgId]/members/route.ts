@@ -9,6 +9,7 @@ import {
   validateEnterpriseInviteEmail,
 } from '@/lib/enterprise'
 import { sendEnterpriseInviteEmail } from '@/lib/email'
+import { findOrCreateUser } from '@/lib/auth'
 import crypto from 'crypto'
 
 const INVITE_TOKEN_BYTES = 24
@@ -91,8 +92,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       )
     }
 
-    const userRow = await db.select().from(schema.users).where(eq(schema.users.email, normalizedEmail)).limit(1)
-    const targetUser = userRow[0]
+    let userRow = await db.select().from(schema.users).where(eq(schema.users.email, normalizedEmail)).limit(1)
+    let targetUser = userRow[0]
+
+    // ─── TESTING_MODE: auto-provision the invitee ─────────────────────────
+    // No email click, no OTP. Create the user record up front, mark the
+    // invite immediately accepted, and fall through to the existing
+    // "user exists → add to org" path. This is intentionally loud so
+    // we never ship to prod with TESTING_MODE on (banner in db/index.ts).
+    if (!targetUser && process.env.TESTING_MODE === 'true') {
+      const created = await findOrCreateUser(normalizedEmail)
+      userRow = [created]
+      targetUser = created
+    }
 
     // If user doesn't exist, create a pending invite + email. They'll sign up
     // via the magic link and land in the org automatically on accept.

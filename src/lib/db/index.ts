@@ -46,6 +46,17 @@ try {
   console.warn('[db] sqlite-vec unavailable, using JS cosine fallback:', (e as Error).message)
 }
 
+// ─── Loud TESTING_MODE banner ──────────────────────────────────────────
+// When TESTING_MODE is on, /login + invite acceptance bypass OTP entirely.
+// That's a wide-open door — useful for internal testing, catastrophic for
+// public users. Print a banner every boot so it's impossible to ignore in
+// `pm2 logs`. Disable by removing TESTING_MODE from .env.local and
+// restarting the process.
+if (process.env.TESTING_MODE === 'true') {
+  const bar = '═'.repeat(74)
+  console.warn(`\n${bar}\n  ⚠  TESTING_MODE IS ON — OTP is BYPASSED for /login and invite\n     acceptance. ANYONE can sign in as ANY email. Disable before any\n     external user can reach the site (unset TESTING_MODE in .env.local).\n${bar}\n`)
+}
+
 // FTS5 full-text search index — dramatically faster than LIKE '%keyword%'
 // at scale. Tokenizes title + summary + content for ranked text search.
 export let ftsReady = false

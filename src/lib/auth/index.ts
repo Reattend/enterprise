@@ -11,7 +11,7 @@ import { verifySsoTicket } from '../sso/oidc'
  * Find or create a user + workspace + subscription.
  * Shared by OTP and Google OAuth flows.
  */
-async function findOrCreateUser(email: string, name?: string, avatarUrl?: string) {
+export async function findOrCreateUser(email: string, name?: string, avatarUrl?: string) {
   let user = await db.query.users.findFirst({
     where: eq(schema.users.email, email),
   })
@@ -100,9 +100,22 @@ export const {
         code: { label: 'OTP Code', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.code) return null
-
+        if (!credentials?.email) return null
         const email = (credentials.email as string).toLowerCase().trim()
+
+        // ─── TESTING_MODE bypass ──────────────────────────────────────────
+        // When TESTING_MODE=true is set in the env, accept any email and
+        // skip the OTP check entirely. The user is auto-created if missing
+        // and signed in. INTENDED FOR TEAM TESTING ONLY — disable before
+        // any external user can reach /login. The startup banner in
+        // src/lib/db/index.ts (and pm2 logs) screams when this is on.
+        if (process.env.TESTING_MODE === 'true') {
+          if (!email.includes('@')) return null
+          const user = await findOrCreateUser(email)
+          return { id: user.id, email: user.email, name: user.name, image: user.avatarUrl }
+        }
+
+        if (!credentials?.code) return null
         const code = credentials.code as string
 
         // Find valid OTP
