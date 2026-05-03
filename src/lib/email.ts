@@ -315,6 +315,52 @@ export async function sendTrialEndedEmail(opts: {
   }
 }
 
+// ─── Admin-granted trial / comp email ────────────────────────────────────
+// Sent when a super-admin manually extends a trial via the admin dashboard.
+// "Comped X for Y days." — no card needed, no Paddle interaction.
+export async function sendTrialGrantedEmail(opts: {
+  toEmail: string
+  name: string
+  tier: 'professional' | 'enterprise'
+  daysGranted: number
+  trialEndsAt: string  // ISO
+}) {
+  const tierName = opts.tier === 'professional' ? 'Professional' : 'Enterprise'
+  const expiresOn = new Date(opts.trialEndsAt).toLocaleDateString(undefined, {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+  })
+  const html = renderEmail({
+    preheader: `${opts.daysGranted} days of Reattend ${tierName} on the house — no card required.`,
+    heading: `${opts.daysGranted} days on us.`,
+    bodyHtml: `
+      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} — we've extended your <strong style="color:${TOKENS.ink};">Reattend ${tierName}</strong> trial by <strong style="color:${TOKENS.ink};">${opts.daysGranted} day${opts.daysGranted === 1 ? '' : 's'}</strong>. No card needed.</p>
+      <div style="background:#fff; border:1px solid ${TOKENS.rule}; border-radius:12px; padding:16px 18px; margin:8px 0 16px;">
+        <p style="margin:0; font-size:14px;"><strong style="color:${TOKENS.ink};">Plan:</strong> ${tierName}</p>
+        <p style="margin:6px 0 0; font-size:14px;"><strong style="color:${TOKENS.ink};">Trial ends:</strong> ${expiresOn}</p>
+      </div>
+      <p style="margin:0 0 16px;">Use the time to push the limits — pull more memory in, ask harder questions, share with the team. We'll send a heads-up before the trial wraps so nothing surprises you.</p>
+    `,
+    ctaLabel: 'Open Reattend →',
+    ctaUrl: 'https://reattend.com/app',
+    postCtaHtml: `Reply to this email if you want more time, want to chat, or hit a snag. — Partha`,
+  })
+
+  if (!resend) {
+    console.log(`[Trial granted ${opts.daysGranted}d] (dev) → ${opts.toEmail}`)
+    return
+  }
+  try {
+    await resend.emails.send({
+      from: 'Partha from Reattend <pb@reattend.com>',
+      to: opts.toEmail,
+      subject: `${opts.daysGranted} more day${opts.daysGranted === 1 ? '' : 's'} of Reattend ${tierName} — on us`,
+      html,
+    })
+  } catch (err) {
+    console.error('[Trial granted email] Failed to send:', err)
+  }
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')

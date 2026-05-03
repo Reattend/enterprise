@@ -23,6 +23,7 @@ interface IntegrationRequest { id: string; appName: string; email: string | null
 
 interface Stats {
   totalUsers: number; paidUsers: number; trialingUsers: number; freeUsers: number
+  professionalUsers: number; enterpriseUsers: number
   totalMemories: number; totalTeams: number; totalWorkspaces: number; totalProjects: number
   totalIntegrations: number; totalInboxItems: number; recentSignups: number
   totalApiTokens: number; pendingJobs: number; failedJobs: number; totalChats: number
@@ -30,7 +31,9 @@ interface Stats {
 
 interface RecentUser {
   id: string; email: string; name: string; createdAt: string
-  plan: string; status: string; trialEndsAt: string | null; renewsAt: string | null
+  plan: string; tier: 'free' | 'professional' | 'enterprise'
+  seatCount: number; billingCycle: 'monthly' | 'annual' | null
+  status: string; trialEndsAt: string | null; renewsAt: string | null
   paddleSubId: string | null; memoryCount: number; inboxCount: number
   workspaceCount: number; chatCount: number; lastActive: string | null
 }
@@ -44,10 +47,15 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [showExtendTrial, setShowExtendTrial] = useState(false)
   const [trialEmail, setTrialEmail] = useState('')
-  const [trialMonths, setTrialMonths] = useState('1')
+  const [trialDays, setTrialDays] = useState('45')
+  const [trialTier, setTrialTier] = useState<'professional' | 'enterprise'>('professional')
+  const [trialSeats, setTrialSeats] = useState('1')
   const [extending, setExtending] = useState(false)
   const [showGrantPro, setShowGrantPro] = useState(false)
   const [grantProEmail, setGrantProEmail] = useState('')
+  const [grantProTier, setGrantProTier] = useState<'professional' | 'enterprise'>('professional')
+  const [grantProSeats, setGrantProSeats] = useState('1')
+  const [grantProCycle, setGrantProCycle] = useState<'monthly' | 'annual'>('monthly')
   const [grantingPro, setGrantingPro] = useState(false)
   const [showAddAdmin, setShowAddAdmin] = useState(false)
   const [newAdminEmail, setNewAdminEmail] = useState('')
@@ -120,12 +128,18 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/admin/extend-trial', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trialEmail, months: parseInt(trialMonths) }),
+        body: JSON.stringify({
+          email: trialEmail,
+          days: parseInt(trialDays),
+          tier: trialTier,
+          seatCount: parseInt(trialSeats) || (trialTier === 'enterprise' ? 5 : 1),
+        }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error || 'Failed'); return }
       toast.success(data.message)
-      setShowExtendTrial(false); setTrialEmail(''); setTrialMonths('1')
+      setShowExtendTrial(false); setTrialEmail(''); setTrialDays('45')
+      setTrialTier('professional'); setTrialSeats('1')
       fetchStats()
     } catch { toast.error('Something went wrong') } finally { setExtending(false) }
   }
@@ -135,12 +149,18 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/admin/grant-pro', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: grantProEmail }),
+        body: JSON.stringify({
+          email: grantProEmail,
+          tier: grantProTier,
+          seatCount: parseInt(grantProSeats) || (grantProTier === 'enterprise' ? 5 : 1),
+          billingCycle: grantProCycle,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error || 'Failed'); return }
       toast.success(data.message)
       setShowGrantPro(false); setGrantProEmail('')
+      setGrantProTier('professional'); setGrantProSeats('1'); setGrantProCycle('monthly')
       fetchStats()
     } catch { toast.error('Something went wrong') } finally { setGrantingPro(false) }
   }
@@ -305,6 +325,18 @@ export default function AdminDashboard() {
                       <StatCard label="Paid" value={stats.paidUsers} icon={Crown} accent />
                       <StatCard label="Trialing" value={stats.trialingUsers} icon={Gift} />
                     </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                      <StatCard label="Free" value={stats.freeUsers} icon={Users} />
+                      <StatCard label="Professional" value={stats.professionalUsers ?? 0} icon={Crown} />
+                      <StatCard label="Enterprise" value={stats.enterpriseUsers ?? 0} icon={Building2} />
+                      <StatCard
+                        label="Conversion"
+                        value={stats.totalUsers > 0
+                          ? `${Math.round(((stats.paidUsers + stats.trialingUsers) / stats.totalUsers) * 100)}%`
+                          : '0%'}
+                        icon={TrendingUp}
+                      />
+                    </div>
                   </section>
 
                   {/* Engagement */}
@@ -347,11 +379,10 @@ export default function AdminDashboard() {
                         accent={feedbackList.some(f => f.status === 'new')}
                       />
                       <StatCard
-                        label="Conversion"
-                        value={stats.totalUsers > 0
-                          ? `${Math.round(((stats.paidUsers + stats.trialingUsers) / stats.totalUsers) * 100)}%`
-                          : '0%'}
-                        icon={TrendingUp}
+                        label="Integrations Asked"
+                        value={integrationRequests.filter(r => r.status === 'new').length}
+                        icon={Plug}
+                        accent={integrationRequests.some(r => r.status === 'new')}
                       />
                     </div>
                   </section>
@@ -390,12 +421,17 @@ export default function AdminDashboard() {
                         const trialDays = u.trialEndsAt
                           ? Math.max(0, Math.ceil((new Date(u.trialEndsAt).getTime() - Date.now()) / 86400000))
                           : null
-                        const planLabel =
-                          u.plan === 'smart' && u.status === 'active' ? 'Pro' :
-                          u.plan === 'smart' && u.status === 'trialing' ? 'Trial' : 'Free'
+                        // Prefer tier (new model) when present; planKey is legacy fallback.
+                        const tier = u.tier || (u.plan === 'smart' ? 'professional' : 'free')
+                        const planLabel = u.status === 'trialing'
+                          ? (tier === 'enterprise' ? 'Ent · Trial' : 'Pro · Trial')
+                          : tier === 'enterprise' ? 'Enterprise'
+                          : tier === 'professional' ? 'Professional'
+                          : 'Free'
                         const planColor =
-                          planLabel === 'Pro' ? 'bg-emerald-100 text-emerald-700' :
-                          planLabel === 'Trial' ? 'bg-blue-100 text-blue-700' :
+                          tier === 'enterprise' ? 'bg-violet-100 text-violet-700' :
+                          tier === 'professional' && u.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                          u.status === 'trialing' ? 'bg-blue-100 text-blue-700' :
                           'bg-gray-100 text-gray-600'
                         return (
                           <tr key={u.id} className="hover:bg-gray-50">
@@ -407,6 +443,9 @@ export default function AdminDashboard() {
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${planColor}`}>
                                 {planLabel}
                               </span>
+                              {u.seatCount > 1 && (
+                                <div className="text-[10px] text-gray-400 mt-0.5">{u.seatCount} seats · {u.billingCycle || 'monthly'}</div>
+                              )}
                             </td>
                             <td className="px-3 py-2.5 text-center">
                               <span className={`text-sm font-semibold ${u.memoryCount > 0 ? 'text-gray-900' : 'text-gray-300'}`}>
@@ -668,7 +707,7 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Gift className="h-5 w-5 text-violet-500" />Extend Free Trial</DialogTitle>
-            <DialogDescription>Grant a user free Smart Memories access.</DialogDescription>
+            <DialogDescription>Grant a user a comp trial of a paid tier — no card required. Stacks on top of any existing trial.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -676,8 +715,33 @@ export default function AdminDashboard() {
               <Input type="email" value={trialEmail} onChange={(e) => setTrialEmail(e.target.value)} placeholder="user@example.com" autoFocus />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Duration (months)</label>
-              <Input type="number" min={1} max={24} value={trialMonths} onChange={(e) => setTrialMonths(e.target.value)} />
+              <label className="text-sm font-medium mb-1.5 block">Tier</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setTrialTier('professional'); if (parseInt(trialSeats) < 1) setTrialSeats('1') }}
+                  className={`px-3 py-2 rounded-md border text-sm font-medium transition ${trialTier === 'professional' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  Professional ($19)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setTrialTier('enterprise'); if (parseInt(trialSeats) < 5) setTrialSeats('5') }}
+                  className={`px-3 py-2 rounded-md border text-sm font-medium transition ${trialTier === 'enterprise' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  Enterprise ($29)
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Days</label>
+                <Input type="number" min={1} max={365} value={trialDays} onChange={(e) => setTrialDays(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Seats {trialTier === 'enterprise' && <span className="text-xs text-gray-500 font-normal">(min 5)</span>}</label>
+                <Input type="number" min={trialTier === 'enterprise' ? 5 : 1} value={trialSeats} onChange={(e) => setTrialSeats(e.target.value)} />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -692,19 +756,63 @@ export default function AdminDashboard() {
       <Dialog open={showGrantPro} onOpenChange={setShowGrantPro}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Crown className="h-5 w-5 text-amber-500" />Grant Pro</DialogTitle>
-            <DialogDescription>Give a user full Pro access — no payment needed. This overrides their current plan.</DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Crown className="h-5 w-5 text-amber-500" />Grant Paid Tier</DialogTitle>
+            <DialogDescription>Flip a user to an active paid tier — no Paddle interaction. Overrides any existing plan.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-1.5 block">User Email</label>
               <Input type="email" value={grantProEmail} onChange={(e) => setGrantProEmail(e.target.value)} placeholder="user@example.com" autoFocus />
             </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Tier</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setGrantProTier('professional'); if (parseInt(grantProSeats) < 1) setGrantProSeats('1') }}
+                  className={`px-3 py-2 rounded-md border text-sm font-medium transition ${grantProTier === 'professional' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  Professional
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setGrantProTier('enterprise'); if (parseInt(grantProSeats) < 5) setGrantProSeats('5') }}
+                  className={`px-3 py-2 rounded-md border text-sm font-medium transition ${grantProTier === 'enterprise' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  Enterprise
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Seats {grantProTier === 'enterprise' && <span className="text-xs text-gray-500 font-normal">(min 5)</span>}</label>
+                <Input type="number" min={grantProTier === 'enterprise' ? 5 : 1} value={grantProSeats} onChange={(e) => setGrantProSeats(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Cycle</label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setGrantProCycle('monthly')}
+                    className={`px-2 py-2 rounded-md border text-xs font-medium transition ${grantProCycle === 'monthly' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-gray-300'}`}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGrantProCycle('annual')}
+                    className={`px-2 py-2 rounded-md border text-xs font-medium transition ${grantProCycle === 'annual' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-gray-300'}`}
+                  >
+                    Annual
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowGrantPro(false)}>Cancel</Button>
             <Button onClick={handleGrantPro} disabled={!grantProEmail.trim() || grantingPro} className="bg-amber-600 hover:bg-amber-700 text-white">
-              {grantingPro ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Granting...</> : <><Crown className="h-4 w-4 mr-1" />Grant Pro</>}
+              {grantingPro ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Granting...</> : <><Crown className="h-4 w-4 mr-1" />Grant {grantProTier === 'professional' ? 'Pro' : 'Enterprise'}</>}
             </Button>
           </DialogFooter>
         </DialogContent>

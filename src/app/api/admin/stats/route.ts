@@ -11,19 +11,35 @@ export async function GET() {
     const totalUsersResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users)
     const totalUsers = totalUsersResult[0]?.count ?? 0
 
-    // Subscription breakdown
+    // Subscription breakdown — counted off the new `tier` column.
+    // A user is "paid" if tier is professional/enterprise AND status is active.
+    // "trialing" if status is trialing (regardless of tier — trial only ever
+    // applies to paid tiers anyway). Everyone else is free.
     const allSubs = await db.select({
-      planKey: schema.subscriptions.planKey,
+      tier: schema.subscriptions.tier,
       status: schema.subscriptions.status,
     }).from(schema.subscriptions)
 
     let paidUsers = 0
     let trialingUsers = 0
     let freeUsers = 0
+    let professionalUsers = 0
+    let enterpriseUsers = 0
     for (const sub of allSubs) {
-      if (sub.planKey === 'smart' && sub.status === 'active') paidUsers++
-      else if (sub.planKey === 'smart' && sub.status === 'trialing') trialingUsers++
-      else freeUsers++
+      if (sub.status === 'trialing') {
+        trialingUsers++
+      } else if ((sub.tier === 'professional' || sub.tier === 'enterprise') && sub.status === 'active') {
+        paidUsers++
+        if (sub.tier === 'professional') professionalUsers++
+        else enterpriseUsers++
+      } else {
+        freeUsers++
+      }
+    }
+    // Users with no subscription row at all = also free
+    const subscribedUserCount = allSubs.length
+    if (totalUsers > subscribedUserCount) {
+      freeUsers += (totalUsers - subscribedUserCount)
     }
 
     // Total memories (records) — all records across all workspaces
@@ -78,9 +94,12 @@ export async function GET() {
         u.name,
         u.created_at as createdAt,
         COALESCE(s.plan_key, 'normal') as plan,
+        COALESCE(s.tier, 'free') as tier,
+        COALESCE(s.seat_count, 1) as seatCount,
+        s.billing_cycle as billingCycle,
         COALESCE(s.status, 'active') as status,
         s.trial_ends_at as trialEndsAt,
-        s.renews_at as renewsAt,
+        COALESCE(s.current_period_end, s.renews_at) as renewsAt,
         s.paddle_subscription_id as paddleSubId,
         COALESCE(mc.memory_count, 0) as memoryCount,
         COALESCE(ri.inbox_count, 0) as inboxCount,
@@ -129,6 +148,8 @@ export async function GET() {
         paidUsers,
         trialingUsers,
         freeUsers,
+        professionalUsers,
+        enterpriseUsers,
         totalMemories,
         totalTeams,
         totalWorkspaces,
