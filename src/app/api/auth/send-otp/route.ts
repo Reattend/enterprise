@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { Resend } from 'resend'
+import { renderOtpEmail } from '@/lib/email'
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
@@ -27,22 +28,14 @@ export async function POST(req: NextRequest) {
       expiresAt,
     })
 
-    // Send email via Resend (or log in dev)
+    // Send email via Resend (or log in dev). Layout lives in lib/email.ts
+    // so OTP, welcome, invite, and trial emails all share the same shell.
     if (resend) {
       await resend.emails.send({
         from: 'Reattend <noreply@reattend.com>',
         to: normalizedEmail,
         subject: `Your Reattend login code: ${code}`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #6366f1;">Reattend</h2>
-            <p>Your one-time login code is:</p>
-            <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; text-align: center; margin: 16px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111827;">${code}</span>
-            </div>
-            <p style="color: #6b7280; font-size: 14px;">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
-          </div>
-        `,
+        html: renderOtpEmail(code),
       })
     } else {
       // Dev mode: log OTP to console

@@ -238,32 +238,110 @@ export function ensurePeriodicWorker(): void {
   // Paddle subscription and bumps them down to Free. The lazy gate in
   // getOrCreateSubscription does the same on read, but a periodic sweep
   // ensures the row reflects reality even before the user next loads /app.
-  setInterval(async () => {
-    try {
-      const now = new Date().toISOString()
-      const result = sqlite
-        .prepare(
-          `UPDATE subscriptions
-             SET tier = 'free',
-                 status = 'expired',
-                 seat_count = 1,
-                 updated_at = ?
-           WHERE tier IN ('professional', 'enterprise')
-             AND paddle_subscription_id IS NULL
-             AND trial_ends_at IS NOT NULL
-             AND trial_ends_at < ?`,
-        )
-        .run(now, now)
-      if (result.changes > 0) {
-        console.log(`[Worker] Trial-expiry sweep: downgraded ${result.changes} expired trial(s) to Free`)
-      }
-    } catch (err) {
-      console.error('[Worker] Trial-expiry sweep failed:', err)
-    }
-  }, 60 * 60 * 1000) // hourly
+  // Also fires the trial-end follow-up emails (15-day warning, 7-day,
+  // 1-day, and the post-downgrade "you're on Free now" note).
+  setInterval(() => { trialMaintenanceTick().catch(err => console.error('[Worker] trial maintenance:', err)) }, 60 * 60 * 1000) // hourly
 
   console.log('[Worker] Periodic retry scheduler started (every 30 min)')
-  console.log('[Worker] Trial-expiry sweep started (hourly)')
+  console.log('[Worker] Trial maintenance + email cadence started (hourly)')
+}
+
+// ─── Trial maintenance: downgrades + reminder emails ────────────────────
+// One hourly sweep handles both jobs since they look at the same column.
+//
+// Cadence (computed against trial_ends_at):
+//   ~15 days remaining → "15 days left" reminder
+//    ~7 days remaining → "1 week left" reminder
+//    ~1 day  remaining → "Trial ends tomorrow" reminder
+//   trial expired      → downgrade to Free + "You're on Free now" email
+//
+// The `meta` column on subscriptions holds a JSON `{ remindersSent: [..] }`
+// array so we never email the same milestone twice. Without this, the
+// hourly cron would re-fire at every tick once the user crossed a
+// threshold.
+async function trialMaintenanceTick(): Promise<void> {
+  // Late import to avoid top-of-file cycle with email helpers that may
+  // import from lib/db (worker → db, email → resend, etc.).
+  const { sendTrialReminder, sendTrialEndedEmail } = await import('../email')
+
+  const now = Date.now()
+  const trialing = await db.query.subscriptions.findMany({
+    where: and(
+      inArray(schema.subscriptions.tier, ['professional', 'enterprise']),
+    ),
+    columns: { id: true, userId: true, tier: true, trialEndsAt: true, paddleSubscriptionId: true, meta: true },
+  })
+
+  const reminders: Array<{ id: string; userId: string; tier: 'professional' | 'enterprise'; daysLeft: number; expired: boolean }> = []
+  for (const row of trialing) {
+    if (!row.trialEndsAt) continue
+    if (row.paddleSubscriptionId) continue // already paying — no nudge
+    const ms = new Date(row.trialEndsAt).getTime() - now
+    const daysLeft = Math.ceil(ms / (24 * 60 * 60 * 1000))
+    if (ms < 0) {
+      reminders.push({ id: row.id, userId: row.userId, tier: row.tier as any, daysLeft: 0, expired: true })
+    } else if (daysLeft === 15 || daysLeft === 7 || daysLeft === 1) {
+      reminders.push({ id: row.id, userId: row.userId, tier: row.tier as any, daysLeft, expired: false })
+    }
+  }
+
+  for (const r of reminders) {
+    const sub = trialing.find(t => t.id === r.id)
+    if (!sub) continue
+    const meta = parseMeta(sub.meta)
+    const sentKey = r.expired ? 'ended' : `d${r.daysLeft}`
+    if (meta.remindersSent && meta.remindersSent.includes(sentKey)) continue
+
+    const user = await db.query.users.findFirst({
+      where: eq(schema.users.id, r.userId),
+      columns: { email: true, name: true },
+    })
+    if (!user?.email) continue
+    const name = user.name || user.email.split('@')[0]
+
+    try {
+      if (r.expired) {
+        await sendTrialEndedEmail({ toEmail: user.email, name, tier: r.tier })
+      } else {
+        await sendTrialReminder({ toEmail: user.email, name, tier: r.tier, daysLeft: r.daysLeft })
+      }
+      // Persist the milestone so we don't repeat.
+      meta.remindersSent = [...(meta.remindersSent || []), sentKey]
+      await db.update(schema.subscriptions)
+        .set({ meta: JSON.stringify(meta), updatedAt: new Date().toISOString() })
+        .where(eq(schema.subscriptions.id, r.id))
+    } catch (err) {
+      console.error(`[Worker] Failed to send ${sentKey} email to ${user.email}:`, err)
+    }
+  }
+
+  // Then the actual downgrade (after we've sent the "ended" email).
+  try {
+    const result = sqlite
+      .prepare(
+        `UPDATE subscriptions
+           SET tier = 'free',
+               status = 'expired',
+               seat_count = 1,
+               updated_at = ?
+         WHERE tier IN ('professional', 'enterprise')
+           AND paddle_subscription_id IS NULL
+           AND trial_ends_at IS NOT NULL
+           AND trial_ends_at < ?`,
+      )
+      .run(new Date().toISOString(), new Date().toISOString())
+    if (result.changes > 0) {
+      console.log(`[Worker] Trial-expiry sweep: downgraded ${result.changes} expired trial(s) to Free`)
+    }
+  } catch (err) {
+    console.error('[Worker] Trial-expiry downgrade failed:', err)
+  }
+}
+
+interface SubMeta { remindersSent?: string[] }
+function parseMeta(raw: string | null): SubMeta {
+  if (!raw) return {}
+  try { return JSON.parse(raw) as SubMeta } catch { return {} }
 }
 
 // ─── Triage new raw items ─────────────────────────────────
