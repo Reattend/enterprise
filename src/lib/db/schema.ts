@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, blob, index, primaryKey } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, real, blob, index, primaryKey, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
 // ─── Users ──────────────────────────────────────────────
@@ -723,7 +723,7 @@ export const organizations = sqliteTable('organizations', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   primaryDomain: text('primary_domain'), // e.g. "acme.com" — used for SSO domain-match
-  plan: text('plan', { enum: ['starter', 'business', 'enterprise', 'government'] }).notNull().default('starter'),
+  plan: text('plan', { enum: ['free', 'professional', 'enterprise'] }).notNull().default('free'),
   deployment: text('deployment', { enum: ['saas', 'on_prem', 'air_gapped'] }).notNull().default('saas'),
   onPremRabbitUrl: text('on_prem_rabbit_url'),
   seatLimit: integer('seat_limit'),
@@ -791,6 +791,32 @@ export const departmentMembers = sqliteTable('department_members', {
   userIdx: index('dm_user_idx').on(table.userId),
   orgIdx: index('dm_org_idx').on(table.organizationId),
 }))
+
+// ─── Permission Overrides ─────────────────────────────────
+// Per-user grants/revokes on top of role defaults. The classic case: a COO
+// who isn't an admin but does need to see the audit log every week — instead
+// of forcing them into `admin`, grant the one extra permission here.
+// scope = NULL means org-wide; scope = <department_id> means dept-scoped.
+// granted = 1 adds the permission; granted = 0 revokes it from the role default.
+// See docs/permissions.md and src/lib/enterprise/permissions.ts.
+export const organizationMemberPermissionOverrides = sqliteTable(
+  'organization_member_permission_overrides',
+  {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    permissionKey: text('permission_key').notNull(),
+    scope: text('scope'), // null = org-wide; or a department id
+    granted: integer('granted', { mode: 'boolean' }).notNull().default(true),
+    grantedByUserId: text('granted_by_user_id').notNull().references(() => users.id),
+    reason: text('reason'),
+    createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    uniq: uniqueIndex('ompo_uniq').on(table.organizationId, table.userId, table.permissionKey, table.scope),
+    userIdx: index('ompo_user_idx').on(table.userId, table.organizationId),
+  }),
+)
 
 // ─── Employee Roles ───────────────────────────────────────
 // Knowledge stays with the ROLE, not the person. When a person leaves,

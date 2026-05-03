@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '../auth'
 import {
   getOrgContext,
-  hasOrgPermission,
   type OrgContext,
   type OrgPermission,
   ForbiddenError,
 } from './rbac'
+import { hasPermission, type Permission } from './permissions'
 import { writeAuditAsync, type AuditAction } from './audit'
 import { db } from '../db'
 import { users as usersTable } from '../db/schema'
@@ -19,12 +19,24 @@ export interface EnterpriseAuth {
   request: NextRequest
 }
 
+export interface PermissionScope {
+  /** Department this action targets — required for any 'own_dept' grant */
+  departmentId?: string | null
+  /** Creator of the resource — required for any 'own_record' grant */
+  recordCreatorUserId?: string | null
+}
+
 // Resolve auth + org membership + required permission in one call.
 // Returns a standardized 401/403 response if the caller is not authorized.
+//
+// `permission` accepts both the legacy OrgPermission union and the new
+// Permission union from src/lib/enterprise/permissions.ts. Pass `scope` for
+// dept-scoped or own-record-scoped checks.
 export async function requireOrgAuth(
   req: NextRequest,
   organizationId: string,
-  permission?: OrgPermission,
+  permission?: Permission | OrgPermission,
+  scope?: PermissionScope,
 ): Promise<EnterpriseAuth | NextResponse> {
   let userId: string
   try {
@@ -39,8 +51,19 @@ export async function requireOrgAuth(
     return NextResponse.json({ error: 'not a member of this organization' }, { status: 403 })
   }
 
-  if (permission && !hasOrgPermission(orgCtx, permission)) {
-    return NextResponse.json({ error: `missing permission: ${permission}` }, { status: 403 })
+  if (permission) {
+    const ok = await hasPermission(
+      {
+        userId,
+        organizationId,
+        departmentId: scope?.departmentId ?? null,
+        recordCreatorUserId: scope?.recordCreatorUserId ?? null,
+      },
+      permission as Permission,
+    )
+    if (!ok) {
+      return NextResponse.json({ error: `missing permission: ${permission}` }, { status: 403 })
+    }
   }
 
   const row = await db.select({ email: usersTable.email }).from(usersTable).where(eq(usersTable.id, userId)).limit(1)

@@ -61,9 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
-    const auth = await requireOrgAuth(req, orgId, 'org.read')
-    if (isAuthResponse(auth)) return auth
-
+    // Body first so we can dept-scope the permission check.
     const body = await req.json()
     const {
       title,
@@ -103,6 +101,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
         return NextResponse.json({ error: 'invalid departmentId' }, { status: 400 })
       }
     }
+
+    // Now we know the dept context — scope the permission check accordingly.
+    const auth = await requireOrgAuth(req, orgId, 'decisions.manage', { departmentId: departmentId ?? null })
+    if (isAuthResponse(auth)) return auth
 
     // Resolve the workspace. Preference order:
     //   1. Explicit workspaceId (advanced users / API callers)

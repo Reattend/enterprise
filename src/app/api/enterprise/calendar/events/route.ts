@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     if (isNaN(Date.parse(startAt))) {
       return NextResponse.json({ error: 'invalid startAt — must be ISO' }, { status: 400 })
     }
-    const auth = await requireOrgAuth(req, orgId, 'org.read')
+    const auth = await requireOrgAuth(req, orgId, 'calendar.write')
     if (isAuthResponse(auth)) return auth
 
     // Bind to first workspace linked to org so notifications / RBAC can reason

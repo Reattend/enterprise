@@ -8,6 +8,7 @@ import {
   handleEnterpriseError,
   canAccessDepartment,
 } from '@/lib/enterprise'
+import { hasPermission } from '@/lib/enterprise/permissions'
 
 async function loadDecision(orgId: string, decisionId: string) {
   const rows = await db
@@ -50,17 +51,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ orgId: string; decisionId: string }> }) {
   try {
     const { orgId, decisionId } = await params
-    const auth = await requireOrgAuth(req, orgId, 'org.read')
+    // Org membership only here; we need to load the decision to dept-scope the
+    // decisions.manage check. Owners can always edit their own decisions
+    // regardless of role (the decider can fix their own rationale).
+    const auth = await requireOrgAuth(req, orgId)
     if (isAuthResponse(auth)) return auth
 
     const decision = await loadDecision(orgId, decisionId)
     if (!decision) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
-    // Only the decider, a dept_head, or org admin can edit
-    const isAdmin = auth.orgCtx.orgRole === 'super_admin' || auth.orgCtx.orgRole === 'admin'
     const isOwner = decision.decidedByUserId === auth.userId
-    if (!isAdmin && !isOwner) {
-      return NextResponse.json({ error: 'only the decider or an admin can edit' }, { status: 403 })
+    if (!isOwner) {
+      const allowed = await hasPermission(
+        { userId: auth.userId, organizationId: orgId, departmentId: decision.departmentId ?? null },
+        'decisions.manage',
+      )
+      if (!allowed) {
+        return NextResponse.json({ error: 'missing permission: decisions.manage' }, { status: 403 })
+      }
     }
 
     const body = await req.json()

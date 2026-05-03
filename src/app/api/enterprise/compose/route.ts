@@ -4,12 +4,11 @@ import { eq, inArray, and, desc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import {
   handleEnterpriseError,
-  getOrgContext,
-  hasOrgPermission,
   buildAccessContext,
   filterToAccessibleRecords,
   filterToAccessibleWorkspaces,
 } from '@/lib/enterprise'
+import { hasPermission } from '@/lib/enterprise/permissions'
 import { getAskLLM } from '@/lib/ai/llm'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_COMPOSE } from '@/lib/sandbox/fixtures'
@@ -59,9 +58,9 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const orgCtx = await getOrgContext(userId, orgId)
-    if (!orgCtx || !hasOrgPermission(orgCtx, 'org.read')) {
-      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    const allowed = await hasPermission({ userId, organizationId: orgId }, 'compose.use')
+    if (!allowed) {
+      return NextResponse.json({ error: 'missing permission: compose.use' }, { status: 403 })
     }
 
     if (kind === 'email-reply') {

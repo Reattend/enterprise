@@ -6,8 +6,8 @@ import {
   isAuthResponse,
   auditFromAuth,
   handleEnterpriseError,
-  canAccessDepartment,
 } from '@/lib/enterprise'
+import { hasPermission } from '@/lib/enterprise/permissions'
 
 // POST /api/enterprise/organizations/[orgId]/decisions/[decisionId]/reverse
 // Body: { reason: string, supersededById?: string }
@@ -16,7 +16,8 @@ import {
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string; decisionId: string }> }) {
   try {
     const { orgId, decisionId } = await params
-    const auth = await requireOrgAuth(req, orgId, 'org.read')
+    // Org membership only — perm check is dept-scoped after we load the decision.
+    const auth = await requireOrgAuth(req, orgId)
     if (isAuthResponse(auth)) return auth
 
     const existing = await db
@@ -30,11 +31,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     const decision = existing[0]
     if (!decision) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
-    // Dept-scoped access check for non-admin members
-    const isAdmin = auth.orgCtx.orgRole === 'super_admin' || auth.orgCtx.orgRole === 'admin'
-    if (!isAdmin && decision.departmentId) {
-      const ok = await canAccessDepartment(auth.userId, decision.departmentId)
-      if (!ok) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    const allowed = await hasPermission(
+      { userId: auth.userId, organizationId: orgId, departmentId: decision.departmentId ?? null },
+      'decisions.manage',
+    )
+    if (!allowed) {
+      return NextResponse.json({ error: 'missing permission: decisions.manage' }, { status: 403 })
     }
 
     if (decision.status === 'reversed' || decision.status === 'superseded') {

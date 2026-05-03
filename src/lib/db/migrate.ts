@@ -1086,5 +1086,44 @@ try {
   console.error('subscriptions billing migration:', e.message)
 }
 
+// ─── Org plan rename: starter/business/government → free/professional/enterprise ─
+// The product tiers were renamed 2026-05-03. SQLite has no real enum check so
+// these UPDATEs are safe; the schema.ts type union now only allows the new
+// values. Migration is idempotent — if already mapped it touches no rows.
+try {
+  sqlite.exec("UPDATE organizations SET plan = 'free'         WHERE plan = 'starter';")
+  sqlite.exec("UPDATE organizations SET plan = 'professional' WHERE plan = 'business';")
+  sqlite.exec("UPDATE organizations SET plan = 'enterprise'   WHERE plan = 'government';")
+  console.log('✓ organizations.plan renamed to free/professional/enterprise')
+} catch (e: any) {
+  console.error('plan rename migration:', e.message)
+}
+
+// ─── RBAC: per-user permission overrides ───────────────────────────────────
+// Backs the role-default + per-user-override RBAC model documented in
+// docs/permissions.md. Used by src/lib/enterprise/permissions.ts.
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS organization_member_permission_overrides (
+      id              TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      permission_key  TEXT NOT NULL,
+      scope           TEXT,                         -- NULL = org-wide, else department_id
+      granted         INTEGER NOT NULL DEFAULT 1,   -- 1 = grant on top of role default; 0 = revoke
+      granted_by_user_id TEXT NOT NULL REFERENCES users(id),
+      reason          TEXT,
+      created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS ompo_uniq
+      ON organization_member_permission_overrides (organization_id, user_id, permission_key, scope);
+    CREATE INDEX IF NOT EXISTS ompo_user_idx
+      ON organization_member_permission_overrides (user_id, organization_id);
+  `)
+  console.log('✓ organization_member_permission_overrides')
+} catch (e: any) {
+  console.error('permission overrides migration:', e.message)
+}
+
 console.log('Database migration complete!')
 sqlite.close()
