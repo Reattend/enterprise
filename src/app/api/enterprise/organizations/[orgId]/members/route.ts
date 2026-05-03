@@ -39,7 +39,32 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
       .innerJoin(schema.users, eq(schema.users.id, schema.organizationMembers.userId))
       .where(eq(schema.organizationMembers.organizationId, orgId))
 
-    return NextResponse.json({ members })
+    // Fetch dept memberships in one query and group client-side. Saves an
+    // N+1 round-trip — the admin members page renders these as badges.
+    const deptRows = await db
+      .select({
+        userId: schema.departmentMembers.userId,
+        departmentId: schema.departmentMembers.departmentId,
+        deptRole: schema.departmentMembers.role,
+        deptName: schema.departments.name,
+      })
+      .from(schema.departmentMembers)
+      .innerJoin(schema.departments, eq(schema.departments.id, schema.departmentMembers.departmentId))
+      .where(eq(schema.departmentMembers.organizationId, orgId))
+
+    const deptsByUser = new Map<string, Array<{ id: string; name: string; role: string }>>()
+    for (const r of deptRows) {
+      const list = deptsByUser.get(r.userId) ?? []
+      list.push({ id: r.departmentId, name: r.deptName, role: r.deptRole })
+      deptsByUser.set(r.userId, list)
+    }
+
+    const enriched = members.map((m) => ({
+      ...m,
+      departments: deptsByUser.get(m.userId) ?? [],
+    }))
+
+    return NextResponse.json({ members: enriched })
   } catch (err) {
     return handleEnterpriseError(err)
   }

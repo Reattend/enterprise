@@ -20,6 +20,7 @@ interface Member {
   email: string
   name: string
   joinedAt: string
+  departments: Array<{ id: string; name: string; role: 'dept_head' | 'manager' | 'member' | 'viewer' }>
 }
 
 interface PendingInvite {
@@ -125,6 +126,35 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: m.email, role }),
     })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: 'failed' }))
+      setErr(body.error || 'failed')
+      return
+    }
+    await load()
+  }
+
+  async function assignToDept(m: Member, departmentId: string, deptRole: 'dept_head' | 'manager' | 'member' | 'viewer' = 'member') {
+    setErr(null)
+    const res = await fetch(`/api/enterprise/organizations/${orgId}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: m.email, role: m.role, departmentId, deptRole }),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: 'failed' }))
+      setErr(body.error || 'failed')
+      return
+    }
+    await load()
+  }
+
+  async function removeFromDept(m: Member, departmentId: string) {
+    setErr(null)
+    const res = await fetch(
+      `/api/enterprise/organizations/${orgId}/departments/${departmentId}/members?userId=${m.userId}`,
+      { method: 'DELETE' },
+    )
     if (!res.ok) {
       const body = await res.json().catch(() => ({ error: 'failed' }))
       setErr(body.error || 'failed')
@@ -400,42 +430,93 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
         ) : (
           <ul className="divide-y divide-border">
             {members.map((m) => (
-              <li key={m.membershipId} className="p-4 flex items-center gap-4">
+              <li key={m.membershipId} className="p-4 flex items-start gap-4 flex-wrap sm:flex-nowrap">
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">{m.name || m.email}</div>
                   <div className="text-xs text-muted-foreground truncate">
                     {m.email}{m.title ? ` · ${m.title}` : ''}
                   </div>
+                  {/* Department memberships — badges + remove button. The "Assign to dept"
+                      action sits in the trailing control cluster so the row stays scannable. */}
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    {m.departments.length === 0 ? (
+                      <span className="text-[11px] text-muted-foreground italic">Not in any department</span>
+                    ) : (
+                      m.departments.map((d) => (
+                        <span
+                          key={d.id}
+                          className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-700 dark:text-violet-300"
+                        >
+                          {d.name}
+                          {d.role !== 'member' && <span className="text-[10px] opacity-70">({d.role.replace('_', ' ')})</span>}
+                          <button
+                            type="button"
+                            onClick={() => removeFromDept(m, d.id)}
+                            className="ml-0.5 opacity-60 hover:opacity-100"
+                            title={`Remove from ${d.name}`}
+                            disabled={m.status === 'offboarded'}
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
                 </div>
-                <select
-                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                  value={m.role}
-                  onChange={(e) => changeRole(m, e.target.value as OrgRole)}
-                  disabled={m.status === 'offboarded'}
-                >
-                  <option value="guest">Guest</option>
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
-                  <option value="super_admin">Super admin</option>
-                </select>
-                <span
-                  className={
-                    'text-xs px-2 py-0.5 rounded capitalize ' +
-                    (m.status === 'active'
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                      : 'bg-muted text-muted-foreground')
-                  }
-                >
-                  {m.status}
-                </span>
-                {m.status === 'active' && (
-                  <Link href={`/app/admin/${orgId}/members/${m.userId}/offboard`}>
-                    <Button variant="outline" size="sm" className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-700">
-                      <UserX className="h-3.5 w-3.5 mr-1" />
-                      Offboard
-                    </Button>
-                  </Link>
-                )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {/* Assign-to-dept dropdown. Only shows depts the user isn't already in. */}
+                  {m.status === 'active' && departments.length > 0 && (() => {
+                    const inDeptIds = new Set(m.departments.map((d) => d.id))
+                    const available = departments.filter((d) => !inDeptIds.has(d.id))
+                    if (available.length === 0) return null
+                    return (
+                      <select
+                        className="h-8 rounded-md border border-input bg-background px-2 text-xs text-muted-foreground"
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            assignToDept(m, e.target.value)
+                            e.target.value = ''
+                          }
+                        }}
+                      >
+                        <option value="">+ Assign dept</option>
+                        {available.map((d) => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                    )
+                  })()}
+                  <select
+                    className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    value={m.role}
+                    onChange={(e) => changeRole(m, e.target.value as OrgRole)}
+                    disabled={m.status === 'offboarded'}
+                  >
+                    <option value="guest">Guest</option>
+                    <option value="member">Member</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super admin</option>
+                  </select>
+                  <span
+                    className={
+                      'text-xs px-2 py-0.5 rounded capitalize ' +
+                      (m.status === 'active'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-muted text-muted-foreground')
+                    }
+                  >
+                    {m.status}
+                  </span>
+                  {m.status === 'active' && (
+                    <Link href={`/app/admin/${orgId}/members/${m.userId}/offboard`}>
+                      <Button variant="outline" size="sm" className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-700">
+                        <UserX className="h-3.5 w-3.5 mr-1" />
+                        Offboard
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

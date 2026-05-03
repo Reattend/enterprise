@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Building2, ShieldCheck, Server, Cloud, ArrowRight, Loader2 } from 'lucide-react'
+import { Building2, ShieldCheck, Server, Cloud, ArrowRight, Loader2, Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -11,14 +11,16 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
 
-type Plan = 'starter' | 'business' | 'enterprise' | 'government'
+type Plan = 'free' | 'professional' | 'enterprise'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
 
+// Plan tiles match the live billing tiers in src/lib/db/schema.ts.
+// New orgs default to Free — they upgrade later from the billing page.
+// Government is sales-led + custom-quoted, so it's not a self-serve tile.
 const PLANS: { key: Plan; name: string; price: string; desc: string; recommended?: boolean }[] = [
-  { key: 'starter', name: 'Starter', price: '$3/user/mo', desc: '10–50 users. Core memory, 5 connectors.' },
-  { key: 'business', name: 'Business', price: '$8/user/mo', desc: 'Up to 500 users. Full memory graph, all connectors.', recommended: true },
-  { key: 'enterprise', name: 'Enterprise', price: 'Custom', desc: '500+ users. SSO/SAML, audit trail, on-prem option.' },
-  { key: 'government', name: 'Government', price: 'Custom', desc: 'Air-gapped, on-prem, Hindi support, sovereign compliance.' },
+  { key: 'free', name: 'Free', price: '$0', desc: 'Try Reattend Enterprise. 100 AI questions/month, 90-day retention.' },
+  { key: 'professional', name: 'Professional', price: '$19/user/mo', desc: 'Unlimited AI questions, full retention, all connectors.', recommended: true },
+  { key: 'enterprise', name: 'Enterprise', price: '$29/user/mo', desc: '5 seats minimum. SSO/SAML, audit trail, advanced compliance.' },
 ]
 
 const DEPLOYMENTS: { key: Deployment; name: string; desc: string; icon: typeof Cloud }[] = [
@@ -45,7 +47,25 @@ function OrgOnboardingContent() {
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [primaryDomain, setPrimaryDomain] = useState('')
-  const [plan, setPlan] = useState<Plan>('business')
+  const [plan, setPlan] = useState<Plan>('free')
+  // Debounced slug availability check — runs on every slug change so the user
+  // finds out the slug is taken before hitting Continue.
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle')
+  useEffect(() => {
+    if (!slug) { setSlugStatus('idle'); return }
+    setSlugStatus('checking')
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/enterprise/organizations/check-slug?slug=${encodeURIComponent(slug)}`)
+        if (!res.ok) { setSlugStatus('idle'); return }
+        const data = await res.json()
+        if (data.available) setSlugStatus('available')
+        else if (data.reason === 'taken') setSlugStatus('taken')
+        else setSlugStatus('invalid')
+      } catch { setSlugStatus('idle') }
+    }, 350)
+    return () => clearTimeout(t)
+  }, [slug])
   const [deployment, setDeployment] = useState<Deployment>('saas')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -143,7 +163,10 @@ function OrgOnboardingContent() {
     }
   }
 
-  const canAdvance1 = name.trim().length >= 2
+  // Slug must not be taken/invalid before step 1 advances. Idle/checking are
+  // permitted so the user isn't blocked while debounce is in flight — server
+  // re-checks on submit anyway and the create-org route returns 409 'slug already taken'.
+  const canAdvance1 = name.trim().length >= 2 && slugStatus !== 'taken' && slugStatus !== 'invalid'
   const canAdvance2 = true // plan always has a default
   const canSubmit = canAdvance1
 
@@ -209,13 +232,38 @@ function OrgOnboardingContent() {
               <label className="text-sm font-medium">URL slug</label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">reattend.com/org/</span>
-                <Input
-                  placeholder="acme"
-                  value={slug}
-                  onChange={(e) => setSlug(suggestedSlug(e.target.value))}
-                />
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="acme"
+                    value={slug}
+                    onChange={(e) => setSlug(suggestedSlug(e.target.value))}
+                    className={cn(
+                      slugStatus === 'taken' || slugStatus === 'invalid' ? 'border-red-400 focus-visible:ring-red-400' :
+                      slugStatus === 'available' ? 'border-emerald-500 focus-visible:ring-emerald-500' :
+                      undefined,
+                    )}
+                  />
+                  {slugStatus !== 'idle' && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      {slugStatus === 'checking' && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                      {slugStatus === 'available' && <Check className="h-4 w-4 text-emerald-600" />}
+                      {(slugStatus === 'taken' || slugStatus === 'invalid') && <X className="h-4 w-4 text-red-500" />}
+                    </span>
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and hyphens only.</p>
+              <p className={cn(
+                'text-xs',
+                slugStatus === 'taken' ? 'text-red-600' :
+                slugStatus === 'invalid' ? 'text-red-600' :
+                slugStatus === 'available' ? 'text-emerald-600' :
+                'text-muted-foreground',
+              )}>
+                {slugStatus === 'taken' ? 'That slug is already taken — try another.' :
+                 slugStatus === 'invalid' ? 'Slug must start with a letter or number; only lowercase, numbers, and hyphens allowed.' :
+                 slugStatus === 'available' ? 'Available.' :
+                 'Lowercase letters, numbers, and hyphens only.'}
+              </p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Primary email domain (optional)</label>

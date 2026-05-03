@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       name?: string
       slug?: string
       primaryDomain?: string
-      plan?: 'starter' | 'business' | 'enterprise' | 'government'
+      plan?: 'free' | 'professional' | 'enterprise'
       deployment?: 'saas' | 'on_prem' | 'air_gapped'
     }
 
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       slug: finalSlug,
       primaryDomain: normalizedDomain,
-      plan: plan || 'starter',
+      plan: plan || 'free',
       deployment: deployment || 'saas',
       status: 'active',
       createdBy: userId,
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
       resourceId: orgId,
       ipAddress: meta.ipAddress,
       userAgent: meta.userAgent,
-      metadata: { name, slug: finalSlug, plan: plan || 'starter', deployment: deployment || 'saas' },
+      metadata: { name, slug: finalSlug, plan: plan || 'free', deployment: deployment || 'saas' },
     })
 
     return NextResponse.json({
@@ -183,7 +183,7 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         slug: finalSlug,
         primaryDomain: normalizedDomain,
-        plan: plan || 'starter',
+        plan: plan || 'free',
         deployment: deployment || 'saas',
         status: 'active',
       },
