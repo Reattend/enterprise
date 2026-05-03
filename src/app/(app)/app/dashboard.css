@@ -3639,3 +3639,86 @@
   white-space: nowrap;
 }
 .enterprise-shell .hierarchy-row .chev { color: var(--ink-4); }
+
+/* ═════════════════════════════════════════════════════════════════════
+ * Dashboard mobile UX — added 2026-05-03
+ *
+ * The sidebar already collapses to a drawer at <768px (handled by the
+ * layout's isMobile state + the .app-grid: 1fr media query above). This
+ * patch tightens the topbar action row and main content padding for
+ * small screens so the dashboard is usable on a phone.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Topbar: keep the essentials (workspace switcher, plan pill, notifications,
+     user menu). Hide the extension-install button, the dark-mode toggle, the
+     feedback widget, and the docs popover — all reachable from settings or
+     the user dropdown. */
+  .enterprise-shell .topbar-v2 {
+    height: 52px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .enterprise-shell .top-actions {
+    gap: 4px;
+  }
+  /* Hide secondary action icons. Selectors match the actual topbar markup
+     (components/app/topbar.tsx — uses `title` not `aria-label` on its
+     icon-btns). Notifications + user menu + plan pill stay visible. */
+  .enterprise-shell .top-actions a[href*="chromewebstore"],
+  .enterprise-shell .top-actions a[href="/app/integrations"],
+  .enterprise-shell .top-actions a[href="/app/legend"],
+  .enterprise-shell .top-actions [title="Theme"],
+  .enterprise-shell .top-actions [title="Toggle theme"],
+  .enterprise-shell .top-actions [title="Feedback"],
+  .enterprise-shell .top-actions [title="Send feedback"],
+  .enterprise-shell .top-actions [title="Docs"],
+  .enterprise-shell .top-actions [title="Help"] {
+    display: none;
+  }
+  .enterprise-shell .plan-pill {
+    padding: 4px 8px;
+    font-size: 10.5px;
+  }
+  .enterprise-shell .plan-pill svg { display: none; }
+
+  /* Workspace switcher: keep mark + arrow, hide name on tiny screens */
+  .enterprise-shell .ws-switch .ws-name { display: none; }
+  .enterprise-shell .ws-switch { padding: 4px 6px; gap: 4px; }
+
+  /* Page content: tighter base padding on app routes that don't override */
+  .enterprise-shell main > div[class*="overflow-y-auto"] {
+    padding: 12px 14px !important;
+  }
+
+  /* Quick capture floater + bubbles stay reachable but compact */
+  .enterprise-shell .qc-fab,
+  .enterprise-shell .qc-floater {
+    bottom: 14px !important;
+    right: 14px !important;
+    transform: scale(0.92);
+  }
+
+  /* Tables → horizontal scroll instead of squashing */
+  .enterprise-shell main table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Modal/dialog max-width on phones */
+  [role="dialog"] {
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Drop the workspace switcher entirely on tiny screens — switch via
+     user dropdown instead. Saves 80px of topbar real estate. */
+  .enterprise-shell .ws-switch { display: none; }
+  .enterprise-shell .topbar-v2 { padding: 0 10px; }
+  /* Plan pill text-only */
+  .enterprise-shell .plan-pill { padding: 3px 7px; }
+}
+

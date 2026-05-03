@@ -2948,3 +2948,79 @@ footer {
   .flow-core-disc { width: 170px; height: 170px; }
   .core-stat .cs-num { font-size: 28px; }
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+ * Mobile UX patch — added 2026-05-03
+ *
+ * Targets the consistent surfaces that show on every marketing page
+ * (topbar, hero, footer) plus a few global typography/padding
+ * adjustments. Page-specific layouts (sandbox personas, integrations
+ * tile grid, pricing tier cards) already collapse via their own page
+ * CSS — those rules stay.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 760px) {
+  /* Topbar: hide the nav links (Home/Product/Integrations/Pricing/Compliance)
+     so the brand + CTA fit on narrow screens. The CTAs are the conversion
+     surface; nav is one tap into the footer if a user really wants it. */
+  .topbar-inner { gap: 12px; padding: 12px 16px; }
+  .topbar .nav { display: none; }
+  .topbar .brand .ent-tag { display: none; }
+  .topbar .brand-word { font-size: 18px; }
+
+  /* CTA cluster: collapse to compact buttons; hide the Sign-in ghost
+     since signing in lives on /login + the user dropdown. */
+  .topbar-inner > div:last-child { gap: 6px; }
+  .topbar .btn { padding: 8px 12px; font-size: 13px; }
+  .topbar .btn-ghost { display: none; }
+
+  /* Generic hero spacing — most pages set their own clamp() heading
+     sizes so this just tightens the surrounding padding. */
+  .hero-v2 { padding-top: 40px !important; padding-bottom: 40px !important; }
+  .hero-v2-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .orb-stage { display: none !important; } /* big illustration eats ~600px on phones */
+
+  /* Footer: 4-col → 2-col, tighter padding */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 28px 20px !important;
+    padding: 40px 20px !important;
+  }
+  .footer-col.footer-brand {
+    grid-column: 1 / -1; /* brand sits across the top */
+  }
+  .footer-bottom {
+    flex-direction: column !important;
+    gap: 8px !important;
+    text-align: center;
+    padding: 16px 20px !important;
+  }
+
+  /* Section padding compress */
+  section { padding-left: 16px; padding-right: 16px; }
+}
+
+@media (max-width: 540px) {
+  /* Drop the outline "Try for free" too; only Book a demo remains as the
+     conversion CTA. The Sandbox link is reachable from the footer + final
+     CTA section. */
+  .topbar .btn-outline { display: none; }
+  .topbar-inner { padding: 10px 14px; }
+
+  /* Hero h1 cap so massive serif headlines don't overflow */
+  h1, .hv2-h1, .pr-hero h1, .sup-hero h1, .int-hero h1, .sandbox-hero h1 {
+    font-size: clamp(36px, 9vw, 56px) !important;
+    line-height: 1.05 !important;
+  }
+  .hv2-lede, .pr-hero p, .sup-hero p, .int-hero p, .sandbox-hero p {
+    font-size: 15px !important;
+  }
+
+  /* Footer cards 2 → 1 column */
+  .footer-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .footer-col.footer-brand { grid-column: auto; }
+
+  /* Pricing toggle pills tighter */
+  .pr-toggle-btn { padding: 7px 12px; font-size: 10px; }
+}
+
