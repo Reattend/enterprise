@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
-import { handleEnterpriseError } from '@/lib/enterprise'
+import { handleEnterpriseError, buildAccessContext, canManageRecordAccess } from '@/lib/enterprise'
 
 // POST /api/enterprise/graph/links
 // Creates a manual record_link (user-drawn on the graph).
@@ -32,15 +32,16 @@ export async function POST(req: NextRequest) {
     const toRec = await db.select().from(schema.records).where(eq(schema.records.id, toRecordId)).limit(1)
     if (!fromRec[0] || !toRec[0]) return NextResponse.json({ error: 'record not found' }, { status: 404 })
 
-    const mem = await db
-      .select()
-      .from(schema.workspaceMembers)
-      .where(and(
-        eq(schema.workspaceMembers.userId, userId),
-        eq(schema.workspaceMembers.workspaceId, fromRec[0].workspaceId),
-      ))
-      .limit(1)
-    if (!mem[0]) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    // Manage-access check on BOTH records — drawing a link is a write that
+    // exposes the relationship between the two memories to anyone who can
+    // see either side. Only the creator, an org admin, or a dept_head of
+    // the record's dept passes (canManageRecordAccess enforces this).
+    const ctx = await buildAccessContext(userId)
+    const canFrom = await canManageRecordAccess(ctx, fromRecordId)
+    const canTo = await canManageRecordAccess(ctx, toRecordId)
+    if (!canFrom || !canTo) {
+      return NextResponse.json({ error: 'forbidden — must be able to manage both records' }, { status: 403 })
+    }
 
     const id = crypto.randomUUID()
     await db.insert(schema.recordLinks).values({
@@ -74,15 +75,12 @@ export async function DELETE(req: NextRequest) {
     const link = rows[0]
     if (!link) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
-    const mem = await db
-      .select()
-      .from(schema.workspaceMembers)
-      .where(and(
-        eq(schema.workspaceMembers.userId, userId),
-        eq(schema.workspaceMembers.workspaceId, link.workspaceId),
-      ))
-      .limit(1)
-    if (!mem[0]) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    // Same gate as POST — must be able to manage at least the from-record
+    // (deleting a link is symmetric, owning either side is enough).
+    const ctx = await buildAccessContext(userId)
+    if (!(await canManageRecordAccess(ctx, link.fromRecordId))) {
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    }
 
     await db.delete(schema.recordLinks).where(eq(schema.recordLinks.id, id))
     return NextResponse.json({ ok: true })

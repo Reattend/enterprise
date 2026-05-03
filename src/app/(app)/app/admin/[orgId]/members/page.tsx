@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { UserPlus, AlertCircle, Check, UserX, Mail, RefreshCw, X, Copy, Clock, Upload, Download, FileSpreadsheet, Loader2, Users } from 'lucide-react'
 import { DepartmentTreePicker, type DeptNode } from '@/components/enterprise/department-tree-picker'
 import { EmptyState } from '@/components/ui/empty-state'
+import { usePermission } from '@/lib/enterprise/use-permission'
 
 type OrgRole = 'super_admin' | 'admin' | 'member' | 'guest'
 
@@ -44,6 +45,9 @@ const ROLE_LABELS: Record<OrgRole, string> = {
 
 export default function MembersPage({ params }: { params: { orgId: string } }) {
   const { orgId } = params
+  // Server enforces too — this just hides the invite form for non-admins
+  // so they don't fill it out and get a 403 on submit.
+  const { allowed: canManageMembers, loading: permsLoading } = usePermission(orgId, 'org.members.manage')
   const [members, setMembers] = useState<Member[] | null>(null)
   const [invites, setInvites] = useState<PendingInvite[] | null>(null)
   const [err, setErr] = useState<string | null>(null)
@@ -204,6 +208,9 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
 
   return (
     <div className="space-y-6">
+      {/* Add members card — hidden for users without org.members.manage.
+          permsLoading shows nothing rather than flashing the form briefly. */}
+      {!permsLoading && canManageMembers && (
       <Card className="p-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold flex items-center gap-2">
@@ -312,6 +319,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
           <BulkInvitePanel orgId={orgId} departments={departments} onDone={load} />
         )}
       </Card>
+      )}
 
       {/* Pending invites */}
       {invites && invites.filter((i) => i.status === 'pending').length > 0 && (

@@ -31,6 +31,8 @@ const TEST_EMAIL_ENG = 'rbac-eng@test.local'
 const TEST_EMAIL_HR = 'rbac-hr@test.local'
 const TEST_EMAIL_ADMIN = 'rbac-admin@test.local'
 const TEST_EMAIL_OUTSIDER = 'rbac-outsider@test.local'
+const TEST_EMAIL_SUPERADMIN = 'rbac-superadmin@test.local'
+const TEST_EMAIL_GUEST = 'rbac-guest@test.local'
 
 const prevOrg = db.prepare('SELECT id FROM organizations WHERE slug = ?').get(TEST_ORG_SLUG) as { id: string } | undefined
 if (prevOrg) {
@@ -39,7 +41,7 @@ if (prevOrg) {
 // Disable foreign keys during teardown so we don't have to enumerate every
 // table that references users (new ones keep landing). Re-enabled below.
 db.pragma('foreign_keys = OFF')
-for (const email of [TEST_EMAIL_ENG, TEST_EMAIL_HR, TEST_EMAIL_ADMIN, TEST_EMAIL_OUTSIDER]) {
+for (const email of [TEST_EMAIL_ENG, TEST_EMAIL_HR, TEST_EMAIL_ADMIN, TEST_EMAIL_OUTSIDER, TEST_EMAIL_SUPERADMIN, TEST_EMAIL_GUEST]) {
   const u = db.prepare('SELECT id FROM users WHERE email = ?').get(email) as { id: string } | undefined
   if (u) {
     db.prepare('DELETE FROM users WHERE id = ?').run(u.id)
@@ -217,12 +219,116 @@ async function runChecks() {
   // Outsider — not in org at all. Should see nothing.
   await expect('Outsider (no org membership)', outsiderUserId, Object.fromEntries(allIds.map((id) => [id, false])) as Record<string, boolean>)
 
+  // ─── 9. Permission matrix tests (Model C: role-default + per-user override) ─
+  // Mirrors docs/permissions.md. Each row asserts one role's expected access
+  // to one permission. The matrix file is the source of truth; if a cell
+  // here disagrees with the matrix, the matrix wins and this test fails.
+  console.log('\n── Permission matrix (role × permission) ─────────────────')
+  // Importing permissions pulls in lib/db which opens its OWN better-sqlite3
+  // connection. Re-using `db` (the local connection) after that triggers
+  // "database is not open" — better-sqlite3 doesn't like two writers against
+  // the same WAL file from the same process. So close `db` and use the
+  // shared connection (`sqlite` exported by lib/db) for the rest of the run.
+  db.close()
+  const { hasPermission } = await import('../src/lib/enterprise/permissions')
+  const { sqlite } = await import('../src/lib/db')
+
+  // We need users in each org role. admin + member already exist; create a
+  // super_admin and a guest so all 4 roles are represented.
+  const superAdminId = uuid()
+  sqlite.prepare(`INSERT INTO users (id, email, name, created_at) VALUES (?, ?, ?, ?)`)
+    .run(superAdminId, 'rbac-superadmin@test.local', 'Super Admin', now())
+  sqlite.prepare(`INSERT INTO organization_members (id, organization_id, user_id, role, status, created_at, updated_at)
+    VALUES (?, ?, ?, 'super_admin', 'active', ?, ?)`)
+    .run(uuid(), orgId, superAdminId, now(), now())
+
+  const guestId = uuid()
+  sqlite.prepare(`INSERT INTO users (id, email, name, created_at) VALUES (?, ?, ?, ?)`)
+    .run(guestId, 'rbac-guest@test.local', 'Guest User', now())
+  sqlite.prepare(`INSERT INTO organization_members (id, organization_id, user_id, role, status, created_at, updated_at)
+    VALUES (?, ?, ?, 'guest', 'active', ?, ?)`)
+    .run(uuid(), orgId, guestId, now(), now())
+
+  type PermAssertion = { who: string; userId: string; permission: string; want: boolean; deptId?: string }
+  const assertions: PermAssertion[] = [
+    // super_admin: every permission, always
+    { who: 'super_admin', userId: superAdminId, permission: 'org.manage',         want: true },
+    { who: 'super_admin', userId: superAdminId, permission: 'org.members.manage', want: true },
+    { who: 'super_admin', userId: superAdminId, permission: 'org.audit.read',     want: true },
+    { who: 'super_admin', userId: superAdminId, permission: 'decisions.manage',   want: true },
+    { who: 'super_admin', userId: superAdminId, permission: 'agents.manage',      want: true },
+    // admin: everything except org.manage
+    { who: 'admin',       userId: adminUserId,  permission: 'org.manage',         want: false },
+    { who: 'admin',       userId: adminUserId,  permission: 'org.members.manage', want: true },
+    { who: 'admin',       userId: adminUserId,  permission: 'org.audit.read',     want: true },
+    { who: 'admin',       userId: adminUserId,  permission: 'decisions.manage',   want: true },
+    { who: 'admin',       userId: adminUserId,  permission: 'policies.manage',    want: true },
+    { who: 'admin',       userId: adminUserId,  permission: 'agents.manage',      want: true },
+    { who: 'admin',       userId: adminUserId,  permission: 'wiki.manage',        want: true },
+    // member (no dept scope): only org.read + compose.use + calendar.write
+    { who: 'member',      userId: engUserId,    permission: 'org.read',           want: true },
+    { who: 'member',      userId: engUserId,    permission: 'compose.use',        want: true },
+    { who: 'member',      userId: engUserId,    permission: 'calendar.write',     want: true },
+    { who: 'member',      userId: engUserId,    permission: 'org.members.manage', want: false },
+    { who: 'member',      userId: engUserId,    permission: 'org.manage',         want: false },
+    { who: 'member',      userId: engUserId,    permission: 'decisions.manage',   want: false },
+    { who: 'member',      userId: engUserId,    permission: 'policies.manage',    want: false },
+    { who: 'member',      userId: engUserId,    permission: 'agents.manage',      want: false },
+    { who: 'member',      userId: engUserId,    permission: 'org.audit.read',     want: false },
+    // guest: only org.read; everything else denied
+    { who: 'guest',       userId: guestId,      permission: 'org.read',           want: true },
+    { who: 'guest',       userId: guestId,      permission: 'compose.use',        want: false },
+    { who: 'guest',       userId: guestId,      permission: 'calendar.write',     want: false },
+    { who: 'guest',       userId: guestId,      permission: 'decisions.manage',   want: false },
+    { who: 'guest',       userId: guestId,      permission: 'org.members.manage', want: false },
+    // dept-scoped: an Eng dept_head can manage agents in eng dept, NOT in hr dept.
+    // (engUserId is currently a regular dept member; promote to dept_head for this slice.)
+    { who: 'dept_head (eng) → eng dept', userId: engUserId, permission: 'agents.manage', want: true,  deptId: engDeptId },
+    { who: 'dept_head (eng) → hr dept',  userId: engUserId, permission: 'agents.manage', want: false, deptId: hrDeptId },
+  ]
+
+  // Promote eng user to dept_head of eng dept for the dept-scoped slice
+  sqlite.prepare(`UPDATE department_members SET role = 'dept_head' WHERE department_id = ? AND user_id = ?`)
+    .run(engDeptId, engUserId)
+
+  for (const a of assertions) {
+    const got = await hasPermission(
+      { userId: a.userId, organizationId: orgId, departmentId: a.deptId },
+      a.permission as Parameters<typeof hasPermission>[1],
+    )
+    const ok = got === a.want
+    if (!ok) fail++
+    console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${a.who.padEnd(36)} ${a.permission.padEnd(28)} got=${got ? 'Y' : 'N'}  want=${a.want ? 'Y' : 'N'}`)
+  }
+
+  // ─── 10. Per-user override: grant a member org.audit.read ──────────────
+  console.log('\n── Per-user override ────────────────────────────────────')
+  sqlite.prepare(`INSERT INTO organization_member_permission_overrides
+    (id, organization_id, user_id, permission_key, scope, granted, granted_by_user_id, reason, created_at)
+    VALUES (?, ?, ?, 'org.audit.read', NULL, 1, ?, 'COO needs weekly audit access', ?)`)
+    .run(uuid(), orgId, hrUserId, adminUserId, now())
+
+  const overrideAllowed = await hasPermission(
+    { userId: hrUserId, organizationId: orgId },
+    'org.audit.read',
+  )
+  if (!overrideAllowed) fail++
+  console.log(`  ${overrideAllowed ? 'PASS' : 'FAIL'}  member with org.audit.read override   got=${overrideAllowed ? 'Y' : 'N'}  want=Y`)
+
+  // Revoke override; ensure denial returns
+  sqlite.prepare(`UPDATE organization_member_permission_overrides
+    SET granted = 0 WHERE organization_id = ? AND user_id = ? AND permission_key = 'org.audit.read'`)
+    .run(orgId, hrUserId)
+  const afterRevoke = await hasPermission({ userId: hrUserId, organizationId: orgId }, 'org.audit.read')
+  if (afterRevoke) fail++
+  console.log(`  ${!afterRevoke ? 'PASS' : 'FAIL'}  same member after revoke               got=${afterRevoke ? 'Y' : 'N'}  want=N`)
+
   console.log('\n─────────────────────────────────────')
   if (fail > 0) {
     console.log(`FAILED — ${fail} assertion(s) wrong`)
     process.exit(1)
   }
-  console.log('ALL PASS — record-level RBAC is enforcing all 8 rules correctly.')
+  console.log('ALL PASS — record-level RBAC + permission matrix + overrides all enforcing correctly.')
 }
 
 runChecks().catch((e) => {
