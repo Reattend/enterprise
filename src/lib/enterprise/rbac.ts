@@ -6,33 +6,35 @@ import {
   workspaceOrgLinks,
 } from '../db/schema'
 import { and, eq, inArray } from 'drizzle-orm'
+import { ROLE_DEFAULTS, DEPT_ROLE_DEFAULTS, type Permission } from './permissions'
 
 export type OrgRole = 'super_admin' | 'admin' | 'member' | 'guest'
 export type DeptRole = 'dept_head' | 'manager' | 'member' | 'viewer'
 
-export type OrgPermission =
-  | 'org.manage' // edit org settings, SSO, plan
-  | 'org.members.manage' // add/remove/change roles
+// Legacy permission union — kept for back-compat. New code should import
+// `Permission` from src/lib/enterprise/permissions.ts directly.
+export type OrgPermission = Extract<
+  Permission,
+  | 'org.manage'
+  | 'org.members.manage'
   | 'org.audit.read'
   | 'org.departments.manage'
-  | 'org.read' // view org-wide dashboards
-  | 'policies.manage' // author/edit/publish policies
-  | 'agents.manage' // create/edit/publish agents, mint API keys
+  | 'org.read'
+  | 'policies.manage'
+  | 'agents.manage'
+>
 
+// Legacy dept-permission union — same back-compat note as above.
 export type DeptPermission =
-  | 'dept.manage' // edit department settings
+  | 'dept.manage'
   | 'dept.members.manage'
   | 'dept.records.read'
   | 'dept.records.write'
   | 'dept.decisions.manage'
 
-const ORG_ROLE_PERMS: Record<OrgRole, OrgPermission[]> = {
-  super_admin: ['org.manage', 'org.members.manage', 'org.audit.read', 'org.departments.manage', 'org.read', 'policies.manage', 'agents.manage'],
-  admin: ['org.members.manage', 'org.audit.read', 'org.departments.manage', 'org.read', 'policies.manage', 'agents.manage'],
-  member: ['org.read'],
-  guest: [],
-}
-
+// Legacy dept-permission map. Not the source of truth anymore — the matrix
+// in permissions.ts is. Only used by hasDeptPermission below for callers
+// that pre-date the matrix; new code should use hasPermission with a scope.
 const DEPT_ROLE_PERMS: Record<DeptRole, DeptPermission[]> = {
   dept_head: ['dept.manage', 'dept.members.manage', 'dept.records.read', 'dept.records.write', 'dept.decisions.manage'],
   manager: ['dept.members.manage', 'dept.records.read', 'dept.records.write', 'dept.decisions.manage'],
@@ -92,11 +94,23 @@ export async function getDeptContext(userId: string, departmentId: string): Prom
   }
 }
 
+// Sync, role-default-only check. Reads from ROLE_DEFAULTS in permissions.ts
+// so the matrix is the single source of truth. Returns true only for grants
+// marked 'always' (org-wide) — dept-scoped grants ('own_dept') and
+// own-record grants ('own_record') need the async hasPermission() with scope.
+//
+// Legacy callers that pre-date the matrix can still use this function
+// safely; they just won't get the dept_head/manager dept-scoped perms.
+// New code should use hasPermission() from permissions.ts.
 export function hasOrgPermission(ctx: OrgContext | null, perm: OrgPermission): boolean {
   if (!ctx || ctx.orgStatus !== 'active') return false
-  return ORG_ROLE_PERMS[ctx.orgRole].includes(perm)
+  const grant = ROLE_DEFAULTS[ctx.orgRole]?.[perm as Permission]
+  return grant === 'always'
 }
 
+// Sync dept-permission check, kept for back-compat with the small number of
+// callers using dept.* keys. New code should use hasPermission() with a
+// `departmentId` scope and a Permission key from permissions.ts.
 export function hasDeptPermission(ctx: DeptContext | null, perm: DeptPermission): boolean {
   if (!ctx) return false
   return DEPT_ROLE_PERMS[ctx.deptRole].includes(perm)

@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -64,7 +65,15 @@ function prettySeniority(s: string | null): string {
   return SENIORITY_LABEL[s] || s
 }
 
-export default function RolesPage({ params }: { params: { orgId: string } }) {
+export default function RolesPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.members.manage">
+      <RolesPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function RolesPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [roles, setRoles] = useState<EnrichedRole[] | null>(null)
   const [departments, setDepartments] = useState<Dept[]>([])

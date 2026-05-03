@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // Exit interviews — admin cockpit page.
 //
 // Lists every interview in the org (draft / in_progress / completed). Admin
@@ -55,7 +57,15 @@ const STATUS_META: Record<InterviewRow['status'], { label: string; tone: string;
   archived:     { label: 'Archived',     tone: 'bg-slate-500/10 text-slate-600',           icon: UserX },
 }
 
-export default function ExitInterviewsPage({ params }: { params: { orgId: string } }) {
+export default function ExitInterviewsPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.members.manage">
+      <ExitInterviewsPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function ExitInterviewsPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [rows, setRows] = useState<InterviewRow[] | null>(null)
   const [members, setMembers] = useState<Member[]>([])

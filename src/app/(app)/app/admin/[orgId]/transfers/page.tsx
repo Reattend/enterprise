@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // Knowledge Transfer Protocol dashboard.
 //
 // This is the visible manifestation of "knowledge stays with the role, not
@@ -69,7 +71,15 @@ type TransferEvent = {
   createdAt: string
 }
 
-export default function TransfersPage({ params }: { params: { orgId: string } }) {
+export default function TransfersPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.members.manage">
+      <TransfersPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function TransfersPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [people, setPeople] = useState<AtRiskPerson[] | null>(null)
   const [totals, setTotals] = useState<Totals | null>(null)

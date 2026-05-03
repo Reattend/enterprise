@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -58,7 +59,15 @@ const PLAN_LABEL: Record<Plan, string> = {
   government: 'Government',
 }
 
-export default function SettingsPage({ params }: { params: { orgId: string } }) {
+export default function SettingsPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.manage">
+      <SettingsPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function SettingsPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [org, setOrg] = useState<Organization | null>(null)
   const [myRole, setMyRole] = useState<string | null>(null)

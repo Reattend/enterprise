@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // Chrome Extension admin — required/recommended domain policy.
 //
 // What admins set here shows up in every org member's extension on next
@@ -23,7 +25,15 @@ interface Policy {
   ambient: boolean
 }
 
-export default function ExtensionAdminPage({ params }: { params: { orgId: string } }) {
+export default function ExtensionAdminPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.manage">
+      <ExtensionAdminPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [policy, setPolicy] = useState<Policy | null>(null)
   const [loading, setLoading] = useState(true)

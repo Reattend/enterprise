@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // Compliance posture — SOC 2 Type 1 prep dashboard.
 // Each control is a live signal computed from org state, not a manual
 // checkbox. The retention + export controls sit on this page too so admins
@@ -56,7 +58,15 @@ type Retention = {
   eligibleToPrune: number
 }
 
-export default function CompliancePage({ params }: { params: { orgId: string } }) {
+export default function CompliancePage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.audit.read">
+      <CompliancePageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function CompliancePageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [posture, setPosture] = useState<Posture | null>(null)
   const [retention, setRetention] = useState<Retention | null>(null)

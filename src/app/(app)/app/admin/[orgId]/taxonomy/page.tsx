@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -39,7 +40,15 @@ const GOV_PRESET_RANKS: Draft[] = [
   { label: 'Section Officer', rankOrder: 7, description: '' },
 ]
 
-export default function TaxonomyPage({ params }: { params: { orgId: string } }) {
+export default function TaxonomyPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.manage">
+      <TaxonomyPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function TaxonomyPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [deptKinds, setDeptKinds] = useState<Draft[]>([])
   const [seniority, setSeniority] = useState<Draft[]>([])

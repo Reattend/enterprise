@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // Triage Review — admin page.
 //
 // Inspect the last N raw_items the AI has seen, with its decision (kept,
@@ -66,7 +68,15 @@ function timeAgo(iso: string): string {
   return `${Math.floor(ms / 86_400_000)}d ago`
 }
 
-export default function TriageReviewPage({ params }: { params: { orgId: string } }) {
+export default function TriageReviewPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.members.manage">
+      <TriageReviewPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function TriageReviewPageInner({ params }: { params: { orgId: string } }) {
   const [items, setItems] = useState<TriageItem[] | null>(null)
   const [counts, setCounts] = useState<Counts>({ new: 0, triaged: 0, ignored: 0, promoted: 0 })
   const [loading, setLoading] = useState(true)

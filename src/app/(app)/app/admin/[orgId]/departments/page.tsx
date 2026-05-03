@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
@@ -57,7 +58,15 @@ function iconForKind(kind: string): typeof Building {
   return Building
 }
 
-export default function DepartmentsPage({ params }: { params: { orgId: string } }) {
+export default function DepartmentsPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.departments.manage">
+      <DepartmentsPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function DepartmentsPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const router = useRouter()
   const [rows, setRows] = useState<Department[] | null>(null)

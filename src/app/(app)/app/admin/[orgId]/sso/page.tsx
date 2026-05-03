@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,7 +44,15 @@ const PROVIDER_META: Record<Provider, { label: string; docsUrl: string }> = {
   oidc_generic: { label: 'Generic OIDC', docsUrl: '' },
 }
 
-export default function SsoPage({ params }: { params: { orgId: string } }) {
+export default function SsoPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.manage">
+      <SsoPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function SsoPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [org, setOrg] = useState<Org | null>(null)
   const [cfg, setCfg] = useState<SsoConfig | null>(null)

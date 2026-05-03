@@ -19,6 +19,7 @@
 import { db, schema } from '../db'
 import { and, eq, inArray, or } from 'drizzle-orm'
 import { listAccessibleDepartmentIds } from './rbac'
+import { hasPermission } from './permissions'
 
 export interface AccessContext {
   userId: string
@@ -205,8 +206,16 @@ export async function canAccessRecord(ctx: AccessContext, recordId: string): Pro
 }
 
 // Is this user allowed to CHANGE the visibility of a record or create a share?
-// Rules: the creator, an active org admin/super_admin, or a dept_head of the
-// record's dept.
+// Defers to the permission matrix in src/lib/enterprise/permissions.ts —
+// `records.share.manage` defaults to:
+//   - super_admin / admin   → always (org-wide)
+//   - dept_head / manager   → own_dept (only records in a dept they manage)
+//   - member                → own_record (only records they created)
+//   - guest                 → never
+// Per-user overrides are honored automatically.
+//
+// For non-enterprise workspaces (no workspace_org_link row), we keep the
+// legacy Personal Reattend rule: workspace owner / admin only, plus the creator.
 export async function canManageRecordAccess(ctx: AccessContext, recordId: string): Promise<boolean> {
   const rows = await db
     .select({ createdBy: schema.records.createdBy, workspaceId: schema.records.workspaceId })
@@ -216,15 +225,15 @@ export async function canManageRecordAccess(ctx: AccessContext, recordId: string
   const r = rows[0]
   if (!r) return false
 
-  if (r.createdBy === ctx.userId) return true
-
   const link = await db
     .select()
     .from(schema.workspaceOrgLinks)
     .where(eq(schema.workspaceOrgLinks.workspaceId, r.workspaceId))
     .limit(1)
+
   if (!link[0]) {
-    // Non-enterprise — workspace owner only
+    // Non-enterprise — creator OR workspace owner / admin (legacy rule).
+    if (r.createdBy === ctx.userId) return true
     const member = await db
       .select()
       .from(schema.workspaceMembers)
@@ -236,6 +245,15 @@ export async function canManageRecordAccess(ctx: AccessContext, recordId: string
     return (member[0]?.role === 'owner' || member[0]?.role === 'admin') ?? false
   }
 
-  const orgRole = ctx.orgRoleByOrg.get(link[0].organizationId)
-  return orgRole === 'super_admin' || orgRole === 'admin'
+  // Enterprise — delegate to the matrix. recordCreatorUserId covers the
+  // 'own_record' grant; departmentId covers 'own_dept' for dept_head/manager.
+  return hasPermission(
+    {
+      userId: ctx.userId,
+      organizationId: link[0].organizationId,
+      departmentId: link[0].departmentId ?? null,
+      recordCreatorUserId: r.createdBy,
+    },
+    'records.share.manage',
+  )
 }

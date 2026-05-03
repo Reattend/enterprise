@@ -1,5 +1,7 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
+
 // OCR — batch upload, job queue, quality dashboard.
 //
 // The gov-track hero page. Admin drops a folder of scanned documents;
@@ -65,7 +67,15 @@ const LANGUAGES = [
   { code: 'ita', label: 'Italian' },
 ]
 
-export default function OCRPage({ params }: { params: { orgId: string } }) {
+export default function OCRPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="integrations.manage">
+      <OCRPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function OCRPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const [stats, setStats] = useState<Stats | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])

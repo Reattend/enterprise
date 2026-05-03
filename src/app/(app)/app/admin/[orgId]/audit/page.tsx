@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGate } from '@/components/enterprise/permission-gate'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Card } from '@/components/ui/card'
@@ -51,7 +52,15 @@ const ACTION_OPTIONS = [
   'integration_connect', 'integration_disconnect',
 ]
 
-export default function AuditPage({ params }: { params: { orgId: string } }) {
+export default function AuditPage(props: { params: { orgId: string } }) {
+  return (
+    <PermissionGate orgId={props.params.orgId} permission="org.audit.read">
+      <AuditPageInner {...props} />
+    </PermissionGate>
+  )
+}
+
+function AuditPageInner({ params }: { params: { orgId: string } }) {
   const { orgId } = params
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -113,8 +122,51 @@ export default function AuditPage({ params }: { params: { orgId: string } }) {
     return entries.filter((e) => e.userEmail.toLowerCase().includes(needle))
   }, [entries, userEmail])
 
+  // Quick-filter presets — one click jumps to the most common slices the
+  // admin team actually wants to see. Especially "Permission overrides" so
+  // admins can audit who's been granted/revoked what without learning
+  // resourceType + action filter combos.
+  function applyPreset(presetAction: string, presetResourceType: string) {
+    setAction(presetAction)
+    setResourceType(presetResourceType)
+    setUserEmail('')
+    // Clear resourceId via the URL so the banner up top goes away too
+    if (resourceId) clearResourceFilter()
+  }
+
+  const PRESETS: Array<{ label: string; action: string; resourceType: string }> = [
+    { label: 'All events',          action: '',                  resourceType: '' },
+    { label: 'Permission overrides', action: 'permission_change', resourceType: 'permission_override' },
+    { label: 'Member changes',      action: 'member_invite',     resourceType: '' },
+    { label: 'Role changes',        action: 'role_change',       resourceType: '' },
+    { label: 'Decisions',           action: 'decision_create',   resourceType: '' },
+    { label: 'Logins',              action: 'login',             resourceType: '' },
+  ]
+  const activePreset = PRESETS.find((p) => p.action === action && p.resourceType === resourceType)
+
   return (
     <div className="space-y-4">
+      {/* Quick-filter chip row — admins click a chip, the filters below
+          update, the audit list reloads. Keeps the rich filter card
+          intact for power users who want unusual combinations. */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => { applyPreset(p.action, p.resourceType); load() }}
+            className={cn(
+              'text-xs px-3 py-1.5 rounded-full border transition',
+              activePreset?.label === p.label
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-border hover:bg-muted text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
       {resourceId && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 flex items-center gap-2 flex-wrap text-xs">
           <Eye className="h-3.5 w-3.5 text-primary" />
