@@ -37,18 +37,48 @@ This is a fork of Reattend Personal (`~/Desktop/Final Reattend/reattend/`). `ENT
 
 **Standard deploy** (after `git push`):
 ```bash
-ssh root@167.99.158.143 "cd /var/www/enterprise && git pull && rm -rf .next && npm run build && pm2 restart enterprise --update-env"
+ssh root@167.99.158.143 "cd /var/www/enterprise && git pull && pm2 stop enterprise && rm -rf .next && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 start enterprise --update-env"
 ```
-Always include `npx tsx src/lib/db/migrate.ts` if schema changed.
+Always include `npx tsx src/lib/db/migrate.ts` if schema changed (after the
+build, before `pm2 start`).
 
-**Use `pm2 restart`, not `pm2 reload`.** `reload` is graceful and keeps the
-old Node process alive — but that process has cached the pre-rebuild
-`.next` paths in memory. After `rm -rf .next && npm run build`, requests
-to dynamic routes start failing with `Cannot find module
-'.next/server/pages/_error.js'` (or similar) and nginx surfaces 502s.
-`restart` kills + respawns the process so it re-reads `.next` from disk.
-`--update-env` re-reads `.env.local` so changes to `NEXTAUTH_URL` /
-`NEXTAUTH_SECRET` actually take effect.
+**Why this exact sequence — every word matters. Earned the hard way 2026-05-02:**
+
+- **`pm2 stop` BEFORE `rm -rf .next`** — frees ~1.6 GB RAM held by the running
+  Node process. Without this, the build OOM-kills midway on the 3.8 GB
+  droplet, leaving `.next/` partially populated → `MODULE_NOT_FOUND` for
+  random routes in production → nginx 502s.
+- **`rm -rf .next`** — clears stale page chunks. Skipping this can leave
+  client-manifest references pointing at hashed files that no longer exist
+  → `Cannot read properties of undefined (reading 'clientModules')` on
+  every dynamic page render.
+- **`NODE_OPTIONS='--max-old-space-size=3072'`** — gives the Next.js build
+  a 3 GB heap budget. Combined with the 4 GB swap (added 2026-05-02 — see
+  Infra section), the build never OOMs even on the small droplet.
+- **`pm2 start` (not `restart` or `reload`)** — `reload` is graceful and
+  keeps the old Node process alive, which has cached the pre-rebuild paths
+  → 502s. `restart` kills + respawns but during the rebuild window the OLD
+  process still serves on port 3000 with `.next/` already wiped. Stopping
+  first means brief downtime (the build window) instead of chaos.
+- **`--update-env`** — re-reads `.env.local` so any env var change
+  (`NEXTAUTH_URL`, `NEXTAUTH_SECRET`, Paddle keys, etc.) actually takes
+  effect on the new process.
+
+**Critical infra (set 2026-05-02, don't undo):**
+- **4 GB swap** at `/swapfile` (in `/etc/fstab`) — required for the build.
+  Verify with `swapon --show`.
+- **nginx `proxy_buffer_size 16k; proxy_buffers 8 16k; proxy_busy_buffers_size 32k;`**
+  in `/etc/nginx/sites-enabled/enterprise` — Next.js response headers (with
+  the JWT session cookie + Vary + RSC + Strict-Transport) routinely exceed
+  nginx's default 4 KB proxy buffer → `upstream sent too big header` →
+  silent 502s on `/api/auth/verify-otp` and similar. Verify with
+  `grep proxy_buffer /etc/nginx/sites-enabled/enterprise`.
+- **Cookies** for auth use NextAuth's official cookie writer (NOT custom
+  Route-Handler `cookies().set()`). Hand-rolled cookies via `next/headers`
+  in Route Handlers emit a `Set-Cookie` header that Chrome silently drops
+  even though it looks identical in DevTools. The OTP login flow goes
+  through `/api/auth/callback/otp` (NextAuth credentials provider) for
+  exactly this reason — see `public/landing-design/signin.html`.
 
 ---
 
@@ -169,7 +199,7 @@ Test suite (`npm run test:rbac`) ships with 36 assertions, runs every build.
 - "Resume" → read `today.md` and continue.
 - **Never name AI vendors (Claude / Sonnet / Haiku / Anthropic / Groq / Llama) in user-facing copy.** Always "the AI" / "managed frontier AI" / "the model". Internal `//` code comments are fine.
 - Demo data is mission-critical. Run `npm run seed:demo -- demo-presenter@reattend.com` before every sales demo.
-- Deploy is `git push` → `ssh ... && pull && rm -rf .next && build && pm2 restart enterprise --update-env`. Always rm `.next` to clear stale page chunks. Always `restart`, not `reload` — see deploy section for why.
+- Deploy is `git push` → `ssh ... && pull && pm2 stop && rm -rf .next && build && pm2 start --update-env`. **Stop pm2 BEFORE building** so the build doesn't OOM-kill against the running process. Always `start` after a `stop` (not `reload` or `restart`). Full reasoning + the swap/nginx-buffer infra requirements are in the deploy section above.
 - Pre-commit hook is `tsc --noEmit`. Don't bypass it.
 
 ---
