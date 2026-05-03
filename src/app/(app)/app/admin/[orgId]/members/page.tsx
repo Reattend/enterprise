@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { UserPlus, AlertCircle, Check, UserX, Mail, RefreshCw, X, Copy, Clock, Upload, Download, FileSpreadsheet, Loader2, Users } from 'lucide-react'
+import { UserPlus, AlertCircle, Check, UserX, Mail, RefreshCw, X, Copy, Clock, Upload, Download, FileSpreadsheet, Loader2, Users, ShieldCheck } from 'lucide-react'
 import { DepartmentTreePicker, type DeptNode } from '@/components/enterprise/department-tree-picker'
 import { EmptyState } from '@/components/ui/empty-state'
 import { usePermission } from '@/lib/enterprise/use-permission'
@@ -517,12 +517,20 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
                     {m.status}
                   </span>
                   {m.status === 'active' && (
-                    <Link href={`/app/admin/${orgId}/members/${m.userId}/offboard`}>
-                      <Button variant="outline" size="sm" className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-700">
-                        <UserX className="h-3.5 w-3.5 mr-1" />
-                        Offboard
-                      </Button>
-                    </Link>
+                    <>
+                      <Link href={`/app/admin/${orgId}/members/${m.userId}/permissions`}>
+                        <Button variant="outline" size="sm" title="Manage per-user permission overrides">
+                          <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                          Permissions
+                        </Button>
+                      </Link>
+                      <Link href={`/app/admin/${orgId}/members/${m.userId}/offboard`}>
+                        <Button variant="outline" size="sm" className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-700">
+                          <UserX className="h-3.5 w-3.5 mr-1" />
+                          Offboard
+                        </Button>
+                      </Link>
+                    </>
                   )}
                 </div>
               </li>

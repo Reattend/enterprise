@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils'
 import { BlastRadiusDialog } from '@/components/enterprise/blast-radius-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
+import { usePermissionChecker } from '@/lib/enterprise/use-permission'
 
 type Status = 'active' | 'superseded' | 'reversed' | 'archived'
 
@@ -59,6 +60,11 @@ const STATUS_META: Record<Status, { label: string; icon: typeof CheckCircle2; cl
 
 export default function DecisionsListPage({ params }: { params: { orgId: string } }) {
   const { orgId } = params
+  // Hide "Log decision" for users who can't manage decisions anywhere.
+  // hasAnywhere covers org-wide AND any dept the user is dept_head/manager of,
+  // since the dept gets picked inside the form (server scopes on submit).
+  const { hasAnywhere, loading: permsLoading } = usePermissionChecker(orgId)
+  const canLogDecision = hasAnywhere('decisions.manage')
   const [decisions, setDecisions] = useState<Decision[] | null>(null)
   const [blastDecisionId, setBlastDecisionId] = useState<string | null>(null)
   const [departments, setDepartments] = useState<Dept[]>([])
@@ -139,10 +145,13 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
               Download briefing
             </a>
           </Button>
-          <Button onClick={() => setShowCreate((v) => !v)}>
-            {showCreate ? <X className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-            {showCreate ? 'Cancel' : 'Log decision'}
-          </Button>
+          {/* Hidden for guests/members with no dept leadership — they would 403 on submit. */}
+          {!permsLoading && canLogDecision && (
+            <Button onClick={() => setShowCreate((v) => !v)}>
+              {showCreate ? <X className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
+              {showCreate ? 'Cancel' : 'Log decision'}
+            </Button>
+          )}
         </div>
       </div>
 

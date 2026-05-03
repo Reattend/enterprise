@@ -126,7 +126,12 @@ export function usePermission(
  */
 export function usePermissionChecker(orgId: string | null | undefined): {
   loading: boolean
+  snapshot: PermissionSnapshot | null
   check: (permission: Permission, opts?: UsePermissionOptions) => boolean
+  /** True if the user has the permission ANYWHERE — org-wide OR in at least
+   *  one dept they manage. Use this to decide whether to show a "+ Create"
+   *  button when the dept will be picked inside the form. */
+  hasAnywhere: (permission: Permission) => boolean
 } {
   const [snapshot, setSnapshot] = useState<PermissionSnapshot | null>(orgId ? cache.get(orgId) ?? null : null)
   const [loading, setLoading] = useState<boolean>(orgId ? !cache.has(orgId) : false)
@@ -145,10 +150,19 @@ export function usePermissionChecker(orgId: string | null | undefined): {
 
   return {
     loading,
+    snapshot,
     check: (permission, opts = {}) => {
       if (!snapshot) return false
       if (snapshot.orgWide.includes(permission)) return true
       if (opts.departmentId && snapshot.byDepartment[opts.departmentId]?.includes(permission)) return true
+      return false
+    },
+    hasAnywhere: (permission) => {
+      if (!snapshot) return false
+      if (snapshot.orgWide.includes(permission)) return true
+      for (const deptId of Object.keys(snapshot.byDepartment)) {
+        if (snapshot.byDepartment[deptId].includes(permission)) return true
+      }
       return false
     },
   }
