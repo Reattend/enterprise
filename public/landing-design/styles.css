@@ -3024,3 +3024,153 @@ footer {
   .pr-toggle-btn { padding: 7px 12px; font-size: 10px; }
 }
 
+
+/* ═════════════════════════════════════════════════════════════════════
+ * Mobile hamburger menu — added 2026-05-03
+ *
+ * Markup is injected by /landing-design/mobile-menu.js on page load:
+ *   <button class="mobile-menu-trigger">…</button>   (added to .topbar-inner)
+ *   <div class="mobile-menu-backdrop"></div>          (added to <body>)
+ *   <aside class="mobile-menu-drawer">…</aside>      (added to <body>)
+ *
+ * Hidden on desktop. Shown <760px. The drawer slides in from the right.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+.mobile-menu-trigger {
+  display: none; /* shown via media query below */
+  align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background .15s ease;
+  flex-shrink: 0;
+}
+.mobile-menu-trigger:hover { background: var(--bg-2); }
+.mobile-menu-trigger svg { width: 18px; height: 18px; display: block; }
+
+.mobile-menu-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 100;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease;
+}
+.mobile-menu-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.mobile-menu-drawer {
+  position: fixed; top: 0; right: 0;
+  height: 100vh; width: min(320px, 86vw);
+  background: var(--bg);
+  border-left: 1px solid var(--rule);
+  z-index: 101;
+  display: flex; flex-direction: column;
+  padding: 20px 24px 28px;
+  gap: 20px;
+  transform: translateX(100%);
+  transition: transform .26s cubic-bezier(.2, .8, .2, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: -16px 0 40px rgba(15, 23, 42, 0.14);
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+
+.mobile-menu-drawer .mm-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.mobile-menu-drawer .mm-head .mm-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.mobile-menu-drawer .mm-head .mm-brand img { height: 22px; width: auto; }
+.mobile-menu-drawer .mm-close {
+  width: 34px; height: 34px;
+  background: transparent; border: 1px solid var(--rule);
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-2);
+}
+.mobile-menu-drawer .mm-close:hover { background: var(--bg-2); }
+.mobile-menu-drawer .mm-close svg { width: 16px; height: 16px; display: block; }
+
+.mobile-menu-drawer .mm-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+.mobile-menu-drawer .mm-nav {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.mobile-menu-drawer .mm-nav a {
+  padding: 12px 14px;
+  font-size: 16px;
+  color: var(--ink);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+.mobile-menu-drawer .mm-nav a:hover { background: var(--bg-2); }
+
+.mobile-menu-drawer .mm-cta {
+  margin-top: auto;
+  display: flex; flex-direction: column; gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.mobile-menu-drawer .mm-cta a {
+  width: 100%;
+  justify-content: center;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: background .15s ease, color .15s ease;
+}
+.mobile-menu-drawer .mm-cta a.mm-primary {
+  background: var(--ink);
+  color: var(--bg);
+}
+.mobile-menu-drawer .mm-cta a.mm-primary:hover {
+  background: oklch(0.12 0.012 270);
+}
+.mobile-menu-drawer .mm-cta a.mm-secondary {
+  background: var(--bg-paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+}
+.mobile-menu-drawer .mm-cta a.mm-ghost {
+  background: transparent;
+  color: var(--ink-2);
+}
+.mobile-menu-drawer .mm-cta a.mm-ghost:hover { color: var(--ink); }
+
+/* Lock body scroll while drawer is open. */
+body.mm-open { overflow: hidden; }
+
+/* Show the trigger + override the desktop nav-hide rules below 760px so
+   the drawer is the only navigation surface. */
+@media (max-width: 760px) {
+  .mobile-menu-trigger { display: inline-flex; }
+  /* Re-hide the inline nav + CTA cluster (already hidden by an earlier
+     rule, restated here to make this section self-contained). */
+  .topbar .nav { display: none; }
+  .topbar-inner > div:last-child { display: none !important; }
+  /* Tighter inner padding so the trigger doesn't crowd the brand. */
+  .topbar-inner { padding: 12px 14px; gap: 8px; }
+}
+
