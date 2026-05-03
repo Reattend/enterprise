@@ -1099,6 +1099,27 @@ try {
   console.error('plan rename migration:', e.message)
 }
 
+// ─── Hot Cache (per-org "_hot.md" — Karpathy's idea) ──────────────────────
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS hot_cache (
+      id              TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      scope           TEXT NOT NULL DEFAULT 'org' CHECK(scope IN ('org', 'user', 'dept')),
+      scope_id        TEXT,
+      content         TEXT NOT NULL,
+      generated_at    TEXT NOT NULL DEFAULT (datetime('now')),
+      generated_from_record_count INTEGER NOT NULL DEFAULT 0,
+      source          TEXT NOT NULL DEFAULT 'deterministic'
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS hot_cache_uniq ON hot_cache (organization_id, scope, scope_id);
+    CREATE INDEX IF NOT EXISTS hot_cache_org_idx ON hot_cache (organization_id);
+  `)
+  console.log('✓ hot_cache')
+} catch (e: any) {
+  console.error('hot_cache migration:', e.message)
+}
+
 // ─── RBAC: per-user permission overrides ───────────────────────────────────
 // Backs the role-default + per-user-override RBAC model documented in
 // docs/permissions.md. Used by src/lib/enterprise/permissions.ts.

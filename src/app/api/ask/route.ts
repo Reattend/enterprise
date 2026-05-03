@@ -11,6 +11,7 @@ import {
   buildAccessContext,
   filterToAccessibleRecords,
 } from '@/lib/enterprise'
+import { getHotCacheForOrg } from '@/lib/enterprise/hot-cache'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 import { consumeAiQuery } from '@/lib/billing/gates'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
@@ -1028,6 +1029,33 @@ Offers:
       ? '\n- When a memory is from a specific workspace, attribute it: "In your [Workspace] workspace, ..."'
       : ''
 
+    // ─── Hot Cache injection ───────────────────────────────────────────
+    // Per-org "what's actively hot this week" digest, prepended as system
+    // context. If the records being shown span multiple orgs (rare but
+    // possible for cross-org users), we include each org's cache. Failures
+    // are silent — Ask works without the hot cache, just less grounded.
+    let hotCacheBlock = ''
+    try {
+      const wsIds = Array.from(new Set(top.map(r => r.workspaceId)))
+      if (wsIds.length > 0) {
+        const orgRows = await db
+          .select({ organizationId: schema.workspaceOrgLinks.organizationId })
+          .from(schema.workspaceOrgLinks)
+          .where(inArray(schema.workspaceOrgLinks.workspaceId, wsIds))
+        const orgIds = Array.from(new Set(orgRows.map(r => r.organizationId)))
+        const blocks: string[] = []
+        for (const orgId of orgIds) {
+          const cache = await getHotCacheForOrg(orgId)
+          if (cache) blocks.push(cache)
+        }
+        if (blocks.length > 0) {
+          hotCacheBlock = `\n\nTOP-OF-MIND CONTEXT (org's active state, last 7 days — use to ground your answer alongside the memories below):\n${blocks.join('\n\n---\n\n')}\n`
+        }
+      }
+    } catch (e) {
+      console.warn('[ask] hot-cache lookup failed:', (e as Error).message)
+    }
+
     // Persona block: if an agent was passed, its systemPrompt replaces the
     // generic Reattend persona. The "Use only the memories below + cite [1]"
     // rules remain fixed — they're the safety layer, not the persona.
@@ -1053,6 +1081,7 @@ RULES:
 - If something isn't in the memories, say "I don't have this saved yet."
 - When asked to draft/create something (email, brief, presentation), use the memories as source material and produce a polished output.
 - For follow-up questions, give a complete standalone answer — never a fragment.${wsInstruction}
+${hotCacheBlock}
 ${entityProfileContext}
 MEMORIES:
 ${context}${linkedContext}

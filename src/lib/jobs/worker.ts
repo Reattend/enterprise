@@ -242,8 +242,26 @@ export function ensurePeriodicWorker(): void {
   // 1-day, and the post-downgrade "you're on Free now" note).
   setInterval(() => { trialMaintenanceTick().catch(err => console.error('[Worker] trial maintenance:', err)) }, 60 * 60 * 1000) // hourly
 
+  // Hot Cache regeneration (hourly): rebuilds the per-org "what's hot this
+  // week" digest that gets prepended to every Ask query. Deterministic for
+  // v1 — no LLM calls — so cheap. Each org takes ~5 SQL queries.
+  setInterval(() => {
+    import('@/lib/enterprise/hot-cache')
+      .then((m) => m.regenerateAllHotCaches())
+      .catch((err) => console.error('[Worker] hot-cache regen:', err))
+  }, 60 * 60 * 1000) // hourly
+
+  // Run hot-cache once at startup so brand-new boots have a fresh cache
+  // ~30 seconds after launch, not 1 hour.
+  setTimeout(() => {
+    import('@/lib/enterprise/hot-cache')
+      .then((m) => m.regenerateAllHotCaches())
+      .catch((err) => console.error('[Worker] initial hot-cache regen:', err))
+  }, 30_000)
+
   console.log('[Worker] Periodic retry scheduler started (every 30 min)')
   console.log('[Worker] Trial maintenance + email cadence started (hourly)')
+  console.log('[Worker] Hot-cache regeneration started (hourly + initial 30s)')
 }
 
 // ─── Trial maintenance: downgrades + reminder emails ────────────────────

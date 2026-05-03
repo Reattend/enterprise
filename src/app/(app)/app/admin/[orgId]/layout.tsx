@@ -17,6 +17,7 @@ import {
   Building2, Users, Network, ScrollText, Gauge, Settings, Sparkles, Gavel,
   Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus,
   GraduationCap, Megaphone, LineChart, FileScan, Chrome, ChevronRight,
+  Stethoscope,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -52,6 +53,7 @@ type NavItem = Leaf | Group
 
 const NAV: NavItem[] = [
   { type: 'leaf', key: 'overview',     label: 'Overview',     icon: Gauge,         path: '' },
+  { type: 'leaf', key: 'weekly-audit', label: 'Weekly audit', icon: Stethoscope,   path: '/weekly-audit' },
   { type: 'leaf', key: 'analytics',    label: 'Analytics',    icon: LineChart,     path: '/analytics' },
   {
     type: 'group',

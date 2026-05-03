@@ -792,6 +792,32 @@ export const departmentMembers = sqliteTable('department_members', {
   orgIdx: index('dm_org_idx').on(table.organizationId),
 }))
 
+// ─── Hot Cache ─────────────────────────────────────────────
+// Karpathy's "_hot.md" idea, applied per-org. A small (~500-token) markdown
+// digest of "what's actively hot this week" — top decisions, top contributors,
+// open threads, recent significant events. Prepended to every Ask/Chat
+// query as system context so the model has top-of-mind grounding without
+// burning RAG tokens on known-hot info.
+//
+// Refreshed by an hourly worker (deterministic generator for v1; LLM-synthesized
+// in a follow-up). One row per (organization_id, scope, scope_id):
+//   scope = 'org' → scope_id is null; the org-wide hot cache
+//   scope = 'user' → scope_id is the user_id (per-user hot cache, follow-up)
+//   scope = 'dept' → scope_id is the department_id (follow-up)
+export const hotCache = sqliteTable('hot_cache', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  scope: text('scope', { enum: ['org', 'user', 'dept'] }).notNull().default('org'),
+  scopeId: text('scope_id'), // null for org-scope; user_id or dept_id otherwise
+  content: text('content').notNull(), // ~500 tokens of markdown
+  generatedAt: text('generated_at').notNull().$defaultFn(() => new Date().toISOString()),
+  generatedFromRecordCount: integer('generated_from_record_count').notNull().default(0),
+  source: text('source').notNull().default('deterministic'), // 'deterministic' | 'llm'
+}, (table) => ({
+  uniq: uniqueIndex('hot_cache_uniq').on(table.organizationId, table.scope, table.scopeId),
+  orgIdx: index('hot_cache_org_idx').on(table.organizationId),
+}))
+
 // ─── Permission Overrides ─────────────────────────────────
 // Per-user grants/revokes on top of role defaults. The classic case: a COO
 // who isn't an admin but does need to see the audit log every week — instead
