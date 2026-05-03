@@ -23,16 +23,25 @@ interface BillingMe {
 const DISMISS_KEY = 'reattend.billing.trial-banner.dismissed-day'
 
 export function TrialBanner() {
+  // Mounted gate: prevents hydration mismatch. The first server render +
+  // first client render both produce nothing; only AFTER mount do we read
+  // sessionStorage / fetch /api/billing/me. Without this gate, React 18
+  // hydration throws #418 / #425 because sessionStorage doesn't exist on
+  // the server but does on the client.
+  const [mounted, setMounted] = useState(false)
   const [me, setMe] = useState<BillingMe | null>(null)
   const [dismissedDay, setDismissedDay] = useState<string | null>(null)
 
   useEffect(() => {
-    setDismissedDay(typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(DISMISS_KEY) : null)
+    setMounted(true)
+    try { setDismissedDay(sessionStorage.getItem(DISMISS_KEY)) } catch { /* private browsing */ }
     fetch('/api/billing/me')
       .then(r => (r.ok ? r.json() : null))
       .then(data => setMe(data))
       .catch(() => setMe(null))
   }, [])
+
+  if (!mounted) return null
 
   if (!me) return null
   if (me.tier === 'free') return null

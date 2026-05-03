@@ -3650,6 +3650,14 @@
  * ═════════════════════════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
+  /* Hide the desktop rail. Tailwind's `hidden md:flex` on the <aside> would
+     normally do this, but the `.enterprise-shell .rail` rule (specificity
+     0,2,0) beats `.hidden` (0,1,0) and forces display:flex. We need an
+     equally-or-more-specific rule to override. The mobile drawer renders
+     inside a fixed-position wrapper (not direct child of .app-grid) so
+     `.app-grid > aside.rail` only matches the desktop rail. */
+  .enterprise-shell .app-grid > aside.rail { display: none !important; }
+
   /* Topbar: keep the essentials (workspace switcher, plan pill, notifications,
      user menu). Hide the extension-install button, the dark-mode toggle, the
      feedback widget, and the docs popover — all reachable from settings or
@@ -3720,5 +3728,61 @@
   .enterprise-shell .topbar-v2 { padding: 0 10px; }
   /* Plan pill text-only */
   .enterprise-shell .plan-pill { padding: 3px 7px; }
+}
+
+
+/* ─── Mobile drawer override ────────────────────────────────────────────
+ * The drawer's <aside> gets `rail-mobile-drawer` so it renders in
+ * EXPANDED mode even when the shell has `sidebar-collapsed`. Without
+ * this, a user who collapsed the rail on desktop would see an icons-
+ * only drawer on phone — useless. Force full padding + show all the
+ * text labels the collapse rules normally hide.
+ * ─────────────────────────────────────────────────────────────────────── */
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer {
+  padding: 16px 12px !important;
+  width: 280px !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .brand {
+  justify-content: flex-start !important;
+  flex-direction: row !important;
+  padding: 0 4px 14px !important;
+  gap: 10px !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .brand > div:not(.brand-mark) {
+  display: block !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-collapse {
+  margin-left: auto !important;
+  margin-top: 0 !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-cta,
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-cta-2 {
+  padding: 11px 14px !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-cta > span,
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-cta-2 > span {
+  display: inline !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-nav a {
+  padding: 9px 10px !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-nav a > span,
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-nav a .badge {
+  display: inline !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-section,
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-recent {
+  display: flex !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-user {
+  flex-direction: row !important;
+  padding: 10px !important;
+}
+.enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer .rail-user > div:not(.rail-avatar) {
+  display: block !important;
 }
 

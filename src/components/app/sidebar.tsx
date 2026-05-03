@@ -138,13 +138,17 @@ export function AppSidebar() {
   const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase()
   const isSuper = enterpriseOrgs.some((o) => o.role === 'super_admin')
 
-  // Mobile drawer overlay
+  // Mobile drawer overlay. The `rail-mobile-drawer` class on the <aside>
+  // tells dashboard.css to render this rail in EXPANDED mode regardless of
+  // whether the shell has `sidebar-collapsed` (the user may have toggled
+  // collapse on desktop earlier — that should not carry into the mobile
+  // drawer, where horizontal real estate isn't an issue).
   if (mobileSidebarOpen) {
     return (
       <div className="fixed inset-0 z-50 md:hidden" onClick={() => setMobileSidebarOpen(false)}>
         <div className="absolute inset-0 bg-black/40" />
         <aside
-          className="rail absolute left-0 top-0 bottom-0 w-[280px]"
+          className="rail rail-mobile-drawer absolute left-0 top-0 bottom-0 w-[280px]"
           style={{ height: '100vh' }}
           onClick={(e) => e.stopPropagation()}
         >
