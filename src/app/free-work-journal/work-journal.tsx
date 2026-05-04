@@ -7,8 +7,8 @@ import {
   Copy, Check, Download, Mail, ArrowRight,
   Bookmark, Plus, Trash2, Pencil, FileText, BookOpen, Brain,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 import { FAQAccordion } from '@/components/landing/faq'
 import { Reveal } from '@/components/landing/reveal'
 
@@ -262,47 +262,14 @@ p{margin:0 0 8px}hr{border:none;border-top:1px solid #eee;margin:28px 0}.footer{
   // ── Render ───────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
-
-      {/* Hero */}
-      <section className="relative pt-16 md:pt-24 pb-10 md:pb-14 px-5 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/5 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-[1200px] mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-5">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5]">
-              <span className="w-2 h-2 rounded-full bg-[#4F46E5]" />
-              Free tool
-            </span>
-          </motion.div>
-
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-[36px] sm:text-[46px] md:text-[56px] font-bold tracking-[-0.03em] leading-[1.1]">
-            Free Work <span className="text-[#4F46E5]">Journal</span>
-          </motion.h1>
-
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.2 }} className="text-gray-500 mt-4 text-[17px] md:text-[19px] max-w-lg mx-auto">
-            A simple work journal you can use instantly. Free. No login. Nothing is saved.
-          </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            {['100% free', 'No account', 'Nothing stored', 'Browser-only'].map(badge => (
-              <span
-                key={badge}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-white/80 text-[12px] font-medium text-gray-600 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-              >
-                <Check className="w-3 h-3 text-[#4F46E5]" />
-                {badge}
-              </span>
-            ))}
-          </motion.div>
-
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-[12px] text-gray-400 mt-4">
-            Runs entirely in your browser. Your entries never leave your device.
-          </motion.p>
-        </div>
-      </section>
+    <MarketingShell>
+      <MarketingHero
+        eyebrow="Free tool"
+        title="Free Work"
+        emphasis="Journal"
+        emphasisJoiner=" "
+        lede="A simple work journal you can use instantly. Free. No login. Nothing is saved."
+      />
 
       {/* Journal */}
       <section className="px-5 pb-8">
@@ -581,7 +548,6 @@ p{margin:0 0 8px}hr{border:none;border-top:1px solid #eee;margin:28px 0}.footer{
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

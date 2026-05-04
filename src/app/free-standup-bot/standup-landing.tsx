@@ -17,8 +17,8 @@ import {
   Hash,
   Send,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 // ─── Shared Design ───────────────────────────────────────
 function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -138,15 +138,7 @@ export function StandupLanding({ faqItems }: StandupLandingProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] relative overflow-hidden">
-      {/* Gradient blobs */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/[0.04] blur-[100px]" />
-        <div className="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-[#7C3AED]/[0.04] blur-[100px]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/[0.03] blur-[120px]" />
-      </div>
-
-      <Navbar />
+    <MarketingShell>
 
       {/* Toast */}
       {showToast && (
@@ -174,16 +166,13 @@ export function StandupLanding({ faqItems }: StandupLandingProps) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-20"
         >
-          <SectionBadge>Free Forever</SectionBadge>
-          <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-[#1a1a2e] tracking-tight leading-[1.1]">
-            Async Standups for Slack
-            <br />
-            <span className="text-[#4F46E5]">Without the $3.50/user/mo</span>
-          </h1>
-          <p className="mt-5 text-lg text-[#555] max-w-2xl mx-auto leading-relaxed">
-            Daily standup DMs, custom questions, scheduled summaries - everything
-            Geekbot does, completely free. No credit card, no limits, no catch.
-          </p>
+          <MarketingHero
+        eyebrow="Free Slack app"
+        title="Async Standup"
+        emphasis="Bot"
+        emphasisJoiner=" "
+        lede="Run daily standups in Slack without meetings. Automated DMs, scheduled summaries, custom questions."
+      />
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/api/standup/install"
@@ -493,7 +482,6 @@ export function StandupLanding({ faqItems }: StandupLandingProps) {
         </motion.section>
       </main>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

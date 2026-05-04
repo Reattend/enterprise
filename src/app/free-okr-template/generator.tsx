@@ -13,8 +13,8 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -217,24 +217,20 @@ export function OkrGenerator({ faqItems }: Props) {
   const hasContent = objectives.some(o => o.title.trim())
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
+    <MarketingShell>
 
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
 
       {/* Hero */}
       <section className="relative z-10 pt-16 md:pt-20 pb-8 px-5 text-center">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5] mb-6">
-            <Target className="w-3.5 h-3.5" />
-            Free tool
-          </span>
-          <h1 className="text-[32px] md:text-[42px] font-bold tracking-[-0.03em] leading-[1.1]">
-            OKR <span className="text-[#4F46E5]">Template</span>
-          </h1>
-          <p className="text-gray-500 mt-4 text-[15px] max-w-xl mx-auto">
-            Create Objectives and Key Results for your team. Start from examples or build from scratch. Export as PDF.
-          </p>
+          <MarketingHero
+        eyebrow="Free tool"
+        title="OKR"
+        emphasis="Template"
+        emphasisJoiner=" "
+        lede="Create Objectives and Key Results for your team. Start from examples or build from scratch. Export as PDF."
+      />
         </motion.div>
       </section>
 
@@ -412,7 +408,6 @@ export function OkrGenerator({ faqItems }: Props) {
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

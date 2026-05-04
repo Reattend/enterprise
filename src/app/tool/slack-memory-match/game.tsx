@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowRight, MessageSquare, Users, Eye, Brain } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 // --------------- Shared Design ---------------
 
@@ -55,12 +55,7 @@ export function SlackMemoryMatch() {
   const error = searchParams.get('error')
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] relative overflow-hidden">
-      {/* Gradient blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/5 blur-3xl pointer-events-none" />
-
-      <Navbar />
+    <MarketingShell>
 
       {/* Status banners */}
       {installed && (
@@ -81,16 +76,13 @@ export function SlackMemoryMatch() {
       {/* Hero */}
       <section className="relative z-10 pt-16 md:pt-24 pb-12 px-5 text-center">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5] mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#4F46E5]" />
-            Free Slack App
-          </span>
-          <h1 className="text-[36px] md:text-[50px] font-bold tracking-[-0.03em] leading-[1.08]">
-            Memory Match
-          </h1>
-          <p className="text-gray-500 mt-4 text-[17px] leading-relaxed max-w-xl mx-auto">
-            A lightweight Slack game that shows how differently your team remembers the same moment.
-          </p>
+          <MarketingHero
+        eyebrow="Free Slack app"
+        title="Memory"
+        emphasis="Match"
+        emphasisJoiner=" "
+        lede="A lightweight Slack game that shows how differently your team remembers the same moment."
+      />
           <p className="text-[20px] text-[#1a1a2e] font-bold mt-6">
             Same conversation. Different memories.
           </p>
@@ -337,7 +329,6 @@ export function SlackMemoryMatch() {
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

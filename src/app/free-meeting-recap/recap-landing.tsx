@@ -17,8 +17,8 @@ import {
   Download,
   ListChecks,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 // ─── Shared Design ───────────────────────────────────────
 function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -125,15 +125,7 @@ export default function RecapLanding({ faqItems }: RecapLandingProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] relative overflow-hidden">
-      {/* Gradient blobs */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/[0.04] blur-[100px]" />
-        <div className="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-[#7C3AED]/[0.04] blur-[100px]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/[0.03] blur-[120px]" />
-      </div>
-
-      <Navbar />
+    <MarketingShell>
 
       <main className="relative z-10 max-w-5xl mx-auto px-4 pt-28 pb-20">
         {/* ── Hero ── */}
@@ -142,16 +134,13 @@ export default function RecapLanding({ faqItems }: RecapLandingProps) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-20"
         >
-          <SectionBadge>Free Alternative to Copilot Recaps</SectionBadge>
-          <h1 className="mt-4 text-4xl md:text-5xl font-extrabold text-[#1a1a2e] tracking-tight leading-[1.1]">
-            Meeting Recaps for
-            <br />
-            <span className="text-[#4F46E5]">Microsoft Teams</span>
-          </h1>
-          <p className="mt-5 text-lg text-[#555] max-w-2xl mx-auto leading-relaxed">
-            Capture decisions, action items, and notes from your team after every meeting.
-            No AI hallucinations, no $30/user/month. Just your team&apos;s real input, organized.
-          </p>
+          <MarketingHero
+        eyebrow="Free MS Teams app"
+        title="Meeting Recap"
+        emphasis="Collector"
+        emphasisJoiner=" "
+        lede="Capture decisions, action items, and notes from every meeting. A free alternative to Microsoft Copilot recaps."
+      />
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="#setup"
@@ -486,7 +475,6 @@ export default function RecapLanding({ faqItems }: RecapLandingProps) {
         </motion.section>
       </main>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

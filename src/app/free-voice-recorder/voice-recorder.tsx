@@ -7,8 +7,8 @@ import {
   Mic, Square, Pause, Play, Download, Mail, Copy, Check,
   ArrowRight, RotateCcw, Bookmark, Lock, Eye, Shield, Brain,
 } from 'lucide-react'
-import { Footer } from '@/components/landing/footer'
-import { Navbar } from '@/components/landing/navbar'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { FAQAccordion } from '@/components/landing/faq'
 
 // ── Types & Constants ──────────────────────────────────────
@@ -325,8 +325,7 @@ export function VoiceRecorder() {
 
   if (phase === 'idle') {
     return (
-      <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-        <Navbar />
+      <MarketingShell>
 
         {/* Background gradient blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -335,16 +334,13 @@ export function VoiceRecorder() {
         {/* Hero */}
         <section className="relative z-10 pt-16 md:pt-20 pb-8 px-5 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5] mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#4F46E5]" />
-              Free tool
-            </span>
-            <h1 className="text-[36px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.1]">
-              Free Voice <span className="text-[#4F46E5]">Recorder</span>
-            </h1>
-            <p className="text-gray-500 mt-4 text-[16px] max-w-xl mx-auto">
-              Record voice notes instantly. No login. No uploads. Runs in your browser.
-            </p>
+            <MarketingHero
+        eyebrow="Free tool"
+        title="Free Voice"
+        emphasis="Recorder"
+        emphasisJoiner=" "
+        lede="Record voice notes instantly. No login. No uploads. Runs in your browser."
+      />
 
             {/* Trust badges */}
             <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
@@ -462,8 +458,7 @@ export function VoiceRecorder() {
           </div>
         </section>
 
-        <Footer />
-      </div>
+        </MarketingShell>
     )
   }
 
@@ -475,8 +470,7 @@ export function VoiceRecorder() {
     const isRecording = phase === 'recording'
 
     return (
-      <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-        <Navbar />
+      <MarketingShell>
 
         {/* Background gradient blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -543,7 +537,7 @@ export function VoiceRecorder() {
             Don&apos;t close this tab while recording.
           </p>
         </div>
-      </div>
+      </MarketingShell>
     )
   }
 
@@ -552,8 +546,7 @@ export function VoiceRecorder() {
   // ────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
+    <MarketingShell>
 
       {/* Background gradient blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -725,7 +718,6 @@ export function VoiceRecorder() {
         </motion.div>
       </div>
 
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }
