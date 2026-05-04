@@ -1,7 +1,7 @@
 import React from 'react'
 import { Metadata } from 'next'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export const metadata: Metadata = {
   title: 'Sub-processors - Reattend',
@@ -46,7 +46,7 @@ export default function SubprocessorsPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <div className="px-5 pt-16 pb-10 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4F46E5]/8 text-[#4F46E5] text-[13px] font-semibold mb-5">
@@ -142,7 +142,7 @@ export default function SubprocessorsPage() {
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

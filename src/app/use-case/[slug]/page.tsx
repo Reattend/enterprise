@@ -13,8 +13,8 @@ import {
   ArrowRightLeft,
   BookOpen,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { USE_CASES, getUseCaseBySlug } from '@/lib/use-cases/data'
 import { USE_CASE_CONTENT } from '@/lib/use-cases/content'
 
@@ -74,7 +74,7 @@ export default function UseCasePage({ params }: { params: { slug: string } }) {
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#818CF8]/6 to-[#C084FC]/4 blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[900px] mx-auto px-5 pt-12 pb-24">
         {/* Back link */}
@@ -164,7 +164,7 @@ export default function UseCasePage({ params }: { params: { slug: string } }) {
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

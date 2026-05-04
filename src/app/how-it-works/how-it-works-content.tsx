@@ -13,8 +13,8 @@ import {
   FolderKanban,
   CheckCircle2,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 // ─── Step card with mock UI illustration ───
 function StepIllustration({ step }: { step: number }) {
@@ -251,7 +251,7 @@ const steps = [
 export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background gradient blobs */}
       <div className="pointer-events-none fixed inset-0 z-0">
@@ -418,7 +418,7 @@ export default function HowItWorksPage() {
         </motion.div>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

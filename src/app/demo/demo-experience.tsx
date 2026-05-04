@@ -8,8 +8,8 @@ import {
   AlertTriangle, Search, Rocket, RotateCcw, AlertCircle,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { useDemoStore, type TriageResult } from './demo-store'
 import {
   demoExampleNote, typeConfig, seededMemories, askSuggestions,
@@ -180,7 +180,7 @@ export function DemoExperience() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F5F5FF] via-white to-white">
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-4xl mx-auto px-5 pt-10 pb-20">
         {/* Hero - changes per phase */}
@@ -648,7 +648,7 @@ export function DemoExperience() {
         </AnimatePresence>
       </main>
 
-      {phase === 'finale' && <Footer />}
+      {phase === 'finale' && <MarketingFooter />}
     </div>
   )
 }

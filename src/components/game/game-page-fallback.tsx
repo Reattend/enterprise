@@ -1,5 +1,5 @@
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 interface GamePageFallbackProps {
   title: string
@@ -14,7 +14,7 @@ export function GamePageFallback({ title, description, steps }: GamePageFallback
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[800px] mx-auto px-5 pt-16 pb-24">
         <div className="text-center mb-10">
@@ -45,7 +45,7 @@ export function GamePageFallback({ title, description, steps }: GamePageFallback
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

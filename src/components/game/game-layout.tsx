@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 interface GameLayoutProps {
   children: React.ReactNode
@@ -28,7 +28,7 @@ export function GameLayout({
 }: GameLayoutProps) {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background gradient blobs */}
       {bgBlobs}
@@ -104,7 +104,7 @@ export function GameLayout({
       {/* CTA */}
       {ctaSection}
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

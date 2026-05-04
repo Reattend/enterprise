@@ -7,8 +7,8 @@ import {
   Mic, Square, Pause, Play, Download, Mail, Copy, Check,
   ArrowRight, AlertCircle, RotateCcw, Brain,
 } from 'lucide-react'
-import { Footer } from '@/components/landing/footer'
-import { Navbar } from '@/components/landing/navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 
 // ── Shared Styles ──────────────────────────────────────────
 
@@ -270,7 +270,7 @@ export function MeetingRecorder() {
   if (phase === 'idle') {
     return (
       <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-        <Navbar />
+        <MarketingNavbar />
 
         {/* Background gradient blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -416,7 +416,7 @@ export function MeetingRecorder() {
           </div>
         </section>
 
-        <Footer />
+        <MarketingFooter />
       </div>
     )
   }
@@ -428,7 +428,7 @@ export function MeetingRecorder() {
 
     return (
       <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-        <Navbar />
+        <MarketingNavbar />
 
         {/* Background gradient blobs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -533,7 +533,7 @@ export function MeetingRecorder() {
   // ── Done / Review ────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background gradient blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -692,7 +692,7 @@ export function MeetingRecorder() {
         </motion.div>
       </div>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

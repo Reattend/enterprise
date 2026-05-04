@@ -3,8 +3,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Mail } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { HelpBreadcrumbs } from '@/components/help/help-breadcrumbs'
 import { HelpSidebar } from '@/components/help/help-sidebar'
 import { HELP_CATEGORIES, getCategoryBySlug, getArticleBySlug } from '@/lib/help/data'
@@ -61,7 +61,7 @@ export default function ArticlePage({ params }: { params: { category: string; ar
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#818CF8]/6 to-[#C084FC]/4 blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[1100px] mx-auto px-5 pt-12 pb-24">
         <HelpBreadcrumbs
@@ -123,7 +123,7 @@ export default function ArticlePage({ params }: { params: { category: string; ar
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

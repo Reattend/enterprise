@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { Copy, Check } from 'lucide-react'
 
 function CopyButton({ text }: { text: string }) {
@@ -170,7 +170,7 @@ export function DocsContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <MarketingNavbar />
 
       <div className="max-w-[1100px] mx-auto px-5 pt-20 pb-24">
         {/* Header */}
@@ -363,7 +363,7 @@ export function DocsContent() {
         </div>
       </div>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

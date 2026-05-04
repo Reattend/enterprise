@@ -2,8 +2,8 @@ import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export const metadata: Metadata = {
   title: 'Slack Integration - Reattend',
@@ -59,7 +59,7 @@ export default function SlackLandingPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gradient-to-br from-[#4A154B]/6 via-[#4F46E5]/5 to-transparent blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Hero */}
       <section className="px-5 pt-20 pb-16 text-center max-w-[760px] mx-auto">
@@ -173,7 +173,7 @@ export default function SlackLandingPage() {
         </div>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

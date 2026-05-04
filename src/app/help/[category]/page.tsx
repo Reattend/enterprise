@@ -3,8 +3,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { HelpBreadcrumbs } from '@/components/help/help-breadcrumbs'
 import { HELP_CATEGORIES, getCategoryBySlug } from '@/lib/help/data'
 
@@ -39,7 +39,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#818CF8]/6 to-[#C084FC]/4 blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[900px] mx-auto px-5 pt-12 pb-24">
         <HelpBreadcrumbs crumbs={[{ label: cat.title }]} />
@@ -68,7 +68,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

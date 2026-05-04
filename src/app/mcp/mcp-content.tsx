@@ -7,8 +7,8 @@ import {
   Search, MessageSquare, BookmarkPlus, Clock,
   Terminal, Zap, ArrowRight, Check, GitPullRequest,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 /* ── Particle canvas ──────────────────────────────────────────────────────── */
 function Particles() {
@@ -146,7 +146,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 export default function McpContent() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/60 via-white to-white pt-28 pb-20">
@@ -591,7 +591,7 @@ curl https://reattend.com/api/tray/recent?limit=10 \\
         </Reveal>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

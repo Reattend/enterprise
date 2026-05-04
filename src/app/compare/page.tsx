@@ -2,8 +2,8 @@ import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { COMPETITORS } from '@/lib/compare/data'
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function CompareIndexPage() {
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#818CF8]/6 to-[#C084FC]/4 blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[1100px] mx-auto px-5 pt-16 pb-24">
         {/* Hero */}
@@ -99,7 +99,7 @@ export default function CompareIndexPage() {
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

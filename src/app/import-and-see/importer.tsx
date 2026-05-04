@@ -8,8 +8,8 @@ import {
   Calendar, Lightbulb, FolderOpen, ChevronDown, ChevronUp,
   RotateCcw, Rocket, AlertCircle, BookOpen,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 // ─── Type config (mirrors demo-data) ────────────────
 const typeConfig: Record<string, { label: string; color: string; bg: string; emoji: string }> = {
@@ -213,7 +213,7 @@ export function Importer({ faqItems }: ImporterProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F5F5FF] via-white to-white">
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-3xl mx-auto px-5 pt-12 pb-20">
         {/* Hero */}
@@ -682,7 +682,7 @@ export function Importer({ faqItems }: ImporterProps) {
         </motion.section>
       </main>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

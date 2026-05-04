@@ -3,8 +3,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, BookOpen, FileText, Wrench, Link2 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { getAllGlossaryTerms, getGlossaryTermBySlug } from '@/lib/glossary/data'
 
 export function generateStaticParams() {
@@ -50,7 +50,7 @@ export default function GlossaryTermPage({ params }: { params: { slug: string } 
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="relative py-16 md:py-24 px-5 overflow-hidden">
         {/* Background gradient blobs */}
@@ -201,7 +201,7 @@ export default function GlossaryTermPage({ params }: { params: { slug: string } 
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

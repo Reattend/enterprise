@@ -6,15 +6,15 @@ import {
   ArrowRight, Check, GraduationCap, MessageSquare, FileText,
   Users, Briefcase, AlertTriangle,
 } from 'lucide-react'
-import { SiteNav } from '@/components/landing/site-nav'
-import { SiteFooter } from '@/components/landing/site-footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export default function ExitInterviewPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1a1a2e] overflow-x-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full bg-gradient-to-br from-violet-200/30 via-fuchsia-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <SiteNav />
+      <MarketingNavbar />
 
       <section className="relative pt-10 md:pt-14 pb-16 md:pb-20">
         <div className="max-w-6xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
@@ -105,7 +105,7 @@ export default function ExitInterviewPage() {
       </section>
 
       <ClosingCTA />
-      <SiteFooter />
+      <MarketingFooter />
     </div>
   )
 }

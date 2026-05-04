@@ -18,8 +18,8 @@ import {
   Trophy,
   Gamepad2,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -147,7 +147,7 @@ const games: Game[] = [
 export default function GamesPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background gradient blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -267,7 +267,7 @@ export default function GamesPage() {
         </div>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Metadata } from 'next'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import SecurityContent from './security-content'
 
 export const metadata: Metadata = {
@@ -66,13 +66,13 @@ const faqJsonLd = {
 export default function SecurityPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <SecurityContent />
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

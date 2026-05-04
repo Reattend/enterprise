@@ -6,15 +6,15 @@ import {
   ArrowRight, Check, History, Calendar, Gavel, Sparkles,
   Network, Eye,
 } from 'lucide-react'
-import { SiteNav } from '@/components/landing/site-nav'
-import { SiteFooter } from '@/components/landing/site-footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export default function TimeMachinePage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1a1a2e] overflow-x-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full bg-gradient-to-br from-amber-200/30 via-orange-100/20 to-transparent blur-3xl pointer-events-none" />
 
-      <SiteNav />
+      <MarketingNavbar />
 
       {/* Hero */}
       <section className="relative pt-10 md:pt-14 pb-16 md:pb-20">
@@ -87,7 +87,7 @@ export default function TimeMachinePage() {
       </section>
 
       <ClosingCTA />
-      <SiteFooter />
+      <MarketingFooter />
     </div>
   )
 }

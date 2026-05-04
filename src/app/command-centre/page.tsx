@@ -6,15 +6,15 @@ import {
   ArrowRight, Check, Activity, AlertTriangle, ScrollText,
   Sparkles, Building2, Users, Gauge,
 } from 'lucide-react'
-import { SiteNav } from '@/components/landing/site-nav'
-import { SiteFooter } from '@/components/landing/site-footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export default function CommandCentrePage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1a1a2e] overflow-x-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full bg-gradient-to-br from-neutral-200/50 via-neutral-100/30 to-transparent blur-3xl pointer-events-none" />
 
-      <SiteNav />
+      <MarketingNavbar />
 
       {/* Hero */}
       <section className="relative pt-10 md:pt-14 pb-16 md:pb-20">
@@ -88,7 +88,7 @@ export default function CommandCentrePage() {
       </section>
 
       <ClosingCTA />
-      <SiteFooter />
+      <MarketingFooter />
     </div>
   )
 }

@@ -2,8 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { ArrowRight, BookOpen } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { getAllGlossaryTerms } from '@/lib/glossary/data'
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function GlossaryPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="relative py-16 md:py-24 px-5 overflow-hidden">
         {/* Background gradient blobs */}
@@ -99,7 +99,7 @@ export default function GlossaryPage() {
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowRight, Gamepad2, AlertCircle } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { GlassCard } from '@/components/game/glass-card'
 
 const PLAYER_NAME_KEY = 'reattend-game-player-name'
@@ -111,7 +111,7 @@ export function PlayJoin() {
 
   return (
     <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
@@ -209,7 +209,7 @@ export function PlayJoin() {
         </div>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }

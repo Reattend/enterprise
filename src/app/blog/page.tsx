@@ -2,8 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { ArrowRight, Clock, Calendar } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { BLOG_POSTS, formatDate } from '@/lib/blog/data'
 
 export const metadata: Metadata = {
@@ -42,7 +42,7 @@ export default function BlogPage() {
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#818CF8]/6 to-[#C084FC]/4 blur-3xl" />
       </div>
 
-      <Navbar />
+      <MarketingNavbar />
 
       <main className="max-w-[900px] mx-auto px-5 pt-16 pb-24">
         {/* Header */}
@@ -113,7 +113,7 @@ export default function BlogPage() {
         </div>
       </main>
 
-      <Footer />
+      <MarketingFooter />
 
       <script
         type="application/ld+json"

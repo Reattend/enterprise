@@ -31,8 +31,8 @@ import {
   BookOpen,
   Video,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
+import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 // ─── Feature Card ───
 interface Feature {
@@ -296,7 +296,7 @@ const categories: Category[] = [
 export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
-      <Navbar />
+      <MarketingNavbar />
 
       {/* Background gradient blobs */}
       <div className="pointer-events-none fixed inset-0 z-0">
@@ -390,7 +390,7 @@ export default function FeaturesPage() {
         </motion.div>
       </section>
 
-      <Footer />
+      <MarketingFooter />
     </div>
   )
 }
