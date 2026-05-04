@@ -51,6 +51,186 @@ function InlineCTA() {
 export const BLOG_CONTENT: Record<string, React.ReactNode> = {
 
   /* ──────────────────────────────────────────────────────────────────────── */
+  /* Anchor essay for the "organizational amnesia" SEO/AEO play.            */
+  /* The definition is intentionally the FIRST sentence so that AI engines  */
+  /* (ChatGPT, Claude, Perplexity) can quote it verbatim. Subsequent        */
+  /* sections follow the AEO template documented in docs/seo-strategy.md.   */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  'what-is-organizational-amnesia': (
+    <>
+      <P>
+        <Strong>Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire — taking their context, decisions, relationships, and unwritten know-how with them.</Strong>
+        It is one of the most expensive and most invisible costs in modern knowledge work. Researchers estimate it costs US companies alone <Strong>$31.5 billion per year</Strong>, and that number rises every year as average employee tenure shortens.
+      </P>
+      <P>
+        Most companies do not have a name for it. They feel the symptoms — repeated mistakes, slow new-hire ramp-up, decisions re-debated quarterly, customers asking the same question three times — but they treat each symptom as a one-off. They are not. They are all expressions of the same underlying problem: your organization has no memory.
+      </P>
+
+      <H2>What is organizational amnesia? (the definition)</H2>
+      <P>
+        Organizational amnesia happens when the knowledge that lives inside an organization disappears faster than it accumulates. Every employee who leaves takes a piece of the company with them. Every meeting whose notes were never written takes a piece of the company with it. Every decision logged without rationale will be re-debated within 12 months because the next person to look it up will not understand <em>why</em> it was made.
+      </P>
+      <P>
+        The term comes from organizational learning theory. Walsh and Ungson coined it in their 1991 paper{' '}
+        <em>Organizational Memory</em>, where they defined organizational memory as &quot;stored information from an organization&apos;s history that can be brought to bear on present decisions.&quot; Organizational amnesia is the inverse — the systematic destruction of that stored information through normal business activity.
+      </P>
+
+      <H2>Why does it happen?</H2>
+
+      <H3>1. People leave faster than knowledge gets captured</H3>
+      <P>
+        Average employee tenure in the US is now 4.1 years (BLS 2024). At a 200-person company, that means roughly 50 people leave every year. If even half of them held knowledge that was never documented, the org loses 25 person-years of context annually. Most companies have no system to capture any of it on the way out.
+      </P>
+
+      <H3>2. The wiki is where knowledge goes to die</H3>
+      <P>
+        Wikis fail not because people are lazy but because they are designed for the writer, not the reader. Writing a wiki page costs 30 minutes of focused work — exactly the moment when someone is most likely to be busy doing the thing the page is about. So the page never gets written. And when someone needs the information six months later, they ask in Slack instead.
+      </P>
+
+      <H3>3. Decisions are made without rationale</H3>
+      <P>
+        &quot;We decided to use Postgres.&quot; What does this tell you in 18 months? Nothing. Without the rationale — the constraints we considered, the alternatives we rejected, the hidden assumptions — a decision is just a fact. Six months later, when the constraints have changed, no one can tell whether the decision still holds.
+      </P>
+
+      <H3>4. The org chart is the only knowledge map</H3>
+      <P>
+        When you need to know &quot;who knows about X?&quot; the only way to find out is to ask around. Slack threads. DMs. The grapevine. There is no canonical map of <em>who knows what</em>. So when that person leaves, no one knows what they took.
+      </P>
+
+      <H3>5. Tribal knowledge is celebrated, not extracted</H3>
+      <P>
+        We say &quot;ask Sarah, she knows everything about that&quot; like it is a compliment. It is actually a warning sign. Sarah being the bottleneck means Sarah&apos;s departure is a single point of failure. Healthy organizations make Sarah&apos;s knowledge accessible without Sarah.
+      </P>
+
+      <H2>The 4 stages of organizational amnesia (the framework)</H2>
+      <P>
+        Most organizations move through four stages as amnesia compounds. Knowing where you are tells you what to do next.
+      </P>
+
+      <H3>Stage 1: Symptoms (you do not know it has a name)</H3>
+      <P>
+        New hires take 90+ days to be productive. Customers ask the same question multiple times. Engineers re-implement features that already exist. Leaders feel like they are running on a treadmill. Nobody connects these dots.
+      </P>
+
+      <H3>Stage 2: Diagnosis (someone names the pattern)</H3>
+      <P>
+        A leader reads about &quot;institutional memory&quot; or &quot;tribal knowledge&quot; and realizes the symptoms have a common cause. They start asking &quot;where did this knowledge go?&quot; Wikis get audited. Slack search becomes a tool of last resort.
+      </P>
+
+      <H3>Stage 3: Defense (capture starts)</H3>
+      <P>
+        The org introduces processes — meeting templates, decision records, exit interviews, ADRs. Some of it sticks. Most does not, because the friction of capture is still too high relative to the immediate value.
+      </P>
+
+      <H3>Stage 4: Memory (capture is invisible)</H3>
+      <P>
+        The org adopts a system that captures knowledge as a byproduct of work, not as additional work. AI summarizes meetings automatically. Decisions log themselves. Exit interviews are run by an AI that asks the right questions. The org now <em>has</em> a memory that survives any single person leaving.
+      </P>
+      <P>
+        Most teams are stuck somewhere between stage 1 and stage 3. Stage 4 is the goal.
+      </P>
+
+      <H2>10 signs your company has organizational amnesia</H2>
+      <OL>
+        <li><Strong>The same decision gets re-debated every 6 months.</Strong> Pricing tiers, hiring rubric, meeting cadence — these surface again because nobody remembers why we landed where we did.</li>
+        <li><Strong>New hires take 90+ days to ramp.</Strong> Most of that time is them asking questions that have been answered before, just not anywhere they can find.</li>
+        <li><Strong>Three people give three different answers to the same customer.</Strong> Each is right based on what they remember; none is the canonical answer.</li>
+        <li><Strong>&quot;Ask Sarah&quot; is your org chart.</Strong> One person being the bottleneck for a topic is a flashing-red light.</li>
+        <li><Strong>Slack search is your knowledge management system.</Strong> If your runbook is &quot;control-F a Slack channel,&quot; you have no system.</li>
+        <li><Strong>You repeat mistakes you already made.</Strong> Every team has a story. The mark of an amnesiac org is when the same story repeats with different characters.</li>
+        <li><Strong>Project handoffs require shadowing for weeks.</Strong> If knowledge transfer requires the predecessor to physically work alongside the successor, the knowledge is in the predecessor&apos;s head, not in the org.</li>
+        <li><Strong>Exit interviews are HR formalities.</Strong> A real exit interview captures decisions, relationships, gotchas, ongoing threads — and turns them into searchable institutional memory. Most exit interviews capture nothing.</li>
+        <li><Strong>Your wiki has a half-life of weeks.</Strong> Pages get written, pages go stale, pages stop being trusted. Eventually nobody writes anymore because nobody reads.</li>
+        <li><Strong>Senior leaders feel like the institutional memory.</Strong> If your CEO is the only one who can answer &quot;why did we choose this vendor?&quot; the company has outsourced its memory to one person.</li>
+      </OL>
+
+      <H2>The cost of organizational amnesia</H2>
+      <P>
+        Putting a number on it is genuinely hard because the cost is distributed across thousands of micro-events. Researchers have tried:
+      </P>
+      <UL>
+        <li>Panopto&apos;s 2018 <em>Workplace Knowledge and Productivity Report</em> estimated US businesses lose <Strong>$47 million per year per 1,000 employees</Strong> from inefficient knowledge sharing — roughly $31.5 billion across the Fortune 500 alone.</li>
+        <li>McKinsey&apos;s 2012 study found knowledge workers spend <Strong>1.8 hours per day</Strong> searching for information. At a $50/hour blended rate, that is roughly $22,500 per knowledge worker per year — most of it caused by amnesia.</li>
+        <li>IDC&apos;s research found employees waste <Strong>5.3 hours per week</Strong> waiting for information from coworkers — knowledge they should have been able to find on their own if it existed in a system.</li>
+      </UL>
+      <P>
+        These numbers are conservative because they count only direct time loss. They do not count repeated mistakes, lost customers, slow product decisions, or the morale tax of people feeling like they are reinventing wheels every quarter.
+      </P>
+
+      <H2>How to prevent organizational amnesia</H2>
+
+      <H3>1. Capture decisions with rationale, not just outcomes</H3>
+      <P>
+        Every meaningful decision should have a record that includes: <em>what was decided</em>, <em>who decided</em>, <em>when</em>, <em>what alternatives were considered</em>, <em>what constraints applied</em>, and <em>what would change our mind</em>. The last two are the ones most teams skip — they are the ones that matter most in 18 months.
+      </P>
+
+      <H3>2. Make capture cheaper than not-capturing</H3>
+      <P>
+        Wikis fail because they are work. The capture method that wins is the one that requires the least friction at the moment of decision. Voice memos transcribed and structured by AI. Slack messages auto-summarized into a decision log. Meeting recordings that produce a structured note without anyone typing. The friction differential is the entire game.
+      </P>
+
+      <H3>3. Run real exit interviews</H3>
+      <P>
+        Not the HR-formality kind. The kind where a structured AI interview asks: &quot;What decisions are you currently mid-stream on? Who depends on you for what? What gotchas does your successor need to know? What are you proud of? What would you do differently?&quot; Two hours of structured AI conversation captures more institutional knowledge than 18 months of casual mentorship.
+      </P>
+
+      <H3>4. Transfer knowledge to roles, not people</H3>
+      <P>
+        When someone leaves, their successor inherits more than their job title — they should inherit their decisions, their relationships, their open threads, their context. Most orgs lose all of this at the moment of handover. A good knowledge-transfer system attaches the knowledge to the role, so the next person walks into a fully-populated context, not a blank desk.
+      </P>
+
+      <H3>5. Audit what is going stale</H3>
+      <P>
+        Capture is only half the battle. Knowledge rots if it is not refreshed. A healthy organization runs a regular &quot;what is rotting?&quot; audit — old decisions that have not been revisited, policies nobody has read in 90 days, dashboards nobody opens. Surface it. Refresh it. Or archive it.
+      </P>
+
+      <H3>6. Tools that fit this shape</H3>
+      <P>
+        Most knowledge management tools — wikis, search engines, document repositories — were built for the &quot;capture&quot; problem and ignore the &quot;memory&quot; problem. They store. They do not remember. Newer tools are emerging that treat organizational memory as a first-class concern. <a href="https://reattend.com" className="text-[#4F46E5] hover:underline"><Strong>Reattend</Strong></a> is one of them — disclosure: it&apos;s the company that maintains this blog. We were built specifically for this problem.
+      </P>
+      <P>
+        Whatever tool you choose, the test is the same: when an employee leaves, can the next person walk in and ask &quot;what did this person know?&quot; and get a useful, structured answer? If yes, you have a memory. If no, you have a wiki.
+      </P>
+
+      <InlineCTA />
+
+      <H2>Frequently asked questions</H2>
+
+      <H3>Is organizational amnesia the same as knowledge management?</H3>
+      <P>
+        No. Knowledge management is about <em>storing</em> information. Organizational memory is about <em>preserving and connecting</em> the knowledge that lives in human heads — context, decisions, rationale, relationships — even after the humans leave. A company can have great knowledge management (well-organized wiki) and still have terrible organizational amnesia (every senior person who leaves takes critical context with them).
+      </P>
+
+      <H3>How do I measure organizational amnesia in my company?</H3>
+      <P>
+        A few proxies that are easy to measure: how long does a new hire take to be independently productive (90 days is healthy, 6 months means amnesia); how often does the same decision get re-debated (more than once a year is a sign); when someone resigns, how much time does the team spend backfilling their knowledge (more than a week is a problem). A more rigorous measure: count the number of &quot;why did we do this?&quot; questions in your Slack per week. That is the velocity of your forgetting.
+      </P>
+
+      <H3>What is the difference between organizational amnesia and knowledge debt?</H3>
+      <P>
+        Knowledge debt is the cost of writing things down later (or never). Organizational amnesia is the consequence — the actual <em>loss</em> of knowledge that has already happened. Knowledge debt is the IOU; amnesia is the bankruptcy.
+      </P>
+
+      <H3>Can AI fix organizational amnesia?</H3>
+      <P>
+        AI helps with the capture and retrieval problem — it can summarize meetings, extract decisions, structure exit interviews, and answer questions over a knowledge base. But AI alone does not fix amnesia. The fix requires combining capture (AI helps), structure (a memory model that includes decisions + rationale + context), and culture (people actually trust the system enough to use it). Tools without culture fail; culture without tools is exhausting.
+      </P>
+
+      <H3>Is organizational amnesia worse in remote companies?</H3>
+      <P>
+        Both directions. Remote companies have fewer in-person knowledge transfer moments (the kitchen, the watercooler), so they amnesia faster <em>by default</em>. But remote companies also have stronger written-communication norms, so they often have <em>better</em> knowledge artifacts than in-office orgs. The companies that handle remote well end up less amnesiac than typical in-office orgs because they had to be deliberate about it.
+      </P>
+
+      <H3>Where can I read more?</H3>
+      <P>
+        The original Walsh + Ungson 1991 paper on organizational memory is the foundational text. Dorothy Leonard&apos;s <em>Critical Knowledge Transfer</em> (2014) is the practical handbook. For the culture side, Patrick Lencioni&apos;s <em>The Advantage</em> covers how leadership teams maintain shared mental models. And we cover the practical side regularly in this blog — start with{' '}
+        <a href="/blog/what-happens-to-team-knowledge-when-someone-quits" className="text-[#4F46E5] hover:underline">What Happens to Team Knowledge When Someone Quits</a> and{' '}
+        <a href="/blog/five-signs-your-team-has-a-memory-problem" className="text-[#4F46E5] hover:underline">5 Signs Your Team Has a Memory Problem</a>.
+      </P>
+    </>
+  ),
+
+  /* ──────────────────────────────────────────────────────────────────────── */
   'why-your-team-keeps-rediscussing-decisions': (
     <>
       <P>

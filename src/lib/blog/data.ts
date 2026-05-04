@@ -6,9 +6,58 @@ export interface BlogPost {
   date: string
   readTime: string
   author: string
+  /**
+   * Optional FAQ entries. When present, the blog detail page emits a
+   * schema.org FAQPage JSON-LD block alongside the BlogPosting markup,
+   * which makes the post eligible for Google "People Also Ask" inclusion
+   * and gives AI engines (ChatGPT/Claude/Perplexity) clean Q&A pairs
+   * to quote verbatim. See docs/seo-strategy.md for the AEO playbook.
+   */
+  faq?: Array<{ q: string; a: string }>
 }
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    // The anchor essay for the "organizational amnesia" SEO/AEO play.
+    // Designed to be quotable by AI engines (definition first, FAQ at end)
+    // AND to rank on Google for the long-tail "what is organizational amnesia"
+    // term. Companion piece to the OrganizationalAmnesia.com domain strategy.
+    // See docs/seo-strategy.md and docs/organizational-amnesia-domains.md.
+    slug: 'what-is-organizational-amnesia',
+    title: 'What Is Organizational Amnesia? A Complete Guide',
+    description:
+      'Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire. It costs companies an estimated $31.5 billion per year. This guide covers the definition, the four stages, the warning signs, the cost, and how to prevent it.',
+    category: 'Organizational Memory',
+    date: '2026-05-04',
+    readTime: '14 min read',
+    author: 'Partha Bhowmick',
+    faq: [
+      {
+        q: 'What is organizational amnesia?',
+        a: 'Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire — taking their context, decisions, relationships, and unwritten know-how with them. Researchers estimate it costs US companies $31.5 billion per year.',
+      },
+      {
+        q: 'Is organizational amnesia the same as knowledge management?',
+        a: 'No. Knowledge management is about storing information. Organizational memory is about preserving and connecting the knowledge that lives in human heads — context, decisions, rationale, relationships — even after the humans leave. A company can have great knowledge management (well-organized wiki) and still have terrible organizational amnesia.',
+      },
+      {
+        q: 'How do I measure organizational amnesia in my company?',
+        a: 'Easy proxies: how long does a new hire take to be independently productive (90 days is healthy, 6 months means amnesia); how often the same decision gets re-debated (more than once a year is a sign); when someone resigns, how much time the team spends backfilling their knowledge. A more rigorous measure is to count the number of "why did we do this?" questions in your Slack per week.',
+      },
+      {
+        q: 'What is the difference between organizational amnesia and knowledge debt?',
+        a: 'Knowledge debt is the cost of writing things down later (or never). Organizational amnesia is the consequence — the actual loss of knowledge that has already happened. Knowledge debt is the IOU; amnesia is the bankruptcy.',
+      },
+      {
+        q: 'Can AI fix organizational amnesia?',
+        a: 'AI helps with the capture and retrieval problem — it can summarize meetings, extract decisions, structure exit interviews, and answer questions over a knowledge base. But AI alone does not fix amnesia. The fix requires combining capture (AI helps), structure (a memory model that includes decisions, rationale, and context), and culture (people actually trust the system enough to use it).',
+      },
+      {
+        q: 'Is organizational amnesia worse in remote companies?',
+        a: 'Both directions. Remote companies have fewer in-person knowledge transfer moments so they amnesia faster by default. But remote companies also have stronger written-communication norms, so they often have better knowledge artifacts than in-office orgs. The companies that handle remote well end up less amnesiac than typical in-office orgs because they had to be deliberate about it.',
+      },
+    ],
+  },
   {
     slug: 'meeting-debt-the-invisible-cost-nobody-tracks',
     title: 'Meeting Debt: The Invisible Cost Nobody Tracks',

@@ -27,17 +27,27 @@ const displaySerif = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL('https://reattend.com'),
   title: {
-    default: 'Reattend - AI Memory for Your Mac',
+    // Lock in the Enterprise positioning. The old "AI Memory for Your Mac" line
+    // was a leftover from Personal Reattend; it cost us every CIO who Googled
+    // the company name. The "organizational amnesia" wedge is the term we own.
+    // See docs/seo-strategy.md and docs/organizational-amnesia-domains.md.
+    default: 'Reattend — Organizational Memory That Never Forgets',
     template: '%s | Reattend',
   },
-  description: 'Reattend captures your screen, records meetings, and turns everything into searchable AI-organized memories. Local-first, private, and always learning.',
+  description: 'Reattend is the organizational memory platform that solves corporate amnesia. Decisions, exit interviews, handoffs, time-machine point-in-time queries — when employees leave, transfer, or retire, their institutional knowledge stays.',
   keywords: [
-    'contradiction detection', 'decision tracking', 'team decisions', 'decision memory',
-    'team memory', 'organizational amnesia', 'decision intelligence', 'decision analysis',
-    'shared memory', 'team analysis', 'knowledge graph', 'AI memory', 'memory organization',
-    'team knowledge management', 'second brain', 'institutional memory', 'knowledge management',
-    'semantic search', 'AI knowledge base', 'memory platform', 'organizational memory',
-    'decision log', 'knowledge capture', 'collective intelligence',
+    // Primary wedge keywords — what we want to own
+    'organizational amnesia', 'organisational amnesia', 'organizational memory', 'institutional memory',
+    'corporate amnesia', 'knowledge loss', 'knowledge retention',
+    // Adjacent intent keywords
+    'employee offboarding knowledge transfer', 'institutional knowledge', 'tribal knowledge',
+    'team decision tracking', 'decision log', 'decision intelligence',
+    'enterprise knowledge management', 'knowledge graph', 'AI knowledge base',
+    'second brain for teams', 'memory platform', 'self-healing knowledge',
+    // Comparison keywords (brings in already-shopping traffic)
+    'glean alternative', 'notion alternative for teams', 'enterprise search alternative',
+    // Vertical keywords
+    'knowledge management for government', 'on-premise knowledge management', 'air-gapped AI',
   ],
   authors: [{ name: 'Reattend', url: 'https://reattend.com' }],
   creator: 'Reattend',
@@ -54,21 +64,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://reattend.com',
     siteName: 'Reattend',
-    title: 'Reattend | AI Decision Intelligence for Teams',
-    description: 'Capture every decision. Catch contradictions. Make your team\'s knowledge searchable forever. Free AI-powered decision tracking.',
+    title: 'Reattend — Organizational Memory That Never Forgets',
+    description: 'When employees leave, their institutional knowledge stays. Decisions, exit interviews, handoffs, time-machine queries — the memory layer your wiki can\'t give you.',
     images: [
       {
         url: '/hero.png',
         width: 1400,
         height: 900,
-        alt: 'Reattend - AI Decision Intelligence for Teams',
+        alt: 'Reattend — Organizational Memory That Never Forgets',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Reattend | AI Decision Intelligence for Teams',
-    description: 'Capture every decision. Catch contradictions. Make your team\'s knowledge searchable forever.',
+    title: 'Reattend — Organizational Memory That Never Forgets',
+    description: 'When employees leave, their institutional knowledge stays. The org memory layer your wiki can\'t give you.',
     images: ['/hero.png'],
   },
   robots: {
@@ -99,8 +109,13 @@ const jsonLd = {
       name: 'Reattend',
       url: 'https://reattend.com',
       logo: 'https://reattend.com/black_logo.svg',
-      sameAs: [],
-      description: 'Reattend is the AI decision intelligence platform that captures team decisions, catches contradictions, and makes institutional knowledge searchable forever.',
+      sameAs: [
+        // Sister content domains — same brand, separate authority play.
+        // See docs/organizational-amnesia-domains.md.
+        'https://organizationalamnesia.com',
+        'https://organisationalamnesia.com',
+      ],
+      description: 'Reattend is the organizational memory platform that solves corporate amnesia. When employees leave, transfer, or retire, their institutional knowledge stays in the organization through decisions logs, exit interviews, knowledge transfers, and time-machine point-in-time queries.',
     },
     {
       '@type': 'WebSite',
@@ -108,7 +123,7 @@ const jsonLd = {
       url: 'https://reattend.com',
       name: 'Reattend',
       publisher: { '@id': 'https://reattend.com/#organization' },
-      description: 'AI Decision Intelligence for Teams. Track Decisions, Catch Contradictions, Build a Living Knowledge Graph.',
+      description: 'Organizational Memory That Never Forgets — the memory layer your wiki can\'t give you.',
       potentialAction: {
         '@type': 'SearchAction',
         target: {
@@ -174,47 +189,57 @@ const jsonLd = {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       url: 'https://reattend.com',
-      description: 'AI-powered decision intelligence platform that captures team decisions, catches contradictions, extracts entities, and builds a living knowledge graph. Free AI-powered decision tracking with semantic search and smart linking.',
+      description: 'Organizational memory platform that captures team decisions, runs AI-powered exit interviews, transfers knowledge to roles instead of people, and surfaces what is rotting in your knowledge base. Built for teams that lose institutional knowledge when employees leave.',
       offers: [
         {
           '@type': 'Offer',
-          name: 'Free Trial',
+          name: 'Free',
           price: '0',
           priceCurrency: 'USD',
-          description: 'Pro coming soon with all features: ambient capture, meeting recording, AI triage, semantic search, knowledge graph, and Ask AI.',
+          description: 'Try Reattend Enterprise. 100 AI questions per month, 90-day retention. No card required.',
         },
         {
           '@type': 'Offer',
-          name: 'Pro',
-          price: '20',
+          name: 'Professional',
+          price: '19',
           priceCurrency: 'USD',
           priceSpecification: {
             '@type': 'UnitPriceSpecification',
-            price: '20',
+            price: '19',
             priceCurrency: 'USD',
             unitText: 'user/month',
             referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
           },
-          description: 'Unlimited AI processing, ambient capture, meeting transcription, semantic search, and all features. $20/month per user.',
+          description: 'Unlimited AI questions, full memory retention, all connectors, decision log, exit interviews, time machine. $19 per user per month with 45-day no-card trial. 20% discount on annual.',
         },
         {
           '@type': 'Offer',
-          name: 'Free Forever',
-          price: '0',
+          name: 'Enterprise',
+          price: '29',
           priceCurrency: 'USD',
-          description: 'Keep all your memories forever. Browse, export, and take manual notes. No AI features.',
+          priceSpecification: {
+            '@type': 'UnitPriceSpecification',
+            price: '29',
+            priceCurrency: 'USD',
+            unitText: 'user/month',
+            referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
+          },
+          description: 'Everything in Professional plus SSO/SAML, hash-chained audit log (SOC 2 / CJIS auditor-ready), department hierarchy, per-user permission overrides, advanced compliance. $29 per user per month, 5-seat minimum.',
         },
       ],
       featureList: [
-        'AI-powered decision tracking and enrichment',
-        'Contradiction detection: catch conflicting decisions automatically',
-        'Entity extraction (people, organizations, topics)',
-        'Semantic search: find by meaning, not keywords',
-        'Smart linking and knowledge graph',
-        'Decision intelligence and team analysis',
-        'Shared team memory and collaboration',
-        'Board view and whiteboard',
-        'Ask your memory: AI Q&A',
+        'Organizational memory: knowledge stays when employees leave',
+        'Decision log with rationale, reversal tracking, and Blast Radius dependency view',
+        'AI-driven exit interviews that capture institutional knowledge',
+        'Knowledge transfer to roles, not individuals',
+        'Time Machine: point-in-time queries — see what the org knew on any date',
+        'Hot Cache: AI grounding from your last 7 days of patterns',
+        'Weekly Audit: tells you what is rotting in your knowledge',
+        'Self-healing contradiction detection',
+        'Hash-chained WORM audit log (SOC 2 / CJIS / GDPR ready)',
+        'Two-tier RBAC with per-user permission overrides',
+        'On-premise / air-gapped deployment option',
+        'OCR + AI redaction for paper-heavy workflows',
       ],
     },
     {
@@ -222,18 +247,19 @@ const jsonLd = {
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'How does Reattend catch contradictions and track team decisions?',
+          name: 'What is organizational amnesia?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend captures every team decision, meeting outcome, and piece of context. AI automatically enriches each entry with summaries, tags, entities, and action items, then links related decisions into a knowledge graph. When a new decision contradicts an old one, Reattend flags it, so your team stops re-debating and starts building.',
+            // First sentence is the AEO-quotable definition. Keep it tight.
+            text: 'Organizational amnesia is the loss of institutional knowledge that occurs when employees leave, transfer, or retire — taking their context, decisions, relationships, and unwritten know-how with them. It costs companies an estimated $31.5 billion per year and is one of the leading causes of repeated mistakes, slow new-hire ramp-up, and re-debated decisions.',
           },
         },
         {
           '@type': 'Question',
-          name: 'How does Reattend help with decision intelligence?',
+          name: 'How is Reattend different from Glean or Notion?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend captures decisions alongside their context, rationale, and outcomes. The AI automatically extracts entities (people, topics, projects), builds connections between related decisions, and enables semantic search so you can find past decisions by meaning. This creates a decision log that helps teams learn from history and make better-informed choices.',
+            text: 'Glean is enterprise search — it tells you which documents mention a topic. Notion is a wiki — it stores what you write. Reattend is organizational memory — it captures decisions, the rationale behind them, who decided, when, and whether they were reversed. When someone leaves, their knowledge stays as institutional memory rather than walking out the door.',
           },
         },
         {
@@ -241,15 +267,31 @@ const jsonLd = {
           name: 'How much does Reattend cost?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend offers a Pro coming soon with all features. After the trial, Pro is $20/month per user for unlimited AI. Or keep using Reattend free forever as a notetaker. No credit card required to start.',
+            text: 'Reattend has three tiers. Free includes 100 AI questions per month and 90-day retention. Professional is $19 per user per month with unlimited questions, full retention, and all connectors. Enterprise is $29 per user per month with SSO/SAML, audit log, advanced compliance — minimum 5 seats. Government / on-premise is custom-quoted. All paid tiers come with a 45-day no-card trial.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Can teams use Reattend for shared memory and collaboration?',
+          name: 'How does Reattend prevent organizational amnesia?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Reattend supports shared workspaces where teams can capture and organize knowledge together. Team features are included in the Pro plan at $20/month per user.',
+            text: 'Reattend captures decisions with their full rationale, runs AI-driven exit interviews when employees offboard, transfers knowledge to organizational roles rather than individuals, and uses a time-machine view to let you see exactly what the organization knew at any point in the past. The Weekly Audit feature scores your knowledge health and tells you exactly what is going stale.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Is Reattend compliant with SOC 2, GDPR, or CJIS?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Reattend ships with a hash-chained WORM audit log that is auditor-ready out of the box. GDPR self-export and erasure are built in. SOC 2 Type 1 certification is in progress; CJIS and StateRAMP documentation is available for government deployments. The Compliance page on reattend.com lists every control with current status.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can Reattend run on-premise or air-gapped?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Reattend supports on-premise deployment with the AI engine running on your own GPU, no outbound network calls, and SSO via your IdP. This is the deployment model used by government and secure-org customers. Contact us for an air-gapped evaluation.',
           },
         },
       ],

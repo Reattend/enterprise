@@ -46,16 +46,40 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     url: `https://reattend.com/blog/${post.slug}`,
     datePublished: post.date,
     author: {
-      '@type': 'Organization',
-      name: 'Reattend',
-      url: 'https://reattend.com',
+      '@type': 'Person',
+      name: post.author,
     },
     publisher: {
       '@type': 'Organization',
       name: 'Reattend',
       url: 'https://reattend.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://reattend.com/black_logo.svg',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://reattend.com/blog/${post.slug}`,
     },
   }
+
+  // Optional FAQPage schema — emitted when the post defines a `faq` array.
+  // Makes the post eligible for Google "People Also Ask" + gives AI engines
+  // (ChatGPT, Claude, Perplexity) clean Q&A pairs to quote verbatim.
+  // See docs/seo-strategy.md for the full AEO playbook.
+  const faqJsonLd = post.faq && post.faq.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faq.map((entry) => ({
+      '@type': 'Question',
+      name: entry.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: entry.a,
+      },
+    })),
+  } : null
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-background">
@@ -159,6 +183,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
     </div>
   )
 }
