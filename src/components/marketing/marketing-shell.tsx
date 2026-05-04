@@ -1,6 +1,6 @@
 import React from 'react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingNavbar } from './marketing-navbar'
+import { MarketingFooter } from './marketing-footer'
 
 /**
  * MarketingShell — the canonical wrapper for every marketing page outside
@@ -55,11 +55,11 @@ export function MarketingShell({
           opacity: 0.6,
         }}
       />
-      {withNavbar && <Navbar />}
+      {withNavbar && <MarketingNavbar />}
       <main className="relative z-[2]">
         {children}
       </main>
-      {withFooter && <Footer />}
+      {withFooter && <MarketingFooter />}
     </div>
   )
 }
