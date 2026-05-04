@@ -82,6 +82,27 @@ export function MarketingFooter() {
           >
             Organizational memory that never forgets. Built by Reattend Technologies Private Limited.
           </p>
+          {/* Sister content domain — see docs/organizational-amnesia-domains.md */}
+          <p
+            style={{
+              fontSize: '12px',
+              maxWidth: '32ch',
+              marginTop: '10px',
+              color: 'oklch(0.52 0.012 270)',
+              lineHeight: 1.55,
+            }}
+          >
+            Researching the problem? Read our essays at{' '}
+            <a
+              href="https://organizationalamnesia.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'oklch(0.45 0.18 280)', textDecoration: 'underline' }}
+            >
+              organizationalamnesia.com
+            </a>
+            .
+          </p>
         </div>
 
         {/* Link columns */}
