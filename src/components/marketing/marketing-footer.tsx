@@ -148,7 +148,6 @@ export function MarketingFooter() {
             { label: 'Privacy', href: '/privacy' },
             { label: 'Terms', href: '/terms' },
             { label: 'Refund', href: '/refund' },
-            { label: 'Sub-processors', href: '/subprocessors' },
           ]}
         />
       </div>

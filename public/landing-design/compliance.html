@@ -1063,91 +1063,6 @@
     </div>
   </section>
 
-  <!-- ============== SUBPROCESSORS ============== -->
-  <section class="cmp-section" id="subprocessors" data-screen-label="Compliance · Subprocessors">
-    <div class="head">
-      <div class="label-col"><span class="num">05 /</span> Subprocessors</div>
-      <div>
-        <h2 class="pfade">Every vendor we share data with — <em>listed here.</em></h2>
-        <p class="sub pfade">
-          We notify customers 30 days before adding a new subprocessor. Subscribe to changes at <a href="mailto:trust@reattend.com" style="color:var(--accent); border-bottom:1px solid currentColor;">trust@reattend.com</a>.
-        </p>
-      </div>
-    </div>
-
-    <div class="sp-wrap pfade">
-      <table class="sp-table">
-        <thead>
-          <tr>
-            <th>Subprocessor</th>
-            <th>Purpose</th>
-            <th>Data processed</th>
-            <th>Region</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="vendor"><span class="lg">A</span>Amazon Web Services</td>
-            <td class="data">Compute, storage, KMS</td>
-            <td class="data">All customer data (encrypted)</td>
-            <td class="region">Customer-elected</td>
-            <td><span class="pill green">Core · DPA</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">G</span>Google Cloud Platform</td>
-            <td class="data">Compute, storage (alt region)</td>
-            <td class="data">All customer data (encrypted)</td>
-            <td class="region">EU · US</td>
-            <td><span class="pill green">Core · DPA</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">An</span>Anthropic</td>
-            <td class="data">LLM inference (Rabbit-LLM v3.2 fallback)</td>
-            <td class="data">Prompt + retrieved chunks (zero retention)</td>
-            <td class="region">US</td>
-            <td><span class="pill purple">Inference · ZDR</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">Op</span>OpenAI</td>
-            <td class="data">LLM inference (optional)</td>
-            <td class="data">Prompt + retrieved chunks (zero retention)</td>
-            <td class="region">US · EU</td>
-            <td><span class="pill purple">Inference · ZDR</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">Pn</span>Pinecone</td>
-            <td class="data">Vector index (managed tier)</td>
-            <td class="data">Embeddings only · no plaintext</td>
-            <td class="region">Customer-elected</td>
-            <td><span class="pill">Optional</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">Ds</span>Datadog</td>
-            <td class="data">Observability &amp; APM</td>
-            <td class="data">Service logs · no customer payloads</td>
-            <td class="region">US · EU</td>
-            <td><span class="pill green">Operations</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">St</span>Stripe</td>
-            <td class="data">Billing</td>
-            <td class="data">Account name + invoice line items</td>
-            <td class="region">US · EU</td>
-            <td><span class="pill green">Billing · DPA</span></td>
-          </tr>
-          <tr>
-            <td class="vendor"><span class="lg">Sn</span>Snowflake</td>
-            <td class="data">Audit-log warehouse (customer-routed)</td>
-            <td class="data">Audit events (your tenancy)</td>
-            <td class="region">Customer-elected</td>
-            <td><span class="pill">Optional</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
   <!-- ============== DOCUMENTS ============== -->
   <section class="cmp-section alt" id="documents" data-screen-label="Compliance · Documents">
     <div class="head">
@@ -1299,20 +1214,20 @@
     <div class="trust-cta pfade">
       <div>
         <span class="eyebrow"><span class="dot"></span>Trust Center</span>
-        <h2>Hand this page to your <em>security team.</em> They'll know what to do.</h2>
-        <p>One link gets you the full trust packet under NDA. One conversation gets your CISO's questions answered in under an hour. We've done it three hundred and forty times this year.</p>
+        <h2>Have a question we didn't answer?</h2>
+        <p>Compliance is a conversation, not a checklist. If your security or legal team needs something we haven't published — a control mapping, a draft DPA, a deeper architecture review — we'd rather talk to you directly than write it on a marketing page.</p>
         <div class="ctas">
-          <button class="btn btn-primary btn-fill">Request trust packet</button>
-          <button class="btn btn-ghost btn-fill">Talk to security</button>
+          <a class="btn btn-primary btn-fill" href="mailto:pb@reattend.ai?subject=Compliance%20question">Email pb@reattend.ai</a>
+          <a class="btn btn-ghost btn-fill" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book 30 min with the founder</a>
         </div>
       </div>
       <div class="checks">
-        <span>SOC 2 Type II</span>
-        <span>HIPAA · BAA</span>
-        <span>ISO 27001</span>
-        <span>GDPR · DPDP</span>
-        <span>BYOK · KMS</span>
-        <span>Air‑gapped option</span>
+        <span>RBAC at record level</span>
+        <span>Hash-chained audit log</span>
+        <span>GDPR self-export + erasure</span>
+        <span>EU + US tenancy today</span>
+        <span>BYOK on Enterprise</span>
+        <span>On-prem option</span>
       </div>
     </div>
   </section>
@@ -1363,14 +1278,13 @@
       </div>
       <div class="footer-col">
         <h5>Resources</h5>
-        <a href="/contact">Docs</a>
-        <a href="/contact">Changelog</a>
+        <a href="/blog">Blog</a>
+        <a href="/glossary">Glossary</a>
+        <a href="/help">Help center</a>
+        <a href="/tool">Free tools</a>
+        <a href="/game">Free games</a>
         <a href="/compliance">Trust</a>
         <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
-        <a href="/contact">SOC 2</a>
-        <a href="/contact">HIPAA</a>
-        <a href="/contact">GDPR</a>
-        <a href="/contact">DPA</a>
       </div>
     </div>
     <div class="footer-bottom">
