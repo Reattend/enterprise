@@ -600,7 +600,7 @@ ${(refDone.trim() || refForward.trim() || refDidnt.trim()) ? `<h2>End-of-Day Ref
                 href="/register"
                 className="inline-flex items-center gap-2 text-[15px] font-semibold text-white bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.97] transition-all px-10 py-4 rounded-full shadow-[0_8px_30px_rgba(79,70,229,0.35)] mt-8"
               >
-                Try Reattend free <ArrowRight className="w-4 h-4" />
+                Try Reattend Enterprise free <ArrowRight className="w-4 h-4" />
               </Link>
             </GlassCard>
           </div>

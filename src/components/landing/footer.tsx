@@ -2,16 +2,33 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
+// Footer columns — clubbed by intent so each column reads as one cohesive
+// surface. Free Tools / Games / Help moved out of "Product" into "Resources"
+// alongside Blog and Glossary, since they're discovery surfaces not product
+// surfaces. Company + Legal merged because both were thin standalone columns.
+// Brand line is the new positioning ("Organizational memory that never
+// forgets") — see docs/seo-strategy.md for why this matters for SERP CTR.
 const columns = [
   {
     title: 'Product',
     links: [
       { label: 'Pricing', href: '/pricing' },
+      { label: 'Sandbox', href: '/sandbox' },
+      { label: 'How it works', href: '/how-it-works' },
+      { label: 'Features', href: '/features' },
+      { label: 'Integrations', href: '/integrations' },
+      { label: 'Compliance', href: '/compliance' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Blog', href: '/blog' },
+      { label: 'Glossary', href: '/glossary' },
       { label: 'Use Cases', href: '/use-case' },
-      { label: 'Slack Integration', href: '/slack' },
+      { label: 'Help Center', href: '/help' },
       { label: 'Free Tools', href: '/tool' },
       { label: 'Free Games', href: '/game' },
-      { label: 'Help Center', href: '/help' },
     ],
   },
   {
@@ -19,8 +36,8 @@ const columns = [
     links: [
       { label: 'MCP Server', href: '/mcp' },
       { label: 'GitHub Action', href: '/mcp#github-action' },
-      { label: 'API Docs', href: '/docs' },
       { label: 'REST API', href: '/mcp#api' },
+      { label: 'API Docs', href: '/docs' },
       { label: 'GitHub', href: 'https://github.com/Reattend' },
       { label: 'npm package', href: 'https://www.npmjs.com/package/@reattend/mcp' },
     ],
@@ -39,16 +56,10 @@ const columns = [
     title: 'Company',
     links: [
       { label: 'About', href: '/about' },
-      { label: 'Blog', href: '/blog' },
       { label: 'Contact', href: 'mailto:pb@reattend.ai' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', href: '/privacy' },
-      { label: 'Terms of Service', href: '/terms' },
-      { label: 'Refund Policy', href: '/refund' },
+      { label: 'Privacy', href: '/privacy' },
+      { label: 'Terms', href: '/terms' },
+      { label: 'Refund', href: '/refund' },
       { label: 'Sub-processors', href: '/subprocessors' },
     ],
   },
@@ -66,7 +77,7 @@ export function Footer() {
               <span className="text-[16px] font-semibold tracking-tight">Reattend</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed max-w-[280px] mb-5">
-              Your decisions, preserved. AI-powered memory for everything you do.
+              Organizational memory that never forgets.
             </p>
             {/* Social icons */}
             <div className="flex items-center gap-3">

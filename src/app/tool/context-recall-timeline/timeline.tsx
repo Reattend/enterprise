@@ -608,7 +608,7 @@ export function ContextRecallTimeline() {
                         href="/register"
                         className="inline-flex items-center gap-2 text-[15px] font-bold text-white bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.97] transition-all px-7 py-3.5 rounded-full shadow-[0_4px_16px_rgba(79,70,229,0.3)]"
                       >
-                        Try Reattend free <ArrowRight className="w-4 h-4" />
+                        Try Reattend Enterprise free <ArrowRight className="w-4 h-4" />
                       </Link>
                     </GlassCard>
                   </div>

@@ -287,7 +287,7 @@ export function MeetingCostCalculator({ faqItems }: Props) {
                 href="/register"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-[14px] transition-colors shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
               >
-                Try Reattend free <ArrowRight className="w-4 h-4" />
+                Try Reattend Enterprise free <ArrowRight className="w-4 h-4" />
               </Link>
             </GlassCard>
           </div>

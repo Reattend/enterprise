@@ -1244,7 +1244,7 @@ function CTASection() {
             href="/register"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-[14px] transition-colors shadow-[0_4px_14px_rgba(180,140,20,0.3)]"
           >
-            Try Reattend free <ArrowRight className="w-4 h-4" />
+            Try Reattend Enterprise free <ArrowRight className="w-4 h-4" />
           </Link>
         </GlassCard>
       </div>
