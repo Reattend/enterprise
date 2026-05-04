@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Share2, Check, RotateCcw, Brain } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 // ── Shared Styles ──────────────────────────────────────────
 
@@ -247,44 +247,38 @@ export function MemoryDebtCalculator() {
   const band = results ? getBand(results.overall) : null
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
-
-      {/* Background gradient blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/5 blur-3xl pointer-events-none" />
-
+    <MarketingShell>
       <AnimatePresence mode="wait">
         {/* ========= INTRO ========= */}
         {phase === 'intro' && (
-          <motion.section
+          <motion.div
             key="intro"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
-            className="relative z-10 pt-20 md:pt-28 pb-20 px-5 text-center"
           >
-            <div className="max-w-2xl mx-auto">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5] mb-6">
-                <span className="w-2 h-2 rounded-full bg-[#4F46E5]" />
-                Free assessment
-              </span>
-              <h1 className="text-[36px] md:text-[50px] font-bold tracking-[-0.03em] leading-[1.08]">
-                Memory Debt <span className="text-[#4F46E5]">Calculator</span>
-              </h1>
-              <p className="text-gray-500 mt-5 text-[17px] leading-relaxed max-w-lg mx-auto">
-                Find out how much knowledge your team is silently losing. Answer 10 quick questions and get your Memory Debt Score with a personalized breakdown.
-              </p>
+            <MarketingHero
+              eyebrow="Free assessment"
+              title="Memory Debt"
+              emphasis="Calculator"
+              emphasisJoiner=" "
+              lede="Find out how much knowledge your team is silently losing. Answer 10 quick questions and get your Memory Debt Score with a personalized breakdown."
+              primaryCta={null}
+              trustChips={['Takes about 2 minutes', 'No signup required', 'Anonymous']}
+            />
+            {/* Page-specific action button (drives phase change via onClick — the
+                MarketingHero only takes Link CTAs, so we render this below). */}
+            <div className="-mt-4 mb-20 flex justify-center px-5">
               <button
                 onClick={() => setPhase('quiz')}
-                className="mt-8 inline-flex items-center gap-2 text-[15px] font-bold text-white bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] transition-all px-8 py-4 rounded-full shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
+                className="inline-flex items-center gap-1.5 rounded-full px-7 py-3 text-[15px] font-medium transition-colors"
+                style={{ background: 'oklch(0.18 0.012 270)', color: 'white' }}
               >
-                Start Assessment <ArrowRight className="w-4 h-4" />
+                Start assessment <ArrowRight className="w-4 h-4" />
               </button>
-              <p className="text-[13px] text-gray-400 mt-4">Takes about 2 minutes. No signup required.</p>
             </div>
-          </motion.section>
+          </motion.div>
         )}
 
         {/* ========= QUIZ ========= */}
@@ -524,8 +518,6 @@ export function MemoryDebtCalculator() {
           </motion.section>
         )}
       </AnimatePresence>
-
-      <Footer />
-    </div>
+    </MarketingShell>
   )
 }

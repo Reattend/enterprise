@@ -18,6 +18,10 @@ const columns = [
       { label: 'Features', href: '/features' },
       { label: 'Integrations', href: '/integrations' },
       { label: 'Compliance', href: '/compliance' },
+      // "Free tools" intentionally also lives here (in addition to Resources)
+      // — it's a top-of-funnel product offering, not just a side-resource.
+      // Two-column placement = max discoverability, costs us one duplicate link.
+      { label: 'Free tools', href: '/tool' },
     ],
   },
   {

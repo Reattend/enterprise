@@ -25,16 +25,9 @@ import {
   RotateCcw,
   Target,
 } from 'lucide-react'
-import { Navbar } from '@/components/landing/navbar'
-import { Footer } from '@/components/landing/footer'
-
-function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`bg-white/60 backdrop-blur-xl border border-white/80 rounded-2xl shadow-[0_8px_32px_rgba(79,70,229,0.06)] ${className}`}>
-      {children}
-    </div>
-  )
-}
+import { MarketingShell } from '@/components/marketing/marketing-shell'
+import { MarketingHero } from '@/components/marketing/marketing-hero'
+import { ToolFooterCta } from '@/components/landing/tool-footer-cta'
 
 interface Tool {
   title: string
@@ -242,78 +235,129 @@ const categories: ToolCategory[] = [
   },
 ]
 
+// Token shorthands so the cards below stay readable.
+const INK = 'oklch(0.18 0.012 270)'
+const INK_2 = 'oklch(0.32 0.012 270)'
+const INK_3 = 'oklch(0.52 0.012 270)'
+const RULE = 'oklch(0.88 0.008 270)'
+const PAPER = 'oklch(0.992 0.004 80)'
+const ACCENT = 'oklch(0.45 0.18 280)'
+
 export default function ToolsPage() {
+  const totalTools = categories.reduce((sum, c) => sum + c.tools.length, 0)
+
   return (
-    <div className="min-h-screen bg-[#F5F5FF] text-[#1a1a2e] overflow-x-hidden">
-      <Navbar />
+    <MarketingShell>
+      <MarketingHero
+        eyebrow={`${totalTools} free tools`}
+        title="Free"
+        emphasis="tools"
+        emphasisJoiner=" "
+        lede="Slack apps, productivity tools, recorders, and knowledge utilities — all free, no signup required. Built by the team behind Reattend Enterprise."
+        primaryCta={{ label: 'Try Reattend Enterprise free', href: '/sandbox' }}
+        secondaryCta={{ label: 'See how it works', href: '/how-it-works' }}
+      />
 
-      {/* Background gradient blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-gradient-to-br from-[#4F46E5]/8 via-[#818CF8]/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#4F46E5]/5 blur-3xl pointer-events-none" />
-
-      {/* Hero */}
-      <section className="relative z-10 pt-16 md:pt-20 pb-12 px-5 text-center">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4F46E5]/15 bg-white/70 backdrop-blur-sm text-[13px] font-medium text-[#4F46E5] mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#4F46E5]" />
-            {categories.reduce((sum, c) => sum + c.tools.length, 0)} free tools
-          </span>
-          <h1 className="text-[36px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.1]">
-            Free <span className="text-[#4F46E5]">Tools</span>
-          </h1>
-          <p className="text-gray-500 mt-4 text-[16px] max-w-xl mx-auto">
-            Slack apps, productivity tools, recorders, and knowledge utilities - all free, no signup required.
-          </p>
-        </motion.div>
-      </section>
-
-      {/* Tool Categories */}
+      {/* Tool categories */}
       {categories.map((category) => (
-        <section key={category.title} className="relative z-10 px-5 pb-16">
+        <section key={category.title} className="relative px-5 sm:px-8 pb-16">
           <div className="max-w-5xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.4 }}
               className="mb-6"
             >
-              <h2 className="text-[22px] font-bold text-[#1a1a2e]">{category.title}</h2>
-              <p className="text-[14px] text-gray-500 mt-1">{category.subtitle}</p>
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display), serif',
+                  fontWeight: 400,
+                  fontSize: 'clamp(24px, 2.5vw, 32px)',
+                  letterSpacing: '-0.015em',
+                  color: INK,
+                }}
+              >
+                {category.title}
+              </h2>
+              <p style={{ fontSize: '14px', color: INK_3, marginTop: '6px' }}>
+                {category.subtitle}
+              </p>
             </motion.div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {category.tools.map((tool, i) => (
                 <motion.div
                   key={tool.href}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 + 0.15 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ delay: i * 0.04, duration: 0.4 }}
                 >
                   <Link
                     href={tool.href}
-                    className="group flex flex-col items-start gap-4 p-6 h-full rounded-2xl bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_32px_rgba(79,70,229,0.06)] hover:shadow-[0_8px_40px_rgba(79,70,229,0.12)] transition-all"
+                    className="group flex flex-col items-start gap-4 p-6 h-full rounded-2xl transition-all hover:-translate-y-0.5"
+                    style={{
+                      background: PAPER,
+                      border: `1px solid ${RULE}`,
+                      boxShadow: '0 1px 2px oklch(0.4 0.01 270 / 0.04)',
+                    }}
                   >
                     <div className="flex items-center gap-3 w-full">
-                      <div className={`w-11 h-11 rounded-xl ${tool.bg} flex items-center justify-center shrink-0`}>
-                        <tool.icon className={`w-5 h-5 ${tool.color}`} />
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ background: 'oklch(0.92 0.04 285)' }}
+                      >
+                        <tool.icon className="w-5 h-5" style={{ color: ACCENT }} />
                       </div>
                       {tool.badge && (
-                        <span className="ml-auto text-[11px] font-bold uppercase tracking-wider text-white bg-[#4F46E5] px-2 py-0.5 rounded-full">
+                        <span
+                          className="ml-auto text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                          style={{
+                            color: 'white',
+                            background: ACCENT,
+                            fontFamily: 'var(--font-mono), monospace',
+                            letterSpacing: '0.08em',
+                          }}
+                        >
                           {tool.badge}
                         </span>
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-[16px] font-bold group-hover:text-[#4F46E5] transition-colors">
+                      <h3
+                        style={{
+                          fontFamily: 'var(--font-display), serif',
+                          fontWeight: 400,
+                          fontSize: '20px',
+                          letterSpacing: '-0.01em',
+                          color: INK,
+                          lineHeight: 1.2,
+                        }}
+                      >
                         {tool.title}
                       </h3>
-                      <p className="text-[13px] text-gray-500 mt-1.5 leading-relaxed">
+                      <p
+                        style={{
+                          fontSize: '13.5px',
+                          color: INK_2,
+                          marginTop: '8px',
+                          lineHeight: 1.55,
+                        }}
+                      >
                         {tool.description}
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#4F46E5] mt-auto">
-                      Try it free <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    <span
+                      className="inline-flex items-center gap-1.5 mt-auto"
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        color: ACCENT,
+                      }}
+                    >
+                      Try it free
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </Link>
                 </motion.div>
@@ -323,31 +367,7 @@ export default function ToolsPage() {
         </section>
       ))}
 
-      {/* CTA */}
-      <section className="relative z-10 py-20 md:py-28 px-5">
-        <div className="max-w-[1200px] mx-auto relative">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#4F46E5]/10 via-[#818CF8]/5 to-[#C7D2FE]/10 blur-xl" />
-          <div className="relative z-10">
-            <GlassCard className="max-w-[600px] mx-auto p-10 md:p-14 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#4F46E5]/10 flex items-center justify-center mx-auto mb-6">
-                <Brain className="h-7 w-7 text-[#4F46E5]" />
-              </div>
-              <h2 className="text-[22px] font-bold mb-3 text-[#1a1a2e]">Ready for the full picture?</h2>
-              <p className="text-gray-600 text-[14px] mb-6 max-w-md mx-auto">
-                Reattend captures, organizes, and recalls your team&apos;s knowledge automatically - so nothing falls through the cracks.
-              </p>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-[14px] transition-colors shadow-[0_4px_14px_rgba(79,70,229,0.3)] active:scale-[0.98]"
-              >
-                Try Reattend Enterprise free <ArrowRight className="w-4 h-4" />
-              </Link>
-            </GlassCard>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </div>
+      <ToolFooterCta variant="tool" headline="Free tools are a great start." />
+    </MarketingShell>
   )
 }
