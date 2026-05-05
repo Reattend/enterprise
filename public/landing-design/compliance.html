@@ -832,12 +832,12 @@
           </svg>
         </div>
         <h3>Identity &amp; access</h3>
-        <p>SSO is mandatory. Roles map to org structure. Service accounts rotate keys on a 30‑day timer; nothing recalls without a name attached.</p>
+        <p>Every recall is tied to a real user identity. Two-tier RBAC (org + department) is enforced at the record level — the model never sees memories the asker can't see.</p>
         <ul>
-          <li>SAML 2.0 · OIDC · SCIM 2.0</li>
-          <li>RBAC + per‑memory ACLs</li>
-          <li>Session bound to device + IP range</li>
-          <li>Hardware key (WebAuthn) optional</li>
+          <li>Email OTP today · SSO (SAML / OIDC) on Enterprise plan</li>
+          <li>Two-tier RBAC + per-record ACLs</li>
+          <li>Session JWTs bound to user + workspace</li>
+          <li>36 RBAC tests run on every build</li>
         </ul>
       </div>
 
@@ -869,12 +869,12 @@
           </svg>
         </div>
         <h3>Audit &amp; provenance</h3>
-        <p>Every recall returns a citation chain. Every admin action goes to your SIEM in under 60 seconds. Logs are tamper‑evident with a Merkle digest published daily.</p>
+        <p>Every answer returns a citation chain. Every admin action is written to a hash-chained, append-only audit log — each entry's hash includes the previous entry's, so any tampering breaks the chain.</p>
         <ul>
-          <li>Citation graph on every answer</li>
-          <li>Splunk · Datadog · Snowflake export</li>
-          <li>7‑year retention default</li>
-          <li>Tamper‑evident hash chain</li>
+          <li>Citation chain on every answer</li>
+          <li>Hash-chained, append-only (WORM)</li>
+          <li>Per-org audit export on request</li>
+          <li>SIEM streaming on the roadmap</li>
         </ul>
       </div>
 
@@ -979,8 +979,8 @@
         <div class="flow-step">
           <div class="num">STEP <em>04</em></div>
           <h4>Audit</h4>
-          <p>Citation chain hashed and chained into the daily Merkle root. Event streams to your SIEM. Plaintext is dropped.</p>
-          <div class="key"><b>SIEM</b> &lt; 60s · Merkle daily</div>
+          <p>Every answer + admin action lands in a hash-chained, append-only log. Each entry binds to the previous one's hash, so tampering breaks the chain.</p>
+          <div class="key"><b>Hash-chained</b> · WORM · per-org</div>
         </div>
       </div>
     </div>
