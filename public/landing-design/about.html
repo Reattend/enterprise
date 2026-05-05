@@ -260,7 +260,6 @@
     <a class="brand" href="/">
       <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
       <span class="brand-word">Reattend</span>
-      <span class="ent-tag">Enterprise</span>
     </a>
     <nav class="nav">
       <a class="nav-item" href="/#product">Home</a>
@@ -327,25 +326,25 @@
   </section>
 
   <section class="chap pfade">
-    <div class="chap-eye"><span class="num">04</span> Rabbit</div>
-    <h2>A model that remembers <em>your</em> company — not the internet.</h2>
-    <p>Generic LLMs are trained on public data. They are encyclopaedic about Wikipedia and lossy about you. Ask one a question about your roadmap, your customers, or your last incident and it will either guess or refuse — neither of which is acceptable inside an enterprise.</p>
-    <p>So we built our own. <strong>Rabbit</strong> is Reattend's purpose-built memory model: a 32-billion-parameter transformer fine-tuned, from scratch, on the structure of organizational memory. It is the engine that decides what to remember, what to surface, when to interrupt, and — crucially — what <em>not</em> to say.</p>
+    <div class="chap-eye"><span class="num">04</span> The system</div>
+    <h2>An answer engine that remembers <em>your</em> company — not the internet.</h2>
+    <p>Generic LLMs are trained on public data. They are encyclopaedic about Wikipedia and lossy about you. Ask one a question about your roadmap, your customers, or your last incident and it will either guess or refuse — neither of which is acceptable inside a real organization.</p>
+    <p>Reattend is the layer in between. We use managed frontier AI models, governed by a retrieval pipeline that we own end-to-end: hash-chained audit log, record-level RBAC enforced before retrieval, citation-required answers, refusal when context is missing. The intelligence is rented. The memory, the access control, and the discipline of citing rather than inventing — those are ours.</p>
 
     <div class="rabbit-card">
-      <span class="tag"><span class="pulse"></span>Rabbit-LLM v3.2 · live</span>
-      <h3>Trained on the failure modes of <em>organizational amnesia</em>.</h3>
-      <p>Most retrieval systems are tuned for relevance. Rabbit is tuned for <b>continuity</b> — the much harder problem of recognising when a question, decision, or document is actually a continuation of one your company has already engaged with. It cites. It refuses to invent. It tells you when it doesn't know.</p>
-      <p>It runs entirely inside your tenant. Your context never trains a model anyone else uses. Ever.</p>
+      <span class="tag"><span class="pulse"></span>Built on managed frontier AI · zero retention</span>
+      <h3>Tuned for <em>continuity</em>, not just relevance.</h3>
+      <p>Most retrieval systems are tuned to surface the most relevant document. We're tuned for the harder problem: recognising when a question, decision, or draft is actually a continuation of one your company has already engaged with. The system cites. It refuses to invent. It tells you when it doesn't know.</p>
+      <p>Your data stays in your tenant. The frontier model providers we route through have zero-retention agreements: nothing you ask, no document we retrieve, ever lands in anyone's training corpus.</p>
       <div class="specs">
-        <div><div class="k">Parameters</div><div class="v">32B fine-tuned</div></div>
-        <div><div class="k">Recall</div><div class="v">98.7% precision</div></div>
-        <div><div class="k">Context window</div><div class="v">256K tokens</div></div>
-        <div><div class="k">Training data</div><div class="v">Yours, only</div></div>
+        <div><div class="k">Models</div><div class="v">Managed frontier AI</div></div>
+        <div><div class="k">Retrieval</div><div class="v">FTS5 + ANN, RBAC-gated</div></div>
+        <div><div class="k">Audit</div><div class="v">Hash-chained, WORM</div></div>
+        <div><div class="k">Training data</div><div class="v">Never yours</div></div>
       </div>
     </div>
 
-    <p>Rabbit is what makes Reattend feel like memory rather than search. It is the difference between getting a list of links and getting an answer that begins, "Last quarter, you decided the opposite — here's why."</p>
+    <p>This is what makes Reattend feel like memory rather than search. It is the difference between getting a list of links and getting an answer that begins, "Last quarter, you decided the opposite — here's why."</p>
   </section>
 
   <section class="chap pfade">
@@ -372,7 +371,6 @@
       <a class="brand" href="/">
         <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
         <span class="brand-word">Reattend</span>
-        <span class="ent-tag">Enterprise</span>
       </a>
       <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
     </div>

@@ -61,6 +61,10 @@ export function MarketingNavbar() {
         }}
       >
         {/* Brand */}
+        {/* Brand wordmark — no "Enterprise" tag. Cofounder feedback (2026-05-05):
+            an Enterprise pill scares away the 200-person startup ICP. The
+            product is just "Reattend." Compliance/scale language lives on
+            /compliance + /security where it's appropriate. */}
         <Link
           href="/"
           className="flex items-center gap-2.5 shrink-0"
@@ -74,22 +78,6 @@ export function MarketingNavbar() {
         >
           <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} priority style={{ height: '24px', width: 'auto' }} />
           <span>Reattend</span>
-          <span
-            style={{
-              fontFamily: 'var(--font-mono), monospace',
-              fontSize: '9px',
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: 'oklch(0.52 0.012 270)',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              background: 'oklch(0.92 0.04 285 / 0.5)',
-              marginLeft: '4px',
-              fontWeight: 500,
-            }}
-          >
-            Enterprise
-          </span>
         </Link>
 
         {/* Desktop nav — hidden on mobile */}

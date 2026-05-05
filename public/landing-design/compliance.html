@@ -678,7 +678,6 @@
       <a class="brand" href="/">
         <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
         <span class="brand-word">Reattend</span>
-        <span class="ent-tag">Enterprise</span>
       </a>
       <nav class="nav">
         <a class="nav-item" href="/">Home</a>
@@ -1168,39 +1167,39 @@
       </details>
       <details>
         <summary>What's the incident notification SLA?<span class="plus">+</span></summary>
-        <p>Under four hours for any P1 confirmed incident affecting your tenancy, with a written follow‑up inside 72 hours. Status incidents (degraded service, not security) post to status.reattend.com in real time.</p>
+        <p>Our target is to notify affected customers within four hours of confirming a P1 security incident, with a written follow‑up inside 72 hours. We don't have a contractual SLA today; that lands on the Enterprise contract with our first regulated customer. Status incidents (degraded service, not security) post to <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">our status page</a> in real time.</p>
       </details>
       <details>
         <summary>How do you handle a right‑to‑erase request?<span class="plus">+</span></summary>
-        <p>Admins can issue a full‑subject delete from the dashboard; we propagate to vector index, object store, audit log archive, and all backups within 72 hours. We return a signed deletion receipt with a Merkle proof you can hand a regulator.</p>
+        <p>Admins can issue a full‑subject delete from the dashboard. We propagate to the records, embeddings, audit‑log archive, and the next backup cycle within 72 hours. The deletion is recorded in the hash‑chained audit log so you can prove it happened — we don't issue a separate cryptographic receipt yet.</p>
       </details>
       <details>
         <summary>Do you support air‑gapped / on‑prem?<span class="plus">+</span></summary>
-        <p>Yes, on Enterprise. The full stack — ingest, vector index, recall — ships as a Helm chart that runs in your VPC or on‑prem cluster. The only outbound call is a license heartbeat, which can be replaced with an offline license key for fully air‑gapped deployments.</p>
+        <p>On the roadmap, not shipped today. The product is designed for it — single Node.js + SQLite footprint, no external service dependencies for the core path — but we don't have a packaged on‑prem distribution (Helm chart, license heartbeat, etc) yet. We'll build that out with the first government / regulated customer that signs.</p>
       </details>
       <details>
         <summary>How is access logged?<span class="plus">+</span></summary>
-        <p>Every recall, edit, share, and admin action emits an event. Events stream to your SIEM (Splunk, Datadog, Snowflake) inside 60 seconds and are retained 7 years by default. The event chain is hashed daily into a Merkle root we publish — so a logged event can't be silently rewritten.</p>
+        <p>Every read, write, share, role change, and admin action is appended to an immutable hash‑chained audit log inside your tenant. The log is queryable from the admin dashboard and exportable as a signed CSV bundle. Streaming to external SIEMs (Splunk / Datadog / Snowflake) is on the roadmap; today the export is on‑demand, not real‑time.</p>
       </details>
       <details>
         <summary>Who has access on your side?<span class="plus">+</span></summary>
-        <p>Production access is gated by hardware key, per‑request approval, and a 30‑minute time‑box. All sessions are recorded. The customer support team has zero access to memory contents — they see metadata and audit, never the document body.</p>
+        <p>Production access is currently held by the founding team only and gated by SSH key + 2FA. Every administrative session is logged. We don't have a formal break‑glass + per‑request approval workflow yet — that's planned as part of SOC 2 readiness with our first paid customers in scope.</p>
       </details>
       <details>
         <summary>How is the LLM prevented from leaking documents?<span class="plus">+</span></summary>
-        <p>Recall checks ACLs <em>before</em> retrieval. The model only ever sees chunks the asker is authorized to read. The model layer is stateless across queries; nothing persists in the inference path. Prompts and outputs are zero‑retained on the LLM side.</p>
+        <p>Recall checks ACLs <em>before</em> retrieval — the LLM only ever sees memories the asker is authorized to read. This is the 8‑rule record visibility model in <code>filterToAccessibleRecords</code>, covered by 36 unit tests that block every release. The model layer is stateless across queries; we use Anthropic's API under their default zero‑data‑retention setting, so prompts and outputs aren't retained on their side either.</p>
       </details>
       <details>
         <summary>What if a subprocessor changes?<span class="plus">+</span></summary>
-        <p>We give 30 days' written notice via the trust@reattend.com mailing list before any new subprocessor is added or an existing one's scope expands. You can object during that window; we offer reasonable mitigations or, on Enterprise, a region carve‑out.</p>
+        <p>We notify customers in writing before adding or expanding a sub‑processor. The 30‑day window + formal mailing list is on the roadmap; today it's a direct email to your account contact. The current sub‑processor list is shared under NDA on request — email <a href="mailto:pb@reattend.ai">pb@reattend.ai</a>.</p>
       </details>
       <details>
         <summary>Pen test cadence?<span class="plus">+</span></summary>
-        <p>Twice yearly with NCC Group covering web, API, infrastructure, and a focused review of the recall path. Findings are remediated by severity SLA (critical &lt; 48h). Sanitized summaries go in the trust report; the full report is available under NDA.</p>
+        <p>None today. We're a young company; the first external pen test happens with our first regulated customer in scope, then yearly minimum thereafter. Internally we run dependency scanning on every commit and patch known CVEs the same day.</p>
       </details>
       <details>
         <summary>How do we run a security review?<span class="plus">+</span></summary>
-        <p>Email trust@reattend.com with your assessor and we'll return the trust packet (SOC 2, ISO, pen test, DPA, BAA, whitepaper) inside 24 hours. We respond to standardized questionnaires (CAIQ, SIG Lite, VSAQ) without a custom rewrite — answers are pre‑mapped to controls.</p>
+        <p>Email <a href="mailto:pb@reattend.ai">pb@reattend.ai</a> with your assessor and what you need to see. We don't have a packaged trust report or pre‑mapped CAIQ / SIG Lite responses yet — at our stage, the best path is a 30‑minute call where the founder walks you through the architecture, controls, and current audit status. We respond same‑day to security review requests.</p>
       </details>
     </div>
   </section>
@@ -1240,7 +1239,6 @@
             <circle cx="16" cy="16" r="11.5" stroke="#fff" stroke-opacity="0.25" stroke-width="1"/>
           </svg>
           <span class="brand-word">Reattend</span>
-          <span class="ent-tag">Enterprise</span>
         </a>
         <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
       </div>
