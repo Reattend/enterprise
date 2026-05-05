@@ -134,6 +134,13 @@ function classifyIntentRegex(question: string): QueryIntent {
     return 'temporal'
   if (/^(who|what)\s+is\b|^tell me about\s/.test(q) || (/\bwho\b/.test(q) && q.split(' ').length <= 6))
     return 'entity'
+  // Draft/recap/standup intents — user wants the model to write across
+  // their corpus, not search a topic. "Draft a status update", "write me
+  // an email update", "weekly recap", "standup", etc. all fall here.
+  if (/\b(draft|write|compose|prepare)\b.{0,30}\b(update|status|email|message|note|recap|summary|report|standup|stand-up|brief|briefing)\b/.test(q))
+    return 'synthesis'
+  if (/\b(status update|standup|stand-up|weekly recap|daily recap|weekly update|daily update)\b/.test(q))
+    return 'synthesis'
   if (/\b(discuss|summarize|summary|what happened|what was|what were|explain|describe|give me|overview|recap|everything|list|what did|how did|pattern|suggest|recommend|analyz|compare|across|all the|walk me|catch me up)\b/.test(q))
     return 'synthesis'
   return 'factual'
@@ -590,6 +597,18 @@ Offers:
     // Extract any temporal range from the question
     const dateRange = extractDateRange(question)
 
+    // Cheap regex intent classification — used below to widen retrieval for
+    // recap/summary/draft queries. These are intent-shaped, not topic-shaped:
+    // "Draft a status update from my notes" doesn't have any topic keywords,
+    // so the keyword + vector filter would strip 22 of 24 records out and
+    // the model would synthesize from a tiny window. For these intents we
+    // backfill candidates with the user's most-recent records.
+    const queryIntent = classifyIntentRegex(question)
+    const isBroadRecapIntent =
+      queryIntent === 'synthesis' ||
+      queryIntent === 'history' ||
+      queryIntent === 'actions'
+
     const llm = getAskLLM(userEmail)
     // Pre-answer LLM calls (intent, expansion, multi-hop, extraction, conflict
     // detection) were removed. On a self-hosted 32B model each call costs 3-5s,
@@ -849,6 +868,25 @@ Offers:
       .slice(0, 30)
       .map(s => s.record)
 
+    // Backfill for broad-recap intents (summary / draft / recap / "what have
+    // I done"). The score filter above is correct for topic-shaped queries
+    // ("what did we decide about X") but wrong for intent-shaped queries
+    // where the user wants the model to read across everything recent. If
+    // we end up with a thin candidate set on a recap intent, top up with
+    // the most-recent records sorted by createdAt so the model has corpus
+    // to synthesize from.
+    if (isBroadRecapIntent && candidates.length < 15) {
+      const have = new Set(candidates.map(r => r.id))
+      const backfill = allRecords
+        .filter(r => !have.has(r.id))
+        .sort((a, b) =>
+          new Date(b.occurredAt || b.createdAt).getTime() -
+          new Date(a.occurredAt || a.createdAt).getTime(),
+        )
+        .slice(0, 30 - candidates.length)
+      candidates = [...candidates, ...backfill]
+    }
+
     // Deduplicate by normalized title (prevents the same record appearing twice)
     const seenTitles = new Set<string>()
     candidates = candidates.filter(r => {
@@ -860,22 +898,32 @@ Offers:
 
     if (candidates.length === 0) candidates = allRecords.slice(0, 3)
 
-    // Step 2: Claude Haiku rerank. Takes 30 → top 10 by actual semantic
-    // relevance to the question. Falls back to hybrid order on any failure.
-    let top = await rerankWithClaudeHaiku(
-      question,
-      candidates.map(r => ({
-        id: r.id,
-        title: r.title,
-        summary: r.summary,
-        content: r.content,
-        type: r.type,
-      })),
-      10,
-    ).then(ranked => {
-      const byId = new Map(candidates.map(r => [r.id, r]))
-      return ranked.map(r => byId.get(r.id)).filter((r): r is NonNullable<typeof candidates[number]> => !!r)
-    }).catch(() => candidates.slice(0, 10))
+    // Step 2: Claude Haiku rerank. Takes 30 → top 10 by semantic relevance
+    // to the question. Skipped for broad-recap intents — the reranker is
+    // also relevance-shaped, so on a "draft a status update from my notes"
+    // query it would re-strip out everything that doesn't topically match
+    // the literal phrase, defeating the backfill above. For recap intents
+    // we keep the recency-sorted candidate list and let the model
+    // synthesize across all of them.
+    let top: typeof candidates
+    if (isBroadRecapIntent) {
+      top = candidates.slice(0, 15)
+    } else {
+      top = await rerankWithClaudeHaiku(
+        question,
+        candidates.map(r => ({
+          id: r.id,
+          title: r.title,
+          summary: r.summary,
+          content: r.content,
+          type: r.type,
+        })),
+        10,
+      ).then(ranked => {
+        const byId = new Map(candidates.map(r => [r.id, r]))
+        return ranked.map(r => byId.get(r.id)).filter((r): r is NonNullable<typeof candidates[number]> => !!r)
+      }).catch(() => candidates.slice(0, 10))
+    }
 
     // Drop user-excluded sources (Tasks compose × on a chip). Done AFTER
     // rerank so the dropped ID is taken out of the ranked set; the prompt
