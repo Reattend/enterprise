@@ -146,7 +146,7 @@ export async function GET(req: NextRequest) {
 
     if (hasSomething && process.env.ANTHROPIC_API_KEY) {
       try {
-        const llm = getAskLLM(undefined, 'simple')
+        const llm = getAskLLM()
         const firstName = (user?.name || user?.email || 'there').split(' ')[0]
         const highlights = newRecords.slice(0, 6).map((r, i) => {
           const by = creatorById.get(r.createdBy)

@@ -63,7 +63,7 @@ ${body}`
 }
 
 async function runClaudeSummary(prompt: string): Promise<string> {
-  const llm = getAskLLM(undefined, 'simple')
+  const llm = getAskLLM()
   const text = await llm.generateText(prompt, 400)
   return (text || '').trim()
 }

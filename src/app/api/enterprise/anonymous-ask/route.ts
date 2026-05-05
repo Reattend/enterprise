@@ -106,7 +106,7 @@ Rules:
 - For reporting-type questions (harassment, discrimination, safety), always end with "Your HR / ombuds channel can be reached confidentially" even if that path isn't in memory.
 - Tone: calm, practical, empathetic. No legal disclaimers.`
 
-    const llm = getAskLLM(undefined, 'simple')
+    const llm = getAskLLM()
     const answer = await llm.generateText(prompt, 900)
 
     // Plain-text response. No X-Trace, no X-Sources — those would fingerprint.
