@@ -239,7 +239,7 @@ export async function GET(req: NextRequest) {
     let narratives: Record<string, string> = {}
     if (experts.length > 0 && process.env.ANTHROPIC_API_KEY) {
       try {
-        const llm = getAskLLM()
+        const llm = getAskLLM(undefined, 'simple')
         const prompt = `For each person below, write ONE 12-word-or-less sentence explaining why they're the right person to ask about: "${q}".
 
 Rules:

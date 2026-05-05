@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const llm = getAskLLM()
+    const llm = getAskLLM(undefined, 'simple')
     const keywords = extractKeywords(question)
 
     // Fetch recent + keyword/FTS records

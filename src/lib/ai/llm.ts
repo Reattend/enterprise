@@ -401,12 +401,22 @@ class RabbitFastEmbedProvider implements LLMProvider {
 // Used for /api/ask (answering user questions). Claude is 10x faster and
 // dramatically better at multi-turn, follow-ups, temporal reasoning, and
 // meta-instructions ("summarize what you said", "draft an email from this").
-// Ingestion stays on Rabbit — it's structured JSON extraction.
+// Ingestion stays on Groq/Rabbit — it's structured JSON extraction.
+//
+// Two-tier model usage to control cost (Sonnet ~3x more expensive than Haiku):
+// - Sonnet 4.6: high-stakes user-facing answers (chat, oracle, compose,
+//   handoff plans, blast radius, exit interviews, agent runs)
+// - Haiku 4.5: background/triage/matching (start-my-day, meeting-prep,
+//   brain-dump, ask-experts matching, wiki summarization, tray snippets)
+// Routed via getAskLLM(userEmail, intent) — see bottom of this file.
+const CLAUDE_SONNET_MODEL = 'claude-sonnet-4-6'
+const CLAUDE_HAIKU_MODEL = 'claude-haiku-4-5-20251001'
+
 class ClaudeProvider implements LLMProvider {
   private apiKey: string
   private model: string
 
-  constructor(apiKey: string, model = 'claude-sonnet-4-20250514') {
+  constructor(apiKey: string, model = CLAUDE_SONNET_MODEL) {
     this.apiKey = apiKey
     this.model = model
   }
@@ -583,10 +593,10 @@ function getRabbitProvider(): LLMProvider {
   return new RabbitFastEmbedProvider(rabbitUrl, rabbitKey)
 }
 
-function getClaudeProvider(): LLMProvider {
+function getClaudeProvider(model?: string): LLMProvider {
   const key = process.env.ANTHROPIC_API_KEY
   if (!key) throw new Error('ANTHROPIC_API_KEY not set')
-  return new ClaudeProvider(key)
+  return new ClaudeProvider(key, model)
 }
 
 function getGroqProvider(): LLMProvider {
@@ -609,12 +619,19 @@ export function getLLM(): LLMProvider {
 // pb@reattend.ai and anjan@reattend.ai get Rabbit for testing the model.
 const RABBIT_TEST_EMAILS = new Set(['pb@reattend.ai', 'anjan@reattend.ai'])
 
-export function getAskLLM(userEmail?: string): LLMProvider {
+// Intent tier: 'reasoning' = Sonnet (default, premium), 'simple' = Haiku
+// (~3x cheaper, used for triage/summarization/matching where Sonnet is
+// overkill). See ClaudeProvider banner above for the per-endpoint mapping.
+export type AskIntent = 'reasoning' | 'simple'
+
+export function getAskLLM(userEmail?: string, intent: AskIntent = 'reasoning'): LLMProvider {
   if (userEmail && RABBIT_TEST_EMAILS.has(userEmail)) {
     try { return getRabbitProvider() } catch { /* Rabbit down, fall through to Claude */ }
   }
   const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (anthropicKey) return getClaudeProvider()
+  if (anthropicKey) {
+    return getClaudeProvider(intent === 'simple' ? CLAUDE_HAIKU_MODEL : CLAUDE_SONNET_MODEL)
+  }
   return getRabbitProvider()
 }
 

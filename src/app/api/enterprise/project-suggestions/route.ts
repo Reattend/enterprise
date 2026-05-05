@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
     // to heuristic on any failure so the UI always has something to show.
     if (suggestions.length > 0 && process.env.ANTHROPIC_API_KEY) {
       try {
-        const llm = getAskLLM()
+        const llm = getAskLLM(undefined, 'simple')
         const clusterSummaries = suggestions.map((s, i) => {
           const titles = unassigned
             .filter((r) => s.recordIds.includes(r.id))

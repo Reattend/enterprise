@@ -133,7 +133,7 @@ async function parseWithClaude(raw: string): Promise<Preview> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return { items: [], rejectedReason: 'Claude is not configured on this server.' }
   }
-  const llm = getAskLLM()
+  const llm = getAskLLM(undefined, 'simple')
   const prompt = `You are structuring a free-form brain dump into discrete, actionable items. The user's just spoken or typed everything in their head; your job is to extract the load-bearing parts.
 
 Four item kinds:
