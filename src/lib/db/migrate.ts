@@ -327,6 +327,31 @@ CREATE TABLE IF NOT EXISTS otp_codes (
 );
 CREATE INDEX IF NOT EXISTS otp_email_idx ON otp_codes(email);
 
+-- Account links: confirmed two-way links between two user accounts
+-- (e.g. user's personal Gmail + work email). Stored with userAId always
+-- lexically less than userBId so a single row represents the pair.
+CREATE TABLE IF NOT EXISTS account_links (
+  id TEXT PRIMARY KEY,
+  user_a_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_b_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS account_links_pair_uniq ON account_links(user_a_id, user_b_id);
+CREATE INDEX IF NOT EXISTS account_links_user_a_idx ON account_links(user_a_id);
+CREATE INDEX IF NOT EXISTS account_links_user_b_idx ON account_links(user_b_id);
+
+-- Pending account-link OTPs. Sent to targetEmail; the target user must
+-- be authenticated as that email's account to confirm.
+CREATE TABLE IF NOT EXISTS account_link_requests (
+  id TEXT PRIMARY KEY,
+  requesting_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  target_email TEXT NOT NULL,
+  code TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS account_link_requests_target_email_idx ON account_link_requests(target_email);
+
 -- Attachments
 CREATE TABLE IF NOT EXISTS attachments (
   id TEXT PRIMARY KEY,

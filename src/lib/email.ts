@@ -132,6 +132,32 @@ export function renderOtpEmail(code: string): string {
   })
 }
 
+// ─── Account link verification email ────────────────────────────────────
+// Sent to the target email when another Reattend user requests to link
+// accounts. Confirms ownership before the link is created.
+export function renderAccountLinkEmail(opts: {
+  code: string
+  requesterEmail: string
+  requesterName: string | null
+}): string {
+  const requesterLabel = opts.requesterName
+    ? `${escapeHtml(opts.requesterName)} (${escapeHtml(opts.requesterEmail)})`
+    : escapeHtml(opts.requesterEmail)
+  return renderEmail({
+    preheader: `Confirm linking your Reattend account with ${opts.requesterEmail}`,
+    heading: 'Link your accounts?',
+    bodyHtml: `
+      <p style="margin:0 0 16px;"><b>${requesterLabel}</b> wants to link their Reattend account with this one. Once linked, you can switch between both accounts in one tab without signing in again.</p>
+      <p style="margin:0 0 16px; color:${TOKENS.ink3}; font-size:14px;">Each account stays structurally separate — your memories, integrations, and access stay tied to the account that owns them. Linking is a UI convenience, not a data merge.</p>
+      <p style="margin:24px 0 12px;">If this is you, sign in to <b>this</b> account and enter:</p>
+      <div style="background:#fff; border:2px solid ${TOKENS.rule}; border-radius:12px; padding:22px; text-align:center; margin:8px 0 20px;">
+        <span style="font-family:${TOKENS.fontMono}; font-size:34px; font-weight:600; letter-spacing:0.32em; color:${TOKENS.ink};">${escapeHtml(opts.code)}</span>
+      </div>
+      <p style="margin:0; color:${TOKENS.ink3}; font-size:13.5px;">Expires in <b style="color:${TOKENS.ink2};">10 minutes</b>. If you didn't expect this, ignore this email and the request expires on its own.</p>
+    `,
+  })
+}
+
 // ─── Welcome email ──────────────────────────────────────────────────────
 export async function sendWelcomeEmail(email: string, name: string) {
   const html = renderEmail({

@@ -432,6 +432,42 @@ export const otpCodes = sqliteTable('otp_codes', {
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 })
 
+// ─── Account links ──────────────────────────────────────
+// Lets a user with multiple Reattend accounts (e.g. personal Gmail +
+// work email) link them and switch between them in one tab without
+// re-logging in. Both sides verify ownership via OTP — see
+// account_link_requests below for the pending-verification rows.
+//
+// Storage: one row per linked pair, with userAId always lexically less
+// than userBId so we don't double-store. Lookups treat the link as
+// symmetric. Cascading deletes mean removing a user account also
+// removes any links involving it.
+export const accountLinks = sqliteTable('account_links', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userAId: text('user_a_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userBId: text('user_b_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (t) => ({
+  uniqPair: uniqueIndex('account_links_pair_uniq').on(t.userAId, t.userBId),
+  userAIdx: index('account_links_user_a_idx').on(t.userAId),
+  userBIdx: index('account_links_user_b_idx').on(t.userBId),
+}))
+
+// Pending link requests — created when user A asks to link a target
+// email, deleted on confirm or expiry. The OTP code is sent to
+// targetEmail; the target user must sign in (if not already) and
+// enter the code to confirm. 10-minute expiry like other OTPs.
+export const accountLinkRequests = sqliteTable('account_link_requests', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  requestingUserId: text('requesting_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  targetEmail: text('target_email').notNull(),
+  code: text('code').notNull(), // 6-digit OTP
+  expiresAt: text('expires_at').notNull(),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (t) => ({
+  targetEmailIdx: index('account_link_requests_target_email_idx').on(t.targetEmail),
+}))
+
 // ─── Slack Memory Match Game ────────────────────────────
 export const slackGameTeams = sqliteTable('slack_game_teams', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
