@@ -18,11 +18,26 @@ export async function GET(req: NextRequest) {
     const typeFilter = req.nextUrl.searchParams.get('type')
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '300'), 500)
 
-    // Accessible workspaces across all orgs
-    const links = await db
+    // Accessible workspaces. Two sources, unioned:
+    //   1. Workspaces the user is a direct member of (workspace_members).
+    //      This is the only path for Solo users — their Personal workspace
+    //      isn't in workspace_org_links, so the previous query missed it
+    //      entirely and Landscape reported zero records for any solo
+    //      account.
+    //   2. Org-linked workspaces (workspace_org_links). Org admins/super_admins
+    //      get auto-access to workspaces they aren't direct members of via
+    //      the org role — filterToAccessibleWorkspaces handles that.
+    const directMemberships = await db
+      .select({ workspaceId: schema.workspaceMembers.workspaceId })
+      .from(schema.workspaceMembers)
+      .where(eq(schema.workspaceMembers.userId, userId))
+    const orgLinkedWs = await db
       .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
       .from(schema.workspaceOrgLinks)
-    const allWs = Array.from(new Set(links.map((l) => l.workspaceId)))
+    const allWs = Array.from(new Set([
+      ...directMemberships.map((m) => m.workspaceId),
+      ...orgLinkedWs.map((l) => l.workspaceId),
+    ]))
     const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
     if (accessibleWs.length === 0) return NextResponse.json({ nodes: [], edges: [] })
 

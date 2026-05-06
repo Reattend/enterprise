@@ -45,6 +45,8 @@ type Tab = 'agents' | 'activity'
 
 export default function AgentsPage() {
   const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
+  const enterpriseOrgs = useAppStore((s) => s.enterpriseOrgs)
+  const enterpriseOrgsLoaded = useAppStore((s) => s.enterpriseOrgsLoaded)
   const [agents, setAgents] = useState<Agent[] | null>(null)
   const [canAuthor, setCanAuthor] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -67,6 +69,38 @@ export default function AgentsPage() {
   }, [activeOrgId])
 
   const tiers: Agent['tier'][] = ['org', 'departmental', 'personal']
+
+  // Solo (no-org) users: render a friendly "team-plan feature" upsell
+  // instead of firing /api/enterprise/agents (which 403s with 'not a
+  // member' for users with no org membership and surfaces as a raw
+  // error banner). Gated on enterpriseOrgsLoaded so the page doesn't
+  // flash the upsell while orgs are still loading for real org users.
+  if (enterpriseOrgsLoaded && enterpriseOrgs.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto py-12 px-4">
+        <div className="rounded-2xl border bg-card p-10 text-center">
+          <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-500/15 via-fuchsia-500/15 to-transparent flex items-center justify-center mb-5">
+            <Bot className="h-7 w-7 text-violet-600" strokeWidth={1.8} />
+          </div>
+          <h1 className="font-display text-3xl tracking-tight mb-2">Agents are a team-plan feature</h1>
+          <p className="text-sm text-muted-foreground max-w-prose mx-auto mb-6 leading-relaxed">
+            Agents are AI personas with a specific knowledge scope — Policy Helper, Decision Lookup, HR Onboarding, and custom ones you build. They live inside an organization and serve everyone in it.
+          </p>
+          <p className="text-sm text-muted-foreground max-w-prose mx-auto mb-8 leading-relaxed">
+            On Solo (your current plan) you can already chat with the AI across your own memory at <Link href="/app/ask" className="text-foreground underline underline-offset-2">/app/ask</Link>. To unlock named agents, deploy targets, and per-agent scopes, start a team plan.
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <Button asChild>
+              <Link href="/app/admin/onboarding">Start a team plan</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/pricing">See pricing</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-6 space-y-6">
