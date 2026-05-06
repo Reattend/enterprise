@@ -26,12 +26,21 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(params.get('offset') || '0')
 
     // Build the set of workspaces the user is allowed to LIST records from.
-    // Always includes their personal workspace (the auth default). When
-    // orgId is provided, also includes every workspace linked to that org
-    // they're a member of — admins/super_admins get every org workspace.
-    // RBAC still runs on the result; this filter just shapes the candidate
-    // set so we don't query records the user has no path to anyway.
-    const accessibleWsIds = new Set<string>([workspaceId])
+    // Two strict modes (no mixing):
+    //   - orgId provided  → org workspaces ONLY (every workspace linked to
+    //     that org the user is a member of, plus admin auto-access for
+    //     super_admin / admin). The personal workspace is excluded.
+    //   - orgId absent    → personal workspace ONLY (the auth default).
+    //
+    // The previous behavior always included personal in addition to org
+    // workspaces, which leaked personal memories into the team /memories
+    // list and the Landscape board for any user with both contexts. The
+    // org/personal context switcher in the topbar now controls which mode
+    // the client requests, so the endpoint must respect it strictly.
+    //
+    // RBAC still runs on the result; this candidate set just shapes the
+    // upper bound.
+    const accessibleWsIds = new Set<string>()
     if (orgId) {
       const orgLinks = await db
         .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
@@ -60,6 +69,9 @@ export async function GET(req: NextRequest) {
           for (const wsId of orgWsIds) accessibleWsIds.add(wsId)
         }
       }
+    } else {
+      // Personal context — only the user's personal/auth-default workspace.
+      accessibleWsIds.add(workspaceId)
     }
 
     const sourceFilter = source === 'integrations'
@@ -79,6 +91,13 @@ export async function GET(req: NextRequest) {
         const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
         dateFilter = gte(schema.records.createdAt, start.toISOString())
       }
+    }
+
+    // Empty candidate set (e.g. orgId given but user has no membership in
+    // that org) → no records can match. Short-circuit to avoid an invalid
+    // empty-array IN clause.
+    if (accessibleWsIds.size === 0) {
+      return NextResponse.json({ records: [], total: 0 })
     }
 
     let whereClause = and(

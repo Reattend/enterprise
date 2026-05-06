@@ -14,31 +14,27 @@ import {
 // Capped at 300 nodes for performance — UI can filter down further.
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, workspaceId } = await requireAuth()
     const typeFilter = req.nextUrl.searchParams.get('type')
+    const orgId = req.nextUrl.searchParams.get('orgId')
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '300'), 500)
 
-    // Accessible workspaces. Two sources, unioned:
-    //   1. Workspaces the user is a direct member of (workspace_members).
-    //      This is the only path for Solo users — their Personal workspace
-    //      isn't in workspace_org_links, so the previous query missed it
-    //      entirely and Landscape reported zero records for any solo
-    //      account.
-    //   2. Org-linked workspaces (workspace_org_links). Org admins/super_admins
-    //      get auto-access to workspaces they aren't direct members of via
-    //      the org role — filterToAccessibleWorkspaces handles that.
-    const directMemberships = await db
-      .select({ workspaceId: schema.workspaceMembers.workspaceId })
-      .from(schema.workspaceMembers)
-      .where(eq(schema.workspaceMembers.userId, userId))
-    const orgLinkedWs = await db
-      .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
-      .from(schema.workspaceOrgLinks)
-    const allWs = Array.from(new Set([
-      ...directMemberships.map((m) => m.workspaceId),
-      ...orgLinkedWs.map((l) => l.workspaceId),
-    ]))
-    const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
+    // Workspace scoping mirrors /api/records — strict, no mixing:
+    //   - orgId provided  → org workspaces ONLY (links scoped to that org;
+    //     filterToAccessibleWorkspaces resolves admin auto-access).
+    //   - orgId absent    → personal workspace ONLY (the user's auth
+    //     default). Pure Solo users always land here.
+    let accessibleWs: string[] = []
+    if (orgId) {
+      const orgLinkedWs = await db
+        .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+      const allWs = Array.from(new Set(orgLinkedWs.map((l) => l.workspaceId)))
+      accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
+    } else {
+      accessibleWs = [workspaceId]
+    }
     if (accessibleWs.length === 0) return NextResponse.json({ nodes: [], edges: [] })
 
     // Records (most recent first)

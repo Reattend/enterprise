@@ -46,7 +46,7 @@ interface TimelineState {
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, workspaceId } = await requireAuth()
     const orgId = req.nextUrl.searchParams.get('orgId')
     const atParam = req.nextUrl.searchParams.get('at')
     const anchor = (req.nextUrl.searchParams.get('anchor') || 'all') as 'all' | 'topic' | 'person' | 'dept'
@@ -57,13 +57,14 @@ export async function GET(req: NextRequest) {
     const atIso = at.toISOString()
 
     // ── Workspaces the user can see ───────────────────────
-    // Two modes:
+    // Strict scoping (no mixing) — mirrors /api/records and
+    // /api/enterprise/graph. Two modes:
     //   - orgId provided: scope to workspaces linked to that org. Decisions
     //     + policies for this org are also queryable.
-    //   - orgId omitted (Solo): scope to the user's direct workspace
-    //     memberships. No decisions/policies — those are org-only concepts.
-    //     The records timeline (memory growth over 24 months) still works
-    //     and is the part Solo users care about.
+    //   - orgId omitted: personal workspace ONLY. No decisions/policies —
+    //     those are org-only concepts and stay zero. The records timeline
+    //     (memory growth over 24 months) is the part the Personal context
+    //     cares about.
     let wsLinkRows: typeof schema.workspaceOrgLinks.$inferSelect[] = []
     let allWs: string[] = []
     if (orgId) {
@@ -71,11 +72,7 @@ export async function GET(req: NextRequest) {
         .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
       allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
     } else {
-      const direct = await db
-        .select({ workspaceId: schema.workspaceMembers.workspaceId })
-        .from(schema.workspaceMembers)
-        .where(eq(schema.workspaceMembers.userId, userId))
-      allWs = Array.from(new Set(direct.map((m) => m.workspaceId)))
+      allWs = [workspaceId]
     }
     const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
     if (accessibleWs.length === 0) {
