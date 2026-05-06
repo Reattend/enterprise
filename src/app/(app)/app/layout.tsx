@@ -117,7 +117,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           orgId: string; orgName: string; orgSlug: string; orgPlan: string; orgDeployment: string; role: 'super_admin' | 'admin' | 'member' | 'guest'
         }>
         useAppStore.getState().setEnterpriseOrgs(memberships)
-        if (memberships.length > 0 && !useAppStore.getState().activeEnterpriseOrgId) {
+        // Auto-pick the first org as the active context only if the user
+        // has never explicitly chosen one. The 'view_context_chosen'
+        // localStorage marker is written by setActiveEnterpriseOrgId on
+        // every deliberate pick (including Personal = null) — without
+        // this guard, picking Personal in the topbar would get overridden
+        // back to the first org on the next fetchOrgs revalidate.
+        const hasExplicitChoice =
+          typeof window !== 'undefined' && window.localStorage.getItem('view_context_chosen') === '1'
+        if (memberships.length > 0 && !useAppStore.getState().activeEnterpriseOrgId && !hasExplicitChoice) {
           useAppStore.getState().setActiveEnterpriseOrgId(memberships[0].orgId)
         }
       }

@@ -124,17 +124,18 @@ export default function HomePage() {
     return () => { cancelled = true }
   }, [activeOrgId])
 
-  // Solo (no-org) users get a different home — see personal-home.tsx.
-  // Every widget below this point assumes an active org context, so
-  // dispatching at the top keeps both code paths clean and lets the
-  // org-user code path stay unchanged.
+  // Personal context (no active org) gets PersonalHomePage. This covers
+  // both pure Solo users (no orgs at all) and hybrid users who picked
+  // "Personal" in the topbar context switcher — both have
+  // activeEnterpriseOrgId === null.
   //
   // Gate on enterpriseOrgsLoaded: without it, real org users briefly see
   // PersonalHomePage during the ~100ms before /api/enterprise/organizations
-  // resolves. While orgs are still loading, render nothing — the layout
-  // already shows the topbar/sidebar/banners, so the screen isn't blank.
+  // resolves and the auto-pick sets the active org. While orgs are still
+  // loading, render nothing — the layout already shows the topbar/sidebar
+  // shell, so the screen isn't blank.
   if (!enterpriseOrgsLoaded) return null
-  if (enterpriseOrgs.length === 0) {
+  if (!activeOrgId) {
     return <PersonalHomePage user={user} />
   }
 

@@ -115,7 +115,12 @@ export function AppSidebar() {
         orgPlan: o.orgPlan, orgDeployment: o.orgDeployment, role: o.role,
       }))
       setEnterpriseOrgs(orgs)
-      if (orgs.length > 0 && !activeEnterpriseOrgId) {
+      // Same explicit-choice guard as the layout — see comment there.
+      // Picking Personal in the topbar writes view_context_chosen=1 so
+      // this auto-pick won't override it on the next sidebar revalidate.
+      const hasExplicitChoice =
+        typeof window !== 'undefined' && window.localStorage.getItem('view_context_chosen') === '1'
+      if (orgs.length > 0 && !activeEnterpriseOrgId && !hasExplicitChoice) {
         setActiveEnterpriseOrgId(orgs[0].orgId)
       }
     } catch { /* silent */ }
@@ -248,11 +253,14 @@ export function AppSidebar() {
           <span>Chat</span>
         </Link>
 
-        {/* Primary nav. Solo users (no org) see a trimmed list — Wiki,
-            Hierarchy, and Policies are org-only surfaces and would render
-            empty / broken without an active org context. */}
+        {/* Primary nav. Solo (and hybrid users in Personal context) see a
+            trimmed list — Wiki, Hierarchy, and Policies are org-only
+            surfaces and would render empty / broken without an active
+            org context. Filter on activeEnterpriseOrgId, NOT
+            enterpriseOrgs.length, so a hybrid user picking "Personal" in
+            the topbar gets the trimmed nav too. */}
         <nav className="rail-nav" style={{ marginTop: 14 }}>
-          {NAV_ITEMS.filter((item) => !item.orgOnly || enterpriseOrgs.length > 0).map((item) => {
+          {NAV_ITEMS.filter((item) => !item.orgOnly || activeEnterpriseOrgId).map((item) => {
             const Icon = item.icon
             const active = isActive(item.href, item.exact)
             return (

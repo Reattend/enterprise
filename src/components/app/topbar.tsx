@@ -28,6 +28,7 @@ import {
   ArrowRight,
   BookOpen,
   Building2,
+  UserCircle2,     // Personal context icon
   Search,
   Plug,            // Integrations icon (now in topbar)
   Map as MapIcon,  // Legend icon (now in topbar)
@@ -231,53 +232,107 @@ export function AppTopbar() {
           <Menu className="h-4 w-4" />
         </button>
 
-        {/* Workspace switcher */}
-        {hasEnterprise && activeEnterpriseOrg && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="ws-switch hidden md:flex">
-                <div className="ws-mark">{(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}</div>
-                <div className="ws-meta">
-                  <div className="ws-name">{activeEnterpriseOrg.orgName}</div>
-                  <div className="ws-role">{activeEnterpriseOrg.role.replace('_', ' ')}</div>
-                </div>
-                <ChevronsUpDown className="ws-chev h-3 w-3" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-72">
-              <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                {enterpriseOrgs.length >= 2 ? 'Organizations' : 'Organization'}
+        {/* Context switcher — visible pill in the topbar.
+            Always rendered for any signed-in user. Three states:
+              - Pure Solo (no orgs)            → reads "Personal", no dropdown action
+              - Hybrid (Personal + 1+ orgs)    → reads either "Personal" or the
+                  active org name; dropdown lets the user flip
+              - Org user with no Personal context selected → reads org name
+            Picking "Personal" sets activeEnterpriseOrgId to null, which is
+            the same signal a pure-Solo user has — every downstream surface
+            (home dispatch, sidebar nav, scoped endpoints) already respects
+            that. Picking an org sets it to that orgId. Mode is persisted
+            via localStorage by the existing setActiveEnterpriseOrgId. */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="ws-switch hidden md:flex">
+              {activeEnterpriseOrg ? (
+                <>
+                  <div className="ws-mark">{(activeEnterpriseOrg.orgName || 'O')[0]?.toUpperCase()}</div>
+                  <div className="ws-meta">
+                    <div className="ws-name">{activeEnterpriseOrg.orgName}</div>
+                    <div className="ws-role">{activeEnterpriseOrg.role.replace('_', ' ')}</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="ws-mark" style={{ background: 'var(--accent, #6366f1)', color: 'white' }}>
+                    <UserCircle2 className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="ws-meta">
+                    <div className="ws-name">Personal</div>
+                    <div className="ws-role">private to you</div>
+                  </div>
+                </>
+              )}
+              <ChevronsUpDown className="ws-chev h-3 w-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-72">
+            <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+              Switch context
+            </div>
+            <DropdownMenuItem
+              onClick={() => useAppStore.getState().setActiveEnterpriseOrgId(null)}
+              className="cursor-pointer py-2"
+            >
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0"
+                style={{ background: 'var(--accent, #6366f1)', color: 'white' }}
+              >
+                <UserCircle2 className="h-3.5 w-3.5" />
               </div>
-              {enterpriseOrgs.map((o) => (
-                <DropdownMenuItem
-                  key={o.orgId}
-                  onClick={() => useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)}
-                  className="cursor-pointer py-2"
-                >
-                  <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
-                    {o.orgName[0]?.toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm truncate block">{o.orgName}</span>
-                    <span className="text-[10px] text-muted-foreground capitalize">
-                      {o.role.replace('_', ' ')} · {o.orgPlan}
-                    </span>
-                  </div>
-                  {o.orgId === activeEnterpriseOrgId && (
-                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  )}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href={`/app/admin/${activeEnterpriseOrg.orgId}`}>
-                  <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                  Open Memory Cockpit
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+              <div className="flex-1 min-w-0">
+                <span className="text-sm truncate block">Personal</span>
+                <span className="text-[10px] text-muted-foreground">
+                  Your private memory · no org sees this
+                </span>
+              </div>
+              {activeEnterpriseOrgId === null && (
+                <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+              )}
+            </DropdownMenuItem>
+            {hasEnterprise && (
+              <>
+                <DropdownMenuSeparator />
+                <div className="px-2 pt-1 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {enterpriseOrgs.length >= 2 ? 'Organizations' : 'Organization'}
+                </div>
+                {enterpriseOrgs.map((o) => (
+                  <DropdownMenuItem
+                    key={o.orgId}
+                    onClick={() => useAppStore.getState().setActiveEnterpriseOrgId(o.orgId)}
+                    className="cursor-pointer py-2"
+                  >
+                    <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold mr-2 shrink-0 bg-primary text-primary-foreground">
+                      {o.orgName[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm truncate block">{o.orgName}</span>
+                      <span className="text-[10px] text-muted-foreground capitalize">
+                        {o.role.replace('_', ' ')} · {o.orgPlan}
+                      </span>
+                    </div>
+                    {o.orgId === activeEnterpriseOrgId && (
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                {activeEnterpriseOrg && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href={`/app/admin/${activeEnterpriseOrg.orgId}`}>
+                        <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                        Open Memory Cockpit
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Center: search */}
         <button

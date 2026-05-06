@@ -181,6 +181,12 @@ export const useAppStore = create<AppState>((set) => ({
     if (typeof window !== 'undefined') {
       if (id) localStorage.setItem('active_enterprise_org_id', id)
       else localStorage.removeItem('active_enterprise_org_id')
+      // Marker the layout reads to decide whether to auto-pick the first
+      // org on mount. Without this, the layout's auto-pick would override
+      // a deliberate "Personal" choice (id=null) with the first org each
+      // time fetchOrgs runs. Set on every explicit call — covers both
+      // picking an org and picking Personal.
+      localStorage.setItem('view_context_chosen', '1')
     }
     set({ activeEnterpriseOrgId: id })
   },

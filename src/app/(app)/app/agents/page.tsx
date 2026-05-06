@@ -70,12 +70,13 @@ export default function AgentsPage() {
 
   const tiers: Agent['tier'][] = ['org', 'departmental', 'personal']
 
-  // Solo (no-org) users: render a friendly "team-plan feature" upsell
+  // No active org context (pure Solo OR hybrid user who picked Personal
+  // in the topbar) → render a friendly "team-plan feature" upsell
   // instead of firing /api/enterprise/agents (which 403s with 'not a
-  // member' for users with no org membership and surfaces as a raw
-  // error banner). Gated on enterpriseOrgsLoaded so the page doesn't
-  // flash the upsell while orgs are still loading for real org users.
-  if (enterpriseOrgsLoaded && enterpriseOrgs.length === 0) {
+  // member' and surfaces as a raw error banner). Gated on
+  // enterpriseOrgsLoaded so the upsell doesn't flash while orgs are
+  // still loading.
+  if (enterpriseOrgsLoaded && !activeOrgId) {
     return (
       <div className="max-w-3xl mx-auto py-12 px-4">
         <div className="rounded-2xl border bg-card p-10 text-center">
