@@ -52,15 +52,31 @@ export async function GET(req: NextRequest) {
     const anchor = (req.nextUrl.searchParams.get('anchor') || 'all') as 'all' | 'topic' | 'person' | 'dept'
     const value = req.nextUrl.searchParams.get('value') || null
 
-    if (!orgId) return NextResponse.json({ error: 'orgId required' }, { status: 400 })
     const at = atParam ? new Date(atParam) : new Date()
     if (isNaN(at.getTime())) return NextResponse.json({ error: 'invalid at' }, { status: 400 })
     const atIso = at.toISOString()
 
-    // ── Workspaces the user can see, in this org ──────────
-    const wsLinkRows = await db.select().from(schema.workspaceOrgLinks)
-      .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
-    const allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
+    // ── Workspaces the user can see ───────────────────────
+    // Two modes:
+    //   - orgId provided: scope to workspaces linked to that org. Decisions
+    //     + policies for this org are also queryable.
+    //   - orgId omitted (Solo): scope to the user's direct workspace
+    //     memberships. No decisions/policies — those are org-only concepts.
+    //     The records timeline (memory growth over 24 months) still works
+    //     and is the part Solo users care about.
+    let wsLinkRows: typeof schema.workspaceOrgLinks.$inferSelect[] = []
+    let allWs: string[] = []
+    if (orgId) {
+      wsLinkRows = await db.select().from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+      allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
+    } else {
+      const direct = await db
+        .select({ workspaceId: schema.workspaceMembers.workspaceId })
+        .from(schema.workspaceMembers)
+        .where(eq(schema.workspaceMembers.userId, userId))
+      allWs = Array.from(new Set(direct.map((m) => m.workspaceId)))
+    }
     const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
     if (accessibleWs.length === 0) {
       return NextResponse.json(emptyState(atIso, anchor, value))
@@ -115,11 +131,15 @@ export async function GET(req: NextRequest) {
     // ── Active decisions at `at` ───────────────────────────
     // Active = decidedAt <= at AND (reversedAt is null or reversedAt > at) AND
     // not superseded by a decision that was already active at `at`.
-    const allDecisions = await db.select().from(schema.decisions)
-      .where(and(
-        eq(schema.decisions.organizationId, orgId),
-        lte(schema.decisions.decidedAt, atIso),
-      ))
+    //
+    // Solo (no-orgId) mode: skip — decisions are an org-only concept.
+    const allDecisions = orgId
+      ? await db.select().from(schema.decisions)
+          .where(and(
+            eq(schema.decisions.organizationId, orgId),
+            lte(schema.decisions.decidedAt, atIso),
+          ))
+      : []
     const decisionById = new Map(allDecisions.map((d) => [d.id, d]))
 
     const wasActiveAt = (d: typeof allDecisions[number]): boolean => {
@@ -161,17 +181,19 @@ export async function GET(req: NextRequest) {
     }).length
 
     // ── Published policies as of `at` ─────────────────────
-    const [polCount] = await db.select({ value: count() }).from(schema.policies)
-      .where(and(
-        eq(schema.policies.organizationId, orgId),
-        eq(schema.policies.status, 'published'),
-        // effectiveDate null = always-on at publish time; count if effectiveDate <= at OR null
-        or(
-          isNull(schema.policies.effectiveDate),
-          lte(schema.policies.effectiveDate, atIso),
-        ),
-        lte(schema.policies.createdAt, atIso),
-      ))
+    // Solo (no-orgId) mode: skip — policies are an org-only concept.
+    const polCount = orgId
+      ? (await db.select({ value: count() }).from(schema.policies)
+          .where(and(
+            eq(schema.policies.organizationId, orgId),
+            eq(schema.policies.status, 'published'),
+            or(
+              isNull(schema.policies.effectiveDate),
+              lte(schema.policies.effectiveDate, atIso),
+            ),
+            lte(schema.policies.createdAt, atIso),
+          )))[0]
+      : { value: 0 }
 
     return NextResponse.json({
       at: atIso,

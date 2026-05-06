@@ -88,9 +88,13 @@ export function RewindView() {
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Debounced fetch — coalesce fast scrubs into one network call.
+  // Solo (no-org) users still get a useful Time Machine: the timeline
+  // endpoint accepts requests without orgId and scopes to the user's
+  // direct workspace memberships (records timeline only — decisions /
+  // policies are org-only and stay zero).
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
-    if (!activeEnterpriseOrgId || !hasHydratedStore) return
+    if (!hasHydratedStore) return
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => { fetchState() }, 250)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
@@ -98,12 +102,12 @@ export function RewindView() {
   }, [index, anchor, value, activeEnterpriseOrgId, hasHydratedStore])
 
   async function fetchState() {
-    if (!activeEnterpriseOrgId) return
     setLoading(true)
     try {
       const at = ticks[index]
       const endOfMonth = new Date(at.getFullYear(), at.getMonth() + 1, 0, 23, 59, 59).toISOString()
-      const params = new URLSearchParams({ orgId: activeEnterpriseOrgId, at: endOfMonth, anchor })
+      const params = new URLSearchParams({ at: endOfMonth, anchor })
+      if (activeEnterpriseOrgId) params.set('orgId', activeEnterpriseOrgId)
       if (anchor !== 'all' && value.trim()) params.set('value', value.trim())
       const res = await fetch(`/api/enterprise/timeline?${params.toString()}`)
       if (!res.ok) return
@@ -115,7 +119,8 @@ export function RewindView() {
       if (index >= 12) {
         const prevAt = ticks[index - 12]
         const prevEnd = new Date(prevAt.getFullYear(), prevAt.getMonth() + 1, 0, 23, 59, 59).toISOString()
-        const prevParams = new URLSearchParams({ orgId: activeEnterpriseOrgId, at: prevEnd, anchor })
+        const prevParams = new URLSearchParams({ at: prevEnd, anchor })
+        if (activeEnterpriseOrgId) prevParams.set('orgId', activeEnterpriseOrgId)
         if (anchor !== 'all' && value.trim()) prevParams.set('value', value.trim())
         try {
           const prevRes = await fetch(`/api/enterprise/timeline?${prevParams.toString()}`)
