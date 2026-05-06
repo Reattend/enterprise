@@ -340,8 +340,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS account_links_pair_uniq ON account_links(user_
 CREATE INDEX IF NOT EXISTS account_links_user_a_idx ON account_links(user_a_id);
 CREATE INDEX IF NOT EXISTS account_links_user_b_idx ON account_links(user_b_id);
 
--- Pending account-link OTPs. Sent to targetEmail; the target user must
--- be authenticated as that email's account to confirm.
+-- Pending account-link OTPs. Sent to targetEmail. The target user must
+-- be authenticated as that email account to confirm.
 CREATE TABLE IF NOT EXISTS account_link_requests (
   id TEXT PRIMARY KEY,
   requesting_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
