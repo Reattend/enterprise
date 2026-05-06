@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
-  PanelLeft, Loader2, Check, Network, CreditCard,
+  PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -17,6 +17,7 @@ import {
 import { useAppStore } from '@/stores/app-store'
 import { useRevalidate, SCOPES } from '@/lib/data-bus'
 import { cn } from '@/lib/utils'
+import { switchToLinkedAccount } from '@/lib/auth/account-switch-client'
 
 // New dashboard sidebar — visual structure from the claude.ai/design Chat.html
 // handoff (see src/app/(app)/app/dashboard.css). All data hooks + behaviours
@@ -66,12 +67,15 @@ export function AppSidebar() {
   } = useAppStore()
 
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [linkedAccounts, setLinkedAccounts] = useState<Array<{ userId: string; email: string; name: string | null }>>([])
+  const [switching, setSwitching] = useState<string | null>(null) // userId being switched to
 
   useEffect(() => {
     fetchUser()
     fetchChats()
     fetchInboxUnread()
     fetchEnterpriseOrgs()
+    fetchLinkedAccounts()
     const interval = setInterval(fetchInboxUnread, 60_000)
     return () => clearInterval(interval)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -123,6 +127,35 @@ export function AppSidebar() {
       const data = await res.json()
       if (data.chats) setRecentChats(data.chats)
     } catch { /* silent */ }
+  }
+
+  async function fetchLinkedAccounts() {
+    try {
+      const res = await fetch('/api/me/linked-accounts')
+      if (!res.ok) return
+      const data = await res.json() as { accounts?: Array<{ userId: string; email: string; name: string | null }> }
+      setLinkedAccounts(data.accounts || [])
+    } catch { /* silent — empty list is the safe default */ }
+  }
+
+  async function handleSwitchAccount(targetUserId: string, label: string) {
+    if (switching) return
+    setSwitching(targetUserId)
+    try {
+      const res = await switchToLinkedAccount(targetUserId, '/app')
+      if (!res.ok) {
+        toast.error(res.error || 'Could not switch accounts')
+        setSwitching(null)
+        return
+      }
+      // Hard navigation so the entire app re-mounts as the new user
+      // (zustand store, NextAuth session, sidebar fetches all reset).
+      toast.success(`Switched to ${label}`)
+      window.location.href = res.destinationUrl || '/app'
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'switch failed')
+      setSwitching(null)
+    }
   }
 
   async function fetchInboxUnread() {
@@ -317,6 +350,44 @@ export function AppSidebar() {
                       {o.orgId === activeEnterpriseOrgId && <Check className="h-3 w-3" />}
                     </DropdownMenuItem>
                   ))}
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {/* Linked accounts switcher. Only shown if the user has at
+                  least one linked account. Clicking switches the active
+                  session via the SSO-ticket trade — see
+                  switchToLinkedAccount() in account-switch-client.ts. */}
+              {linkedAccounts.length > 0 && (
+                <>
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground py-1">
+                    Linked accounts
+                  </DropdownMenuLabel>
+                  {linkedAccounts.map((acc) => {
+                    const label = acc.name || acc.email
+                    const isSwitching = switching === acc.userId
+                    return (
+                      <DropdownMenuItem
+                        key={acc.userId}
+                        disabled={!!switching}
+                        onClick={() => handleSwitchAccount(acc.userId, label)}
+                        className="text-[12px] cursor-pointer"
+                      >
+                        {isSwitching ? (
+                          <Loader2 className="h-3.5 w-3.5 mr-2 text-muted-foreground animate-spin" />
+                        ) : (
+                          <UserCircle2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                        )}
+                        <span className="flex-1 truncate">
+                          <div className="truncate">{label}</div>
+                          {acc.name && <div className="text-[10px] text-muted-foreground truncate">{acc.email}</div>}
+                        </span>
+                      </DropdownMenuItem>
+                    )
+                  })}
+                  <DropdownMenuItem asChild className="text-[11px] cursor-pointer text-muted-foreground">
+                    <Link href="/app/settings#linked-accounts">+ Manage linked accounts</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               )}

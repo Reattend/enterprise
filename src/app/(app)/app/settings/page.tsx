@@ -43,6 +43,7 @@ import { toast } from 'sonner'
 import { TourTooltip } from '@/components/app/tour-tooltip'
 import { useAppStore } from '@/stores/app-store'
 import { emit, SCOPES } from '@/lib/data-bus'
+import { LinkedAccountsSection } from './linked-accounts-section'
 
 interface UserData {
   id: string
@@ -674,6 +675,12 @@ export default function SettingsPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Linked accounts — for users with multiple Reattend accounts
+              (e.g. personal Gmail + work email). Shipping behind the
+              same Profile tab so it's discoverable; can move to its own
+              tab if it grows. */}
+          <LinkedAccountsSection />
         </TabsContent>
 
         {/* Workspace */}
