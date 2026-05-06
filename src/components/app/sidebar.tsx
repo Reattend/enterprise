@@ -27,14 +27,25 @@ import { cn } from '@/lib/utils'
 
 interface UserInfo { email: string; name: string | null; avatarUrl: string | null }
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string
+  icon: any
+  label: string
+  exact?: boolean
+  /** When true, only show this nav item if the user is in at least one
+   *  org. Pages flagged orgOnly assume an `activeEnterpriseOrgId` and
+   *  break for solo users without a backing organization. */
+  orgOnly?: boolean
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: '/app',          icon: Home,            label: 'Home', exact: true },
   { href: '/app/brain-dump', icon: ListFilterPlus, label: 'Capture' },
   { href: '/app/memories', icon: Database,        label: 'Memories' },
   { href: '/app/landscape', icon: Proportions,    label: 'Landscape' },
-  { href: '/app/wiki',     icon: BookOpen,        label: 'Wiki' },
-  { href: '/app/hierarchy', icon: Network,        label: 'Hierarchy' },
-  { href: '/app/policies', icon: Columns4,        label: 'Policies' },
+  { href: '/app/wiki',     icon: BookOpen,        label: 'Wiki', orgOnly: true },
+  { href: '/app/hierarchy', icon: Network,        label: 'Hierarchy', orgOnly: true },
+  { href: '/app/policies', icon: Columns4,        label: 'Policies', orgOnly: true },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
 ]
 
@@ -178,7 +189,6 @@ export function AppSidebar() {
           </div>
           <div>
             <div className="brand-name">Reattend</div>
-            <div className="brand-tag">Enterprise</div>
           </div>
           <button
             className="rail-collapse"
@@ -205,9 +215,11 @@ export function AppSidebar() {
           <span>Chat</span>
         </Link>
 
-        {/* Primary nav */}
+        {/* Primary nav. Solo users (no org) see a trimmed list — Wiki,
+            Hierarchy, and Policies are org-only surfaces and would render
+            empty / broken without an active org context. */}
         <nav className="rail-nav" style={{ marginTop: 14 }}>
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item) => !item.orgOnly || enterpriseOrgs.length > 0).map((item) => {
             const Icon = item.icon
             const active = isActive(item.href, item.exact)
             return (

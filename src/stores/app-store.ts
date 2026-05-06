@@ -91,6 +91,12 @@ interface AppState {
   setEnterpriseOrgs: (orgs: EnterpriseOrgMembership[]) => void
   activeEnterpriseOrgId: string | null
   setActiveEnterpriseOrgId: (id: string | null) => void
+  // True once the layout's /api/enterprise/organizations fetch has resolved
+  // at least once. Pages dispatching between org/no-org renders should
+  // gate on this — without it, real org users briefly see the no-org
+  // (Solo) experience while the fetch is in flight.
+  enterpriseOrgsLoaded: boolean
+  setEnterpriseOrgsLoaded: (v: boolean) => void
   // False during SSR and until the client hydrator component mounts. Pages
   // that branch on activeEnterpriseOrgId should render a neutral loading
   // state while this is false, otherwise the server HTML (null orgId) won't
@@ -165,6 +171,8 @@ export const useAppStore = create<AppState>((set) => ({
 
   enterpriseOrgs: [],
   setEnterpriseOrgs: (enterpriseOrgs) => set({ enterpriseOrgs }),
+  enterpriseOrgsLoaded: false,
+  setEnterpriseOrgsLoaded: (v) => set({ enterpriseOrgsLoaded: v }),
   // Always null on init (server + first client render agree). The StoreHydrator
   // component mounted in the app layout reads localStorage and calls
   // setActiveEnterpriseOrgId() after first mount, which flips hasHydratedStore.

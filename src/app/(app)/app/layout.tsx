@@ -27,9 +27,34 @@ import { cn } from '@/lib/utils'
 // children should also be full-bleed (e.g. /app/memories AND /app/memories/[id]).
 const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki', '/app/integrations', '/app/tasks', '/app/admin', '/app/hierarchy']
 
-// Routes a user with zero orgs is allowed to stay on. Everything else redirects
-// to onboarding. Reattend Enterprise is org-only — no personal workspace home.
-const NO_ORG_ALLOWED_PREFIXES = ['/app/admin/onboarding', '/app/settings']
+// Routes a user is allowed to visit when they belong to ZERO organizations.
+// Solo-Free users live entirely inside this list. Routes NOT on this list
+// (e.g. /app/exit-interview, /app/hierarchy, /app/policies, /app/wiki,
+// /app/admin/<orgId>/*) require an org context — visiting them as a no-org
+// user redirects to /app (their personal home) instead of forcing them
+// into the create-org wizard.
+//
+// Two-list shape because of the matching semantics (pathname === p ||
+// pathname.startsWith(p + '/')): /app as a prefix would also match
+// /app/anything, so the home gets its own exact-match list.
+const NO_ORG_ALLOWED_EXACT = ['/app']  // home page (renders PersonalHomePage)
+const NO_ORG_ALLOWED_PREFIXES = [
+  '/app/memories',            // personal memories
+  '/app/ask',                 // chat with AI across personal memory
+  '/app/decisions',           // personal decisions
+  '/app/integrations',        // connect personal Gmail / Notion / etc.
+  '/app/brain-dump',          // capture
+  '/app/landscape',           // personal memory graph
+  '/app/inbox',               // notifications
+  '/app/search',              // search across personal memory
+  '/app/legend',              // feature catalog (informational)
+  '/app/transcripts',         // voice transcripts
+  '/app/tasks',               // personal tasks
+  '/app/compose',             // draft emails / broadcasts
+  '/app/agents',              // agent catalog (personal agents possible)
+  '/app/settings',            // profile, billing, integrations, API keys
+  '/app/admin/onboarding',    // org-creation wizard (the "upgrade to team" path)
+]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
@@ -98,6 +123,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }
     } finally {
       setOrgsLoaded(true)
+      // Mirror the local flag into the store so /app/page.tsx can dispatch
+      // to PersonalHomePage cleanly without flicker. Pages other than the
+      // home only need the local flag (which already gates the redirect).
+      useAppStore.getState().setEnterpriseOrgsLoaded(true)
     }
   }, [])
   useEffect(() => { fetchOrgs() }, [fetchOrgs])
@@ -110,9 +139,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!orgsLoaded) return
     if (enterpriseOrgs.length > 0) return
-    const onAllowedRoute = NO_ORG_ALLOWED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
+    const onAllowedRoute =
+      NO_ORG_ALLOWED_EXACT.includes(pathname) ||
+      NO_ORG_ALLOWED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
     if (onAllowedRoute) return
-    router.replace('/app/admin/onboarding')
+    // No-org user landed on an org-only surface (e.g. /app/exit-interview,
+    // /app/hierarchy, /app/admin/<orgId>/*). Drop them on /app — their
+    // personal home — rather than the create-org wizard, which would
+    // feel like a forced upsell.
+    router.replace('/app')
   }, [orgsLoaded, enterpriseOrgs.length, pathname, router])
 
   return (

@@ -18,6 +18,7 @@ import {
   Database, UsersRound, ArrowLeftRight, ShieldCheck, Download,
 } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
+import PersonalHomePage from './personal-home'
 
 interface AnalyticsTotals {
   activeMembers: number
@@ -81,6 +82,7 @@ function greeting(name: string | null) {
 export default function HomePage() {
   const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const enterpriseOrgs = useAppStore((s) => s.enterpriseOrgs)
+  const enterpriseOrgsLoaded = useAppStore((s) => s.enterpriseOrgsLoaded)
   const activeOrg = enterpriseOrgs.find((o) => o.orgId === activeOrgId)
 
   const [user, setUser] = useState<{ name: string | null; email: string } | null>(null)
@@ -90,19 +92,29 @@ export default function HomePage() {
   const [nextMeeting, setNextMeeting] = useState<NextMeeting | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Always load the user — both org and personal homes need it for the
+  // greeting. Doing this outside the org-scoped useEffect lets us pass it
+  // straight through to PersonalHomePage without an extra round-trip.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/user').then((r) => r.ok ? r.json() : null).catch(() => null).then((data) => {
+      if (cancelled) return
+      if (data?.user) setUser(data.user)
+    })
+    return () => { cancelled = true }
+  }, [])
+
   useEffect(() => {
     if (!activeOrgId) return
     let cancelled = false
     setLoading(true)
     Promise.all([
-      fetch('/api/user').then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch(`/api/enterprise/analytics/home?orgId=${activeOrgId}`).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch('/api/records?limit=5').then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch('/api/integrations/nango/status').then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch(`/api/enterprise/meeting-prep?orgId=${activeOrgId}`).then((r) => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([userData, analyticsData, recordsData, nangoData, meetingData]) => {
+    ]).then(([analyticsData, recordsData, nangoData, meetingData]) => {
       if (cancelled) return
-      if (userData?.user) setUser(userData.user)
       if (analyticsData?.totals) setTotals(analyticsData.totals)
       if (recordsData?.records) setRecent(recordsData.records.slice(0, 5))
       if (nangoData?.providers) setSync(nangoData.providers)
@@ -111,6 +123,20 @@ export default function HomePage() {
     })
     return () => { cancelled = true }
   }, [activeOrgId])
+
+  // Solo (no-org) users get a different home — see personal-home.tsx.
+  // Every widget below this point assumes an active org context, so
+  // dispatching at the top keeps both code paths clean and lets the
+  // org-user code path stay unchanged.
+  //
+  // Gate on enterpriseOrgsLoaded: without it, real org users briefly see
+  // PersonalHomePage during the ~100ms before /api/enterprise/organizations
+  // resolves. While orgs are still loading, render nothing — the layout
+  // already shows the topbar/sidebar/banners, so the screen isn't blank.
+  if (!enterpriseOrgsLoaded) return null
+  if (enterpriseOrgs.length === 0) {
+    return <PersonalHomePage user={user} />
+  }
 
   const { phrase, first } = greeting(user?.name || user?.email || null)
   const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })
