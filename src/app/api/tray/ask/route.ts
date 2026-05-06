@@ -3,6 +3,7 @@ import { db, schema, sqlite, vecLoaded, searchFTS, ftsReady } from '@/lib/db'
 import { eq, and, desc, or, inArray, like, ne } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
 import { getUserSubscription } from '@/lib/auth'
+import { requireExtensionAccess } from '@/lib/billing/gates'
 import { recordUsage } from '@/lib/metering'
 import { getAskLLM } from '@/lib/ai/llm'
 import { cosineSimilarity } from '@/lib/utils'
@@ -35,6 +36,9 @@ export async function POST(req: NextRequest) {
     if (!auth) {
       return Response.json({ error: 'Invalid or expired token' }, { status: 401 })
     }
+
+    const gateRes = await requireExtensionAccess(auth.userId)
+    if (gateRes) return gateRes
 
     const sub = await getUserSubscription(auth.userId)
     if (!sub.isSmartActive) {

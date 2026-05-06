@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, desc, gt } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
+import { requireExtensionAccess } from '@/lib/billing/gates'
 import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { processAllPendingJobs } from '@/lib/jobs/worker'
 import { z } from 'zod'
@@ -131,6 +132,9 @@ export async function POST(req: NextRequest) {
     if (!auth) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
     }
+
+    const gateRes = await requireExtensionAccess(auth.userId)
+    if (gateRes) return gateRes
 
     const body = await req.json()
     const parsed = captureSchema.safeParse(body)

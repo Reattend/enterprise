@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema, searchFTS } from '@/lib/db'
 import { eq, and, inArray, like, or } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
+import { requireExtensionAccess } from '@/lib/billing/gates'
 import {
   buildAccessContext,
   filterToAccessibleRecords,
@@ -36,6 +37,9 @@ interface RelatedItem {
 export async function POST(req: NextRequest) {
   const auth = await validateApiToken(req.headers.get('authorization'))
   if (!auth) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const gateRes = await requireExtensionAccess(auth.userId)
+  if (gateRes) return gateRes
 
   const body = await req.json().catch(() => ({}))
   const url = typeof body.url === 'string' ? body.url.trim() : ''

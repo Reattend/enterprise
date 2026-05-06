@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { validateApiToken } from '@/lib/auth/token'
+import { requireExtensionAccess } from '@/lib/billing/gates'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import { contentHash, findExactDuplicate } from '@/lib/ai/ingestion'
 
@@ -29,6 +30,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
   const { userId, workspaceId } = authResult
+
+  const gateRes = await requireExtensionAccess(userId)
+  if (gateRes) return gateRes
 
   const form = await req.formData()
   const audio = form.get('audio') as File | null

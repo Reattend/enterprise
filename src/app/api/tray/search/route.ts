@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, inArray } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
+import { requireExtensionAccess } from '@/lib/billing/gates'
 import { getLLM } from '@/lib/ai'
 import { cosineSimilarity } from '@/lib/utils'
 
@@ -11,6 +12,9 @@ export async function GET(req: NextRequest) {
     if (!auth) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
     }
+
+    const gateRes = await requireExtensionAccess(auth.userId)
+    if (gateRes) return gateRes
 
     const q = req.nextUrl.searchParams.get('q')
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10'), 20)

@@ -81,6 +81,30 @@ export function hasFeature(
 }
 
 /**
+ * Extension feature gate. The Chrome extension (any /api/tray/* endpoint) is
+ * a Professional/Enterprise feature — Solo Free users cannot use it. Apply
+ * this immediately after validateApiToken() in any tray route. The check is
+ * cheap (one indexed subscription row read) and re-runs on every call so a
+ * downgrade revokes extension access immediately.
+ *
+ * Returns null on success, or a Response with 402 Payment Required + a
+ * machine-readable error body the extension can render as an upgrade prompt.
+ */
+export async function requireExtensionAccess(userId: string): Promise<Response | null> {
+  const sub = await getOrCreateSubscription(userId)
+  if (hasFeature(sub, 'chromeExtensionAutoIngest')) return null
+  return Response.json(
+    {
+      error: 'extension_requires_paid_plan',
+      message: 'The Reattend extension is a Professional plan feature. Upgrade at https://reattend.com/pricing to enable it.',
+      currentTier: sub.tier,
+      upgradeUrl: 'https://reattend.com/pricing',
+    },
+    { status: 402 },
+  )
+}
+
+/**
  * AI-query quota check + consume in one shot.
  * Returns:
  *   - { ok: true,  remaining: number | 'unlimited' }

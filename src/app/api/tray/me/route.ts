@@ -1,12 +1,17 @@
 import { NextRequest } from 'next/server'
 import { validateApiToken } from '@/lib/auth/token'
+import { getOrCreateSubscription, hasFeature } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 
 /**
  * GET /api/tray/me
- * Returns the authenticated user's basic info (name, email).
- * Used by the Chrome extension to display account details.
+ * Returns the authenticated user's basic info + subscription tier so the
+ * extension can render an upgrade prompt when extensionAccess is false.
+ *
+ * This endpoint is intentionally NOT gated by requireExtensionAccess — the
+ * extension needs to bootstrap and know "you're on Free, upgrade to use me"
+ * even when every other tray endpoint is returning 402.
  */
 export async function GET(req: NextRequest) {
   const auth = await validateApiToken(req.headers.get('authorization'))
@@ -22,10 +27,16 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: 'User not found' }, { status: 404 })
   }
 
+  const sub = await getOrCreateSubscription(auth.userId)
+  const extensionAccess = hasFeature(sub, 'chromeExtensionAutoIngest')
+
   return Response.json({
     id: user.id,
     email: user.email,
     name: user.name,
     avatarUrl: user.avatarUrl,
+    tier: sub.tier,
+    extensionAccess,
+    upgradeUrl: extensionAccess ? null : 'https://reattend.com/pricing',
   })
 }
