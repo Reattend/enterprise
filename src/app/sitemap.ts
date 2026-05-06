@@ -50,6 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/integrations`, priority: 0.9, changeFrequency: 'monthly' },
     { url: `${baseUrl}/compliance`, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${baseUrl}/sandbox`, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${baseUrl}/personal`, priority: 0.85, changeFrequency: 'monthly' },
     { url: `${baseUrl}/about`, priority: 0.6, changeFrequency: 'monthly' },
     { url: `${baseUrl}/support`, priority: 0.6, changeFrequency: 'monthly' },
     { url: `${baseUrl}/features`, priority: 0.9, changeFrequency: 'monthly' },

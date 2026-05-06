@@ -50,6 +50,7 @@ export const JSON_LD_GRAPH = {
     { '@type': 'SiteNavigationElement', name: 'Integrations', url: 'https://reattend.com/integrations' },
     { '@type': 'SiteNavigationElement', name: 'Compliance', url: 'https://reattend.com/compliance' },
     { '@type': 'SiteNavigationElement', name: 'Sandbox', url: 'https://reattend.com/sandbox' },
+    { '@type': 'SiteNavigationElement', name: 'For individuals', url: 'https://reattend.com/personal' },
     { '@type': 'SiteNavigationElement', name: 'About', url: 'https://reattend.com/about' },
     { '@type': 'SiteNavigationElement', name: 'Free Tools', url: 'https://reattend.com/tool' },
     { '@type': 'SiteNavigationElement', name: 'Free Team Games', url: 'https://reattend.com/game' },
