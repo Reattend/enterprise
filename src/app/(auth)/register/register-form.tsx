@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, ArrowLeft, Shield, Lock } from 'lucide-react'
+import { Loader2, ArrowLeft, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { signIn } from 'next-auth/react'
 
@@ -280,8 +280,7 @@ export default function RegisterPage() {
           transition={{ delay: 0.4 }}
           className="flex items-center justify-center gap-5 mt-6 text-[11px] text-gray-400"
         >
-          <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> SOC2-ready</span>
-          <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Encrypted</span>
+          <span className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Encrypted in transit and at rest</span>
         </motion.div>
       </div>
     </div>
