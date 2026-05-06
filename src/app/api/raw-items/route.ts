@@ -3,6 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and, desc, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { runTriageAgent } from '@/lib/ai/agents'
+import { processAllPendingJobs } from '@/lib/jobs/worker'
 
 export async function GET(req: NextRequest) {
   try {
@@ -85,7 +86,11 @@ export async function POST(req: NextRequest) {
       metadata: metadata ? JSON.stringify(metadata) : null,
     })
 
-    // Queue triage job
+    // Queue triage job AND process it immediately. Without this last step,
+    // the record only materializes on the next 30-min periodic worker tick,
+    // so the user sees "Memory saved" but nothing in /app/memories until
+    // half an hour later. brain-dump and tray/capture both run jobs inline
+    // for the same reason.
     try {
       await db.insert(schema.jobQueue).values({
         workspaceId,
@@ -94,6 +99,14 @@ export async function POST(req: NextRequest) {
       })
     } catch (e) {
       console.error('Failed to queue triage job:', e)
+    }
+
+    // Best-effort inline processing. If it fails, the periodic worker will
+    // retry — so we never leave the user in a worse state than before.
+    try {
+      await processAllPendingJobs()
+    } catch (e) {
+      console.error('Failed to process triage job inline:', e)
     }
 
     const item = await db.query.rawItems.findFirst({
