@@ -14,7 +14,9 @@ export async function GET(req: NextRequest) {
     const gateRes = await requireExtensionAccess(auth.userId)
     if (gateRes) return gateRes
 
-    const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10'), 20)
+    // Cap raised to 50 (was 20) so the desktop's Recent Captures view can
+    // show a meaningful page without paging.
+    const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10'), 50)
 
     const memberships = await db.query.workspaceMembers.findMany({
       where: eq(schema.workspaceMembers.userId, auth.userId),
