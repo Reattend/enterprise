@@ -187,6 +187,18 @@ export const useAppStore = create<AppState>((set) => ({
       // time fetchOrgs runs. Set on every explicit call — covers both
       // picking an org and picking Personal.
       localStorage.setItem('view_context_chosen', '1')
+      // Mirror the pick to the server so the desktop app, Chrome extension,
+      // and other web tabs read the same context. Best-effort: a network
+      // failure here just means the choice doesn't sync — local state
+      // (the localStorage marker above) still works.
+      const body = id
+        ? { context: 'org' as const, orgId: id }
+        : { context: 'personal' as const }
+      fetch('/api/me/active-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).catch(() => { /* silent — non-critical */ })
     }
     set({ activeEnterpriseOrgId: id })
   },

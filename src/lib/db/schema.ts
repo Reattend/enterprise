@@ -9,6 +9,13 @@ export const users = sqliteTable('users', {
   passwordHash: text('password_hash'),
   avatarUrl: text('avatar_url'),
   onboardingCompleted: integer('onboarding_completed', { mode: 'boolean' }).default(false),
+  // The user's last-picked active context for the topbar switcher. NULL =
+  // Personal context (or no explicit pick yet — the layout's auto-pick
+  // chooses the first org for hybrid users on first visit). When set, holds
+  // the orgId. Synced across web, extension, and desktop via
+  // /api/me/active-context so picking "Personal" on the desktop also flips
+  // the web tab to Personal.
+  activeContextOrgId: text('active_context_org_id'),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 })
 

@@ -1111,6 +1111,21 @@ try {
   console.error('subscriptions billing migration:', e.message)
 }
 
+// ─── users.active_context_org_id ────────────────────────────────────────
+// Persists the user's last-picked Personal/Org context so the topbar
+// switcher stays in sync across web, extension, and desktop. NULL =
+// Personal context. Synced via /api/me/active-context.
+try {
+  try {
+    sqlite.exec("ALTER TABLE users ADD COLUMN active_context_org_id TEXT;")
+  } catch (e: any) {
+    if (!/duplicate column name/i.test(e.message)) throw e
+  }
+  console.log('✓ users.active_context_org_id')
+} catch (e: any) {
+  console.error('users active-context migration:', e.message)
+}
+
 // ─── Org plan rename: starter/business/government → free/professional/enterprise ─
 // The product tiers were renamed 2026-05-03. SQLite has no real enum check so
 // these UPDATEs are safe; the schema.ts type union now only allows the new
