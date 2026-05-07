@@ -30,6 +30,13 @@ export async function GET(req: NextRequest) {
   const sub = await getOrCreateSubscription(auth.userId)
   const extensionAccess = hasFeature(sub, 'chromeExtensionAutoIngest')
 
+  // Active context: NULL = Personal, otherwise the orgId. Same value the
+  // web app reads/writes via /api/me/active-context, exposed here so the
+  // desktop + extension can seed their topbar switcher on token connect.
+  const activeContext = user.activeContextOrgId
+    ? { context: 'org' as const, orgId: user.activeContextOrgId }
+    : { context: 'personal' as const, orgId: null as string | null }
+
   return Response.json({
     id: user.id,
     email: user.email,
@@ -37,6 +44,7 @@ export async function GET(req: NextRequest) {
     avatarUrl: user.avatarUrl,
     tier: sub.tier,
     extensionAccess,
+    activeContext,
     upgradeUrl: extensionAccess ? null : 'https://reattend.com/pricing',
   })
 }
