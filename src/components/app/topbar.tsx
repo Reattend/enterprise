@@ -67,7 +67,13 @@ export function AppTopbar() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
-  const activeEnterpriseOrg = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? enterpriseOrgs[0]
+  // Only consider the user's pick — never silently fall back to the first
+  // org when activeEnterpriseOrgId is null. The null state IS the "Personal"
+  // selection and must render as such; falling back desyncs the button label
+  // from the dropdown's checkmark.
+  const activeEnterpriseOrg = activeEnterpriseOrgId
+    ? enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? null
+    : null
   const hasEnterprise = enterpriseOrgs.length > 0
 
   // Create team

@@ -160,16 +160,34 @@ export async function POST(req: NextRequest) {
     // the brain-dump endpoint. Without this, every extension capture lands
     // in the user's *personal* workspace (the one the API token was issued
     // against) and is invisible to org views — exactly the trap the
-    // dashboard captures used to hit. Extension can pass org_id /
-    // workspace_id in the metadata to override the default routing.
+    // dashboard captures used to hit.
+    //
+    // Routing precedence:
+    //   1. Explicit metadata.workspace_id (extension/desktop override)
+    //   2. Explicit metadata.org_id (extension/desktop override)
+    //   3. The user's active context (users.active_context_org_id) — set
+    //      by the workspace switcher on the web. This is what makes the
+    //      desktop's clipboard capture follow the user's "I'm in
+    //      Acme right now" selection without the desktop having to track
+    //      it. Single source of truth lives on the user row.
+    //   4. Personal workspace fallback (auth.workspaceId).
     const requestedWorkspaceId =
       typeof metadata?.workspace_id === 'string' ? metadata.workspace_id : undefined
-    const requestedOrgId =
+    const explicitOrgId =
       typeof metadata?.org_id === 'string' ? metadata.org_id : undefined
+    let activeContextOrgId: string | undefined = undefined
+    if (!requestedWorkspaceId && !explicitOrgId) {
+      const [u] = await db
+        .select({ activeContextOrgId: schema.users.activeContextOrgId })
+        .from(schema.users)
+        .where(eq(schema.users.id, auth.userId))
+        .limit(1)
+      if (u?.activeContextOrgId) activeContextOrgId = u.activeContextOrgId
+    }
     const resolved = await resolveTargetWorkspace({
       userId: auth.userId,
       requestedWorkspaceId,
-      orgId: requestedOrgId,
+      orgId: explicitOrgId ?? activeContextOrgId,
       fallbackWorkspaceId: auth.workspaceId,
     })
     const targetWorkspaceId = resolved.workspaceId
