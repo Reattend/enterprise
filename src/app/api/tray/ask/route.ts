@@ -186,8 +186,25 @@ Offers:
 
     const stream = await llm.generateTextStream(prompt)
 
+    // Source chips for the desktop UI. Same shape as /api/ask. Latin-1 safe
+    // for the HTTP header (escape non-ASCII via \uXXXX).
+    const escapeHeaderValue = (s: string) =>
+      s.replace(/[\u0080-\uffff]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
+    const sourcesJson = escapeHeaderValue(JSON.stringify(top.map(r => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      date: formatDate(r.occurredAt || r.createdAt),
+    }))))
+
     return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' },
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Accel-Buffering': 'no',
+        'X-Sources': sourcesJson,
+        'Access-Control-Expose-Headers': 'X-Sources',
+      },
     })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
