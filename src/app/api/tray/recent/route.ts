@@ -4,11 +4,21 @@ import { eq, inArray, desc, ne } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
 import { requireExtensionAccess } from '@/lib/billing/gates'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Id',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders })
+}
+
 export async function GET(req: NextRequest) {
   try {
     const auth = await validateApiToken(req.headers.get('authorization'))
     if (!auth) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401, headers: corsHeaders })
     }
 
     const gateRes = await requireExtensionAccess(auth.userId)
@@ -24,7 +34,7 @@ export async function GET(req: NextRequest) {
     const allWorkspaceIds = memberships.map(m => m.workspaceId)
 
     if (allWorkspaceIds.length === 0) {
-      return NextResponse.json({ memories: [] })
+      return NextResponse.json({ memories: [] }, { headers: corsHeaders })
     }
 
     const records = await db.query.records.findMany({
@@ -49,8 +59,8 @@ export async function GET(req: NextRequest) {
       createdAt: r.createdAt,
     }))
 
-    return NextResponse.json({ memories })
+    return NextResponse.json({ memories }, { headers: corsHeaders })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders })
   }
 }

@@ -10,6 +10,20 @@ import { cosineSimilarity } from '@/lib/utils'
 
 const AI_QUERY_LIMIT = 20
 
+// Tauri desktop calls this from inside its webview (origin tauri://localhost
+// in prod, http://localhost:1420 in dev). Allow all origins — the bearer
+// token is the actual auth; CORS was never our security boundary.
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Id',
+  'Access-Control-Expose-Headers': 'X-Sources',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders })
+}
+
 function extractKeywords(text: string): string[] {
   const STOP_WORDS = new Set([
     'i', 'me', 'my', 'we', 'our', 'you', 'your', 'he', 'she', 'it', 'they',
@@ -34,7 +48,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await validateApiToken(req.headers.get('authorization'))
     if (!auth) {
-      return Response.json({ error: 'Invalid or expired token' }, { status: 401 })
+      return Response.json({ error: 'Invalid or expired token' }, { status: 401, headers: corsHeaders })
     }
 
     const gateRes = await requireExtensionAccess(auth.userId)
@@ -48,14 +62,14 @@ export async function POST(req: NextRequest) {
       })
       const used = usage?.opsCount ?? 0
       if (used >= AI_QUERY_LIMIT) {
-        return Response.json({ error: 'quota_exceeded', used, limit: AI_QUERY_LIMIT }, { status: 429 })
+        return Response.json({ error: 'quota_exceeded', used, limit: AI_QUERY_LIMIT }, { status: 429, headers: corsHeaders })
       }
       await recordUsage(null, auth.userId, 'registered', 'ai_query')
     }
 
     const { question } = await req.json() as { question: string }
     if (!question) {
-      return Response.json({ error: 'question is required' }, { status: 400 })
+      return Response.json({ error: 'question is required' }, { status: 400, headers: corsHeaders })
     }
 
     const memberships = await db.query.workspaceMembers.findMany({
@@ -65,7 +79,7 @@ export async function POST(req: NextRequest) {
 
     if (allWorkspaceIds.length === 0) {
       return new Response("You don't have any memories yet. Save some and I'll be able to answer.", {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', ...corsHeaders },
       })
     }
 
@@ -143,7 +157,7 @@ export async function POST(req: NextRequest) {
     if (top.length === 0) top = allRecords.slice(0, 3)
 
     if (top.length === 0) {
-      return new Response("You don't have any memories yet.", { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+      return new Response("You don't have any memories yet.", { headers: { 'Content-Type': 'text/plain; charset=utf-8', ...corsHeaders } })
     }
 
     // Build context
@@ -203,13 +217,13 @@ Offers:
         'Cache-Control': 'no-cache',
         'X-Accel-Buffering': 'no',
         'X-Sources': sourcesJson,
-        'Access-Control-Expose-Headers': 'X-Sources',
+        ...corsHeaders,
       },
     })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
     }
-    return Response.json({ error: error.message }, { status: 500 })
+    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders })
   }
 }

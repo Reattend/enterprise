@@ -14,6 +14,19 @@ import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 
 export const dynamic = 'force-dynamic'
 
+// CORS — Tauri webview origin (tauri://localhost in prod, http://localhost:1420
+// in dev). Bearer token is the security boundary; CORS is just for the
+// browser's preflight check.
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Id',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders })
+}
+
 // Bearer-auth twin of /api/ask/oracle for the desktop's Deepthink mode.
 // Same JSON contract: { question, dossier, sources, meta }. The dashboard
 // version uses session cookies + an explicit orgId; the desktop talks
@@ -50,7 +63,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await validateApiToken(req.headers.get('authorization'))
     if (!auth) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401, headers: corsHeaders })
     }
 
     const gateRes = await requireExtensionAccess(auth.userId)
@@ -59,7 +72,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({})) as { orgId?: string; question?: string }
     const { orgId, question } = body
     if (!question || question.trim().length < 5) {
-      return NextResponse.json({ error: 'question (min 5 chars) required' }, { status: 400 })
+      return NextResponse.json({ error: 'question (min 5 chars) required' }, { status: 400, headers: corsHeaders })
     }
 
     // Workspace scope: prefer the explicit org if passed, otherwise every
@@ -79,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     const accessibleWs = await filterToAccessibleWorkspaces(auth.userId, candidateWs)
     if (accessibleWs.length === 0) {
-      return NextResponse.json({ error: 'no accessible workspaces' }, { status: 403 })
+      return NextResponse.json({ error: 'no accessible workspaces' }, { status: 403, headers: corsHeaders })
     }
 
     // Stage 1: FTS retrieval — 150 candidates
@@ -97,7 +110,7 @@ export async function POST(req: NextRequest) {
         },
         sources: [],
         meta: { candidatesScanned: 0, accessibleFiltered: 0, reranked: 0, elapsedMs: Date.now() - t0 },
-      } as OracleResponse)
+      } as OracleResponse, { headers: corsHeaders })
     }
 
     // Stage 2: record-level RBAC
@@ -123,7 +136,7 @@ export async function POST(req: NextRequest) {
         },
         sources: [],
         meta: { candidatesScanned, accessibleFiltered: 0, reranked: 0, elapsedMs: Date.now() - t0 },
-      } as OracleResponse)
+      } as OracleResponse, { headers: corsHeaders })
     }
 
     // Stage 3: Claude Haiku rerank to top 30
@@ -209,13 +222,17 @@ BEGIN DOSSIER:`
         reranked: top.length,
         elapsedMs: Date.now() - t0,
       },
-    } as OracleResponse)
+    } as OracleResponse, { headers: corsHeaders })
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
-      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401, headers: corsHeaders })
     }
     console.error('[tray/oracle]', err)
-    return handleEnterpriseError(err)
+    const errResp = handleEnterpriseError(err)
+    // handleEnterpriseError returns a NextResponse with no CORS headers;
+    // overlay them so the desktop webview can read the body.
+    Object.entries(corsHeaders).forEach(([k, v]) => errResp.headers.set(k, v))
+    return errResp
   }
 }
 
