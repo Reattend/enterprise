@@ -363,15 +363,13 @@ export function AppTopbar() {
 
 
           {/* Chrome extension install */}
-          <a
-            href="https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/download"
             className="icon-btn"
-            title="Install Reattend for Chrome"
+            title="Download apps — Mac, Chrome, Web"
           >
             <Chrome className="h-4 w-4" />
-          </a>
+          </Link>
 
           {/* Integrations */}
           <Link href="/app/integrations" className="icon-btn" title="Integrations">
