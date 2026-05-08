@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { orgId, question } = body as { orgId?: string; question?: string }
 
-    if (!orgId || !question || question.trim().length < 5) {
-      return NextResponse.json({ error: 'orgId + question (min 5 chars) required' }, { status: 400 })
+    if (!question || question.trim().length < 5) {
+      return NextResponse.json({ error: 'question (min 5 chars) required' }, { status: 400 })
     }
 
     // ─── Sandbox short-circuit ─────────────────────────────
@@ -123,12 +123,23 @@ export async function POST(req: NextRequest) {
       metadata: { question: question.slice(0, 500), mode: 'oracle' },
     })
 
-    // ── Accessible workspaces in this org ──────────────────
-    const wsLinkRows = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
-      .from(schema.workspaceOrgLinks)
-      .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
-    const allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
-    const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
+    // Accessible workspaces — when orgId is passed, scope to that org's
+    // workspaces; otherwise fall back to every workspace the user belongs
+    // to (Personal context, or hybrid users without a chosen org). The
+    // visibility filter still gates each record at retrieval time.
+    let candidateWs: string[]
+    if (orgId) {
+      const wsLinkRows = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+      candidateWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
+    } else {
+      const memberships = await db.query.workspaceMembers.findMany({
+        where: eq(schema.workspaceMembers.userId, userId),
+      })
+      candidateWs = memberships.map(m => m.workspaceId)
+    }
+    const accessibleWs = await filterToAccessibleWorkspaces(userId, candidateWs)
     if (accessibleWs.length === 0) {
       return NextResponse.json({ error: 'no accessible workspaces' }, { status: 403 })
     }
