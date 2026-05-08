@@ -364,9 +364,9 @@ export function AppTopbar() {
 
           {/* Chrome extension install */}
           <Link
-            href="/download"
+            href="/app/downloads"
             className="icon-btn"
-            title="Download apps — Mac, Chrome, Web"
+            title="Download apps — Mac, Windows, Chrome"
           >
             <Chrome className="h-4 w-4" />
           </Link>
