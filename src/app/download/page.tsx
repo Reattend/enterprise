@@ -17,13 +17,21 @@ export const metadata: Metadata = {
 // proven workflow for browser-native users) → Web (the always-available
 // fallback). Each card has a primary CTA and a one-line "what you get".
 //
-// The Mac dmg URL is a public asset behind /downloads/ on the droplet.
+// The Mac asset is a code-signed .app.zip — the same shape Apple recommends
+// for distributing .app bundles outside the App Store. We're shipping the
+// .zip rather than a .dmg because Tauri's bundle_dmg.sh path is brittle
+// across create-dmg versions; once the updater endpoint is live this can
+// switch to the .app.tar.gz Tauri generates natively.
+//
 // Cut a fresh build with `npm run tauri build` in the desktop repo, then
-// upload the .dmg to /var/www/enterprise/public/downloads/ and bump the
-// MAC_DMG_VERSION constant below. Once we have an updater endpoint live
-// the explicit version pin can go.
-const MAC_DMG_VERSION = '0.1.13'
-const MAC_DMG_HREF = `/downloads/Reattend_${MAC_DMG_VERSION}_aarch64.dmg`
+// (from the project root):
+//   ditto -c -k --keepParent --sequesterRsrc \
+//     src-tauri/target/release/bundle/macos/Reattend.app \
+//     src-tauri/target/release/bundle/macos/Reattend_<ver>_aarch64.app.zip
+//   scp ...app.zip root@167.99.158.143:/var/www/enterprise/public/downloads/
+// Then bump MAC_VERSION below.
+const MAC_VERSION = '0.1.13'
+const MAC_HREF = `/downloads/Reattend_${MAC_VERSION}_aarch64.app.zip`
 const CHROME_STORE_HREF =
   'https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl'
 
@@ -59,13 +67,13 @@ export default function DownloadPage() {
               { icon: <Mic className="w-3.5 h-3.5" />, label: 'Smart clipboard auto-capture' },
             ]}
             primary={{
-              label: `Download for Mac · ${MAC_DMG_VERSION}`,
-              href: MAC_DMG_HREF,
+              label: `Download for Mac · ${MAC_VERSION}`,
+              href: MAC_HREF,
               external: false,
             }}
             secondary={{
               label: 'Apple silicon · macOS 13+',
-              note: 'Intel build coming soon. Drag to Applications, then paste your API token from Settings.',
+              note: 'Unzip, drag Reattend.app to Applications, then paste your API token from Settings. Intel build coming soon.',
             }}
             highlight
           />
@@ -202,7 +210,7 @@ function DownloadCard({
             {ButtonInner}
           </a>
         ) : primary.href.startsWith('/downloads/') ? (
-          <a href={primary.href} download>
+          <a href={primary.href}>
             {ButtonInner}
           </a>
         ) : (
