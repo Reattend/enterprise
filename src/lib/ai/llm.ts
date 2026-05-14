@@ -632,6 +632,14 @@ export function getAskLLM(userEmail?: string, intent: AskIntent = 'reasoning'): 
   if (anthropicKey) {
     return getClaudeProvider(intent === 'simple' ? CLAUDE_HAIKU_MODEL : CLAUDE_SONNET_MODEL)
   }
+  // Test-droplet / cost-cap path: when no Anthropic key is configured, fall
+  // back to Groq instead of Rabbit. Answer quality is lower than Sonnet but
+  // sufficient for the test environment, and Groq's pricing means a runaway
+  // bot can't burn $100s before we notice. The reranker handles its own
+  // missing-Anthropic fallback (skips rerank, returns FTS order) so the
+  // whole Ask pipeline still answers.
+  const groqKey = process.env.GROQ_API_KEY
+  if (groqKey) return getGroqProvider()
   return getRabbitProvider()
 }
 

@@ -145,6 +145,43 @@ export const {
         }
       },
     }),
+    // Test-droplet credentials provider. ONLY loads when both:
+    //   - ALLOW_TEST_PASSWORD_LOGIN=true  (set per-droplet env, never on prod)
+    //   - the submitted email ends in @seed.reattend.local
+    //
+    // Two layers of safety here: a top-level env gate AND a domain check
+    // inside authorize. If the env var ever accidentally flips on in prod,
+    // your real users still can't bypass OTP because their emails don't
+    // match the seed domain. The matching seed users have no real inbox
+    // (RFC-reserved .local TLD) so the OTP path can't reach them either —
+    // this provider is the only way in.
+    CredentialsProvider({
+      id: 'test-password',
+      name: 'Test Password',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (process.env.ALLOW_TEST_PASSWORD_LOGIN !== 'true') return null
+        if (!credentials?.email || !credentials?.password) return null
+        const email = (credentials.email as string).toLowerCase().trim()
+        const password = credentials.password as string
+
+        if (!email.endsWith('@seed.reattend.local')) return null
+
+        const expected = process.env.TEST_LOGIN_PASSWORD
+        if (!expected || password !== expected) return null
+
+        // The seed user must already exist — we never auto-create here.
+        // That keeps the seed cohort closed; only the seed script can
+        // mint new test users.
+        const user = await db.query.users.findFirst({ where: eq(schema.users.email, email) })
+        if (!user) return null
+        return { id: user.id, email: user.email, name: user.name, image: user.avatarUrl }
+      },
+    }),
+
     // SSO ticket handoff — the /api/sso/callback endpoint verifies the IdP
     // id_token and issues a 60-second JWT ticket. The login page trades the
     // ticket here to get a real NextAuth session cookie.

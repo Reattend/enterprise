@@ -3,6 +3,7 @@ import Script from 'next/script'
 import { Inter, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
+import { TestEnvBanner } from '@/components/test-env-banner'
 import { JSON_LD_GRAPH } from '@/lib/seo/json-ld'
 import './globals.css'
 
@@ -135,6 +136,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <TestEnvBanner />
           {children}
           <Toaster
             position="bottom-right"
