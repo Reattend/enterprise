@@ -302,18 +302,55 @@ const TREE: DeptSpec[] = [
 ]
 
 // ─── Step 1: nuke previous seed ──────────────────────────────────────────
+// Order matters: many tables reference users with ON DELETE NO ACTION
+// (subscriptions, workspaces.created_by, departments.head_user_id, ...).
+// We defer FK checks for the duration of the wipe so we can drop rows in
+// any order; SQLite re-validates at COMMIT time.
 const existingOrg = db.prepare('SELECT id FROM organizations WHERE slug = ?').get(ORG_SLUG) as { id: string } | undefined
-if (existingOrg) {
+const seedUsers = db.prepare('SELECT id FROM users WHERE email LIKE ?').all(`%@${SEED_EMAIL_DOMAIN}`) as Array<{ id: string }>
+
+if (existingOrg || seedUsers.length > 0) {
   if (!RESET) {
-    console.log(`Org "${ORG_SLUG}" already exists. Pass --reset to nuke + rebuild.`)
+    console.log(`Org "${ORG_SLUG}" or stale seed users already exist. Pass --reset to nuke + rebuild.`)
     process.exit(0)
   }
-  console.log(`Wiping existing org "${ORG_SLUG}"…`)
-  db.prepare('DELETE FROM organizations WHERE id = ?').run(existingOrg.id)
-}
-const wipedUsers = db.prepare('DELETE FROM users WHERE email LIKE ?').run(`%@${SEED_EMAIL_DOMAIN}`)
-if (wipedUsers.changes > 0) {
-  console.log(`Wiped ${wipedUsers.changes} stale seed users from previous runs.`)
+  console.log(`Wiping existing org + ${seedUsers.length} seed users…`)
+
+  const wipe = db.transaction(() => {
+    db.pragma('defer_foreign_keys = ON')
+
+    // Drop the org first — cascades through organization_members,
+    // departments, department_members, workspace_org_links, agents, etc.
+    if (existingOrg) {
+      db.prepare('DELETE FROM organizations WHERE id = ?').run(existingOrg.id)
+    }
+
+    // Now collect every workspace the seed users created (they might be
+    // personal workspaces or HQ-created team workspaces). Cascade-delete
+    // wipes workspace_members, projects, records, etc. that hang off them.
+    const seedIds = seedUsers.map((u) => u.id)
+    if (seedIds.length > 0) {
+      const placeholders = seedIds.map(() => '?').join(',')
+      const wsToDrop = db.prepare(
+        `SELECT id FROM workspaces WHERE created_by IN (${placeholders})`
+      ).all(...seedIds) as Array<{ id: string }>
+      for (const w of wsToDrop) {
+        db.prepare('DELETE FROM workspaces WHERE id = ?').run(w.id)
+      }
+
+      // Subscriptions, workspace_members rows for the seed users.
+      // Both have ON DELETE CASCADE on user_id — but the user delete itself
+      // is what would fire CASCADE. Doing them explicitly here makes the
+      // wipe transactional and observable.
+      db.prepare(`DELETE FROM subscriptions WHERE user_id IN (${placeholders})`).run(...seedIds)
+      db.prepare(`DELETE FROM workspace_members WHERE user_id IN (${placeholders})`).run(...seedIds)
+
+      // Finally the users.
+      db.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).run(...seedIds)
+    }
+  })
+  wipe()
+  console.log('Wipe complete.')
 }
 
 // ─── Step 2: roster — C-suite first ──────────────────────────────────────
