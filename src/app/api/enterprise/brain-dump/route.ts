@@ -130,8 +130,12 @@ export async function POST(req: NextRequest) {
 }
 
 async function parseWithClaude(raw: string): Promise<Preview> {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { items: [], rejectedReason: 'Claude is not configured on this server.' }
+  // No hard Anthropic gate — getAskLLM() routes to Claude when configured
+  // and falls back to Groq when only GROQ_API_KEY is present (this is the
+  // shape used on the test droplet). If neither provider is configured the
+  // underlying llm.generateText() throws, which we catch below.
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.GROQ_API_KEY) {
+    return { items: [], rejectedReason: 'No LLM provider is configured on this server.' }
   }
   const llm = getAskLLM()
   const prompt = `You are structuring a free-form brain dump into discrete, actionable items. The user's just spoken or typed everything in their head; your job is to extract the load-bearing parts.

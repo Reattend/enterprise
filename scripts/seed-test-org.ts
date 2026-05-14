@@ -486,7 +486,19 @@ const insertOrgMember = db.prepare(`
 for (const u of roster) {
   insertOrgMember.run(uuid(), orgId, u.id, u.orgRole, 'active', u.title, now(), now())
 }
-console.log(`Inserted ${roster.length} organization_members.`)
+
+// Point every seed user's active context at this org. Without this,
+// resolveTargetWorkspace falls back to auth.workspaceId (the seed user's
+// personal workspace) and every capture lands in Personal instead of the
+// org. Setting active_context_org_id is exactly what the dashboard's
+// workspace switcher does — we're just pre-flipping it.
+const setActiveContext = db.prepare(`UPDATE users SET active_context_org_id = ? WHERE id = ?`)
+const flipAll = db.transaction((users: SeedUser[]) => {
+  for (const u of users) setActiveContext.run(orgId, u.id)
+})
+flipAll(roster)
+
+console.log(`Inserted ${roster.length} organization_members and pinned their active_context_org_id.`)
 
 // ─── Step 7: insert the dept tree, recording id-by-path ─────────────────
 const deptIdByPath = new Map<string, string>()
