@@ -233,35 +233,35 @@ if (roster.length !== 100) {
 
 // ─── Step 4: insert users ────────────────────────────────────────────────
 const insertUser = db.prepare(`
-  INSERT INTO users (id, email, name, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?)
+  INSERT INTO users (id, email, name, created_at)
+  VALUES (?, ?, ?, ?)
 `)
 const insertWorkspace = db.prepare(`
-  INSERT INTO workspaces (id, name, type, created_by, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?, ?)
+  INSERT INTO workspaces (id, name, type, created_by, created_at)
+  VALUES (?, ?, ?, ?, ?)
 `)
 const insertWorkspaceMember = db.prepare(`
-  INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
-  VALUES (?, ?, ?, ?)
+  INSERT INTO workspace_members (id, workspace_id, user_id, role, created_at)
+  VALUES (?, ?, ?, ?, ?)
 `)
 const insertSubscription = db.prepare(`
   INSERT INTO subscriptions (id, user_id, plan_key, status, tier, created_at, updated_at)
   VALUES (?, ?, ?, ?, ?, ?, ?)
 `)
 const insertProject = db.prepare(`
-  INSERT INTO projects (workspace_id, name, description, is_default, color, created_at)
-  VALUES (?, ?, ?, ?, ?, ?)
+  INSERT INTO projects (id, workspace_id, name, description, is_default, color, created_at, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 `)
 
 const insertManyUsers = db.transaction((users: SeedUser[]) => {
   for (const u of users) {
     const ts = now()
-    insertUser.run(u.id, u.email, u.name, ts, ts)
+    insertUser.run(u.id, u.email, u.name, ts)
     // Each user gets a personal workspace as the (app)/layout expects one.
     const wsId = uuid()
-    insertWorkspace.run(wsId, 'Personal', 'personal', u.id, ts, ts)
-    insertWorkspaceMember.run(wsId, u.id, 'owner', ts)
-    insertProject.run(wsId, 'Unassigned', 'Memories not yet assigned to a project', 1, '#94a3b8', ts)
+    insertWorkspace.run(wsId, 'Personal', 'personal', u.id, ts)
+    insertWorkspaceMember.run(uuid(), wsId, u.id, 'owner', ts)
+    insertProject.run(uuid(), wsId, 'Unassigned', 'Memories not yet assigned to a project', 1, '#94a3b8', ts, ts)
     // tier=professional so every paid-feature gate opens; status=active so
     // billing UI is calm.
     insertSubscription.run(uuid(), u.id, 'normal', 'active', 'professional', ts, ts)
@@ -360,9 +360,9 @@ const insertOrgLink = db.prepare(`
 `)
 for (const region of REGIONS) {
   const wsId = uuid()
-  insertWorkspace.run(wsId, `${region} Memory`, 'team', ceo.id, now(), now())
+  insertWorkspace.run(wsId, `${region} Memory`, 'team', ceo.id, now())
   insertOrgLink.run(wsId, orgId, regionDept[region], 'department_only', now())
-  insertProject.run(wsId, 'Unassigned', 'Default project', 1, '#94a3b8', now())
+  insertProject.run(uuid(), wsId, 'Unassigned', 'Default project', 1, '#94a3b8', now(), now())
 
   // Every user in this region (plus HQ) becomes a workspace_member so they
   // can see + write into the regional workspace. Members get 'member' role;
@@ -373,7 +373,7 @@ for (const region of REGIONS) {
     if (u.level === 1) wsRole = 'owner'
     else if (u.level <= 3) wsRole = 'admin'
     else wsRole = 'member'
-    insertWorkspaceMember.run(wsId, u.id, wsRole, now())
+    insertWorkspaceMember.run(uuid(), wsId, u.id, wsRole, now())
   }
 }
 console.log(`Inserted ${REGIONS.length} regional workspaces + members.`)
