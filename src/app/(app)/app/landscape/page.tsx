@@ -1,29 +1,33 @@
 'use client'
 
-// Landscape — two projections of the same memory corpus.
+// Landscape — three projections of the same memory corpus.
 //
+//   Space:  Memory constellation. 3D force-graph, dark cosmic background,
+//           soft bloom, drifting particle field, slow auto-orbit. The
+//           Twitter-screenshot view; this is the default landing mode.
 //   Rewind: Time-Machine slider. Scrub through 24 months of org state.
-//   Board:  Memory graph. React Flow layout of records + record links.
+//   Board:  Memory graph editor. React Flow layout — manage links here.
 //
-// Mode persists via ?mode=rewind|board. Older links using mode=temporal /
-// mode=causal still resolve to the new modes for backwards compatibility.
+// Mode persists via ?mode=space|rewind|board. Older mode=temporal still
+// resolves to rewind; mode=causal still resolves to board.
 //
-// New chrome: violet-gradient segmented mode switch (matches the Capture
-// page's `cap-modes` control). Each mode renders its own page-shaped view
-// underneath, so the inner views own their crumb / hero / content.
+// Each mode renders its own page-shaped view underneath, so the inner
+// views own their crumb / hero / content.
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { RotateCcw, GitBranch } from 'lucide-react'
+import { RotateCcw, GitBranch, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { RewindView } from './rewind-view'
 import { BoardView } from './board-view'
+import { SpaceView } from './space-view'
 
-type Mode = 'rewind' | 'board'
+type Mode = 'space' | 'rewind' | 'board'
 
 function normalizeMode(raw: string | null): Mode {
   if (raw === 'board' || raw === 'causal') return 'board'
-  return 'rewind'
+  if (raw === 'rewind' || raw === 'temporal') return 'rewind'
+  return 'space'
 }
 
 function LandscapeInner() {
@@ -49,6 +53,17 @@ function LandscapeInner() {
         <div className="lsc-modes" role="tablist">
           <button
             type="button"
+            className={cn('lsc-mode-btn', mode === 'space' && 'active')}
+            onClick={() => pick('space')}
+            role="tab"
+            aria-selected={mode === 'space'}
+          >
+            <Sparkles size={14} strokeWidth={1.8} />
+            Space
+            <span className="lab-sub">· Constellation</span>
+          </button>
+          <button
+            type="button"
             className={cn('lsc-mode-btn', mode === 'rewind' && 'active')}
             onClick={() => pick('rewind')}
             role="tab"
@@ -67,11 +82,11 @@ function LandscapeInner() {
           >
             <GitBranch size={14} strokeWidth={1.8} />
             Board
-            <span className="lab-sub">· Memory map</span>
+            <span className="lab-sub">· Edit map</span>
           </button>
         </div>
 
-        {mode === 'rewind' ? <RewindView /> : <BoardView />}
+        {mode === 'space' ? <SpaceView /> : mode === 'rewind' ? <RewindView /> : <BoardView />}
       </div>
     </div>
   )
