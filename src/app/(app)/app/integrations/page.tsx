@@ -1,6 +1,6 @@
 'use client'
 
-// Integrations — live connector cockpit with the same wiring the
+// Integrations - live connector cockpit with the same wiring the
 // NangoConnectPanel had (status / session / finalize / backfill /
 // disconnect / sync / scope), restyled into a dense 3-column grid
 // with real brand logos. Connect flow:
@@ -9,7 +9,7 @@
 //   3. POST /api/integrations/nango/finalize to register the connection
 //   4. POST /api/integrations/nango/backfill so the first batch ingests
 //
-// Roadmap providers ship as flat cards with a "On roadmap" pill — no
+// Roadmap providers ship as flat cards with a "On roadmap" pill - no
 // connect button.
 
 import { useCallback, useEffect, useState } from 'react'
@@ -91,7 +91,7 @@ export default function IntegrationsPage() {
 
   useEffect(() => { fetchStatus() }, [fetchStatus])
 
-  // Re-fetch when the tab regains focus — tokens may have been mutated
+  // Re-fetch when the tab regains focus - tokens may have been mutated
   // in another tab (Connect popup, OAuth redirect) and we want the cards
   // to reflect that immediately without a manual refresh.
   useEffect(() => {
@@ -136,12 +136,12 @@ export default function IntegrationsPage() {
       })
       if (!finalizeRes.ok) {
         const err = await finalizeRes.json().catch(() => ({}))
-        toast.error(err.error || 'Connected to provider but failed to register the connection — try Sync now from the panel.')
+        toast.error(err.error || 'Connected to provider but failed to register the connection - try Sync now from the panel.')
         fetchStatus()
         return
       }
 
-      toast.success(`${provider.name} connected — running backfill…`)
+      toast.success(`${provider.name} connected - running backfill…`)
       try {
         const backfillRes = await fetch('/api/integrations/nango/backfill', {
           method: 'POST',
@@ -153,7 +153,7 @@ export default function IntegrationsPage() {
           toast.success(`Backfill done · ${bd.added} new, ${bd.skipped} already-seen, ${bd.filtered} filtered`)
         } else {
           const err = await backfillRes.json().catch(() => ({}))
-          toast.error(err.error || 'Backfill failed — check the Inbox or click Sync now to retry.')
+          toast.error(err.error || 'Backfill failed - check the Inbox or click Sync now to retry.')
         }
       } catch { /* non-fatal */ }
       fetchStatus()
@@ -380,10 +380,10 @@ export default function IntegrationsPage() {
           <div style={{ flex: 1 }}>
             <h3>Security model</h3>
             <ul>
-              <li>OAuth tokens scoped to the minimum needed — read-only, optionally per-label / per-channel.</li>
+              <li>OAuth tokens scoped to the minimum needed - read-only, optionally per-label / per-channel.</li>
               <li>Every sync event is logged to the audit trail with actor + timestamp.</li>
-              <li>Record visibility respects department RBAC — a Gmail thread from finance only shows to the finance dept.</li>
-              <li>On-premise deployment available on the Enterprise plan — the entire ingestion pipeline runs inside your network; no data leaves your tenant.</li>
+              <li>Record visibility respects department RBAC - a Gmail thread from finance only shows to the finance dept.</li>
+              <li>On-premise deployment available on the Enterprise plan - the entire ingestion pipeline runs inside your network; no data leaves your tenant.</li>
             </ul>
           </div>
         </div>
@@ -459,7 +459,7 @@ function ScopeDialog({
         toast.error(err.error || 'Save failed')
         return
       }
-      toast.success('Scope saved — applies to next sync')
+      toast.success('Scope saved - applies to next sync')
       onOpenChange(false)
     } finally {
       setSaving(false)
@@ -486,7 +486,7 @@ function ScopeDialog({
             <Filter className="h-4 w-4" /> Scope for {provider.name}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            Only records matching these filters will be stored. Applied at ingest — rejected records never hit your workspace.
+            Only records matching these filters will be stored. Applied at ingest - rejected records never hit your workspace.
           </DialogDescription>
         </DialogHeader>
 

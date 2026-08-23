@@ -16,7 +16,7 @@ import { hasPermission } from '@/lib/enterprise/permissions'
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string; decisionId: string }> }) {
   try {
     const { orgId, decisionId } = await params
-    // Org membership only — perm check is dept-scoped after we load the decision.
+    // Org membership only - perm check is dept-scoped after we load the decision.
     const auth = await requireOrgAuth(req, orgId)
     if (isAuthResponse(auth)) return auth
 

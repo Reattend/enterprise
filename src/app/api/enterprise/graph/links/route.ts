@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const toRec = await db.select().from(schema.records).where(eq(schema.records.id, toRecordId)).limit(1)
     if (!fromRec[0] || !toRec[0]) return NextResponse.json({ error: 'record not found' }, { status: 404 })
 
-    // Manage-access check on BOTH records — drawing a link is a write that
+    // Manage-access check on BOTH records - drawing a link is a write that
     // exposes the relationship between the two memories to anyone who can
     // see either side. Only the creator, an org admin, or a dept_head of
     // the record's dept passes (canManageRecordAccess enforces this).
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const canFrom = await canManageRecordAccess(ctx, fromRecordId)
     const canTo = await canManageRecordAccess(ctx, toRecordId)
     if (!canFrom || !canTo) {
-      return NextResponse.json({ error: 'forbidden — must be able to manage both records' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden - must be able to manage both records' }, { status: 403 })
     }
 
     const id = crypto.randomUUID()
@@ -75,7 +75,7 @@ export async function DELETE(req: NextRequest) {
     const link = rows[0]
     if (!link) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
-    // Same gate as POST — must be able to manage at least the from-record
+    // Same gate as POST - must be able to manage at least the from-record
     // (deleting a link is symmetric, owning either side is enough).
     const ctx = await buildAccessContext(userId)
     if (!(await canManageRecordAccess(ctx, link.fromRecordId))) {

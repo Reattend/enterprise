@@ -1,6 +1,6 @@
 'use client'
 
-// Trending card — "Hot in the org this week."
+// Trending card - "Hot in the org this week."
 //
 // Home surface. Lists the top 5 most-viewed records in the last 7 days that
 // the viewer can see. Hidden entirely when there's nothing yet (new orgs).

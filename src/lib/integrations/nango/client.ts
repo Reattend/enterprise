@@ -7,14 +7,14 @@ import { Nango } from '@nangohq/node'
 export interface NangoConfig {
   host: string
   secretKey: string
-  publicKey: string | null // legacy — current SDK uses sessionToken instead
+  publicKey: string | null // legacy - current SDK uses sessionToken instead
   webhookSecret: string | null
   configured: boolean
 }
 
 // Read config from env. Returns `configured: false` if the secret key is
 // missing, so route handlers can bail with a friendly error instead of
-// throwing inside SDK construction. The public key is optional — new
+// throwing inside SDK construction. The public key is optional - new
 // Nango deployments authenticate the browser SDK via session tokens
 // minted by the backend (see createConnectSession).
 export function getNangoConfig(): NangoConfig {
@@ -28,7 +28,7 @@ export function getNangoConfig(): NangoConfig {
 
 let _client: Nango | null = null
 
-// Returns a memoized Nango backend client. Throws if env is not configured —
+// Returns a memoized Nango backend client. Throws if env is not configured -
 // callers should check `getNangoConfig().configured` first.
 export function getNangoClient(): Nango {
   const cfg = getNangoConfig()

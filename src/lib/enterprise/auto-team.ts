@@ -1,11 +1,11 @@
-// Auto-team provisioning — every org needs at least one team-kind
+// Auto-team provisioning - every org needs at least one team-kind
 // department so that workspace-scoped memory has somewhere to land.
 //
 // Without this, the Capture flow falls back to the user's personal
 // workspace (RBAC rule 8) and org-scoped views (home, landscape,
 // cockpit) read zero records.
 //
-// `provisionDefaultTeam` is idempotent at the slug level — call it
+// `provisionDefaultTeam` is idempotent at the slug level - call it
 // during org creation and again as part of a backfill. If a team
 // with the same slug already exists, it returns the existing one.
 
@@ -30,7 +30,7 @@ export async function provisionDefaultTeam(opts: {
   const name = (opts.name || 'General').trim()
   const slug = (opts.slug || 'general').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
-  // Idempotency — if a team-slug already exists in this org, reuse it.
+  // Idempotency - if a team-slug already exists in this org, reuse it.
   const existingDept = await db
     .select()
     .from(schema.departments)
@@ -107,7 +107,7 @@ export async function provisionDefaultTeam(opts: {
   return { departmentId, workspaceId, alreadyExisted: false }
 }
 
-// One-shot backfill — for every org that currently has zero
+// One-shot backfill - for every org that currently has zero
 // workspace_org_links, provision a "General" team owned by the org's
 // founding super_admin. Returns a summary so the caller can log/audit it.
 export async function backfillOrgsMissingTeams(): Promise<Array<{ organizationId: string; orgName: string; result: ProvisionedTeam | { error: string } }>> {

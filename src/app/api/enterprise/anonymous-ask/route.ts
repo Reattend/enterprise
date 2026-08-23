@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     })
     if (!memb) return NextResponse.json({ error: 'not in org' }, { status: 403 })
 
-    // Audit as anonymous — no userId, no IP, no userAgent
+    // Audit as anonymous - no userId, no IP, no userAgent
     try {
       await db.insert(schema.auditLog).values({
         organizationId: orgId,
@@ -102,14 +102,14 @@ ${recordsBlock || '(no directly-related material on file)'}
 Rules:
 - Answer in 3-6 sentences. No preamble.
 - If the question is about a policy and you found it, quote the relevant clause briefly and cite "per the [policy title]".
-- If you can't answer from policy, say plainly: "Your org hasn't documented this. Here's what I'd suggest based on common practice: ..." — offer 1-2 concrete next steps.
+- If you can't answer from policy, say plainly: "Your org hasn't documented this. Here's what I'd suggest based on common practice: ..." - offer 1-2 concrete next steps.
 - For reporting-type questions (harassment, discrimination, safety), always end with "Your HR / ombuds channel can be reached confidentially" even if that path isn't in memory.
 - Tone: calm, practical, empathetic. No legal disclaimers.`
 
     const llm = getAskLLM()
     const answer = await llm.generateText(prompt, 900)
 
-    // Plain-text response. No X-Trace, no X-Sources — those would fingerprint.
+    // Plain-text response. No X-Trace, no X-Sources - those would fingerprint.
     return new Response(answer, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })

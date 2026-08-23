@@ -1,6 +1,6 @@
 'use client'
 
-// Animated reasoning trace — plays back the pipeline that produced the answer.
+// Animated reasoning trace - plays back the pipeline that produced the answer.
 //
 // The /api/ask endpoint returns an `X-Trace` header with the actual step
 // counts (keywords extracted, candidates retrieved, RBAC-filtered, scored,
@@ -116,7 +116,7 @@ export function ReasoningTrace({ trace, active }: { trace: TraceData | null; act
   )
 }
 
-// Helper for callers — parse the X-Trace header from an ask Response.
+// Helper for callers - parse the X-Trace header from an ask Response.
 export function parseTraceFromHeaders(headers: Headers): TraceData | null {
   const raw = headers.get('X-Trace')
   if (!raw) return null

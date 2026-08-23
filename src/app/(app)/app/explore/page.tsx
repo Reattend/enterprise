@@ -307,7 +307,7 @@ export default function ExplorePage() {
           className="lg:col-span-2 rounded-2xl border border-border/60 bg-background/60 p-5"
         >
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold tracking-tight">Activity — Last 14 Days</p>
+            <p className="text-sm font-semibold tracking-tight">Activity - Last 14 Days</p>
             <span className="text-xs text-muted-foreground">Memories created</span>
           </div>
           <ResponsiveContainer width="100%" height={180}>

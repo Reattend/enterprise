@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 /**
- * Desktop login page — after auth, redirects to /login/desktop/dashboard
+ * Desktop login page - after auth, redirects to /login/desktop/dashboard
  * where the user can copy their API token.
  */
 export default function DesktopLoginClient() {
@@ -27,7 +27,7 @@ export default function DesktopLoginClient() {
       const res = await fetch('/api/auth/session')
       const session = await res.json()
       if (session?.user?.email) {
-        // Already logged in — go straight to dashboard
+        // Already logged in - go straight to dashboard
         router.replace('/login/desktop/dashboard')
         return
       }

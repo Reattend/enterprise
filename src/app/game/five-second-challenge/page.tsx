@@ -25,7 +25,7 @@ export default function Page() {
     <Suspense fallback={
       <GamePageFallback
         title="5-Second Challenge"
-        description="A random category appears — like 'Things in a meeting room' or 'Ways to procrastinate'. You have exactly 5 seconds to name 3 examples. The clock is ticking."
+        description="A random category appears - like 'Things in a meeting room' or 'Ways to procrastinate'. You have exactly 5 seconds to name 3 examples. The clock is ticking."
         steps={[
           'A random category appears on screen.',
           'You have exactly 5 seconds to name 3 examples out loud.',

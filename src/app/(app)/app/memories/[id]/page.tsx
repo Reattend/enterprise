@@ -1,6 +1,6 @@
 'use client'
 
-// Memory detail — new dashboard design (Memory.html). Hero with gradient strip
+// Memory detail - new dashboard design (Memory.html). Hero with gradient strip
 // + serif title, two-column body (content + extracted notes on left, Details
 // gradient panel + Tags / Entities / Linked / Activity on right). All actions
 // (promote, share, on-wiki, history, edit, delete) and verification controls
@@ -70,7 +70,7 @@ export default function MemoryDetailPage() {
 
   useEffect(() => {
     fetchRecord()
-    // Fire-and-forget view ping — feeds trending + admin analytics.
+    // Fire-and-forget view ping - feeds trending + admin analytics.
     fetch(`/api/enterprise/records/${recordId}/view`, { method: 'POST' }).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordId])
@@ -227,7 +227,7 @@ export default function MemoryDetailPage() {
   const tm = TYPE_META[record.type] || TYPE_META.note
   const TypeIcon = tm.icon
 
-  // Wiki jump link — first non-system tag → topic, else hierarchy.
+  // Wiki jump link - first non-system tag → topic, else hierarchy.
   const firstTag = tags.find((t: string) => t && !/^(brain-dump|decision|open-question|action-item|observation)$/i.test(t))
   const wikiHref = firstTag
     ? `/app/wiki?tab=topics&topic=${encodeURIComponent(String(firstTag).toLowerCase().replace(/\s+/g, '-'))}`
@@ -351,7 +351,7 @@ export default function MemoryDetailPage() {
         </div>
 
         <div className="mem-grid2">
-          {/* LEFT — content + linked */}
+          {/* LEFT - content + linked */}
           <div>
             {/* Content */}
             <div className="mem-d-card">
@@ -397,7 +397,7 @@ export default function MemoryDetailPage() {
               </div>
             )}
 
-            {/* Linked memories — moved to left column for prominence when present */}
+            {/* Linked memories - moved to left column for prominence when present */}
             {links.length > 0 && (
               <div className="mem-d-card">
                 <h3>Linked memories <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>· {links.length}</span></h3>
@@ -429,7 +429,7 @@ export default function MemoryDetailPage() {
             )}
           </div>
 
-          {/* RIGHT — sidebar panels */}
+          {/* RIGHT - sidebar panels */}
           <aside>
             {/* Details (gradient) */}
             <div className="mem-panel details">
@@ -488,7 +488,7 @@ export default function MemoryDetailPage() {
                     <span className="v">{record.source}</span>
                   </div>
                 )}
-                {/* Verification — last-verified + change-cadence dropdown */}
+                {/* Verification - last-verified + change-cadence dropdown */}
                 <div className="row" style={{ display: 'block', borderBottom: 0, paddingBottom: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <span className="k"><ShieldCheck size={13} /> Verify</span>
@@ -549,7 +549,7 @@ export default function MemoryDetailPage() {
                     <span key={t} className="mem-side-tag">{t}</span>
                   ))
                 ) : (
-                  <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>No tags yet — edit to add.</span>
+                  <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>No tags yet - edit to add.</span>
                 )}
               </div>
             </div>

@@ -10,7 +10,7 @@ import {
   emailMatchesOrgDomain,
 } from '@/lib/enterprise'
 
-// Strict domain regex — rejects emails, URLs, and malformed input.
+// Strict domain regex - rejects emails, URLs, and malformed input.
 // Accepts acme.com, sub.acme.co.uk, etc.
 const DOMAIN_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/
 
@@ -19,7 +19,7 @@ const DOMAIN_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])
 // work email). In production (strict), we enforce work emails.
 const STRICT_MODE = process.env.ENTERPRISE_STRICT_ONBOARDING === 'true'
 
-// GET /api/enterprise/organizations — list orgs the current user belongs to
+// GET /api/enterprise/organizations - list orgs the current user belongs to
 export async function GET() {
   try {
     const { userId } = await requireAuth()
@@ -53,7 +53,7 @@ export async function GET() {
   }
 }
 
-// POST /api/enterprise/organizations — create a new org, caller becomes super_admin
+// POST /api/enterprise/organizations - create a new org, caller becomes super_admin
 export async function POST(req: NextRequest) {
   try {
     const { userId, session } = await requireAuth()
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Normalize + strictly validate primaryDomain. Must look like acme.com
-    // — no `@`, no protocol, no path, no whitespace.
+    // - no `@`, no protocol, no path, no whitespace.
     let normalizedDomain: string | null = null
     if (primaryDomain && typeof primaryDomain === 'string') {
       const d = primaryDomain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
         normalizedDomain = null
       } else if (d.includes('@') || !DOMAIN_RE.test(d)) {
         return NextResponse.json(
-          { error: 'invalid domain format — use acme.com (no @, no https://, just the domain)' },
+          { error: 'invalid domain format - use acme.com (no @, no https://, just the domain)' },
           { status: 400 },
         )
       } else {
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
         }, { status: 403 })
       }
     } else if (normalizedDomain && !emailMatchesOrgDomain(callerEmail, normalizedDomain)) {
-      console.warn(`[org create] dev mode: creator ${callerEmail} does not match primaryDomain ${normalizedDomain} — allowing`)
+      console.warn(`[org create] dev mode: creator ${callerEmail} does not match primaryDomain ${normalizedDomain} - allowing`)
     }
 
     // Slug: auto-generate from name if not provided. Slugs are globally unique.

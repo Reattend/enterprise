@@ -14,7 +14,7 @@ import {
 // Transfer pattern: end the current holder's assignment (endedAt=now),
 // then insert a new assignment for the incoming user. If `vacate: true` is
 // passed and no userId, the role becomes vacant (current assignment ended,
-// no replacement). transferNotes are attached to the *outgoing* assignment —
+// no replacement). transferNotes are attached to the *outgoing* assignment -
 // that's the handover note written by/about the person leaving.
 export async function POST(
   req: NextRequest,
@@ -59,7 +59,7 @@ export async function POST(
 
     const nowIso = new Date().toISOString()
 
-    // End any current assignment — endedAt is null for the currently-held slot
+    // End any current assignment - endedAt is null for the currently-held slot
     const current = await db
       .select()
       .from(schema.roleAssignments)

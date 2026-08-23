@@ -791,7 +791,7 @@ try {
   console.log('✓ record_dates table')
 } catch (e: any) {
   if (!e.message?.includes('already exists')) console.error('record_dates migration:', e.message)
-  else console.log('— record_dates (already exists)')
+  else console.log('- record_dates (already exists)')
 }
 
 // ─── Add snoozed_until to inbox_notifications ───
@@ -802,7 +802,7 @@ try {
     sqlite.exec('ALTER TABLE inbox_notifications ADD COLUMN snoozed_until TEXT;')
     console.log('✓ inbox_notifications.snoozed_until')
   } else {
-    console.log('— inbox_notifications.snoozed_until (already exists)')
+    console.log('- inbox_notifications.snoozed_until (already exists)')
   }
 } catch (e: any) {
   console.error('snoozed_until migration:', e.message)
@@ -847,7 +847,7 @@ try {
     sqlite.exec("CREATE INDEX IF NOT EXISTS rec_triage_status_idx ON records(triage_status);")
     console.log('✓ records.triage_status')
   } else {
-    console.log('— records.triage_status (already exists)')
+    console.log('- records.triage_status (already exists)')
   }
 } catch (e: any) {
   console.error('triage_status migration:', e.message)
@@ -878,7 +878,7 @@ try {
     sqlite.exec('ALTER TABLE inbox_notifications_v3 RENAME TO inbox_notifications;')
     console.log('✓ inbox_notifications migrated with needs_review/rejected types')
   } else {
-    console.log('— inbox_notifications needs_review/rejected (already exists)')
+    console.log('- inbox_notifications needs_review/rejected (already exists)')
   }
 } catch (e: any) {
   console.error('inbox_notifications needs_review/rejected migration:', e.message)
@@ -893,7 +893,7 @@ try {
     sqlite.exec("ALTER TABLE audit_log ADD COLUMN row_hash TEXT;")
     console.log('✓ audit_log WORM columns added')
   } else {
-    console.log('— audit_log WORM columns (already exist)')
+    console.log('- audit_log WORM columns (already exist)')
   }
 } catch (e: any) {
   console.error('audit_log WORM migration:', e.message)
@@ -909,7 +909,7 @@ try {
     sqlite.exec("ALTER TABLE records ADD COLUMN ocr_confidence REAL;")
     console.log('✓ records legal_hold/retention_until/ocr_confidence added')
   } else {
-    console.log('— records legal_hold columns (already exist)')
+    console.log('- records legal_hold columns (already exist)')
   }
 } catch (e: any) {
   console.error('records legal_hold migration:', e.message)
@@ -960,7 +960,7 @@ try {
     sqlite.exec("CREATE INDEX IF NOT EXISTS rec_last_verified_idx ON records(last_verified_at);")
     console.log('✓ records verification columns added')
   } else {
-    console.log('— records verification columns (already exist)')
+    console.log('- records verification columns (already exist)')
   }
 } catch (e: any) {
   console.error('records verification migration:', e.message)
@@ -1085,7 +1085,7 @@ try {
 }
 
 // ─── Billing: extend subscriptions for Paddle + tier model ──────────────────
-// Adds the columns the new TIER_LIMITS gate code reads. Idempotent — wraps
+// Adds the columns the new TIER_LIMITS gate code reads. Idempotent - wraps
 // each ALTER in its own try/catch since SQLite throws if the column exists.
 try {
   const cols = [
@@ -1129,7 +1129,7 @@ try {
 // ─── Org plan rename: starter/business/government → free/professional/enterprise ─
 // The product tiers were renamed 2026-05-03. SQLite has no real enum check so
 // these UPDATEs are safe; the schema.ts type union now only allows the new
-// values. Migration is idempotent — if already mapped it touches no rows.
+// values. Migration is idempotent - if already mapped it touches no rows.
 try {
   sqlite.exec("UPDATE organizations SET plan = 'free'         WHERE plan = 'starter';")
   sqlite.exec("UPDATE organizations SET plan = 'professional' WHERE plan = 'business';")
@@ -1139,7 +1139,7 @@ try {
   console.error('plan rename migration:', e.message)
 }
 
-// ─── Hot Cache (per-org "_hot.md" — Karpathy's idea) ──────────────────────
+// ─── Hot Cache (per-org "_hot.md" - Karpathy's idea) ──────────────────────
 try {
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS hot_cache (

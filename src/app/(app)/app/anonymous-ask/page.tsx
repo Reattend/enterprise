@@ -1,6 +1,6 @@
 'use client'
 
-// Anonymous Ask — sensitive-question surface.
+// Anonymous Ask - sensitive-question surface.
 //
 // Same RBAC as regular Ask (you see only what you could already see), but
 // your identity is stripped from the audit trail. Answers are one-shot; no
@@ -75,7 +75,7 @@ export default function AnonymousAskPage() {
         </div>
         <h1 className="font-display text-3xl tracking-tight">Ask without attribution</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          For sensitive questions — HR, compliance, reporting — where the fact of asking is itself
+          For sensitive questions - HR, compliance, reporting - where the fact of asking is itself
           sensitive. Your identity is stripped from the audit trail. Admin sees an anonymous query
           in the log, not who asked it.
         </p>

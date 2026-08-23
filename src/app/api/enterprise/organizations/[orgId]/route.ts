@@ -19,11 +19,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
   }
 }
 
-// Basic domain format check — matches `acme.com`, `sub.acme.co.uk`, etc.
+// Basic domain format check - matches `acme.com`, `sub.acme.co.uk`, etc.
 // Rejects anything with protocol, path, whitespace, or leading @.
 const DOMAIN_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/
 
-// PATCH /api/enterprise/organizations/[orgId] — update settings (super_admin only)
+// PATCH /api/enterprise/organizations/[orgId] - update settings (super_admin only)
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ or
       if (d.length === 0) {
         allowed.primaryDomain = null
       } else if (!DOMAIN_RE.test(d)) {
-        return NextResponse.json({ error: 'invalid domain format — expected acme.com' }, { status: 400 })
+        return NextResponse.json({ error: 'invalid domain format - expected acme.com' }, { status: 400 })
       } else {
         allowed.primaryDomain = d
       }

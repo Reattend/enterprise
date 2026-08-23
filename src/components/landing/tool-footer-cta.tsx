@@ -39,8 +39,8 @@ export function ToolFooterCta({
   const subline = variant === 'game'
     ? "Run a team that doesn't forget what it learned about each other. Reattend gives your org a memory that survives every offsite, every quarter, every new hire."
     : variant === 'template'
-    ? "When templates aren't enough — when your org's actual decisions, exit interviews, and institutional knowledge need a real home — Reattend is built for that."
-    : 'When you outgrow the spreadsheet — when you need real org memory that captures decisions, runs exit interviews, and survives the next person who quits — Reattend is built for that.'
+    ? "When templates aren't enough - when your org's actual decisions, exit interviews, and institutional knowledge need a real home - Reattend is built for that."
+    : 'When you outgrow the spreadsheet - when you need real org memory that captures decisions, runs exit interviews, and survives the next person who quits - Reattend is built for that.'
 
   return (
     <section className="relative max-w-[1200px] mx-auto px-5 my-20">
@@ -64,7 +64,7 @@ export function ToolFooterCta({
         </p>
       </div>
 
-      {/* Related discovery strip — three doors to the rest of the SEO surfaces.
+      {/* Related discovery strip - three doors to the rest of the SEO surfaces.
           Reduces bounce rate + spreads internal-link authority across tools/games/main. */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
         <DiscoveryCard

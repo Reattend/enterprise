@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     }
 
     // Auto-create a backing workspace for "team" departments.
-    // A team IS a workspace in enterprise mode — records, decisions, and
+    // A team IS a workspace in enterprise mode - records, decisions, and
     // memories live in the team's workspace. Higher-level depts/divisions
     // don't need their own workspace (they're pure hierarchy).
     let autoWorkspaceId: string | null = null

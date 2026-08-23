@@ -3,8 +3,8 @@ import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 
 // GET /api/enterprise/invites/[token]
-// Public route — used by the accept page to render the org + role. No auth.
-// We deliberately keep the response minimal — token leakage shouldn't reveal
+// Public route - used by the accept page to render the org + role. No auth.
+// We deliberately keep the response minimal - token leakage shouldn't reveal
 // membership details beyond what the invited person already needs to see.
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {

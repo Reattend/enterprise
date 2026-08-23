@@ -1,5 +1,5 @@
 /* ============================================================
- * Dashboard chrome — design tokens + sidebar/topbar/chat classes
+ * Dashboard chrome - design tokens + sidebar/topbar/chat classes
  * Extracted from claude.ai/design Chat.html. Loaded once from
  * src/app/(app)/app/layout.tsx so every dashboard page inherits.
  * ============================================================ */
@@ -14,7 +14,7 @@
   --ink-4: oklch(0.72 0.008 270);
   --line: oklch(0.92 0.005 270);
   --line-2: oklch(0.96 0.004 270);
-  /* Rust-orange brand accent — matches the Control Room rail button
+  /* Rust-orange brand accent - matches the Control Room rail button
      (#c86d4b ≈ oklch(0.62 0.13 36)). Used by every primary CTA, badge
      and accent text in the new dashboard pages. Kept under `--brand*`
      to avoid colliding with shadcn's HSL `--accent` (which globals.css
@@ -41,7 +41,7 @@
 }
 
 /* ---------- App grid (sidebar + main) ----------
- * `height: 100vh` (not min-height) — the parent .enterprise-shell is
+ * `height: 100vh` (not min-height) - the parent .enterprise-shell is
  * h-screen/overflow-hidden, so the grid must be exactly viewport-tall.
  * With min-height the grid would grow when banners stack, pushing inner
  * scroll containers off-screen and breaking scroll on long pages. */
@@ -96,7 +96,7 @@
 .enterprise-shell.sidebar-collapsed .rail .rail-nav a .badge {
   display: none;
 }
-/* Hide section labels and the entire recents list — too long for 64px. */
+/* Hide section labels and the entire recents list - too long for 64px. */
 .enterprise-shell.sidebar-collapsed .rail .rail-section,
 .enterprise-shell.sidebar-collapsed .rail .rail-recent {
   display: none;
@@ -165,7 +165,7 @@
   justify-content: center;
   transition: filter .15s ease, transform .05s ease, background .15s ease;
 }
-/* Control Room — flat rust orange #c86d4b. No gradient, slight inset
+/* Control Room - flat rust orange #c86d4b. No gradient, slight inset
  * highlight for tactility, soft shadow keyed to the same hue. */
 .enterprise-shell .rail-cta {
   background: #c86d4b;
@@ -481,11 +481,11 @@
 }
 
 /* ============================================================
- * Capture page (brain-dump) — extracted from design's Capture.html.
+ * Capture page (brain-dump) - extracted from design's Capture.html.
  * Two-column composer | preview panel layout.
  * ============================================================ */
 
-/* Capture page is full-bleed — make it the scroll container itself
+/* Capture page is full-bleed - make it the scroll container itself
  * (no separate -wrap because the original markup uses .cap-page as the
  * single page wrapper). flex:1 + overflow-y:auto so a tall preview
  * panel can scroll without breaking the parent flex chain. */
@@ -653,7 +653,7 @@
 .enterprise-shell .cap-commit:hover { filter: brightness(1.05); }
 .enterprise-shell .cap-commit:disabled { opacity: 0.5; cursor: default; filter: none; }
 
-/* RIGHT — preview panel */
+/* RIGHT - preview panel */
 .enterprise-shell .cap-preview {
   border: 1px solid var(--line); border-radius: 16px;
   background: var(--panel); position: sticky; top: 80px;
@@ -808,7 +808,7 @@
 }
 
 /* ============================================================
- * Memories list + detail pages — extracted from design's
+ * Memories list + detail pages - extracted from design's
  * Memories.html and Memory.html. All classes prefixed `mem-`
  * to avoid clashes elsewhere.
  * ============================================================ */
@@ -825,7 +825,7 @@
   --mem-teal-soft: oklch(0.95 0.04 200);
 }
 
-/* Scroll wrap for full-bleed pages — `flex: 1; min-height: 0` instead of
+/* Scroll wrap for full-bleed pages - `flex: 1; min-height: 0` instead of
  * `height: 100%` so it grows to fill the parent flex column AND lets its
  * own overflow-y handle the scroll. `height: 100%` is unreliable inside
  * flex columns when the chain back to a definite-height ancestor passes
@@ -840,7 +840,7 @@
   width: 100%;
 }
 
-/* Crumb pill — same shape as cap-crumb */
+/* Crumb pill - same shape as cap-crumb */
 .enterprise-shell .mem-crumb {
   font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--brand-ink); display: inline-flex; align-items: center; gap: 6px;
@@ -1179,7 +1179,7 @@
   font-size: 13px;
 }
 
-/* Personal-memories migration banner — sits above the memories list when
+/* Personal-memories migration banner - sits above the memories list when
  * the user has captures stuck in their personal workspace. Tinted with
  * brand-soft so it's visible but not alarming. */
 .enterprise-shell .mem-import-banner {
@@ -1546,7 +1546,7 @@
 .enterprise-shell .mem-modal .file-row button:hover { color: var(--mem-rose); }
 
 /* ============================================================
- * Landscape page (Rewind + Board) — extracted from Landscape.html.
+ * Landscape page (Rewind + Board) - extracted from Landscape.html.
  * Classes prefixed `lsc-` to avoid clashes.
  * ============================================================ */
 
@@ -1581,7 +1581,7 @@
 }
 .enterprise-shell .lsc-head .sub b { color: var(--ink-2); }
 
-/* Mode segmented control — violet gradient active state */
+/* Mode segmented control - violet gradient active state */
 .enterprise-shell .lsc-modes {
   display: inline-flex; padding: 4px; border-radius: 12px;
   background: var(--panel); border: 1px solid var(--line);
@@ -1842,7 +1842,7 @@
   white-space: nowrap;
 }
 
-/* React Flow board container — the canvas itself */
+/* React Flow board container - the canvas itself */
 .enterprise-shell .lsc-board {
   position: relative; height: 600px;
   background:
@@ -1876,7 +1876,7 @@
   display: grid; place-items: center; padding: 2px;
 }
 
-/* React Flow node styling — overrides default node chrome */
+/* React Flow node styling - overrides default node chrome */
 .enterprise-shell .lsc-rf-node {
   padding: 8px 12px; border-radius: 12px;
   background: var(--panel); border: 1px solid var(--line);
@@ -1966,7 +1966,7 @@
 }
 .enterprise-shell .lsc-edge-pop button:hover { filter: brightness(1.05); }
 
-/* React Flow defaults — soften the controls/minimap so they blend */
+/* React Flow defaults - soften the controls/minimap so they blend */
 .enterprise-shell .react-flow__controls {
   border: 1px solid var(--line) !important;
   border-radius: 8px !important; overflow: hidden;
@@ -1989,7 +1989,7 @@
 }
 
 /* ============================================================
- * Wiki page — extracted from Wiki.html. Three-tab living map
+ * Wiki page - extracted from Wiki.html. Three-tab living map
  * (Hierarchy / Topics / People) with tree column + article column.
  * Classes prefixed `wiki-` to avoid clashes.
  * ============================================================ */
@@ -2406,7 +2406,7 @@
 .enterprise-shell .wiki-risk-banner .action:hover { text-decoration: underline; }
 
 /* ============================================================
- * Integrations page — dense provider grid with real brand logos.
+ * Integrations page - dense provider grid with real brand logos.
  * Classes prefixed `int-`.
  * ============================================================ */
 
@@ -2451,7 +2451,7 @@
 .enterprise-shell .int-triage-btn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .int-triage-btn svg { color: var(--brand); }
 
-/* Section header — same shape as wiki-sec-head */
+/* Section header - same shape as wiki-sec-head */
 .enterprise-shell .int-sec-head {
   font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--ink-3); font-weight: 600;
@@ -2616,7 +2616,7 @@
 .enterprise-shell .int-security li { margin: 2px 0; }
 
 /* ============================================================
- * Tasks page — Copilot-style memory-grounded workflows.
+ * Tasks page - Copilot-style memory-grounded workflows.
  * Gallery (tsk-page) + compose panel (tsk-compose).
  * Classes prefixed `tsk-`.
  * ============================================================ */
@@ -2964,7 +2964,7 @@
 }
 .dark .enterprise-shell .tsk-draft-meta { background: oklch(0.20 0.01 270); }
 
-/* Citation pill — replaces inline [1] [2] in the draft body */
+/* Citation pill - replaces inline [1] [2] in the draft body */
 .enterprise-shell .tsk-cite {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 18px; height: 18px; padding: 0 5px;
@@ -3046,7 +3046,7 @@
 .enterprise-shell .tsk-refine-input button:disabled { opacity: 0.5; cursor: default; }
 
 /* ============================================================
- * Control Room (admin) — sidebar with org header, overview cockpit.
+ * Control Room (admin) - sidebar with org header, overview cockpit.
  * Classes prefixed `cr-`.
  * ============================================================ */
 
@@ -3313,7 +3313,7 @@
 }
 .enterprise-shell .cr-live-link:hover { text-decoration: underline; }
 
-/* Twin panels — Memory health donut + Drift & risk list */
+/* Twin panels - Memory health donut + Drift & risk list */
 .enterprise-shell .cr-twin {
   display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;
 }
@@ -3602,7 +3602,7 @@
 .dark .enterprise-shell .cr-empty { background: oklch(0.20 0.01 270); }
 
 /* ============================================================
- * Hierarchy page — visual org chart + linear roll-up.
+ * Hierarchy page - visual org chart + linear roll-up.
  * ============================================================ */
 
 .enterprise-shell .hierarchy-canvas {
@@ -3641,7 +3641,7 @@
 .enterprise-shell .hierarchy-row .chev { color: var(--ink-4); }
 
 /* ═════════════════════════════════════════════════════════════════════
- * Dashboard mobile UX — added 2026-05-03
+ * Dashboard mobile UX - added 2026-05-03
  *
  * The sidebar already collapses to a drawer at <768px (handled by the
  * layout's isMobile state + the .app-grid: 1fr media query above). This
@@ -3660,7 +3660,7 @@
 
   /* Topbar: keep the essentials (workspace switcher, plan pill, notifications,
      user menu). Hide the extension-install button, the dark-mode toggle, the
-     feedback widget, and the docs popover — all reachable from settings or
+     feedback widget, and the docs popover - all reachable from settings or
      the user dropdown. */
   .enterprise-shell .topbar-v2 {
     height: 52px;
@@ -3671,7 +3671,7 @@
     gap: 4px;
   }
   /* Hide secondary action icons. Selectors match the actual topbar markup
-     (components/app/topbar.tsx — uses `title` not `aria-label` on its
+     (components/app/topbar.tsx - uses `title` not `aria-label` on its
      icon-btns). Notifications + user menu + plan pill stay visible. */
   .enterprise-shell .top-actions a[href*="chromewebstore"],
   .enterprise-shell .top-actions a[href="/app/integrations"],
@@ -3722,7 +3722,7 @@
 }
 
 @media (max-width: 480px) {
-  /* Drop the workspace switcher entirely on tiny screens — switch via
+  /* Drop the workspace switcher entirely on tiny screens - switch via
      user dropdown instead. Saves 80px of topbar real estate. */
   .enterprise-shell .ws-switch { display: none; }
   .enterprise-shell .topbar-v2 { padding: 0 10px; }
@@ -3735,7 +3735,7 @@
  * The drawer's <aside> gets `rail-mobile-drawer` so it renders in
  * EXPANDED mode even when the shell has `sidebar-collapsed`. Without
  * this, a user who collapsed the rail on desktop would see an icons-
- * only drawer on phone — useless. Force full padding + show all the
+ * only drawer on phone - useless. Force full padding + show all the
  * text labels the collapse rules normally hide.
  * ─────────────────────────────────────────────────────────────────────── */
 .enterprise-shell.sidebar-collapsed .rail.rail-mobile-drawer {

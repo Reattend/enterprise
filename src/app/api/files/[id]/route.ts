@@ -7,7 +7,7 @@ import fs from 'fs'
 
 const UPLOADS_DIR = path.resolve(process.cwd(), 'data', 'uploads')
 
-// GET /api/files/:id — download an attachment
+// GET /api/files/:id - download an attachment
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

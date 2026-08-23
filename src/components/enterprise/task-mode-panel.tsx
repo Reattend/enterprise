@@ -1,6 +1,6 @@
 'use client'
 
-// Compose panel — the Copilot-style memory-grounded workflow page.
+// Compose panel - the Copilot-style memory-grounded workflow page.
 //
 // Flow:
 //   1. User fills the form (To, Subject, key points, tone, etc.)
@@ -11,7 +11,7 @@
 //      citation pills that link back to /app/memories/<id>
 //   5. Refine chat lets the user iterate without losing the source context
 //
-// The wiring is unchanged from the previous version — this is a
+// The wiring is unchanged from the previous version - this is a
 // design/UX rework. All previous public behavior preserved:
 //   - same /api/ask endpoint + history shape
 //   - same field schema from TASK_MODES
@@ -88,7 +88,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
   const [refining, setRefining] = useState(false)
   const [copied, setCopied] = useState(false)
   const draftRef = useRef<HTMLDivElement>(null)
-  // AbortController for inflight previews — when the user keeps typing we
+  // AbortController for inflight previews - when the user keeps typing we
   // cancel the previous request so we don't show stale chips.
   const previewAbortRef = useRef<AbortController | null>(null)
 
@@ -102,10 +102,10 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
 
   // ─── Preview retrieval ────────────────────────────────────
   // The first time the user fills in enough of the form to make a coherent
-  // ask, fetch the memory sources that WOULD be used — so the chip strip
+  // ask, fetch the memory sources that WOULD be used - so the chip strip
   // appears above the Draft button instead of showing up post-hoc. Re-runs
   // (debounced 600ms) when the topic / key fields change. We skip the
-  // preview call once a draft has been generated — at that point the
+  // preview call once a draft has been generated - at that point the
   // user is iterating, the chips already reflect reality, and another
   // preview would just churn.
   //
@@ -113,7 +113,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
   // actual value changes (not on every render).
   const fieldsKey = JSON.stringify(fields)
   useEffect(() => {
-    // Stop bothering once the user has a draft — they're iterating now.
+    // Stop bothering once the user has a draft - they're iterating now.
     if (answer || streaming) return
     if (!canSubmit) return
     const handle = setTimeout(async () => {
@@ -138,7 +138,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
         setSources(data.sources || [])
       } catch (err: any) {
         if (err?.name === 'AbortError') return
-        // Quiet failure — preview is non-blocking. The Draft button still
+        // Quiet failure - preview is non-blocking. The Draft button still
         // works; sources will populate from X-Sources when the user submits.
       } finally {
         if (previewAbortRef.current === ac) setPreviewLoading(false)
@@ -192,7 +192,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
     const prompt = mode.buildPrompt(fields)
     setStreaming(true)
     setAnswer('')
-    // Carry the user's pre-draft drops into the actual generate call —
+    // Carry the user's pre-draft drops into the actual generate call -
     // those IDs are what the × on a chip is supposed to mean. The set is
     // reset only between distinct drafts (handled via Redraft below).
     const excluded = Array.from(droppedIds)
@@ -208,10 +208,10 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
         }),
       })
       if (!res.ok || !res.body) {
-        toast.error(res.status === 401 ? 'Sign in required' : 'Draft failed — check LLM API key in env')
+        toast.error(res.status === 401 ? 'Sign in required' : 'Draft failed - check LLM API key in env')
         return
       }
-      // Pull X-Sources before draining the body — the header is sent with
+      // Pull X-Sources before draining the body - the header is sent with
       // the response head, so it's available immediately.
       const parsedSources = parseSources(res.headers.get('X-Sources'))
       setSources(parsedSources)
@@ -293,7 +293,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
     const body = answer
       .replace(/^subject:.*\n?/i, '')
       .replace(/^\n+/, '')
-      // Strip [1] [2] citations for clean email — recipient won't have the
+      // Strip [1] [2] citations for clean email - recipient won't have the
       // memory linked, just the prose. Future: include sources as a footer.
       .replace(/\[\d{1,3}\]/g, '')
     const mailto = `mailto:${encodeURIComponent(fields.recipient || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
@@ -380,7 +380,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
           </div>
         </div>
 
-        {/* Source chips — appear once the response headers arrive */}
+        {/* Source chips - appear once the response headers arrive */}
         {visibleSources.length > 0 && (
           <div className="tsk-sources">
             <div className="tsk-sources-head">
@@ -477,7 +477,7 @@ export function TaskModePanel({ mode }: { mode: TaskMode }) {
           </div>
         )}
 
-        {/* Refine — chat with the draft */}
+        {/* Refine - chat with the draft */}
         {answer && !streaming && (
           <div className="tsk-refine">
             <div className="tsk-refine-head">

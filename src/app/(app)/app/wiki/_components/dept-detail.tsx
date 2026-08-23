@@ -1,6 +1,6 @@
 'use client'
 
-// Dept detail — the right-hand article when a dept is picked. Renders:
+// Dept detail - the right-hand article when a dept is picked. Renders:
 //   breadcrumb + serif h2 + freshness pill + meta row + auto-gen strip
 //   summary paragraph
 //   topic-tag chips (derived from records' tags)
@@ -59,7 +59,7 @@ function fmtRelative(iso: string) {
 }
 
 function fmtShort(iso: string | null | undefined) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
@@ -92,7 +92,7 @@ export function DeptDetail({ deptId, orgName }: { deptId: string; orgName?: stri
     return () => { cancelled = true }
   }, [deptId])
 
-  // Derive a topic-tag tally from the recent records — mirrors the design's
+  // Derive a topic-tag tally from the recent records - mirrors the design's
   // "Topics this team owns" chip strip without needing an extra fetch.
   const topicTally = useMemo(() => {
     if (!data) return [] as Array<{ tag: string; count: number }>

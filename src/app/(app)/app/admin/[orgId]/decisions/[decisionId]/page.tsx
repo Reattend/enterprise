@@ -171,9 +171,9 @@ export default function DecisionDetailPage({
         <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">References</div>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 text-sm">
           <Kv k="Workspace" v={decision.workspaceId} />
-          <Kv k="Department" v={decision.departmentId ?? '—'} />
-          <Kv k="Record" v={decision.recordId ?? '—'} />
-          <Kv k="Decider" v={decision.decidedByUserId ?? '—'} />
+          <Kv k="Department" v={decision.departmentId ?? '-'} />
+          <Kv k="Record" v={decision.recordId ?? '-'} />
+          <Kv k="Decider" v={decision.decidedByUserId ?? '-'} />
           <Kv k="Created" v={new Date(decision.createdAt).toLocaleString()} />
           <Kv k="Updated" v={new Date(decision.updatedAt).toLocaleString()} />
         </dl>
@@ -187,7 +187,7 @@ function Section({ label, text, empty }: { label: string; text: string | null; e
     <Card className="p-4">
       <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{label}</div>
       <div className={cn('text-sm whitespace-pre-wrap', !text && 'text-muted-foreground italic')}>
-        {text || empty || '—'}
+        {text || empty || '-'}
       </div>
     </Card>
   )
@@ -325,7 +325,7 @@ function ReverseForm({
           required
         />
         <Input
-          placeholder="Replaced by decision ID (optional — marks as superseded instead)"
+          placeholder="Replaced by decision ID (optional - marks as superseded instead)"
           value={supersededById}
           onChange={(e) => setSupersededById(e.target.value)}
         />

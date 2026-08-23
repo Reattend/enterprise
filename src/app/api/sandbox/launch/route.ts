@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic'
 //   member              → only the International Taxation tree, no manage
 //   guest               → no dept access, no workspace_members; sees only
 //                         records explicitly shared via record_shares (none
-//                         seeded), so the org appears mostly empty — exactly
+//                         seeded), so the org appears mostly empty - exactly
 //                         what a guest should see
 //
 // Sandbox users live in the sandbox org only; their email suffix
@@ -44,7 +44,7 @@ const ROLE_LABELS: Record<string, { name: string; title: string }> = {
 const VALID_ROLES = new Set(['super_admin', 'admin', 'dept_head', 'member', 'guest'])
 
 // Identifies the dept the dept_head/member personas land in. Has to match
-// something narrow in the demo seed — NOT the root ministry. We try the
+// something narrow in the demo seed - NOT the root ministry. We try the
 // most decision-rich subtree first ("International Taxation"), then fall
 // back to anything containing "Tax" (skipping the ministry root).
 const SCOPED_DEPT_HINTS: RegExp[] = [
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     })
     if (!seed) {
       return NextResponse.json({
-        error: 'demo org not seeded — admin must run npm run seed:demo first',
+        error: 'demo org not seeded - admin must run npm run seed:demo first',
       }, { status: 503 })
     }
 
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       title: persona.title,
     })
 
-    // Personal workspace — required by requireAuth(). Not linked to the org,
+    // Personal workspace - required by requireAuth(). Not linked to the org,
     // so it doesn't leak the visitor any enterprise visibility. Guests would
     // otherwise have zero workspace_members rows and fail auth at the door.
     const personalWsId = crypto.randomUUID()
@@ -230,7 +230,7 @@ async function cloneOrgData(args: CloneArgs) {
 
   // ─── Pick a "scoped dept" for dept_head / member personas ──
   // We try each hint in priority order. Whatever lands, it MUST not be the
-  // root ministry — if a non-leaf dept is matched, we still want a contained
+  // root ministry - if a non-leaf dept is matched, we still want a contained
   // subtree. Falls back to the first non-root leaf-ish dept.
   let scopedDeptOld: typeof oldDepts[number] | undefined
   for (const re of SCOPED_DEPT_HINTS) {
@@ -279,7 +279,7 @@ async function cloneOrgData(args: CloneArgs) {
     }).catch(() => { /* tolerated dupe */ })
   }
 
-  // Same for organization_members of the source — populates the people list.
+  // Same for organization_members of the source - populates the people list.
   const srcOrgMembers = await db.select()
     .from(schema.organizationMembers)
     .where(eq(schema.organizationMembers.organizationId, srcOrgId))
@@ -346,14 +346,14 @@ async function cloneOrgData(args: CloneArgs) {
       visibility: l.visibility,
     })
     // Workspace_members: scope per role.
-    //   super_admin / admin: skip — Rule 1 short-circuits in RBAC.
+    //   super_admin / admin: skip - Rule 1 short-circuits in RBAC.
     //   dept_head / member: only workspaces linked to their accessible depts,
     //     OR org_wide visibility workspaces (which Rule applies via list).
     //   guest: never.
     const newDeptForWs = l.departmentId ? deptIdMap.get(l.departmentId) : null
     let shouldJoinWs = false
     if (orgRole === 'super_admin' || orgRole === 'admin') {
-      // Don't add — Rule 1 covers it. Workspace listing for admins ignores
+      // Don't add - Rule 1 covers it. Workspace listing for admins ignores
       // workspace_members and uses the org links directly.
       shouldJoinWs = false
     } else if (roleKey === 'dept_head' || roleKey === 'member') {

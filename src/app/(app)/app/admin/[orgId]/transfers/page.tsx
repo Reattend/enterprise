@@ -5,7 +5,7 @@ import { PermissionGate } from '@/components/enterprise/permission-gate'
 // Knowledge Transfer Protocol dashboard.
 //
 // This is the visible manifestation of "knowledge stays with the role, not
-// the person" — our core amnesia-cure differentiator. The page shows every
+// the person" - our core amnesia-cure differentiator. The page shows every
 // user in the org whose authored records have no role owner, so when they
 // leave (or change roles), nothing vanishes.
 
@@ -145,21 +145,21 @@ function TransfersPageInner({ params }: { params: { orgId: string } }) {
           icon={AlertTriangle}
           color="text-yellow-600 bg-yellow-500/10"
           label="At-risk people"
-          value={loading ? '—' : String(totals?.atRiskUsers ?? 0)}
+          value={loading ? '-' : String(totals?.atRiskUsers ?? 0)}
           subtext="have unanchored records"
         />
         <SummaryCard
           icon={FileText}
           color="text-red-600 bg-red-500/10"
           label="At-risk records"
-          value={loading ? '—' : String(totals?.atRiskRecords ?? 0)}
+          value={loading ? '-' : String(totals?.atRiskRecords ?? 0)}
           subtext="no role owner assigned"
         />
         <SummaryCard
           icon={UserMinus}
           color="text-destructive bg-destructive/10"
           label="Already offboarded"
-          value={loading ? '—' : String(totals?.offboardedWithRisk ?? 0)}
+          value={loading ? '-' : String(totals?.offboardedWithRisk ?? 0)}
           subtext="with unclaimed memory"
         />
       </div>
@@ -311,7 +311,7 @@ function TransferWizard({
   const submit = async () => {
     if (!person) return
     if (!toUserId && !roleId) {
-      toast.error('Pick a successor and a role — at least one of them')
+      toast.error('Pick a successor and a role - at least one of them')
       return
     }
     setSubmitting(true)
@@ -413,7 +413,7 @@ function TransferWizard({
               <Select value={toUserId || '__none__'} onValueChange={(v) => setToUserId(v === '__none__' ? '' : v)}>
                 <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="No named successor yet" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__" className="text-sm text-muted-foreground">No successor yet — park at role</SelectItem>
+                  <SelectItem value="__none__" className="text-sm text-muted-foreground">No successor yet - park at role</SelectItem>
                   {members
                     .filter((m) => m.userId !== person.userId && m.status === 'active')
                     .map((m) => (
@@ -427,7 +427,7 @@ function TransferWizard({
               <Label className="text-xs text-muted-foreground mb-1.5 block">Handover notes (optional)</Label>
               <Textarea
                 value={notes} onChange={(e) => setNotes(e.target.value)}
-                placeholder="Context the successor should know — open threads, pending decisions, key contacts."
+                placeholder="Context the successor should know - open threads, pending decisions, key contacts."
                 rows={3} className="text-sm"
               />
             </div>

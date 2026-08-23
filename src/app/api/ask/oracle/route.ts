@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic'
 // POST /api/ask/oracle
 // Body: { orgId, question }
 //
-// Oracle Mode — the "deep research" mode for high-stakes questions. Unlike
+// Oracle Mode - the "deep research" mode for high-stakes questions. Unlike
 // /api/ask, this endpoint:
 //   - Pulls ~150 candidates (vs 30) via FTS over the user's accessible
 //     workspaces
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       const fxId = matchSandboxQuestion(question) || 'sandbox_default'
       const fx = SANDBOX_ORACLE[fxId] || SANDBOX_ORACLE.sandbox_default || SANDBOX_ORACLE.beps
       const raw = fx.dossier
-      // Parse the 5-section markdown — headings are `## Name`
+      // Parse the 5-section markdown - headings are `## Name`
       const pullSection = (name: string): string => {
         const re = new RegExp(`##\\s*${name}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i')
         const m = re.exec(raw)
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Audit — Oracle queries are high-signal, worth logging prominently
+    // Audit - Oracle queries are high-signal, worth logging prominently
     const reqMeta = extractRequestMeta(req)
     auditForAllUserOrgs(userId, userEmail, 'query', {
       resourceType: 'oracle',
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       metadata: { question: question.slice(0, 500), mode: 'oracle' },
     })
 
-    // Accessible workspaces — when orgId is passed, scope to that org's
+    // Accessible workspaces - when orgId is passed, scope to that org's
     // workspaces; otherwise fall back to every workspace the user belongs
     // to (Personal context, or hybrid users without a chosen org). The
     // visibility filter still gates each record at retrieval time.
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'no accessible workspaces' }, { status: 403 })
     }
 
-    // ── Stage 1: FTS retrieval — 150 candidates ────────────
+    // ── Stage 1: FTS retrieval - 150 candidates ────────────
     const ftsIds = searchFTS(question, accessibleWs, 150)
     const candidatesScanned = ftsIds.length
     if (ftsIds.length === 0) {
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
           evidence: '',
           risks: '',
           recommendations: 'Capture a few memories about this topic first, then ask again.',
-          unknowns: 'Everything — this question has zero corpus to lean on.',
+          unknowns: 'Everything - this question has zero corpus to lean on.',
         },
         sources: [],
         meta: { candidatesScanned: 0, accessibleFiltered: 0, reranked: 0, elapsedMs: Date.now() - t0 },
@@ -240,7 +240,7 @@ One paragraph summarizing the current state of this question based on the eviden
 - Concrete, actionable bullets. Tie each to the evidence.
 
 ## UNKNOWNS
-Plain paragraph. What the corpus does NOT answer — the question behind the question. If everything is covered, write "None significant." and nothing else.
+Plain paragraph. What the corpus does NOT answer - the question behind the question. If everything is covered, write "None significant." and nothing else.
 
 ---
 
@@ -285,7 +285,7 @@ BEGIN DOSSIER:`
 }
 
 // Extract the paragraph from a memory that best overlaps the user's question.
-// Simple keyword-overlap scoring — fast, no extra LLM call. Returns null for
+// Simple keyword-overlap scoring - fast, no extra LLM call. Returns null for
 // short/empty content. Trimmed to ~280 chars so the UI can surface a readable
 // snippet beside each source citation.
 function extractBestPassage(question: string, content: string): string | null {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reattend — Sign in</title>
+  <title>Reattend - Sign in</title>
   <meta name="description" content="Sign in to Reattend with your work email." />
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
   <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
@@ -573,9 +573,8 @@
     <!-- ====== LEFT: brand canvas ====== -->
     <section class="si-left">
       <div class="si-pitch">
-        <span class="si-eyebrow"><span class="dot"></span>Live · 24,193 memories indexed</span>
         <h1>Sign in to your <em>second brain.</em></h1>
-        <p>Reattend remembers what your team can't afford to forget — every Slack thread, ticket, design call, and shipped change — and recalls it at the speed of a question.</p>
+        <p>Reattend remembers what your team can't afford to forget - every Slack thread, ticket, design call, and shipped change - and recalls it at the speed of a question.</p>
       </div>
 
       <!-- memory orb -->
@@ -602,7 +601,7 @@
         <div class="step active" data-step="email" id="stepEmail">
           <div class="ribbon">Step 01 / 02 · Sign in</div>
           <h2>Welcome back to <em>Reattend.</em></h2>
-          <p class="lede">Enter your <strong>work email</strong> — we'll send a six‑digit code. No passwords to forget, no recovery flows to dread.</p>
+          <p class="lede">Enter your <strong>work email</strong> - we'll send a six‑digit code. No passwords to forget, no recovery flows to dread.</p>
 
           <form id="emailForm" novalidate>
             <div class="field" id="emailField">
@@ -865,7 +864,7 @@
             const params = new URLSearchParams()
             params.set('csrfToken', csrfToken)
             params.set('email', v)
-            params.set('code', '000000') // dummy — server bypasses check in TESTING_MODE
+            params.set('code', '000000') // dummy - server bypasses check in TESTING_MODE
             params.set('callbackUrl', callbackUrl)
             params.set('json', 'true')
             const res = await fetch('/api/auth/callback/otp', {
@@ -1010,7 +1009,7 @@
           const finalUrl = res.url || ''
           const isError = finalUrl.includes('/login?') && finalUrl.includes('error=')
           if (isError) {
-            // 401 here is most often "code already consumed" — happens when a
+            // 401 here is most often "code already consumed" - happens when a
             // previous verify succeeded server-side but the response was lost
             // (pm2 restart, network blip). Auto-resend a fresh code so the
             // user doesn't get stuck retyping a code that will never work.
@@ -1037,7 +1036,7 @@
                 body: JSON.stringify({ email: currentEmail }),
               })
               if (errorEl && errorMsg) {
-                errorMsg.textContent = 'That code didn\'t work — we sent a fresh one. Check your inbox.'
+                errorMsg.textContent = 'That code didn\'t work - we sent a fresh one. Check your inbox.'
               }
               startCountdown()
             } catch { /* user can use the manual Resend button */ }
@@ -1056,7 +1055,7 @@
           // find the session, and render the dashboard.
           setTimeout(() => { window.location.href = callbackUrl }, 700)
         } catch (err) {
-          // Network error (502, offline, etc.) — DON'T retry automatically.
+          // Network error (502, offline, etc.) - DON'T retry automatically.
           // The server may have already consumed the OTP. Show the error
           // and let the user click Resend to get a fresh code.
           resetOtpSubmit()
@@ -1065,7 +1064,7 @@
           const errorEl = document.getElementById('otpError')
           const errorMsg = document.getElementById('otpErrorMsg')
           if (errorEl && errorMsg) {
-            errorMsg.textContent = 'Network hiccup — please click Resend code and try again with the fresh one.'
+            errorMsg.textContent = 'Network hiccup - please click Resend code and try again with the fresh one.'
             errorEl.style.display = 'flex'
           }
         }
@@ -1102,7 +1101,7 @@
         secondsLeft--
         if (secondsLeft <= 0) {
           stopCountdown()
-          countdown.innerHTML = 'Code expired — <b>resend</b> below'
+          countdown.innerHTML = 'Code expired - <b>resend</b> below'
           resendBtn.disabled = false
           return
         }

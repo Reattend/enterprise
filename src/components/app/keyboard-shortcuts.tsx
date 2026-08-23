@@ -1,6 +1,6 @@
 'use client'
 
-// Global keyboard shortcuts — mounted once at the app layout.
+// Global keyboard shortcuts - mounted once at the app layout.
 //
 // Shortcuts:
 //   ⌘K / Ctrl-K   → Search

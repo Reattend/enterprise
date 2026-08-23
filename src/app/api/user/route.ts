@@ -154,7 +154,7 @@ export async function DELETE(req: NextRequest) {
       const otherMembers = members.filter(m => m.userId !== userId)
 
       if (otherMembers.length === 0) {
-        // Sole member — delete workspace (cascades all workspace data)
+        // Sole member - delete workspace (cascades all workspace data)
         await db.delete(schema.workspaces).where(eq(schema.workspaces.id, ws.id))
       } else {
         // Transfer ownership to another member before removing self
@@ -176,7 +176,7 @@ export async function DELETE(req: NextRequest) {
     await db.delete(schema.sharedLinks).where(eq(schema.sharedLinks.userId, userId))
     await db.delete(schema.usageDaily).where(eq(schema.usageDaily.userId, userId))
 
-    // Delete user — cascades: subscriptions, apiTokens, integrationsConnections, workspaceMembers, chatSessions
+    // Delete user - cascades: subscriptions, apiTokens, integrationsConnections, workspaceMembers, chatSessions
     await db.delete(schema.users).where(eq(schema.users.id, userId))
 
     return NextResponse.json({ success: true })

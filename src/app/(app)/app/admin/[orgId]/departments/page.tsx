@@ -49,7 +49,7 @@ function buildTree(rows: Department[]): TreeNode[] {
   return roots
 }
 
-// Reasonable defaults — real icons are chosen by matching string prefixes so
+// Reasonable defaults - real icons are chosen by matching string prefixes so
 // custom taxonomies (e.g. "Ministry", "Directorate", "Section") still render well.
 function iconForKind(kind: string): typeof Building {
   const k = kind.toLowerCase()
@@ -125,7 +125,7 @@ function DepartmentsPageInner({ params }: { params: { orgId: string } }) {
       setForm({ name: '', kind: kinds[0]?.label || 'department', parentId: '' })
       setShowCreate(false)
       await load()
-      // Broadcast — wiki tabs, sidebar org-tree, etc. should refetch
+      // Broadcast - wiki tabs, sidebar org-tree, etc. should refetch
       // their dept lists so the new node appears without a page reload.
       emit([SCOPES.teams, SCOPES.orgs])
     } finally {
@@ -168,7 +168,7 @@ function DepartmentsPageInner({ params }: { params: { orgId: string } }) {
           <div className="flex-1">
             <div className="text-sm font-medium">This org has no <code className="text-xs px-1 rounded bg-amber-500/15">kind: team</code> department yet</div>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Departments are pure hierarchy boxes. <b>Teams</b> are where memory actually lives — each team-kind dept gets a backing workspace + default project. Without one, captures fall into individuals&apos; personal workspaces and the cockpit reads zero.
+              Departments are pure hierarchy boxes. <b>Teams</b> are where memory actually lives - each team-kind dept gets a backing workspace + default project. Without one, captures fall into individuals&apos; personal workspaces and the cockpit reads zero.
             </p>
           </div>
           <Button
@@ -279,7 +279,7 @@ function DepartmentsPageInner({ params }: { params: { orgId: string } }) {
             <div className="p-4 text-sm text-muted-foreground">Loading…</div>
           ) : rows.length === 0 ? (
             <div className="p-6 text-sm text-muted-foreground text-center">
-              No departments yet. Create your first one above — e.g. &quot;Engineering&quot;.
+              No departments yet. Create your first one above - e.g. &quot;Engineering&quot;.
             </div>
           ) : (
             <ul className="divide-y divide-border">

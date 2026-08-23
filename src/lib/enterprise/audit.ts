@@ -3,7 +3,7 @@ import { auditLog, organizationMembers, users } from '../db/schema'
 import { and, eq, desc, gte, lte } from 'drizzle-orm'
 import { createHash } from 'crypto'
 
-// WORM chain — each audit row references the previous row's hash. Tampering
+// WORM chain - each audit row references the previous row's hash. Tampering
 // with any historical row breaks the chain from that point forward, which
 // the `verifyAuditChain` endpoint surfaces to admins.
 //
@@ -32,7 +32,7 @@ export type AuditAction =
 export interface AuditEntry {
   organizationId: string
   userId?: string | null
-  userEmail: string // required, denormalized — survives user deletion
+  userEmail: string // required, denormalized - survives user deletion
   action: AuditAction
   departmentId?: string | null
   resourceType?: string
@@ -42,7 +42,7 @@ export interface AuditEntry {
   metadata?: Record<string, unknown>
 }
 
-// Immutable write — no update/delete API is exposed. Callers that need to
+// Immutable write - no update/delete API is exposed. Callers that need to
 // record a mistake should write a NEW audit entry, not mutate an existing one.
 // Additionally, every write computes rowHash = sha256(prevHash + payload) so
 // the chain survives tamper attempts (tamper → mismatched hash → flagged by
@@ -79,7 +79,7 @@ export async function writeAudit(entry: AuditEntry): Promise<void> {
   })
 }
 
-// Fire-and-forget variant for hot paths (ask/query logging) — never blocks
+// Fire-and-forget variant for hot paths (ask/query logging) - never blocks
 // the response. Errors are swallowed to `console.error` so observability
 // still picks them up but user-facing latency is unaffected.
 export function writeAuditAsync(entry: AuditEntry): void {
@@ -142,7 +142,7 @@ export async function verifyAuditChain(organizationId: string): Promise<{
       metadata: r.metadata ?? null,
       createdAt: r.createdAt,
     })
-    // Historical rows pre-WORM migration won't have a rowHash — treat as
+    // Historical rows pre-WORM migration won't have a rowHash - treat as
     // unverifiable but not broken.
     if (!r.rowHash) {
       prev = r.rowHash
@@ -189,9 +189,9 @@ export async function queryAudit(filters: AuditQueryFilters) {
 
 // Retention pruning is the ONLY write that removes audit entries. Government
 // deployments typically set retention to 0 (infinite). Callers must pass an
-// explicit retention window — there is no default, to avoid accidental purges.
+// explicit retention window - there is no default, to avoid accidental purges.
 // Fan-out: audit an action across every active org the user belongs to.
-// Used by routes like /api/ask that serve both personal and enterprise users —
+// Used by routes like /api/ask that serve both personal and enterprise users -
 // personal-only users have zero active org memberships, so this is a no-op for them.
 // Fire-and-forget.
 export function auditForAllUserOrgs(

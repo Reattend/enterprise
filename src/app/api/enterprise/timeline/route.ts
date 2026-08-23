@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 // GET /api/enterprise/timeline
 // ?orgId=...                          (required)
-// &at=<ISO>                           (required — the instant to compute state at)
+// &at=<ISO>                           (required - the instant to compute state at)
 // &anchor=all|topic|person|dept       (optional, default 'all')
 // &value=<tag/name|userId|deptId>     (required if anchor != 'all')
 //
@@ -24,8 +24,8 @@ export const dynamic = 'force-dynamic'
 //   - activeDecisions: 6 decisions that were active (not reversed/superseded) at `at`
 //   - headline: one-sentence synthesis (future: Claude-generated)
 //
-// Why this exists: this is the "Time Machine" — scrub a slider and see what
-// the org looked like then. The computation is strictly historical — a
+// Why this exists: this is the "Time Machine" - scrub a slider and see what
+// the org looked like then. The computation is strictly historical - a
 // decision superseded last week but live at `at=3-months-ago` shows as active.
 
 interface TimelineState {
@@ -57,11 +57,11 @@ export async function GET(req: NextRequest) {
     const atIso = at.toISOString()
 
     // ── Workspaces the user can see ───────────────────────
-    // Strict scoping (no mixing) — mirrors /api/records and
+    // Strict scoping (no mixing) - mirrors /api/records and
     // /api/enterprise/graph. Two modes:
     //   - orgId provided: scope to workspaces linked to that org. Decisions
     //     + policies for this org are also queryable.
-    //   - orgId omitted: personal workspace ONLY. No decisions/policies —
+    //   - orgId omitted: personal workspace ONLY. No decisions/policies -
     //     those are org-only concepts and stay zero. The records timeline
     //     (memory growth over 24 months) is the part the Personal context
     //     cares about.
@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
     // Active = decidedAt <= at AND (reversedAt is null or reversedAt > at) AND
     // not superseded by a decision that was already active at `at`.
     //
-    // Solo (no-orgId) mode: skip — decisions are an org-only concept.
+    // Solo (no-orgId) mode: skip - decisions are an org-only concept.
     const allDecisions = orgId
       ? await db.select().from(schema.decisions)
           .where(and(
@@ -178,7 +178,7 @@ export async function GET(req: NextRequest) {
     }).length
 
     // ── Published policies as of `at` ─────────────────────
-    // Solo (no-orgId) mode: skip — policies are an org-only concept.
+    // Solo (no-orgId) mode: skip - policies are an org-only concept.
     const polCount = orgId
       ? (await db.select({ value: count() }).from(schema.policies)
           .where(and(

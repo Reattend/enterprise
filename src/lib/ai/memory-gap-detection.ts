@@ -2,7 +2,7 @@ import { db, schema } from '../db'
 import { eq, and, gte, like, inArray } from 'drizzle-orm'
 import { getLLM } from './llm'
 
-// Memory gap detection — fires Friday 08:00–09:00 UTC.
+// Memory gap detection - fires Friday 08:00–09:00 UTC.
 // Finds topics/people the user has recurring activity around but sparse memory coverage.
 // Creates actionable inbox prompts: "You've been in 4 meetings with X but have no notes about them."
 export async function runMemoryGapDetection(): Promise<{ sent: number }> {
@@ -209,7 +209,7 @@ Write 2-3 sentences summarizing these gaps and what the user should prioritize c
           workspaceId: ws.id,
           userId: member.userId,
           type: 'system',
-          title: `Memory gaps detected — ${topGaps.length} areas to capture`,
+          title: `Memory gaps detected - ${topGaps.length} areas to capture`,
           body: summary.slice(0, 500),
           objectType: 'memory_gap',
           objectId: ws.id,

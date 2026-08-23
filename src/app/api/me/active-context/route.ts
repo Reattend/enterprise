@@ -26,7 +26,7 @@ type Context = PersonalContext | OrgContext
 
 // GET /api/me/active-context
 // Returns the user's last-picked context. If they have orgs but never
-// picked one, returns Personal — clients should fall back to their own
+// picked one, returns Personal - clients should fall back to their own
 // "auto-pick first org for first-load hybrid users" logic; this endpoint
 // only stores explicit picks.
 export async function GET() {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       if (!body.orgId || typeof body.orgId !== 'string') {
         return NextResponse.json({ error: 'orgId is required when context is "org"' }, { status: 400 })
       }
-      // Verify membership — without this, anyone could pin themselves to
+      // Verify membership - without this, anyone could pin themselves to
       // any org id and the topbar would happily render it (until the
       // org-scoped APIs 403'd them).
       const membership = await db

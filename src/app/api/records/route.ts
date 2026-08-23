@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
             inArray(schema.workspaceMembers.workspaceId, orgWsIds),
           ))
         for (const m of myMemberships) accessibleWsIds.add(m.workspaceId)
-        // Admin auto-access — super_admin / admin sees all org workspaces.
+        // Admin auto-access - super_admin / admin sees all org workspaces.
         const orgRole = await db
           .select({ role: schema.organizationMembers.role })
           .from(schema.organizationMembers)
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
         }
       }
     } else {
-      // Personal context — only the user's personal/auth-default workspace.
+      // Personal context - only the user's personal/auth-default workspace.
       accessibleWsIds.add(workspaceId)
     }
 
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ record: existing, deduplicated: true })
     }
 
-    // Save immediately with defaults — AI enrichment runs in background
+    // Save immediately with defaults - AI enrichment runs in background
     const recordId = crypto.randomUUID()
     const title = content.slice(0, 60)
     const hash = contentHash(content)
@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
     //  2. the Agent Logs UI actually shows something (it reads job_queue)
     //  3. permanent failures create an inbox notification
     await enqueueJob(workspaceId, 'ingest', { recordId, content })
-    // Kick the worker immediately — don't await, don't block the response.
+    // Kick the worker immediately - don't await, don't block the response.
     processAllPendingJobs().catch(e => console.error('[records] worker kick failed:', e))
 
     const reqMeta = extractRequestMeta(req)
@@ -286,7 +286,7 @@ export async function PUT(req: NextRequest) {
       await db.delete(schema.projectRecords)
         .where(eq(schema.projectRecords.recordId, id))
 
-      // Assign to new project (if not null/empty — null means "unassign")
+      // Assign to new project (if not null/empty - null means "unassign")
       if (projectId) {
         // Verify the project belongs to the same workspace
         const project = await db.query.projects.findFirst({

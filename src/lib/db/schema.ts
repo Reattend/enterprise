@@ -10,7 +10,7 @@ export const users = sqliteTable('users', {
   avatarUrl: text('avatar_url'),
   onboardingCompleted: integer('onboarding_completed', { mode: 'boolean' }).default(false),
   // The user's last-picked active context for the topbar switcher. NULL =
-  // Personal context (or no explicit pick yet — the layout's auto-pick
+  // Personal context (or no explicit pick yet - the layout's auto-pick
   // chooses the first org for hybrid users on first visit). When set, holds
   // the orgId. Synced across web, extension, and desktop via
   // /api/me/active-context so picking "Personal" on the desktop also flips
@@ -106,7 +106,7 @@ export const records = sqliteTable('records', {
   //   - org        → everyone in the org
   // Explicit cross-dept/user sharing lives in record_shares.
   visibility: text('visibility', { enum: ['private', 'team', 'department', 'org'] }).notNull().default('team'),
-  // Verification cadence (Guru-style). Owner sets an interval — at expiry the
+  // Verification cadence (Guru-style). Owner sets an interval - at expiry the
   // record shows as Stale. Null means no cadence (never goes stale).
   verifyEveryDays: integer('verify_every_days'), // 30 / 60 / 90 / null
   lastVerifiedAt: text('last_verified_at'),      // ISO
@@ -116,7 +116,7 @@ export const records = sqliteTable('records', {
   // (7/50/etc years for gov retention schedules). ocrConfidence 0-1 surfaces
   // low-confidence scans for human review.
   legalHold: integer('legal_hold', { mode: 'boolean' }).notNull().default(false),
-  retentionUntil: text('retention_until'), // ISO date — no deletion before this
+  retentionUntil: text('retention_until'), // ISO date - no deletion before this
   ocrConfidence: real('ocr_confidence'),   // 0-1, null for non-OCR records
   createdBy: text('created_by').notNull(), // user id or 'agent'
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -303,7 +303,7 @@ export const plans = sqliteTable('plans', {
 export const subscriptions = sqliteTable('subscriptions', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  planKey: text('plan_key').notNull(), // legacy ('normal' | 'smart') — kept for back-compat with old Personal Reattend rows
+  planKey: text('plan_key').notNull(), // legacy ('normal' | 'smart') - kept for back-compat with old Personal Reattend rows
   status: text('status', { enum: ['active', 'trialing', 'canceled', 'past_due', 'expired'] }).notNull().default('active'),
   // Tier is the source of truth for what the user can access. 'free' is the
   // default for any signup; 'professional' / 'enterprise' are flipped by
@@ -348,7 +348,7 @@ export const integrationsConnections = sqliteTable('integrations_connections', {
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
   tokenExpiresAt: text('token_expires_at'),
-  settings: text('settings'), // JSON — domain whitelist, sync prefs
+  settings: text('settings'), // JSON - domain whitelist, sync prefs
   lastSyncedAt: text('last_synced_at'),
   syncError: text('sync_error'),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -442,7 +442,7 @@ export const otpCodes = sqliteTable('otp_codes', {
 // ─── Account links ──────────────────────────────────────
 // Lets a user with multiple Reattend accounts (e.g. personal Gmail +
 // work email) link them and switch between them in one tab without
-// re-logging in. Both sides verify ownership via OTP — see
+// re-logging in. Both sides verify ownership via OTP - see
 // account_link_requests below for the pending-verification rows.
 //
 // Storage: one row per linked pair, with userAId always lexically less
@@ -460,7 +460,7 @@ export const accountLinks = sqliteTable('account_links', {
   userBIdx: index('account_links_user_b_idx').on(t.userBId),
 }))
 
-// Pending link requests — created when user A asks to link a target
+// Pending link requests - created when user A asks to link a target
 // email, deleted on confirm or expiry. The OTP code is sent to
 // targetEmail; the target user must sign in (if not already) and
 // enter the code to confirm. 10-minute expiry like other OTPs.
@@ -702,7 +702,7 @@ export const chatSessions = sqliteTable('chat_sessions', {
 }))
 
 // ─── Entity Profiles (LLM-maintained running summaries per entity) ──────────
-// Built incrementally as records are created — used to answer "what has X done"
+// Built incrementally as records are created - used to answer "what has X done"
 // queries without scanning every individual record at query time.
 export const entityProfiles = sqliteTable('entity_profiles', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -765,13 +765,13 @@ export const organizations = sqliteTable('organizations', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
-  primaryDomain: text('primary_domain'), // e.g. "acme.com" — used for SSO domain-match
+  primaryDomain: text('primary_domain'), // e.g. "acme.com" - used for SSO domain-match
   plan: text('plan', { enum: ['free', 'professional', 'enterprise'] }).notNull().default('free'),
   deployment: text('deployment', { enum: ['saas', 'on_prem', 'air_gapped'] }).notNull().default('saas'),
   onPremRabbitUrl: text('on_prem_rabbit_url'),
   seatLimit: integer('seat_limit'),
   status: text('status', { enum: ['active', 'suspended', 'canceled'] }).notNull().default('active'),
-  settings: text('settings'), // JSON — retention days, default role, etc.
+  settings: text('settings'), // JSON - retention days, default role, etc.
   createdBy: text('created_by').notNull().references(() => users.id),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
@@ -837,7 +837,7 @@ export const departmentMembers = sqliteTable('department_members', {
 
 // ─── Hot Cache ─────────────────────────────────────────────
 // Karpathy's "_hot.md" idea, applied per-org. A small (~500-token) markdown
-// digest of "what's actively hot this week" — top decisions, top contributors,
+// digest of "what's actively hot this week" - top decisions, top contributors,
 // open threads, recent significant events. Prepended to every Ask/Chat
 // query as system context so the model has top-of-mind grounding without
 // burning RAG tokens on known-hot info.
@@ -863,7 +863,7 @@ export const hotCache = sqliteTable('hot_cache', {
 
 // ─── Permission Overrides ─────────────────────────────────
 // Per-user grants/revokes on top of role defaults. The classic case: a COO
-// who isn't an admin but does need to see the audit log every week — instead
+// who isn't an admin but does need to see the audit log every week - instead
 // of forcing them into `admin`, grant the one extra permission here.
 // scope = NULL means org-wide; scope = <department_id> means dept-scoped.
 // granted = 1 adds the permission; granted = 0 revokes it from the role default.
@@ -896,7 +896,7 @@ export const employeeRoles = sqliteTable('employee_roles', {
   departmentId: text('department_id').references(() => departments.id, { onDelete: 'set null' }),
   title: text('title').notNull(), // e.g. "VP Engineering", "Finance Controller"
   description: text('description'),
-  // Free-text seniority label — any value per-org taxonomy. Historic defaults:
+  // Free-text seniority label - any value per-org taxonomy. Historic defaults:
   // ic/lead/manager/director/vp/c_level. Government values: Secretary/JS/DS/...
   seniority: text('seniority'),
   // Integer rank for sorting. Lower = more senior. Populated from
@@ -940,7 +940,7 @@ export const decisions = sqliteTable('decisions', {
   title: text('title').notNull(),
   context: text('context'), // why this decision was needed
   rationale: text('rationale'), // why this option was chosen
-  outcome: text('outcome'), // what actually happened — filled in later
+  outcome: text('outcome'), // what actually happened - filled in later
   decidedByUserId: text('decided_by_user_id').references(() => users.id),
   decidedByRoleId: text('decided_by_role_id').references(() => employeeRoles.id), // survives user departures
   decidedAt: text('decided_at').notNull(),
@@ -962,14 +962,14 @@ export const decisions = sqliteTable('decisions', {
 
 // ─── Audit Log ────────────────────────────────────────────
 // Immutable. Separate from activity_log (which is per-workspace product events).
-// Audit log captures every query, every read, every admin action — with IP, UA,
+// Audit log captures every query, every read, every admin action - with IP, UA,
 // and denormalized user email so records survive user deletion for retention.
 export const auditLog = sqliteTable('audit_log', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   organizationId: text('organization_id').notNull(),
   departmentId: text('department_id'),
   userId: text('user_id'),
-  userEmail: text('user_email').notNull(), // denormalized — survives user deletion
+  userEmail: text('user_email').notNull(), // denormalized - survives user deletion
   action: text('action', { enum: [
     'query', 'read', 'create', 'update', 'delete', 'export',
     'login', 'logout', 'sso_login', 'role_change',
@@ -981,7 +981,7 @@ export const auditLog = sqliteTable('audit_log', {
   resourceId: text('resource_id'),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-  metadata: text('metadata'), // JSON — query text, old/new values, etc.
+  metadata: text('metadata'), // JSON - query text, old/new values, etc.
   // WORM chain. Every audit row links to the previous one via sha256. A gap
   // or a bad hash means tampering. prevHash is the previous row's rowHash;
   // rowHash is sha256(prevHash || canonicalJson(thisRow)).
@@ -1054,7 +1054,7 @@ export const workspaceOrgLinks = sqliteTable('workspace_org_links', {
 }))
 
 // ─── AI Agents ────────────────────────────────────────────
-// Purpose-built AI helpers — each one is Chat with a specific system prompt,
+// Purpose-built AI helpers - each one is Chat with a specific system prompt,
 // scoped to specific knowledge sources. Org-level (available to everyone),
 // departmental (scoped to dept members), or personal (one user only).
 // Deployment targets: web (default), slack, teams, email, api.
@@ -1161,7 +1161,7 @@ export const enterpriseInvites = sqliteTable('enterprise_invites', {
 }))
 
 // ─── Record Role Ownership ────────────────────────────────
-// Links a record to the employee role that owns it. Survives user departure —
+// Links a record to the employee role that owns it. Survives user departure -
 // when the next person takes the role, they inherit access automatically.
 export const recordRoleOwnership = sqliteTable('record_role_ownership', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -1184,7 +1184,7 @@ export const recordRoleOwnership = sqliteTable('record_role_ownership', {
 //
 // We cache the summary here so we don't re-call the LLM on every page load.
 // The cache is invalidated when any linked record is updated (see staleAfter).
-// Each row covers exactly one (org, pageType, pageKey) — pageKey is a deptId,
+// Each row covers exactly one (org, pageType, pageKey) - pageKey is a deptId,
 // a normalized topic slug, or a userId depending on pageType.
 export const wikiSummaries = sqliteTable('wiki_summaries', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -1204,7 +1204,7 @@ export const wikiSummaries = sqliteTable('wiki_summaries', {
 }))
 
 // ─── Policies (enterprise, versioned, ack-tracked) ────────
-// The authoritative store of "how we do things here" — travel, security, HR,
+// The authoritative store of "how we do things here" - travel, security, HR,
 // IT, finance, compliance. Every edit creates a new row in policy_versions;
 // policies.currentVersionId points at the live one. Acks are per (user,
 // policyVersionId) so changing a policy requires re-acknowledgment by default
@@ -1273,7 +1273,7 @@ export const policyAcknowledgments = sqliteTable('policy_acknowledgments', {
 // ─── Agent Queries (analytics / per-agent logging) ────────
 // Every query handled by a named agent gets a row here. The chat API writes
 // these inline so the analytics tab doesn't need to scan chat_sessions JSON.
-// Ratings come from the existing ask_feedback flow — we denormalize a copy
+// Ratings come from the existing ask_feedback flow - we denormalize a copy
 // so per-agent "avg rating" queries stay fast.
 export const agentQueries = sqliteTable('agent_queries', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -1337,7 +1337,7 @@ export const transferEvents = sqliteTable('transfer_events', {
 
 // ─── OCR jobs ─────────────────────────────────────────────
 // One row per uploaded document in the OCR pipeline. Tracks status end-to-end
-// — pending / processing / completed / failed / needs_review. Produces zero
+// - pending / processing / completed / failed / needs_review. Produces zero
 // or one memory records (on success). Stores confidence + redaction count so
 // the admin OCR quality dashboard has real numbers, not theatre.
 export const ocrJobs = sqliteTable('ocr_jobs', {
@@ -1370,7 +1370,7 @@ export const ocrJobs = sqliteTable('ocr_jobs', {
 // ─── Announcements ────────────────────────────────────────
 // Guru-style pinned banner. Admin creates; shows at top of every page for
 // all org members until dismissed (per-user) or expires. Plain text (with
-// markdown rendering on the client) — not policies, not memories.
+// markdown rendering on the client) - not policies, not memories.
 export const announcements = sqliteTable('announcements', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
@@ -1460,7 +1460,7 @@ export const exitInterviews = sqliteTable('exit_interviews', {
   organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
   departingUserId: text('departing_user_id').notNull().references(() => users.id),
   initiatedByUserId: text('initiated_by_user_id').notNull().references(() => users.id),
-  roleTitle: text('role_title'), // optional — free-text role/title of the person leaving
+  roleTitle: text('role_title'), // optional - free-text role/title of the person leaving
   status: text('status', { enum: ['draft', 'in_progress', 'completed', 'archived'] }).notNull().default('draft'),
   // JSON array of { id, topic, question, answer|null, answeredAt|null }. Single
   // source of truth for the Q&A thread. No separate answers table.

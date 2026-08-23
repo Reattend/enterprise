@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: '*Reattend Slash Commands*\n`/reattend save [note]` — Save a note to your Reattend memory\n`/reattend search [query]` — Search your Reattend memories',
+          text: '*Reattend Slash Commands*\n`/reattend save [note]` - Save a note to your Reattend memory\n`/reattend search [query]` - Search your Reattend memories',
         },
       },
       {

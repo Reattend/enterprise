@@ -1,6 +1,6 @@
 'use client'
 
-// The Wiki — the org's living map. Three tabs / lenses:
+// The Wiki - the org's living map. Three tabs / lenses:
 //   - Hierarchy: dept tree
 //   - Topics:    tags / entities
 //   - People:    members, with knowledge-at-risk flag on offboarded
@@ -54,7 +54,7 @@ function WikiContent() {
   const { activeEnterpriseOrgId, enterpriseOrgs, hasHydratedStore } = useAppStore()
   const [query, setQuery] = useState('')
 
-  // Tab counts — each tab calls back with its loaded count so the tab strip
+  // Tab counts - each tab calls back with its loaded count so the tab strip
   // can show ("Hierarchy 14"). Stored in a single map keyed by tab.
   const [counts, setCounts] = useState<Partial<Record<TabKey, number>>>({})
 
@@ -119,7 +119,7 @@ function WikiContent() {
           <div>
             <h1>The living map of <em>{activeOrgName}</em>.</h1>
             <p className="sub">
-              Every department, topic, and person — auto-summarized from the memories the AI has captured. Nothing here is hand-written; everything stays in sync as the org changes.
+              Every department, topic, and person - auto-summarized from the memories the AI has captured. Nothing here is hand-written; everything stays in sync as the org changes.
             </p>
           </div>
           <div className="wiki-head-tools">

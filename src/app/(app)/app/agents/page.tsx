@@ -85,7 +85,7 @@ export default function AgentsPage() {
           </div>
           <h1 className="font-display text-3xl tracking-tight mb-2">Agents are a team-plan feature</h1>
           <p className="text-sm text-muted-foreground max-w-prose mx-auto mb-6 leading-relaxed">
-            Agents are AI personas with a specific knowledge scope — Policy Helper, Decision Lookup, HR Onboarding, and custom ones you build. They live inside an organization and serve everyone in it.
+            Agents are AI personas with a specific knowledge scope - Policy Helper, Decision Lookup, HR Onboarding, and custom ones you build. They live inside an organization and serve everyone in it.
           </p>
           <p className="text-sm text-muted-foreground max-w-prose mx-auto mb-8 leading-relaxed">
             On Solo (your current plan) you can already chat with the AI across your own memory at <Link href="/app/ask" className="text-foreground underline underline-offset-2">/app/ask</Link>. To unlock named agents, deploy targets, and per-agent scopes, start a team plan.
@@ -201,7 +201,7 @@ export default function AgentsPage() {
                 </div>
               </Card>
 
-              {/* Action agents — distinct from chat agents. These DO things
+              {/* Action agents - distinct from chat agents. These DO things
                   (draft, send, create) instead of just answering. v1 is two
                   live action agents + 6 coming-soon; real send-integrations
                   land with Nango in Sprint P. */}
@@ -244,7 +244,7 @@ export default function AgentsPage() {
       {/* Activity tab */}
       {tab === 'activity' && <ActivityTab />}
 
-      {/* Agent chat drawer — slide-in from the right */}
+      {/* Agent chat drawer - slide-in from the right */}
       <AgentChatDrawer agentId={openAgentId} onClose={() => setOpenAgentId(null)} />
     </div>
   )
@@ -373,7 +373,7 @@ function AgentRunNowButton({ agentId }: { agentId: string }) {
       setRunning(false)
     }
   }
-  // Labeled pill instead of a bare lightning icon — the user shouldn't have to
+  // Labeled pill instead of a bare lightning icon - the user shouldn't have to
   // hover to figure out what it does. "Run now" admin-fires the agent against
   // recent memory; the result lands as a new memory record.
   return (

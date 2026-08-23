@@ -15,7 +15,7 @@ import { getNangoConfig } from '@/lib/integrations/nango/client'
 // for Nango's scheduled sync.
 //
 // Unlike /sync, backfill paginates through next_cursor until exhausted or
-// the page cap is hit. Synchronous — we don't enqueue a job because the
+// the page cap is hit. Synchronous - we don't enqueue a job because the
 // user is watching a spinner.
 export async function POST(req: NextRequest) {
   try {

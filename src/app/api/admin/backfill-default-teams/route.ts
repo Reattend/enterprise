@@ -1,5 +1,5 @@
 // One-shot backfill: provision a "General" team for every org that has
-// zero workspace_org_links rows. Idempotent — safe to run repeatedly.
+// zero workspace_org_links rows. Idempotent - safe to run repeatedly.
 //
 // Gated to authenticated users who are super_admin of at least one
 // organization. The backfill itself only touches orgs that have

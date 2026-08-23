@@ -23,7 +23,7 @@ export const dynamic = 'force-dynamic'
 // memory so it's searchable and lives in the org's knowledge graph.
 //
 // Unlike Exit Interview Agent (which asks the person questions), Handoff
-// Generator is one-click — it synthesizes from what's already captured. Use
+// Generator is one-click - it synthesizes from what's already captured. Use
 // it when the departing person has left, can't be reached, or you just need
 // a fast overview.
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       : 'No authored memories on file.'
 
     const decisionsBlock = decisions.length > 0
-      ? decisions.map((d, i) => `[D${i + 1}] ${d.title}${d.rationale ? ` — ${d.rationale.slice(0, 200)}` : ''}${d.status !== 'active' ? ` (${d.status})` : ''}`).join('\n')
+      ? decisions.map((d, i) => `[D${i + 1}] ${d.title}${d.rationale ? ` - ${d.rationale.slice(0, 200)}` : ''}${d.status !== 'active' ? ` (${d.status})` : ''}`).join('\n')
       : 'No decisions on file.'
 
     const prompt = `Write a PERSONALIZED HANDOFF DOCUMENT. ${fromName} is leaving; ${toName} is taking over${scope ? ` ${scope}` : ''}. The successor should be able to read this and get productive in 30 minutes on day one.
@@ -105,12 +105,12 @@ ${fromName}'S DECISIONS:
 ${decisionsBlock}
 
 Write the handoff with these H2 sections:
-1. ## What you're inheriting — 2-3 sentences, then the 3 most important things to know
-2. ## Key active decisions — bullet the top 5, with cite [D#] and one sentence on what it means
-3. ## Projects & work in flight — bullet, name concretely, cite [M#]
-4. ## People you'll interact with — inferred from the memories (don't invent)
-5. ## Watch-outs — reversed/superseded decisions that might be tried again, known risks from memory content
-6. ## Where to go next — which memories to open first (list 5 with [M#] citations)
+1. ## What you're inheriting - 2-3 sentences, then the 3 most important things to know
+2. ## Key active decisions - bullet the top 5, with cite [D#] and one sentence on what it means
+3. ## Projects & work in flight - bullet, name concretely, cite [M#]
+4. ## People you'll interact with - inferred from the memories (don't invent)
+5. ## Watch-outs - reversed/superseded decisions that might be tried again, known risks from memory content
+6. ## Where to go next - which memories to open first (list 5 with [M#] citations)
 
 Rules:
 - Cite from the memory list using [M#] and [D#]. Every concrete claim needs a citation.
@@ -141,7 +141,7 @@ Rules:
         workspaceId: ws,
         type: 'context',
         title: `Handoff · ${fromName} → ${toName}${scope ? ` (${scope})` : ''}`,
-        summary: `Personalized handoff doc generated from ${fromName}'s memory footprint — ${authored.length} memories, ${decisions.length} decisions. Intended for ${toName}.`,
+        summary: `Personalized handoff doc generated from ${fromName}'s memory footprint - ${authored.length} memories, ${decisions.length} decisions. Intended for ${toName}.`,
         content: handoffDoc,
         confidence: 0.85,
         tags: JSON.stringify(['handoff', 'role-transfer', scope || 'general']),

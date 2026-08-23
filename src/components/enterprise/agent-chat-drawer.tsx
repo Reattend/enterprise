@@ -108,7 +108,7 @@ export function AgentChatDrawer({ agentId, onClose }: AgentChatDrawerProps) {
       })
 
       if (!res.ok || !res.body) {
-        setErr('Chat failed — check server logs')
+        setErr('Chat failed - check server logs')
         setStreaming(false)
         return
       }

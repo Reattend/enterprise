@@ -7,7 +7,7 @@
 // wizard, policy applicability, and anywhere else we pick a dept.
 //
 // Keeps the tree logic here (not in each caller) so every picker behaves
-// the same way — one breadcrumb, one indent pattern, one filter.
+// the same way - one breadcrumb, one indent pattern, one filter.
 
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronRight, ChevronDown, Building2, Search, X } from 'lucide-react'

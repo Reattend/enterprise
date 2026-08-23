@@ -86,7 +86,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ eve
     ).join('\n')
 
     const decisionsBlock = decisionsRaw.map((d, i) =>
-      `[D${i + 1}] ${d.title}${d.rationale ? ` — ${d.rationale.slice(0, 200)}` : ''} (${d.status})`
+      `[D${i + 1}] ${d.title}${d.rationale ? ` - ${d.rationale.slice(0, 200)}` : ''} (${d.status})`
     ).join('\n')
 
     const attendeesBlock = attendeeUsers.map((u) => `- ${u.name || u.email}`).join('\n') || '(none in org)'
@@ -106,7 +106,7 @@ ${memoriesBlock || '(none found)'}
 RELATED DECISIONS:
 ${decisionsBlock || '(none found)'}
 
-Output format — PLAIN markdown, these exact H3 sections:
+Output format - PLAIN markdown, these exact H3 sections:
 ### Heads-up
 One sentence on the single most important thing to walk in knowing.
 
@@ -122,7 +122,7 @@ No preamble, no closing, no "I hope this helps."`
     try {
       if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
       if (relatedRecords.length === 0 && decisionsRaw.length === 0) {
-        brief = `### Heads-up\nNo prior context in your memory for this topic yet — it's either new or nobody's captured it.\n\n### Context\n— This meeting is not linked to any existing memory.\n\n### Open questions\n— What's the goal of this meeting, and who should own the follow-up?`
+        brief = `### Heads-up\nNo prior context in your memory for this topic yet - it's either new or nobody's captured it.\n\n### Context\n- This meeting is not linked to any existing memory.\n\n### Open questions\n- What's the goal of this meeting, and who should own the follow-up?`
       } else {
         const llm = getAskLLM()
         brief = await llm.generateText(prompt, 600)
@@ -130,7 +130,7 @@ No preamble, no closing, no "I hope this helps."`
     } catch (err) {
       console.warn('[meeting-prep]', err)
       brief = memoriesBlock
-        ? `### Heads-up\nPrep synthesis unavailable — raw context below.\n\n### Related memories\n${memoriesBlock}`
+        ? `### Heads-up\nPrep synthesis unavailable - raw context below.\n\n### Related memories\n${memoriesBlock}`
         : '### Heads-up\nNo prior context and Claude unavailable.'
     }
 

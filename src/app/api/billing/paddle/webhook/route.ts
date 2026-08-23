@@ -13,7 +13,7 @@ import { priceIdToTier } from '@/lib/billing/tier'
 //   transaction.completed, transaction.payment_failed
 //
 // Signature verification uses the Notification Secret from Paddle (never the
-// API key). On signature failure we return 401 — Paddle retries with backoff.
+// API key). On signature failure we return 401 - Paddle retries with backoff.
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
 // Subscription lifecycle: created/updated/activated/past_due all collapse into
 // the same "make sure the DB row reflects what Paddle says" upsert. We key off
-// custom_data.userId — set on the transaction by /api/billing/checkout — to
+// custom_data.userId - set on the transaction by /api/billing/checkout - to
 // know which Reattend user this subscription belongs to.
 async function handleSubscriptionEvent(data: any) {
   const userId = data?.customData?.userId

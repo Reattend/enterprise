@@ -18,7 +18,7 @@ export const normalizeSlack: NangoNormalizer = (r): NormalizedRawItem | null => 
   const channel = asText(pick(r, ['channel', 'channel_name', 'channelName']))
   const occurredAt = asIso(pick(r, ['ts', 'timestamp', 'event_ts']))
 
-  const labeled = [channel && `#${channel}`, user && `@${user}`, text].filter(Boolean).join(' — ').trim()
+  const labeled = [channel && `#${channel}`, user && `@${user}`, text].filter(Boolean).join(' - ').trim()
 
   return {
     externalId: `slack:${externalId}`,

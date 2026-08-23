@@ -12,7 +12,7 @@ import { writeAuditAsync, extractRequestMeta, emailMatchesOrgDomain, isPersonalE
 //
 // Policy recap: Reattend Enterprise is a separate product. When a personal
 // user forwards the link, they're forced to sign up with the invited work
-// email — we enforce exact-match here.
+// email - we enforce exact-match here.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     if (userEmail !== invite.email.toLowerCase()) {
       return NextResponse.json({
         error: 'email mismatch',
-        message: `This invite is for ${invite.email}. Sign in with that email to accept — do not use a personal account.`,
+        message: `This invite is for ${invite.email}. Sign in with that email to accept - do not use a personal account.`,
         invitedEmail: invite.email,
         signedInEmail: userEmail,
       }, { status: 403 })

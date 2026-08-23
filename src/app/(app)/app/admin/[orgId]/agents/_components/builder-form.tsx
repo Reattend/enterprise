@@ -1,6 +1,6 @@
 'use client'
 
-// Shared agent builder — used for both /new and /edit.
+// Shared agent builder - used for both /new and /edit.
 // Left pane: config. Right pane: live test-chat. Test-chat drafts are saved
 // every time the user edits the system prompt or scope, so hitting "Publish"
 // is just a status change. Drafts are isolated per user.
@@ -67,7 +67,7 @@ const PROMPT_TEMPLATES: Record<string, string> = {
   blank: '',
   hr: `You are the HR Assistant for the organization. You help employees understand company policies, benefits, leave rules, and compliance obligations.
 
-Tone: warm, precise, professional. Never make up rules — always cite the policy or memory you're drawing from.
+Tone: warm, precise, professional. Never make up rules - always cite the policy or memory you're drawing from.
 
 When a question is ambiguous, ask a clarifying question before answering.`,
   legal: `You are the Legal Assistant. You help employees understand contract clauses, compliance obligations, and company legal positions taken in past decisions.
@@ -513,7 +513,7 @@ function ApiKeysCard({ agentId, orgId }: { agentId: string; orgId: string }) {
           <EyeOff className="h-3.5 w-3.5 mt-0.5 text-amber-600 shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="text-xs font-medium text-amber-900 dark:text-amber-200">
-              Copy this key now — it won't be shown again
+              Copy this key now - it won't be shown again
             </div>
             <div className="mt-1.5 flex items-center gap-1.5">
               <code className="bg-muted px-2 py-1 rounded text-[11px] font-mono flex-1 truncate">{justCreated.plaintext}</code>

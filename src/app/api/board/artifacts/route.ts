@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 
-// POST /api/board/artifacts — create a record + optionally a recordLink from board
+// POST /api/board/artifacts - create a record + optionally a recordLink from board
 export async function POST(req: NextRequest) {
   try {
     const { workspaceId, userId } = await requireAuth()

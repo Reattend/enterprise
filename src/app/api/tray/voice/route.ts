@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (!transcript) {
-    return NextResponse.json({ error: 'empty transcript — no speech detected' }, { status: 422 })
+    return NextResponse.json({ error: 'empty transcript - no speech detected' }, { status: 422 })
   }
 
-  // Brain-dump flow — extension asks for transcript only, then paints it into a text UI
+  // Brain-dump flow - extension asks for transcript only, then paints it into a text UI
   if (transcriptOnly) {
     return NextResponse.json({ transcript })
   }

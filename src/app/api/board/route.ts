@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 
-// GET /api/board — load the default board for the workspace (create if needed)
+// GET /api/board - load the default board for the workspace (create if needed)
 export async function GET() {
   try {
     const { workspaceId } = await requireAuth()
@@ -35,7 +35,7 @@ export async function GET() {
   }
 }
 
-// PUT /api/board — save the board state
+// PUT /api/board - save the board state
 export async function PUT(request: NextRequest) {
   try {
     const { workspaceId } = await requireAuth()

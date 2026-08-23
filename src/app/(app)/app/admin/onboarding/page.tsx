@@ -15,7 +15,7 @@ type Plan = 'free' | 'professional' | 'enterprise'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
 
 // Plan tiles match the live billing tiers in src/lib/db/schema.ts.
-// New orgs default to Free — they upgrade later from the billing page.
+// New orgs default to Free - they upgrade later from the billing page.
 // Government is sales-led + custom-quoted, so it's not a self-serve tile.
 const PLANS: { key: Plan; name: string; price: string; desc: string; recommended?: boolean }[] = [
   { key: 'free', name: 'Free', price: '$0', desc: 'Try Reattend Enterprise. 100 AI questions/month, 90-day retention.' },
@@ -48,7 +48,7 @@ function OrgOnboardingContent() {
   const [slug, setSlug] = useState('')
   const [primaryDomain, setPrimaryDomain] = useState('')
   const [plan, setPlan] = useState<Plan>('free')
-  // Debounced slug availability check — runs on every slug change so the user
+  // Debounced slug availability check - runs on every slug change so the user
   // finds out the slug is taken before hitting Continue.
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle')
   useEffect(() => {
@@ -139,7 +139,7 @@ function OrgOnboardingContent() {
       // navigating. Without this, the app layout's redirect effect sees
       // an empty enterpriseOrgs array and bounces the user back to
       // /app/admin/onboarding, then the onboarding page (which fetches
-      // its own list) bounces them forward to the cockpit — visible as
+      // its own list) bounces them forward to the cockpit - visible as
       // the "glitch loop" the user reported.
       const store = useAppStore.getState()
       store.setEnterpriseOrgs([
@@ -154,7 +154,7 @@ function OrgOnboardingContent() {
         },
       ])
       store.setActiveEnterpriseOrgId(newOrg.id)
-      // Skip the /departments waystation — go straight to the cockpit.
+      // Skip the /departments waystation - go straight to the cockpit.
       router.replace(`/app/admin/${newOrg.id}`)
     } catch (e) {
       setError((e as Error).message)
@@ -164,14 +164,14 @@ function OrgOnboardingContent() {
   }
 
   // Slug must not be taken/invalid before step 1 advances. Idle/checking are
-  // permitted so the user isn't blocked while debounce is in flight — server
+  // permitted so the user isn't blocked while debounce is in flight - server
   // re-checks on submit anyway and the create-org route returns 409 'slug already taken'.
   const canAdvance1 = name.trim().length >= 2 && slugStatus !== 'taken' && slugStatus !== 'invalid'
   const canAdvance2 = true // plan always has a default
   const canSubmit = canAdvance1
 
   // While we check if the user already has an org, show a minimal loading state
-  // rather than the form — avoids the "why is this asking me again" confusion.
+  // rather than the form - avoids the "why is this asking me again" confusion.
   if (existingOrgCheck !== 'clear') {
     return (
       <div className="max-w-3xl mx-auto py-20 px-4 text-center">
@@ -259,7 +259,7 @@ function OrgOnboardingContent() {
                 slugStatus === 'available' ? 'text-emerald-600' :
                 'text-muted-foreground',
               )}>
-                {slugStatus === 'taken' ? 'That slug is already taken — try another.' :
+                {slugStatus === 'taken' ? 'That slug is already taken - try another.' :
                  slugStatus === 'invalid' ? 'Slug must start with a letter or number; only lowercase, numbers, and hyphens allowed.' :
                  slugStatus === 'available' ? 'Available.' :
                  'Lowercase letters, numbers, and hyphens only.'}
@@ -280,7 +280,7 @@ function OrgOnboardingContent() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Just the domain (e.g. <code className="font-mono">acme.com</code>) — no <code>@</code>, no email address.
+                Just the domain (e.g. <code className="font-mono">acme.com</code>) - no <code>@</code>, no email address.
                 Invites and sign-ups will be restricted to this domain.
                 You must be signed in with an @{primaryDomain || 'acme.com'} email to create the org.
               </p>

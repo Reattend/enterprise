@@ -27,7 +27,7 @@ const categories = [
      },
      {
        q: 'Do I need to install anything?',
-       a: 'No installation needed. Reattend is a web app — sign up at reattend.com and start saving memories. Connect Notion to auto-sync your pages, or use the Chrome extension to capture from any web page. Import meeting transcripts from Read.ai, Fireflies, or Otter by dragging files into the Import tool.',
+       a: 'No installation needed. Reattend is a web app - sign up at reattend.com and start saving memories. Connect Notion to auto-sync your pages, or use the Chrome extension to capture from any web page. Import meeting transcripts from Read.ai, Fireflies, or Otter by dragging files into the Import tool.',
      },
    ],
  },

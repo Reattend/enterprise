@@ -25,12 +25,12 @@ export default function Page() {
     <Suspense fallback={
       <GamePageFallback
         title="Team Superlatives"
-        description={'"Most likely to..." voting for your team. Nominate colleagues for fun categories — most likely to become CEO, most likely to reply-all accidentally. Then vote and crown your superstars.'}
+        description={'"Most likely to..." voting for your team. Nominate colleagues for fun categories - most likely to become CEO, most likely to reply-all accidentally. Then vote and crown your superstars.'}
         steps={[
           'Browse the "most likely to..." categories or add your own.',
           'Nominate a teammate who best fits each description.',
           'Everyone votes for their pick in each category.',
-          'Reveal the winners — and prepare for some friendly debate.',
+          'Reveal the winners - and prepare for some friendly debate.',
         ]}
       />
     }>

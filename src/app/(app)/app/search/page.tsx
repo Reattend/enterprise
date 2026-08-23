@@ -100,7 +100,7 @@ export default function SearchPage() {
       <div className="mb-6">
         <h1 className="font-display text-4xl tracking-tight mb-1">Search</h1>
         <p className="text-sm text-muted-foreground">
-          Every memory, decision, policy, and transcript your organization has ever captured — searchable in real time.
+          Every memory, decision, policy, and transcript your organization has ever captured - searchable in real time.
         </p>
       </div>
 
@@ -204,7 +204,7 @@ export default function SearchPage() {
               </div>
               {typeFilter && (
                 <p className="text-[11px] text-muted-foreground mt-4">
-                  Filtering by <strong>{typeFilter}</strong> — <button onClick={() => setTypeFilter('')} className="underline hover:text-primary">clear filter</button> to broaden.
+                  Filtering by <strong>{typeFilter}</strong> - <button onClick={() => setTypeFilter('')} className="underline hover:text-primary">clear filter</button> to broaden.
                 </p>
               )}
             </Card>

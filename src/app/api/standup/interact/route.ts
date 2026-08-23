@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `📋 *#${config.channelName || 'standup'}* — Fill in your update:`,
+                text: `📋 *#${config.channelName || 'standup'}* - Fill in your update:`,
               },
             },
             ...inputBlocks,
@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
             elements: [
               {
                 type: 'mrkdwn',
-                text: '_Powered by <https://reattend.com/free-standup-bot|Reattend Standups> — Free async standups for Slack_',
+                text: '_Powered by <https://reattend.com/free-standup-bot|Reattend Standups> - Free async standups for Slack_',
               },
             ],
           },
@@ -289,7 +289,7 @@ export async function POST(req: NextRequest) {
         let expectedCount = participants.length
 
         if (expectedCount === 0) {
-          // Channel-based — get member count
+          // Channel-based - get member count
           const team = await db.query.standupTeams.findFirst({
             where: eq(schema.standupTeams.id, config.teamId),
           })
@@ -320,7 +320,7 @@ export async function POST(req: NextRequest) {
             )
             const postRes = await standupSlackPost('chat.postMessage', team.botToken, {
               channel: config.channelId,
-              text: `📋 Standup Summary — ${session.date}`,
+              text: `📋 Standup Summary - ${session.date}`,
               blocks,
             })
             await db.update(schema.standupSessions)

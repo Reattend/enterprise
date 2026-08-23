@@ -13,7 +13,7 @@ export function InboxBanner() {
     <div className="flex items-center gap-3 bg-amber-50 border-b border-amber-200 px-4 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-200">
       <span className="text-base leading-none">⚠️</span>
       <span className="flex-1">
-        Reattend needs your attention —{' '}
+        Reattend needs your attention -{' '}
         <strong>{inboxUnread} {inboxUnread === 1 ? 'memory' : 'memories'}</strong> flagged for review.{' '}
         <Link href="/app/inbox" className="underline underline-offset-2 font-semibold hover:opacity-80">
           View inbox →

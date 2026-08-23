@@ -11,7 +11,7 @@
 //
 // `useRevalidate` also refetches when the tab regains focus, so a name
 // changed in another tab/window propagates the next time the user
-// returns to this one — without an explicit broadcast.
+// returns to this one - without an explicit broadcast.
 
 import { useEffect } from 'react'
 

@@ -2,7 +2,7 @@
 
 import { PermissionGate } from '@/components/enterprise/permission-gate'
 
-// OCR — batch upload, job queue, quality dashboard.
+// OCR - batch upload, job queue, quality dashboard.
 //
 // The gov-track hero page. Admin drops a folder of scanned documents;
 // each file becomes an ocr_jobs row; the worker OCRs, redacts PII,
@@ -173,7 +173,7 @@ function OCRPageInner({ params }: { params: { orgId: string } }) {
           <Stat
             icon={FileScan}
             label="Avg confidence"
-            value={stats.avgConfidence != null ? `${Math.round(stats.avgConfidence * 100)}%` : '—'}
+            value={stats.avgConfidence != null ? `${Math.round(stats.avgConfidence * 100)}%` : '-'}
             sub={`flag rate ${Math.round(stats.flagRate * 100)}%`}
             tone={stats.avgConfidence != null && stats.avgConfidence > 0.85 ? 'ok' : stats.avgConfidence != null && stats.avgConfidence < 0.6 ? 'warning' : undefined}
           />
@@ -198,7 +198,7 @@ function OCRPageInner({ params }: { params: { orgId: string } }) {
             <h2 className="text-sm font-semibold">Drop scanned documents here</h2>
             <p className="text-xs text-muted-foreground mt-1">
               PNG / JPG / TIFF / WEBP / PDF. Up to 20 files per batch, 25MB each. Text-layer PDFs
-              go through pdf-parse (fast). Scanned images go through Tesseract (slower — ~5s/page).
+              go through pdf-parse (fast). Scanned images go through Tesseract (slower - ~5s/page).
               <br />
               <span className="text-[11px] opacity-80">v1 limitation: scanned PDFs without a text layer must be re-uploaded as per-page images. Multi-page rasterization is on the post-launch roadmap.</span>
             </p>

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       messages: JSON.stringify(messages || []),
     })
 
-    // Enforce rolling 30 limit — delete oldest beyond MAX_CHATS
+    // Enforce rolling 30 limit - delete oldest beyond MAX_CHATS
     const all = await db.query.chatSessions.findMany({
       where: eq(schema.chatSessions.userId, userId),
       orderBy: desc(schema.chatSessions.updatedAt),

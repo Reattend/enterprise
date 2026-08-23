@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
         <div style="text-align: center;">
           <p style="font-size: 13px; color: #999; margin: 0 0 12px;">
-            Reattend is your AI-powered memory layer. Capture decisions, meetings, and insights — all in one place.
+            Reattend is your AI-powered memory layer. Capture decisions, meetings, and insights - all in one place.
           </p>
           <a href="https://reattend.com" style="font-size: 13px; color: #4F46E5; text-decoration: none; font-weight: 500;">
             Try Reattend free &rarr;

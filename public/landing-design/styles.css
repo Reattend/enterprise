@@ -1,4 +1,4 @@
-/* ============== Reattend Landing — Design Tokens ============== */
+/* ============== Reattend Landing - Design Tokens ============== */
 :root {
   --bg: oklch(0.985 0.005 80);
   --bg-2: oklch(0.97 0.008 80);
@@ -165,7 +165,7 @@ a { color: inherit; text-decoration: none; }
 .btn-ghost { color: var(--ink-2); }
 .btn-ghost:hover { background: var(--bg-2); color: var(--ink); }
 
-/* Outlined button — white background, crisp black border, dark text.
+/* Outlined button - white background, crisp black border, dark text.
    The Sign in pair to the filled .btn-primary "Try for free" CTA. */
 .btn-outline, .btn-amber-edge {
   background: var(--bg-paper);
@@ -2248,7 +2248,7 @@ footer {
   font-family: var(--sans, 'Inter', system-ui, sans-serif);
 }
 
-/* ============ Chrome browser mock — fixed layout ============ */
+/* ============ Chrome browser mock - fixed layout ============ */
 .browser-mock {
   position: relative;
   border-radius: 12px;
@@ -2434,7 +2434,7 @@ footer {
   }
 }
 
-/* ============ Testimonial — bigger, framed, intentional ============ */
+/* ============ Testimonial - bigger, framed, intentional ============ */
 .testimonial-section {
   padding: clamp(80px, 10vw, 140px) var(--pad);
   background: var(--bg-paper);
@@ -2950,13 +2950,13 @@ footer {
 }
 
 /* ═════════════════════════════════════════════════════════════════════
- * Mobile UX patch — added 2026-05-03
+ * Mobile UX patch - added 2026-05-03
  *
  * Targets the consistent surfaces that show on every marketing page
  * (topbar, hero, footer) plus a few global typography/padding
  * adjustments. Page-specific layouts (sandbox personas, integrations
  * tile grid, pricing tier cards) already collapse via their own page
- * CSS — those rules stay.
+ * CSS - those rules stay.
  * ═════════════════════════════════════════════════════════════════════ */
 
 @media (max-width: 760px) {
@@ -2974,7 +2974,7 @@ footer {
   .topbar .btn { padding: 8px 12px; font-size: 13px; }
   .topbar .btn-ghost { display: none; }
 
-  /* Generic hero spacing — most pages set their own clamp() heading
+  /* Generic hero spacing - most pages set their own clamp() heading
      sizes so this just tightens the surrounding padding. */
   .hero-v2 { padding-top: 40px !important; padding-bottom: 40px !important; }
   .hero-v2-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
@@ -3026,7 +3026,7 @@ footer {
 
 
 /* ═════════════════════════════════════════════════════════════════════
- * Mobile hamburger menu — added 2026-05-03
+ * Mobile hamburger menu - added 2026-05-03
  *
  * Markup is injected by /landing-design/mobile-menu.js on page load:
  *   <button class="mobile-menu-trigger">…</button>   (added to .topbar-inner)

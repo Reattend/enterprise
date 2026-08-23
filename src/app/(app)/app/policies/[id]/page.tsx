@@ -1,6 +1,6 @@
 'use client'
 
-// Policy detail page — full body, ack button, version history, diff viewer.
+// Policy detail page - full body, ack button, version history, diff viewer.
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -289,7 +289,7 @@ export default function PolicyDetailPage() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <GitCompare className="h-3.5 w-3.5 text-muted-foreground" />
-              {diff ? `Diff v${diff.from?.versionNumber ?? '—'} → v${diff.to.versionNumber}` : 'Diff'}
+              {diff ? `Diff v${diff.from?.versionNumber ?? '-'} → v${diff.to.versionNumber}` : 'Diff'}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => setShowDiff(false)}>Close</Button>
           </div>

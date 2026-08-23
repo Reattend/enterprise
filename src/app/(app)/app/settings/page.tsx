@@ -184,7 +184,7 @@ export default function SettingsPage() {
         setShowToken(true)
         setApiTokens(prev => [{ id: data.id, name: tokenName || 'My App', prefix: data.prefix, lastUsedAt: null, createdAt: new Date().toISOString() }, ...prev])
         setTokenName('My App')
-        toast.success('API key generated — copy it now, it won\'t be shown again')
+        toast.success('API key generated - copy it now, it won\'t be shown again')
       } else {
         toast.error(data.error || 'Failed to generate key')
       }
@@ -600,7 +600,7 @@ export default function SettingsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (!file) return
-                          if (file.size > 2_000_000) { toast.error('Image too large — max 2MB'); return }
+                          if (file.size > 2_000_000) { toast.error('Image too large - max 2MB'); return }
                           const reader = new FileReader()
                           reader.onload = () => {
                             const dataUrl = reader.result as string
@@ -676,7 +676,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Linked accounts — for users with multiple Reattend accounts
+          {/* Linked accounts - for users with multiple Reattend accounts
               (e.g. personal Gmail + work email). Shipping behind the
               same Profile tab so it's discoverable; can move to its own
               tab if it grows. */}
@@ -947,7 +947,7 @@ export default function SettingsPage() {
         {/* Preferences */}
         <TabsContent value="preferences" className="space-y-4 mt-4">
           {/* Theme switcher was a dead control (defaultValue with no
-              onValueChange) — removed. Theme is system-driven via the
+              onValueChange) - removed. Theme is system-driven via the
               `<html class="dark">` toggle in the layout. Bring it back
               when we have a real theme provider wired up. */}
 
@@ -1097,10 +1097,10 @@ export default function SettingsPage() {
                     <Chrome className="h-4 w-4 text-[#4F46E5]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold">Chrome extension — setup in 60 seconds</h3>
+                    <h3 className="text-sm font-semibold">Chrome extension - setup in 60 seconds</h3>
                     <ol className="text-xs text-muted-foreground mt-2 space-y-1 list-decimal list-inside">
                       <li>Generate a key below with name &ldquo;Chrome Extension&rdquo;. Copy it (shown once).</li>
-                      <li>Install: <a className="text-primary hover:underline" target="_blank" rel="noreferrer" href="https://github.com/Reattend/enterprise-extension#install">github.com/Reattend/enterprise-extension</a> — load unpacked until Chrome Web Store release.</li>
+                      <li>Install: <a className="text-primary hover:underline" target="_blank" rel="noreferrer" href="https://github.com/Reattend/enterprise-extension#install">github.com/Reattend/enterprise-extension</a> - load unpacked until Chrome Web Store release.</li>
                       <li>Open the extension&apos;s options page, paste your token, set base URL to <code className="bg-background px-1 py-0.5 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : 'https://reattend.com'}</code>.</li>
                       <li>Pick which apps to track (or inherit your org&apos;s required list from admin policy).</li>
                     </ol>
@@ -1125,13 +1125,13 @@ export default function SettingsPage() {
                   </Button>
                 </div>
 
-                {/* Newly generated token — shown once */}
+                {/* Newly generated token - shown once */}
                 {newToken && (
                   <div className="rounded-xl border border-[#4F46E5]/30 bg-[#4F46E5]/5 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-semibold text-[#4F46E5]">Your new API key</p>
                       <Badge variant="outline" className="text-[10px] border-amber-400/40 text-amber-500 bg-amber-500/5">
-                        Copy now — shown once
+                        Copy now - shown once
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1221,7 +1221,7 @@ export default function SettingsPage() {
   )
 }
 
-// Data controls — GDPR self-export + right-to-erasure. Both tied to the
+// Data controls - GDPR self-export + right-to-erasure. Both tied to the
 // authenticated user. The erase flow requires typing "ERASE <email>" as a
 // server-enforced anti-footgun.
 function DataControlsCard() {

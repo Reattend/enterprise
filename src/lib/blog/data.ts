@@ -34,11 +34,11 @@ export const BLOG_POSTS: BlogPost[] = [
     faq: [
       {
         q: 'What is organizational amnesia?',
-        a: 'Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire — taking their context, decisions, relationships, and unwritten know-how with them. Researchers estimate it costs US companies $31.5 billion per year.',
+        a: 'Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire - taking their context, decisions, relationships, and unwritten know-how with them. Researchers estimate it costs US companies $31.5 billion per year.',
       },
       {
         q: 'Is organizational amnesia the same as knowledge management?',
-        a: 'No. Knowledge management is about storing information. Organizational memory is about preserving and connecting the knowledge that lives in human heads — context, decisions, rationale, relationships — even after the humans leave. A company can have great knowledge management (well-organized wiki) and still have terrible organizational amnesia.',
+        a: 'No. Knowledge management is about storing information. Organizational memory is about preserving and connecting the knowledge that lives in human heads - context, decisions, rationale, relationships - even after the humans leave. A company can have great knowledge management (well-organized wiki) and still have terrible organizational amnesia.',
       },
       {
         q: 'How do I measure organizational amnesia in my company?',
@@ -46,11 +46,11 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         q: 'What is the difference between organizational amnesia and knowledge debt?',
-        a: 'Knowledge debt is the cost of writing things down later (or never). Organizational amnesia is the consequence — the actual loss of knowledge that has already happened. Knowledge debt is the IOU; amnesia is the bankruptcy.',
+        a: 'Knowledge debt is the cost of writing things down later (or never). Organizational amnesia is the consequence - the actual loss of knowledge that has already happened. Knowledge debt is the IOU; amnesia is the bankruptcy.',
       },
       {
         q: 'Can AI fix organizational amnesia?',
-        a: 'AI helps with the capture and retrieval problem — it can summarize meetings, extract decisions, structure exit interviews, and answer questions over a knowledge base. But AI alone does not fix amnesia. The fix requires combining capture (AI helps), structure (a memory model that includes decisions, rationale, and context), and culture (people actually trust the system enough to use it).',
+        a: 'AI helps with the capture and retrieval problem - it can summarize meetings, extract decisions, structure exit interviews, and answer questions over a knowledge base. But AI alone does not fix amnesia. The fix requires combining capture (AI helps), structure (a memory model that includes decisions, rationale, and context), and culture (people actually trust the system enough to use it).',
       },
       {
         q: 'Is organizational amnesia worse in remote companies?',

@@ -17,7 +17,7 @@ export class RabbitNotConfiguredError extends Error {
   constructor() {
     super(
       'Rabbit is not configured. Set RABBIT_API_URL and RABBIT_API_KEY in .env.local. ' +
-      'Reattend has no fallback LLM — it is Rabbit-only by design.'
+      'Reattend has no fallback LLM - it is Rabbit-only by design.'
     )
     this.name = 'RabbitNotConfiguredError'
   }
@@ -165,7 +165,7 @@ function normalizeTriageOutput(raw: any): any {
 
 // ─── FastEmbed Singleton ─────────────────────────────────
 // Lazily initialized local embedding model (BGE-Base-EN-v1.5, 768-dim).
-// Runs entirely in-process — zero external API calls for embeddings.
+// Runs entirely in-process - zero external API calls for embeddings.
 // This is deliberate: it's what lets Rabbit deployments go fully on-prem.
 let _fastEmbedInstance: any = null
 let _fastEmbedInitPromise: Promise<any> | null = null
@@ -192,7 +192,7 @@ async function getFastEmbed(): Promise<any> {
 // into the next retrain cycle as a failure case. Grep the logs by
 // prompt_hash to find exactly what the model saw and produced.
 function hashPrompt(text: string): string {
-  // Simple djb2 hash — fast, stable, 12-char hex. Not cryptographic.
+  // Simple djb2 hash - fast, stable, 12-char hex. Not cryptographic.
   let hash = 5381
   for (let i = 0; i < text.length; i++) {
     hash = ((hash << 5) + hash) + text.charCodeAt(i)
@@ -346,7 +346,7 @@ class RabbitProvider {
   async generateTextStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
     // Rabbit's /v1/raw is not yet streaming. We collect the whole text and
     // stream it as a single chunk so the caller interface stays consistent.
-    // Retry once if the first response is suspiciously short — Rabbit
+    // Retry once if the first response is suspiciously short - Rabbit
     // occasionally returns junk like "htahtah" on long follow-up prompts,
     // and a quick resample almost always fixes it.
     let text = await this.rawCall(null, prompt, 4096, 0.2, 'generateTextStream')
@@ -401,14 +401,14 @@ class RabbitFastEmbedProvider implements LLMProvider {
 // Used for /api/ask (answering user questions). Claude is 10x faster and
 // dramatically better at multi-turn, follow-ups, temporal reasoning, and
 // meta-instructions ("summarize what you said", "draft an email from this").
-// Ingestion stays on Groq/Rabbit — it's structured JSON extraction.
+// Ingestion stays on Groq/Rabbit - it's structured JSON extraction.
 //
 // Two-tier model usage to control cost (Sonnet ~3x more expensive than Haiku):
 // - Sonnet 4.6: high-stakes user-facing answers (chat, oracle, compose,
 //   handoff plans, blast radius, exit interviews, agent runs)
 // - Haiku 4.5: background/triage/matching (start-my-day, meeting-prep,
 //   brain-dump, ask-experts matching, wiki summarization, tray snippets)
-// Routed via getAskLLM(userEmail, intent) — see bottom of this file.
+// Routed via getAskLLM(userEmail, intent) - see bottom of this file.
 const CLAUDE_SONNET_MODEL = 'claude-sonnet-4-6'
 const CLAUDE_HAIKU_MODEL = 'claude-haiku-4-5-20251001'
 
@@ -501,7 +501,7 @@ class ClaudeProvider implements LLMProvider {
   }
 
   async embed(text: string): Promise<number[]> {
-    // Claude doesn't do embeddings — use FastEmbed (same as Rabbit path)
+    // Claude doesn't do embeddings - use FastEmbed (same as Rabbit path)
     const model = await getFastEmbed()
     const truncated = text.slice(0, 8000)
     const gen = model.embed([truncated])
@@ -515,7 +515,7 @@ class ClaudeProvider implements LLMProvider {
 // ─── Groq Provider ──────────────────────────────────────
 // Primary ingestion provider. Llama 3.3 70B on Groq is fast (1-2s),
 // free tier covers early stage, and handles structured extraction well.
-// Replaces Rabbit as primary for reliability — Rabbit runs as batch
+// Replaces Rabbit as primary for reliability - Rabbit runs as batch
 // re-enrichment every 6 hours instead.
 class GroqProvider implements LLMProvider {
   private apiKey: string

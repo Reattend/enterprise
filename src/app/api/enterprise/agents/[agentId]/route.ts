@@ -9,7 +9,7 @@ import {
 } from '@/lib/enterprise'
 
 // GET /api/enterprise/agents/[agentId]
-// Returns the agent config — used by Chat to load system prompt + scope.
+// Returns the agent config - used by Chat to load system prompt + scope.
 // We don't deeply RBAC here beyond org membership because agents are discovery;
 // the actual access is enforced by the chat's record scoping.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {

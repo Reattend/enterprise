@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       id: result.id,
       token: result.token, // Only returned once at creation
       prefix: result.prefix,
-      message: 'Save this token — it will not be shown again.',
+      message: 'Save this token - it will not be shown again.',
     })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {

@@ -5,7 +5,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { fetchDiscovery, buildAuthorizeUrl } from '@/lib/sso/oidc'
 
-// Dynamic — uses searchParams + cookies, never safe to pre-render.
+// Dynamic - uses searchParams + cookies, never safe to pre-render.
 export const dynamic = 'force-dynamic'
 
 // GET /api/sso/initiate?email=foo@acme.com
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       where: and(eq(schema.ssoConfigs.domain, domain), eq(schema.ssoConfigs.enabled, true)),
     })
     if (!config) {
-      // No SSO for this domain — caller falls back to OTP/password flow.
+      // No SSO for this domain - caller falls back to OTP/password flow.
       return NextResponse.json({ ssoAvailable: false })
     }
     if (!config.metadataUrl || !config.clientId || !config.clientSecretEncrypted) {

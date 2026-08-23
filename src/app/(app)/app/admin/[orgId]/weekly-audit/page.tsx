@@ -77,7 +77,7 @@ function WeeklyAuditPageInner({ params }: { params: { orgId: string } }) {
       <div>
         <h1 className="text-xl font-semibold mb-1">Weekly Audit</h1>
         <p className="text-sm text-muted-foreground">
-          What&apos;s rotting in your knowledge — and where the next leverage point is hiding.
+          What&apos;s rotting in your knowledge - and where the next leverage point is hiding.
           Generated <span className="font-medium">{new Date(audit.generatedAt).toLocaleString()}</span>.
         </p>
       </div>
@@ -93,9 +93,9 @@ function WeeklyAuditPageInner({ params }: { params: { orgId: string } }) {
           <div className="flex-1">
             <p className="text-sm leading-relaxed">
               {audit.scoreBucket === 'excellent' && 'Your organizational memory is in great shape. Capture is happening, decisions have rationale, contributors are spread, stale content is being trimmed. Keep the loops running.'}
-              {audit.scoreBucket === 'healthy' && 'Your organizational memory is in solid shape. There are 1-2 patterns to tighten — see the gaps below — but nothing is on fire.'}
+              {audit.scoreBucket === 'healthy' && 'Your organizational memory is in solid shape. There are 1-2 patterns to tighten - see the gaps below - but nothing is on fire.'}
               {audit.scoreBucket === 'weak' && 'Your knowledge has soft spots. Several patterns are pulling the score down. Address the top gap below first; the others tend to follow.'}
-              {audit.scoreBucket === 'critical' && 'Your knowledge is at risk. Multiple patterns are broken at once. Treat the gaps below as triage — pick one, ship the fix, re-run.'}
+              {audit.scoreBucket === 'critical' && 'Your knowledge is at risk. Multiple patterns are broken at once. Treat the gaps below as triage - pick one, ship the fix, re-run.'}
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ function WeeklyAuditPageInner({ params }: { params: { orgId: string } }) {
         <div className="flex items-start gap-2 text-xs text-muted-foreground">
           <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
           <p>
-            v1 of Weekly Audit is deterministic — pure SQL over the last 7 / 90 days.
+            v1 of Weekly Audit is deterministic - pure SQL over the last 7 / 90 days.
             v2 will email this report every Monday morning to org admins, narrated by the AI
             with concrete next-week actions tied to your active priorities.
           </p>

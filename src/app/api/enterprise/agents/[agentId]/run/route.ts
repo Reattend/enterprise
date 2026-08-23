@@ -34,7 +34,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ age
       return NextResponse.json({ error: 'only admins can run agents' }, { status: 403 })
     }
 
-    // Pick workspace — first one linked to the org
+    // Pick workspace - first one linked to the org
     const wsLink = await db.select().from(schema.workspaceOrgLinks)
       .where(eq(schema.workspaceOrgLinks.organizationId, agent.organizationId))
       .limit(1)
@@ -92,7 +92,7 @@ Produce a short, focused output (~200-400 words) appropriate to your role. If yo
       id: recordId,
       workspaceId,
       type: 'context',
-      title: `${agent.name} — run ${new Date().toLocaleDateString()}`,
+      title: `${agent.name} - run ${new Date().toLocaleDateString()}`,
       summary: output.split('\n').find((l) => l.trim().length > 0)?.slice(0, 200) || `${agent.name} agent run`,
       content: output,
       confidence: 0.85,

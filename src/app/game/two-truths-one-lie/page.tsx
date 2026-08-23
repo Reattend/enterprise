@@ -28,7 +28,7 @@ export default function Page() {
         description="The classic icebreaker, digitized. Each person enters two true statements and one believable lie. The team guesses which one is the lie. Free, no signup required."
         steps={[
           'Each player enters two true facts about themselves and one convincing lie.',
-          'The statements are revealed one set at a time — anonymously.',
+          'The statements are revealed one set at a time - anonymously.',
           'The team votes on which statement they think is the lie.',
           'Reveal the answer and hear the story behind the truths.',
         ]}

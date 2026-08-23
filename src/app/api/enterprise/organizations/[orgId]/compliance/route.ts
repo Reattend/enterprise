@@ -9,7 +9,7 @@ import {
 
 // GET /api/enterprise/organizations/[orgId]/compliance
 // Live posture across SOC 2-adjacent controls. Each row is a binary signal
-// derived from actual org state — not a manual checkbox. SOC 2 Type 1 proof
+// derived from actual org state - not a manual checkbox. SOC 2 Type 1 proof
 // requires an external auditor, but this dashboard tells you what's in
 // place and what's missing before they show up.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
         label: 'Strict domain match on invites',
         description: 'Prevents accidental invites to outside emails by requiring primaryDomain match.',
         status: strictDomain ? 'pass' : 'warn',
-        detail: strictDomain ? 'Enabled.' : 'Disabled — invites to any email accepted.',
+        detail: strictDomain ? 'Enabled.' : 'Disabled - invites to any email accepted.',
         action: strictDomain ? null : { label: 'Org settings', href: `/app/admin/${orgId}/settings` },
       },
 

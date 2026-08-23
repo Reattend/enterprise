@@ -25,11 +25,11 @@ export default function Page() {
     <Suspense fallback={
       <GamePageFallback
         title="Hot Takes Board"
-        description="Submit your most controversial work opinions anonymously. The team votes agree or disagree on each take. Discover where your team is united — and where it is deeply divided."
+        description="Submit your most controversial work opinions anonymously. The team votes agree or disagree on each take. Discover where your team is united - and where it is deeply divided."
         steps={[
           'Everyone submits their hottest work-related opinion anonymously.',
           'Takes are revealed one at a time to the whole team.',
-          'Everyone votes agree or disagree — no explanations needed yet.',
+          'Everyone votes agree or disagree - no explanations needed yet.',
           'Debate the closest votes and find out who the real contrarians are.',
         ]}
       />

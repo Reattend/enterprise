@@ -92,7 +92,7 @@ export async function GET(
 // }
 // If body or requiresReAck changes meaningfully, creates a new policy_version
 // row and points currentVersionId at it. When requiresReAck=true (default),
-// old acks still live in the ack table but don't count — new version needs
+// old acks still live in the ack table but don't count - new version needs
 // fresh acks.
 export async function PATCH(
   req: NextRequest,
@@ -163,7 +163,7 @@ export async function PATCH(
 
     await db.update(schema.policies).set(updates).where(eq(schema.policies.id, policyId))
 
-    // Notify all org members on transition to 'published' — they need to see
+    // Notify all org members on transition to 'published' - they need to see
     // "policy X needs your acknowledgment" even if they don't visit the Policies
     // page. Skip if the policy was already published (edit-in-place shouldn't
     // spam everyone).

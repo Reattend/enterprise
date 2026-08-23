@@ -114,7 +114,7 @@ export function buildStandupDmBlocks(
     blocks: [
       {
         type: 'header',
-        text: { type: 'plain_text', text: `📋 Standup — #${channelName}` },
+        text: { type: 'plain_text', text: `📋 Standup - #${channelName}` },
       },
       {
         type: 'section',
@@ -140,7 +140,7 @@ export function buildStandupDmBlocks(
         elements: [
           {
             type: 'mrkdwn',
-            text: '_Powered by <https://reattend.com/free-standup-bot|Reattend Standups> — Free async standups for Slack_',
+            text: '_Powered by <https://reattend.com/free-standup-bot|Reattend Standups> - Free async standups for Slack_',
           },
         ],
       },
@@ -158,7 +158,7 @@ export function buildSummaryBlocks(
   const blocks: any[] = [
     {
       type: 'header',
-      text: { type: 'plain_text', text: `📋 Standup Summary — ${date}` },
+      text: { type: 'plain_text', text: `📋 Standup Summary - ${date}` },
     },
   ]
 

@@ -1,6 +1,6 @@
 // Client-side helper for the linked-accounts switch flow.
 //
-// The server-side /api/auth/switch endpoint only mints an SSO ticket —
+// The server-side /api/auth/switch endpoint only mints an SSO ticket -
 // it can't write the session cookie itself (NextAuth owns that, and
 // hand-rolling Set-Cookie has the documented Chrome silent-drop bug).
 // To actually swap the session, the browser must POST the ticket to

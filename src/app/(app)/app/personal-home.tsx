@@ -1,6 +1,6 @@
 'use client'
 
-// Personal home — what /app renders for users with zero organization
+// Personal home - what /app renders for users with zero organization
 // memberships (Solo Free tier).
 //
 // Deliberately a parallel component (not a conditional branch inside
@@ -43,7 +43,7 @@ export default function PersonalHomePage({ user }: Props) {
 
   useEffect(() => {
     let cancelled = false
-    // Recent records — workspace-scoped, no org needed. /api/records returns
+    // Recent records - workspace-scoped, no org needed. /api/records returns
     // { records, total } when called with includeTotal=1 (already supported).
     fetch('/api/records?limit=5&includeTotal=1')
       .then((r) => r.ok ? r.json() : null)
@@ -113,7 +113,7 @@ export default function PersonalHomePage({ user }: Props) {
             Welcome to Reattend.
           </h2>
           <p style={{ color: 'var(--ink-3)', fontSize: 14, lineHeight: 1.55, margin: '0 0 18px', maxWidth: '60ch' }}>
-            Capture a thought, paste a meeting transcript, or connect an integration. Your memory grows from day one — and you can ask anything across it the moment there's something to ask about.
+            Capture a thought, paste a meeting transcript, or connect an integration. Your memory grows from day one - and you can ask anything across it the moment there's something to ask about.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link href="/app/brain-dump" style={ctaPrimary}>
@@ -126,7 +126,7 @@ export default function PersonalHomePage({ user }: Props) {
         </section>
       )}
 
-      {/* Stat row — two personal-flavored cards. Quota meter intentionally
+      {/* Stat row - two personal-flavored cards. Quota meter intentionally
           deferred to a follow-up: /api/subscription doesn't yet expose
           aiQueriesThisMonth / tier in a stable shape we can rely on. */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 16 }}>
@@ -134,7 +134,7 @@ export default function PersonalHomePage({ user }: Props) {
           icon={<Database className="h-3.5 w-3.5" />}
           tone="ink"
           cap="Memories"
-          val={memoryCount ?? '—'}
+          val={memoryCount ?? '-'}
           foot={memoryCount === 0 ? 'capture your first below' : 'across your personal workspace'}
         />
         <StatCard
@@ -142,7 +142,7 @@ export default function PersonalHomePage({ user }: Props) {
           tone="green"
           cap="Plan"
           val="Solo"
-          foot="free, forever — see /pricing for team plans"
+          foot="free, forever - see /pricing for team plans"
         />
       </section>
 
@@ -189,7 +189,7 @@ export default function PersonalHomePage({ user }: Props) {
         ))}
       </section>
 
-      {/* Bottom: upgrade-to-team prompt — soft, single line */}
+      {/* Bottom: upgrade-to-team prompt - soft, single line */}
       <section style={{
         marginTop: 24,
         padding: '18px 22px',
@@ -202,7 +202,7 @@ export default function PersonalHomePage({ user }: Props) {
       }}>
         <Users className="h-4 w-4" style={{ color: 'var(--brand-ink)', flexShrink: 0 }} />
         <div style={{ flex: 1, fontSize: 13.5, color: 'var(--ink-2)' }}>
-          Want to use Reattend with your team? Create an organization — adds shared workspaces, decision logs, exit interviews, and the Chrome extension.
+          Want to use Reattend with your team? Create an organization - adds shared workspaces, decision logs, exit interviews, and the Chrome extension.
         </div>
         <Link
           href="/app/admin/onboarding"
@@ -220,7 +220,7 @@ export default function PersonalHomePage({ user }: Props) {
   )
 }
 
-// ─── helpers (kept local — same look as the org HomePage StatCard) ───────────
+// ─── helpers (kept local - same look as the org HomePage StatCard) ───────────
 
 const ctaPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px',

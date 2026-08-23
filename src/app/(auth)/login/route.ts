@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { serveLandingPage } from '@/lib/seo/landing-head'
 
-// /login — serves the static signin.html. Inline JS in the HTML wires the
+// /login - serves the static signin.html. Inline JS in the HTML wires the
 // email/OTP/SSO-ticket flows to the existing /api/auth/* endpoints.
 //
 // no-store cache because we ship bug fixes to the OTP submit handler
@@ -9,7 +9,7 @@ import { serveLandingPage } from '@/lib/seo/landing-head'
 // for up to 5 min after deploy.
 //
 // On the test droplet (ALLOW_TEST_PASSWORD_LOGIN=true), the OTP path is
-// dead — seed users use @seed.reattend.local which has no inbox. Redirect
+// dead - seed users use @seed.reattend.local which has no inbox. Redirect
 // /login → /test-login there so testers always land on the right form.
 // Prod doesn't set the env var; redirect doesn't fire.
 

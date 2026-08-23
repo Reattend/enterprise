@@ -1,5 +1,5 @@
 /**
- * Weekly Audit — "what's rotting in your knowledge."
+ * Weekly Audit - "what's rotting in your knowledge."
  *
  * The killer demo line: every other knowledge tool says "we store stuff."
  * Reattend tells you what's stale, who's not contributing, what decisions
@@ -10,7 +10,7 @@
  * v2 (follow-up): LLM-narrated weekly email + "what should we do this week"
  *   suggestions powered by the matrix.
  *
- * Read by `getWeeklyAuditForOrg(orgId)` — synchronous from cache or freshly
+ * Read by `getWeeklyAuditForOrg(orgId)` - synchronous from cache or freshly
  * computed. The admin page just calls this and renders.
  */
 
@@ -24,7 +24,7 @@ export interface WeeklyAudit {
   organizationId: string
   generatedAt: string
 
-  // Headline score 0-100. Heuristic — see scoring section below.
+  // Headline score 0-100. Heuristic - see scoring section below.
   score: number
   scoreBucket: 'critical' | 'weak' | 'healthy' | 'excellent'
 
@@ -55,7 +55,7 @@ export interface WeeklyAudit {
 }
 
 /**
- * Compute the audit for one org. Idempotent — safe to call from a cron or
+ * Compute the audit for one org. Idempotent - safe to call from a cron or
  * on-demand from the admin page. Returns null if the org doesn't exist or
  * has no enterprise workspaces linked.
  */
@@ -73,14 +73,14 @@ export async function getWeeklyAuditForOrg(organizationId: string): Promise<Week
 
   // Bind to org via workspace_org_links so per-record queries can filter
   // through that join. We scope EVERYTHING below to the org's linked
-  // workspaces — never the user's personal workspace.
+  // workspaces - never the user's personal workspace.
   const links = await db
     .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
     .from(schema.workspaceOrgLinks)
     .where(eq(schema.workspaceOrgLinks.organizationId, organizationId))
   const workspaceIds = links.map((l) => l.workspaceId)
   if (workspaceIds.length === 0) {
-    // Org has no enterprise-linked workspaces yet — return a no-op audit
+    // Org has no enterprise-linked workspaces yet - return a no-op audit
     return emptyAudit(organizationId)
   }
   const wsPlaceholders = workspaceIds.map(() => '?').join(',')
@@ -280,7 +280,7 @@ export async function getWeeklyAuditForOrg(organizationId: string): Promise<Week
     })
   }
 
-  // Truncate to top 3 — ranking is by severity, then by order added (which
+  // Truncate to top 3 - ranking is by severity, then by order added (which
   // is roughly leverage order: stale > silent > decisions).
   const sevRank = { critical: 0, warn: 1, info: 2 } as const
   gaps.sort((a, b) => sevRank[a.severity] - sevRank[b.severity])

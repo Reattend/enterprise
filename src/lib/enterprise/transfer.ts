@@ -2,7 +2,7 @@
 //
 // Core claim: in Reattend Enterprise, knowledge stays with the role, not the
 // person. When someone leaves or changes roles, every record they own gets
-// reassigned to whoever holds the role next — no informal handoff email,
+// reassigned to whoever holds the role next - no informal handoff email,
 // no lost tribal knowledge, no "does anyone remember why we did X?".
 //
 // This module computes the "at risk" pool (what a departing user owns that
@@ -22,7 +22,7 @@ export interface AtRiskSnapshot {
   authoredRecords: number
   // Decisions they made (survive via decidedByRoleId, but we surface them)
   decisions: number
-  // Roles they currently hold — these are the successor anchors
+  // Roles they currently hold - these are the successor anchors
   currentRoles: Array<{ roleId: string; title: string; departmentId: string | null }>
   // Records explicitly tied to those roles via record_role_ownership
   roleOwnedRecords: number
@@ -76,7 +76,7 @@ export async function computeAtRisk(organizationId: string, userId: string): Pro
     ))
   const roleIds = roleRows.map((r) => r.roleId)
 
-  // "Role-owned" means the record is anchored to ANY role in this org — not
+  // "Role-owned" means the record is anchored to ANY role in this org - not
   // just the user's current roles. After transfer the user's assignment ends
   // but the record stays on the role, which is exactly the behavior we want.
   // If we only checked the user's current roles, offboarded users would
@@ -108,7 +108,7 @@ export async function computeAtRisk(organizationId: string, userId: string): Pro
 }
 
 // List everyone in the org who has ANY at-risk state. Used to drive the
-// transfer dashboard. Cheaper than running computeAtRisk for every member —
+// transfer dashboard. Cheaper than running computeAtRisk for every member -
 // we aggregate first, then hydrate only non-zero rows.
 export async function listAtRisk(organizationId: string): Promise<Array<AtRiskSnapshot>> {
   const members = await db.select({ userId: schema.organizationMembers.userId })
@@ -228,7 +228,7 @@ export async function performTransfer(input: TransferInput): Promise<TransferRes
     }
   }
 
-  // 4. Decisions touched — we don't reassign them (decidedByUserId is historical
+  // 4. Decisions touched - we don't reassign them (decidedByUserId is historical
   //    truth) but we count them for the event log.
   const [{ value: decisionsTouched }] = await db.select({ value: count() }).from(schema.decisions).where(and(
     eq(schema.decisions.organizationId, input.organizationId),
@@ -271,7 +271,7 @@ export async function listTransferHistory(organizationId: string, userId?: strin
   const where = userId
     ? and(
         eq(schema.transferEvents.organizationId, organizationId),
-        // OR via drizzle is awkward inline — we combine client-side below.
+        // OR via drizzle is awkward inline - we combine client-side below.
       )
     : eq(schema.transferEvents.organizationId, organizationId)
   const rows = await db.select().from(schema.transferEvents).where(where)

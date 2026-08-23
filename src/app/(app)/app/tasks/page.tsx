@@ -1,6 +1,6 @@
 'use client'
 
-// Tasks gallery — every card is a memory-grounded workflow. The point of
+// Tasks gallery - every card is a memory-grounded workflow. The point of
 // this page over plain Claude: each draft is conditioned on the org's
 // actual memory (decisions, meetings, threads, briefs), with citations
 // back to source records. No hallucinated facts.
@@ -41,7 +41,7 @@ export default function TasksPage() {
         <div className="tsk-head">
           <h1>Write from <em>memory</em>, not a blank page.</h1>
           <p className="sub">
-            Pick a workflow. Fill in a couple of fields. The AI drafts it from your org's actual decisions, meetings, and threads — citing each fact inline. Stays inside your tenant.
+            Pick a workflow. Fill in a couple of fields. The AI drafts it from your org's actual decisions, meetings, and threads - citing each fact inline. Stays inside your tenant.
           </p>
         </div>
 

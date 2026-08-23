@@ -14,7 +14,7 @@ import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 
 export const dynamic = 'force-dynamic'
 
-// CORS — Tauri webview origin (tauri://localhost in prod, http://localhost:1420
+// CORS - Tauri webview origin (tauri://localhost in prod, http://localhost:1420
 // in dev). Bearer token is the security boundary; CORS is just for the
 // browser's preflight check.
 const corsHeaders = {
@@ -31,7 +31,7 @@ export async function OPTIONS() {
 // Same JSON contract: { question, dossier, sources, meta }. The dashboard
 // version uses session cookies + an explicit orgId; the desktop talks
 // across all the user's accessible workspaces (matching /api/tray/ask),
-// so orgId is optional — when omitted, we search every workspace the user
+// so orgId is optional - when omitted, we search every workspace the user
 // can see.
 
 interface OracleResponse {
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'no accessible workspaces' }, { status: 403, headers: corsHeaders })
     }
 
-    // Stage 1: FTS retrieval — 150 candidates
+    // Stage 1: FTS retrieval - 150 candidates
     const ftsIds = searchFTS(question, accessibleWs, 150)
     const candidatesScanned = ftsIds.length
     if (ftsIds.length === 0) {
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
           evidence: '',
           risks: '',
           recommendations: 'Capture a few memories about this topic first, then ask again.',
-          unknowns: 'Everything — this question has zero corpus to lean on.',
+          unknowns: 'Everything - this question has zero corpus to lean on.',
         },
         sources: [],
         meta: { candidatesScanned: 0, accessibleFiltered: 0, reranked: 0, elapsedMs: Date.now() - t0 },
@@ -190,7 +190,7 @@ One paragraph summarizing the current state of this question based on the eviden
 - Concrete, actionable bullets. Tie each to the evidence.
 
 ## UNKNOWNS
-Plain paragraph. What the corpus does NOT answer — the question behind the question. If everything is covered, write "None significant." and nothing else.
+Plain paragraph. What the corpus does NOT answer - the question behind the question. If everything is covered, write "None significant." and nothing else.
 
 ---
 

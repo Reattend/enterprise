@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdminAuth } from '@/lib/admin/auth'
 
-// POST — public: submit an integration request
+// POST - public: submit an integration request
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET — admin: list all integration requests
+// GET - admin: list all integration requests
 export async function GET() {
   try {
     await requireAdminAuth()
@@ -44,7 +44,7 @@ export async function GET() {
   }
 }
 
-// PUT — admin: mark as reviewed
+// PUT - admin: mark as reviewed
 export async function PUT(req: NextRequest) {
   try {
     await requireAdminAuth()

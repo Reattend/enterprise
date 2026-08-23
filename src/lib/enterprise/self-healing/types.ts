@@ -7,7 +7,7 @@ export interface Finding {
   severity: FindingSeverity
   title: string
   detail: string
-  // Primary resource this finding is about — a record, a department, a role, etc.
+  // Primary resource this finding is about - a record, a department, a role, etc.
   resourceType: 'record' | 'department' | 'role' | 'record_pair'
   resourceId: string
   // Optional secondary (used for record_pair contradictions)

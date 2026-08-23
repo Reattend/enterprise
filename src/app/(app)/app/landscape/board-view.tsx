@@ -1,10 +1,10 @@
 'use client'
 
-// Board — memory map. ReactFlow canvas of records and inferred links.
+// Board - memory map. ReactFlow canvas of records and inferred links.
 //
 // New design (Landscape.html): violet crumb, serif heading, board-card with
 // legend strip + zoom controls + filter chips. The actual graph is still
-// React Flow — node component restyled with the design's pill-shape (pip
+// React Flow - node component restyled with the design's pill-shape (pip
 // dot + title + monospace sub-text). All wiring preserved verbatim:
 //
 //   - GET /api/enterprise/graph (with optional ?type=)
@@ -60,7 +60,7 @@ const TYPE_META: Record<RecordType, { label: string; color: string }> = {
   transcript: { label: 'Transcripts', color: 'oklch(0.5 0.16 350)' },
 }
 
-// Memory node — design's pill-shape with pip dot, title, optional sub label
+// Memory node - design's pill-shape with pip dot, title, optional sub label
 function MemoryNode({ data, selected }: NodeProps<Node<{ title: string; type: RecordType; sub?: string; dimmed?: boolean }>>) {
   return (
     <div className={cn('lsc-rf-node', selected && 'selected', data.dimmed && 'dimmed')}>
@@ -83,7 +83,7 @@ function MemoryNode({ data, selected }: NodeProps<Node<{ title: string; type: Re
 
 const nodeTypes = { memory: MemoryNode }
 
-// Type-grouped circular layout — same algorithm as before, just inline.
+// Type-grouped circular layout - same algorithm as before, just inline.
 function layout(nodes: GraphNode[]): Map<string, { x: number; y: number }> {
   const positions = new Map<string, { x: number; y: number }>()
   const byType = new Map<RecordType, GraphNode[]>()
@@ -180,7 +180,7 @@ export function BoardView() {
   useEffect(() => { setStateNodes(rfNodes) }, [rfNodes, setStateNodes])
   useEffect(() => { setStateEdges(rfEdges) }, [rfEdges, setStateEdges])
 
-  // Create a new edge on drag-release — optimistic add, then resync on success.
+  // Create a new edge on drag-release - optimistic add, then resync on success.
   const onConnect: OnConnect = useCallback(async (conn: Connection) => {
     if (!conn.source || !conn.target) return
     const tempId = `temp-${Date.now()}`
@@ -210,7 +210,7 @@ export function BoardView() {
     }
   }, [setStateEdges]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard shortcuts — preserved from the old implementation.
+  // Keyboard shortcuts - preserved from the old implementation.
   useEffect(() => {
     const handler = async (ev: KeyboardEvent) => {
       if (ev.key === 'Delete' || ev.key === 'Backspace') {
@@ -452,7 +452,7 @@ export function BoardView() {
         <div className="lsc-foot-note">
           <AlertCircle size={14} strokeWidth={1.8} />
           <div>
-            Drag any node to rearrange. Drag between two nodes to create a manual link — the AI will ask you to label the relationship (e.g. <i>supersedes</i>, <i>contradicts</i>, <i>follows from</i>). Inferred links are dotted; manual links are solid.
+            Drag any node to rearrange. Drag between two nodes to create a manual link - the AI will ask you to label the relationship (e.g. <i>supersedes</i>, <i>contradicts</i>, <i>follows from</i>). Inferred links are dotted; manual links are solid.
           </div>
         </div>
       )}
@@ -460,7 +460,7 @@ export function BoardView() {
   )
 }
 
-// Search bar + zoom controls + fullscreen toggle — sit in the board-bar
+// Search bar + zoom controls + fullscreen toggle - sit in the board-bar
 // chrome (outside the ReactFlow canvas). The zoom buttons broadcast a
 // window CustomEvent that ZoomBridge inside the canvas translates into
 // real ReactFlow zoomIn / zoomOut / fitView calls.
@@ -526,7 +526,7 @@ function BoardSearchAndZoom({
   )
 }
 
-// ZoomBridge — listens for the window 'lsc-board-zoom' events emitted by
+// ZoomBridge - listens for the window 'lsc-board-zoom' events emitted by
 // the chrome zoom buttons and dispatches them to the actual ReactFlow
 // instance. Mounted *inside* the ReactFlowProvider so useReactFlow() works.
 function ZoomBridge({ onZoomChange }: { onZoomChange: (pct: number) => void }) {

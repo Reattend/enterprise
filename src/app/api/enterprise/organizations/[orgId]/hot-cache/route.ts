@@ -27,7 +27,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     if (!row) {
       return NextResponse.json({
         content: null,
-        message: 'No hot cache yet — the worker regenerates hourly.',
+        message: 'No hot cache yet - the worker regenerates hourly.',
       })
     }
 
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 
 // POST /api/enterprise/organizations/[orgId]/hot-cache
 // Regenerate now (admin-only). Useful right after a bulk import or when
-// debugging Ask answers — don't wait for the hourly cron.
+// debugging Ask answers - don't wait for the hourly cron.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -63,6 +63,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
 }
 
 // Force the read helper to be referenced so tree-shaking doesn't drop it
-// when only this file imports from hot-cache.ts (defensive — Next.js bundles
+// when only this file imports from hot-cache.ts (defensive - Next.js bundles
 // per route, this is a no-op at runtime).
 void getHotCacheForOrg

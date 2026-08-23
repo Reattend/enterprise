@@ -26,11 +26,11 @@ const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_CANDIDATES = 30
 const TIMEOUT_MS = 8000
 
-// Renders a candidate into a ~120-word snippet — enough for Haiku to judge
+// Renders a candidate into a ~120-word snippet - enough for Haiku to judge
 // relevance, short enough to keep the batch prompt under 8k tokens.
 function candidateSnippet(r: RerankableRecord): string {
   const preview = (r.summary || r.content || '').replace(/\s+/g, ' ').trim().slice(0, 400)
-  return `${r.title}${r.type ? ` [${r.type}]` : ''}${preview ? ` — ${preview}` : ''}`
+  return `${r.title}${r.type ? ` [${r.type}]` : ''}${preview ? ` - ${preview}` : ''}`
 }
 
 export async function rerankWithClaudeHaiku(

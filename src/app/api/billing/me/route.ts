@@ -6,7 +6,7 @@ import { TIER_LIMITS, type Tier } from '@/lib/billing/tier'
 // GET /api/billing/me
 //
 // Returns the calling user's subscription state shaped for the billing UI.
-// Read-only and idempotent — getOrCreateSubscription will create the row
+// Read-only and idempotent - getOrCreateSubscription will create the row
 // the first time so anyone hitting this implicitly gets a Free row created.
 
 export const dynamic = 'force-dynamic'

@@ -1,6 +1,6 @@
 'use client'
 
-// Trust badge — one-glance signal on every memory.
+// Trust badge - one-glance signal on every memory.
 //
 // Four states, derived server-side (passed in as the `state` prop) OR
 // computed client-side from (verifyEveryDays, lastVerifiedAt):

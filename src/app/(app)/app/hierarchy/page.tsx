@@ -1,6 +1,6 @@
 'use client'
 
-// Org hierarchy — visual org chart, member-visible.
+// Org hierarchy - visual org chart, member-visible.
 //
 // Reads the same /api/enterprise/wiki/tree endpoint the Wiki page uses
 // (already RBAC-aware: returns the depts the calling user has access
@@ -74,7 +74,7 @@ export default function HierarchyPage() {
   }, [depts])
 
   // Total counts for the header sub-line. Counts only `team` rows for the
-  // "X teams" stat — those are the units with backing workspaces. Pure
+  // "X teams" stat - those are the units with backing workspaces. Pure
   // department / division boxes don't carry memory.
   const totals = useMemo(() => {
     const list = depts ?? []
@@ -160,7 +160,7 @@ export default function HierarchyPage() {
                 <Users size={14} strokeWidth={1.8} />
               </div>
               <div className="body">
-                Click any node to jump to that team in Wiki — see members, recent records, decisions, and the auto-generated summary.
+                Click any node to jump to that team in Wiki - see members, recent records, decisions, and the auto-generated summary.
               </div>
             </div>
 

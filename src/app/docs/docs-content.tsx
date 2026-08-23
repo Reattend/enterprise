@@ -48,7 +48,7 @@ const endpoints = [
     method: 'POST',
     path: '/api/tray/capture',
     summary: 'Save a memory',
-    description: 'Save any text to your Reattend memory. Supports deduplication — if you send the same content twice within a short window, the second call is a no-op.',
+    description: 'Save any text to your Reattend memory. Supports deduplication - if you send the same content twice within a short window, the second call is a no-op.',
     auth: true,
     request: {
       fields: [
@@ -104,7 +104,7 @@ const endpoints = [
     method: 'GET',
     path: '/api/tray/ask',
     summary: 'Ask a question',
-    description: 'Ask a natural-language question and get an AI answer grounded in your saved memories. Uses RAG — retrieves relevant context, then generates a response.',
+    description: 'Ask a natural-language question and get an AI answer grounded in your saved memories. Uses RAG - retrieves relevant context, then generates a response.',
     auth: true,
     request: {
       fields: [
@@ -142,7 +142,7 @@ const endpoints = [
   "memories": [
     {
       "id": "rec_xyz789",
-      "title": "Weekly standup — March 27",
+      "title": "Weekly standup - March 27",
       "summary": "Discussed Q2 roadmap, auth migration, and API docs.",
       "type": "meeting",
       "source": "slack",
@@ -154,9 +154,9 @@ const endpoints = [
 ]
 
 const errorTable = [
-  { code: '400', meaning: 'Bad request — missing or invalid parameters.' },
-  { code: '401', meaning: 'Unauthorized — missing or invalid token.' },
-  { code: '429', meaning: 'Rate limited — too many requests.' },
+  { code: '400', meaning: 'Bad request - missing or invalid parameters.' },
+  { code: '401', meaning: 'Unauthorized - missing or invalid token.' },
+  { code: '429', meaning: 'Rate limited - too many requests.' },
   { code: '500', meaning: 'Server error.' },
 ]
 
@@ -238,7 +238,7 @@ export function DocsContent() {
                 Tokens start with <code className="text-sm bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-mono">rat_</code>.
               </p>
               <CodeBlock code={`Authorization: Bearer rat_your_token_here`} />
-              <p className="text-sm text-gray-500 mt-3">Tokens are workspace-scoped. Keep them secret — treat them like a password.</p>
+              <p className="text-sm text-gray-500 mt-3">Tokens are workspace-scoped. Keep them secret - treat them like a password.</p>
             </section>
 
             {/* Endpoints */}

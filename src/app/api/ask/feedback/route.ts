@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { requireAdminAuth } from '@/lib/admin/auth'
 
-// POST — user submits thumbs up or down on an AI answer
+// POST - user submits thumbs up or down on an AI answer
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET — admin: list thumbs-down feedback with user info
+// GET - admin: list thumbs-down feedback with user info
 export async function GET(req: NextRequest) {
   try {
     await requireAdminAuth()
@@ -52,8 +52,8 @@ export async function GET(req: NextRequest) {
       })
       return {
         ...row,
-        userEmail: user?.email || '—',
-        userName: user?.name || '—',
+        userEmail: user?.email || '-',
+        userName: user?.name || '-',
         sourcesArr: row.sources ? JSON.parse(row.sources) : [],
       }
     }))

@@ -5,7 +5,7 @@
 // crawlers see consistent metadata regardless of which Next handler
 // served the page.
 //
-// Honesty rules — same as the marketing copy. This block lands in
+// Honesty rules - same as the marketing copy. This block lands in
 // Google's index verbatim; if it claims something we don't ship, we
 // teach the crawler the wrong story. Anything load-bearing here
 // should match what /compliance, /pricing, /product actually say.
@@ -20,13 +20,13 @@ export const JSON_LD_GRAPH = {
       url: 'https://reattend.com',
       logo: 'https://reattend.com/black_logo.svg',
       sameAs: [
-        // Sister content domains — same brand, separate authority play.
+        // Sister content domains - same brand, separate authority play.
         // See docs/organizational-amnesia-domains.md.
         'https://organizationalamnesia.com',
         'https://organisationalamnesia.com',
       ],
       description:
-        'Reattend is the organizational memory layer for fast-moving teams. Decisions, context, and the why behind them — captured, linked, and recalled even when people leave, transfer, or change roles.',
+        'Reattend is the organizational memory layer for fast-moving teams. Decisions, context, and the why behind them - captured, linked, and recalled even when people leave, transfer, or change roles.',
     },
     {
       '@type': 'WebSite',
@@ -35,7 +35,7 @@ export const JSON_LD_GRAPH = {
       name: 'Reattend',
       publisher: { '@id': 'https://reattend.com/#organization' },
       description:
-        'Organizational memory that never forgets — the memory layer your wiki can\'t give you.',
+        'Organizational memory that never forgets - the memory layer your wiki can\'t give you.',
       potentialAction: {
         '@type': 'SearchAction',
         target: {
@@ -71,7 +71,7 @@ export const JSON_LD_GRAPH = {
           name: 'Free',
           price: '0',
           priceCurrency: 'USD',
-          description: 'Try Reattend with the public sandbox — no card, no signup.',
+          description: 'Try Reattend with the public sandbox - no card, no signup.',
         },
         {
           '@type': 'Offer',
@@ -109,7 +109,7 @@ export const JSON_LD_GRAPH = {
         'Decision log with rationale, reversal tracking, and Blast Radius dependency view',
         'Structured exit interviews that capture institutional knowledge',
         'Knowledge transfer to roles, not individuals',
-        'Time Machine: point-in-time queries — see what the org knew on any date',
+        'Time Machine: point-in-time queries - see what the org knew on any date',
         'Weekly Audit: tells you what is rotting in your knowledge base',
         'Self-healing contradiction detection',
         'Hash-chained WORM audit log',
@@ -126,7 +126,7 @@ export const JSON_LD_GRAPH = {
           acceptedAnswer: {
             '@type': 'Answer',
             // First sentence is the AEO-quotable definition. Keep it tight.
-            text: 'Organizational amnesia is the loss of institutional knowledge that occurs when employees leave, transfer, or retire — taking their context, decisions, relationships, and unwritten know-how with them. It is one of the leading causes of repeated mistakes, slow new-hire ramp-up, and re-debated decisions inside fast-moving teams.',
+            text: 'Organizational amnesia is the loss of institutional knowledge that occurs when employees leave, transfer, or retire - taking their context, decisions, relationships, and unwritten know-how with them. It is one of the leading causes of repeated mistakes, slow new-hire ramp-up, and re-debated decisions inside fast-moving teams.',
           },
         },
         {
@@ -134,7 +134,7 @@ export const JSON_LD_GRAPH = {
           name: 'How is Reattend different from Glean or Notion?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Glean is enterprise search — it tells you which documents mention a topic. Notion is a wiki — it stores what you write. Reattend is organizational memory — it captures decisions, the rationale behind them, who decided, when, and whether they were reversed. When someone leaves, their knowledge stays as institutional memory rather than walking out the door.',
+            text: 'Glean is enterprise search - it tells you which documents mention a topic. Notion is a wiki - it stores what you write. Reattend is organizational memory - it captures decisions, the rationale behind them, who decided, when, and whether they were reversed. When someone leaves, their knowledge stays as institutional memory rather than walking out the door.',
           },
         },
         {
@@ -142,7 +142,7 @@ export const JSON_LD_GRAPH = {
           name: 'How much does Reattend cost?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend has three tiers. Team is $19 per user per month with unlimited AI questions, full retention, and all connectors. Enterprise is $29 per user per month with SSO/SAML, hash-chained audit log, two-tier RBAC, and EU data residency — minimum 5 seats. Government / on-premise is custom-quoted. Anyone can try the live product without an account at reattend.com/sandbox.',
+            text: 'Reattend has three tiers. Team is $19 per user per month with unlimited AI questions, full retention, and all connectors. Enterprise is $29 per user per month with SSO/SAML, hash-chained audit log, two-tier RBAC, and EU data residency - minimum 5 seats. Government / on-premise is custom-quoted. Anyone can try the live product without an account at reattend.com/sandbox.',
           },
         },
         {
@@ -158,7 +158,7 @@ export const JSON_LD_GRAPH = {
           name: 'What is Reattend\'s compliance posture?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend ships with a hash-chained WORM audit log, record-level RBAC enforced before retrieval, GDPR self-export and erasure built in, and EU or US data residency. SOC 2 is on the roadmap and will be pursued alongside the first regulated customer engagement that requires it. The Compliance page on reattend.com lists every control with its current status — shipped, in progress, or roadmap.',
+            text: 'Reattend ships with a hash-chained WORM audit log, record-level RBAC enforced before retrieval, GDPR self-export and erasure built in, and EU or US data residency. SOC 2 is on the roadmap and will be pursued alongside the first regulated customer engagement that requires it. The Compliance page on reattend.com lists every control with its current status - shipped, in progress, or roadmap.',
           },
         },
         {

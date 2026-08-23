@@ -5,9 +5,9 @@ export const PROMPTS = {
   // v6.0 - Production triage agent (screen + writing capture aware, noise-hardened)
   triage: (text: string, metadata?: string) => `You are a memory triage agent for a "Passive Second Brain." You decide what's worth remembering from a user's digital life.
 
-${metadata && metadata.includes('"capture_type":"writing"') ? `CONTEXT: This text was captured from the user's OWN WRITING — text they were actively typing in an app. User-authored content is generally MORE valuable because it represents their thoughts, ideas, and communications. Be more lenient with KEEP decisions for writing captures, but still DROP if the text is too short or fragmented to be meaningful.
+${metadata && metadata.includes('"capture_type":"writing"') ? `CONTEXT: This text was captured from the user's OWN WRITING - text they were actively typing in an app. User-authored content is generally MORE valuable because it represents their thoughts, ideas, and communications. Be more lenient with KEEP decisions for writing captures, but still DROP if the text is too short or fragmented to be meaningful.
 
-` : metadata && metadata.includes('"capture_type"') ? `CONTEXT: This text was passively captured from the user's screen via OCR. It has been pre-cleaned but may still contain some UI remnants. Focus ONLY on the substantive content — what the user was actually reading, writing, or discussing.
+` : metadata && metadata.includes('"capture_type"') ? `CONTEXT: This text was passively captured from the user's screen via OCR. It has been pre-cleaned but may still contain some UI remnants. Focus ONLY on the substantive content - what the user was actually reading, writing, or discussing.
 
 ` : ''}KEEP as a memory if it contains ANY of these:
 - A DECISION someone made ("we decided to...", "the plan is to...")
@@ -17,7 +17,7 @@ ${metadata && metadata.includes('"capture_type":"writing"') ? `CONTEXT: This tex
 - A meaningful INSIGHT, idea, or learning
 - DATES with context (deadlines, launches, follow-ups)
 - PROJECT UPDATES or status information
-- PERSONAL WRITING — emails, messages, documents the user is composing
+- PERSONAL WRITING - emails, messages, documents the user is composing
 
 DROP if:
 - It's just casual chat, small talk, or greetings
@@ -31,7 +31,7 @@ DROP if:
 - It's REPETITIVE DATA ROWS (tables, spreadsheets, grids of similar items)
 - It's SOCIAL MEDIA FEEDS or news headlines without substance
 
-When in doubt, DROP. Quality over quantity — only store memories the user would thank you for remembering.
+When in doubt, DROP. Quality over quantity - only store memories the user would thank you for remembering.
 
 INPUT:
 Text: ${text}
@@ -111,7 +111,7 @@ EXAMPLE OUTPUT:
 Respond with JSON only. If no candidates are related, return {"links": []}:`,
 
   // v3.0 - Ask / Q&A Agent (concise, conversational)
-  ask: (question: string, contextRecords: Array<{ title: string; summary: string; content?: string; type: string }>) => `You are a concise memory assistant. Answer the question using ONLY the memories below. Be brief and direct — 2-4 sentences max. If no memories are relevant, say "I don't have that in your memories yet."
+  ask: (question: string, contextRecords: Array<{ title: string; summary: string; content?: string; type: string }>) => `You are a concise memory assistant. Answer the question using ONLY the memories below. Be brief and direct - 2-4 sentences max. If no memories are relevant, say "I don't have that in your memories yet."
 
 Question: ${question}
 

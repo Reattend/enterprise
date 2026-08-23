@@ -14,13 +14,13 @@ export const dynamic = 'force-dynamic'
 
 // GET /api/enterprise/ask-experts?orgId=...&q=<question>
 //
-// "Who should I ask?" — ranks people in the org by expertise on the question's
+// "Who should I ask?" - ranks people in the org by expertise on the question's
 // topic. Scoring signals:
 //   1. Records they authored containing the question's keywords (weight 3)
 //   2. Decisions they made containing the keywords (weight 5)
-//   3. Entity profile overlap — their entity_profiles.raw_facts contain the
+//   3. Entity profile overlap - their entity_profiles.raw_facts contain the
 //      keywords (weight 2)
-//   4. Recency boost — activity in last 90 days × 1.5
+//   4. Recency boost - activity in last 90 days × 1.5
 //
 // Returns top 5 people with a 1-line Claude-generated "why this person" blurb
 // for each.
@@ -163,7 +163,7 @@ export async function GET(req: NextRequest) {
     // entityName, we count that as "domain familiarity".
     for (const p of profileHits) {
       // entity profiles reference entities by workspace; we need to find
-      // which person(s) correspond — use records.createdBy where record
+      // which person(s) correspond - use records.createdBy where record
       // title contains the entity name. Simplification: for each profile,
       // give everyone already in `scores` a small bump if the profile's
       // raw_facts mentions them. Cheap proxy: split by newline + count.
@@ -171,7 +171,7 @@ export async function GET(req: NextRequest) {
         const facts = JSON.parse(p.rawFacts) as string[]
         const factBlob = facts.join(' ').toLowerCase()
         scores.forEach((s) => {
-          // We haven't hydrated s.name yet — use userId as a crude key; below
+          // We haven't hydrated s.name yet - use userId as a crude key; below
           // we re-hydrate and re-score. For now this is a no-op placeholder.
           void s; void factBlob
         })
@@ -195,7 +195,7 @@ export async function GET(req: NextRequest) {
       .where(inArray(schema.users.id, userIds))
     const userById = new Map(users.map((u) => [u.id, u]))
 
-    // Only keep users who are active org members — otherwise "ask them" is a dead end.
+    // Only keep users who are active org members - otherwise "ask them" is a dead end.
     const memberships = await db
       .select({ userId: schema.organizationMembers.userId, title: schema.organizationMembers.title })
       .from(schema.organizationMembers)
@@ -244,7 +244,7 @@ export async function GET(req: NextRequest) {
 
 Rules:
 - Be specific to the signals. Don't invent titles or achievements.
-- Output strict JSON: { "<userId>": "<sentence>" } — no prose, no markdown.
+- Output strict JSON: { "<userId>": "<sentence>" } - no prose, no markdown.
 
 Candidates:
 ${experts.map((e) => `- userId=${e.userId}: name=${e.name || e.email}, title=${e.title || 'n/a'}, authored ${e.authoredCount} related records (samples: ${e.sampleTitles.slice(0, 2).join('; ')}), made ${e.decisionCount} related decisions, last active ${e.lastActivityAt?.slice(0, 10) || 'unknown'}`).join('\n')}

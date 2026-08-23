@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic'
 //
 // Two-phase flow:
 //   1. commit=false (default): Claude parses the raw dump and returns a
-//      preview of what it would extract — decisions, open questions, action
+//      preview of what it would extract - decisions, open questions, action
 //      items, and plain memory fragments. No DB writes. The UI lets the
 //      user deselect or edit items before committing.
 //   2. commit=true with items[]: actually materializes the selected items
@@ -32,7 +32,7 @@ interface DumpItem {
   kind: 'decision' | 'question' | 'action' | 'fact'
   title: string
   detail?: string | null
-  // The span of the raw text this item came from — shown to the user so
+  // The span of the raw text this item came from - shown to the user so
   // they can spot-check that nothing was fabricated.
   sourceSpan?: string | null
 }
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           committed: [],
           rejected: [],
-          meta: { sandbox: true, message: 'Brain dump commit is a no-op in the sandbox — nothing persists.' },
+          meta: { sandbox: true, message: 'Brain dump commit is a no-op in the sandbox - nothing persists.' },
         })
       }
       return NextResponse.json({
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (commit === true) {
-      // Resolve the workspace via the shared resolver — honors explicit
+      // Resolve the workspace via the shared resolver - honors explicit
       // override, falls back to the active org's first team workspace,
       // then to personal. Same semantics as /api/records POST.
       const resolved = await resolveTargetWorkspace({
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function parseWithClaude(raw: string): Promise<Preview> {
-  // No hard Anthropic gate — getAskLLM() routes to Claude when configured
+  // No hard Anthropic gate - getAskLLM() routes to Claude when configured
   // and falls back to Groq when only GROQ_API_KEY is present (this is the
   // shape used on the test droplet). If neither provider is configured the
   // underlying llm.generateText() throws, which we catch below.
@@ -143,13 +143,13 @@ async function parseWithClaude(raw: string): Promise<Preview> {
 Four item kinds:
 - "decision": something that was DECIDED or needs to be. "We're going with X." or "Need to decide Y by Friday."
 - "question": explicit open questions. "Do we still support SKU-32?" "Why is latency spiking?"
-- "action": a specific action item — who needs to do what. "Partha to send the draft by Tue."
+- "action": a specific action item - who needs to do what. "Partha to send the draft by Tue."
 - "fact": a useful piece of context/observation that doesn't fit the above but IS worth remembering. "AWS bill is 34% up QoQ."
 
 Rules:
 - Output STRICT JSON: { "items": [{ "kind": "...", "title": "...", "detail": "...", "sourceSpan": "..." }] }
 - No prose, no markdown, no preamble. Just the JSON object.
-- Max 20 items. Quality over quantity — skip filler.
+- Max 20 items. Quality over quantity - skip filler.
 - Titles are 3-12 words, imperative or declarative. Not full sentences from the dump.
 - "detail" is optional, adds the 1-2 sentences of context from the dump.
 - "sourceSpan" is a short quoted-verbatim snippet (10-30 words) from the dump so the user can verify grounding. DO NOT invent content.
@@ -163,7 +163,7 @@ JSON:`
     const raw2 = await llm.generateText(prompt, 2000)
     const match = raw2.match(/\{[\s\S]*\}/)
     if (!match) {
-      return { items: [], rejectedReason: "Couldn't parse the dump — try rephrasing." }
+      return { items: [], rejectedReason: "Couldn't parse the dump - try rephrasing." }
     }
     const parsed = JSON.parse(match[0]) as Preview
     // Sanity-clean
@@ -174,7 +174,7 @@ JSON:`
     return { items, rejectedReason: parsed.rejectedReason || null }
   } catch (err) {
     console.error('[brain-dump] parse failed', err)
-    return { items: [], rejectedReason: 'Parse failed. Dump preserved — try again.' }
+    return { items: [], rejectedReason: 'Parse failed. Dump preserved - try again.' }
   }
 }
 
@@ -208,7 +208,7 @@ async function handleCommit(opts: {
   const skippedDupes: string[] = []
 
   for (const item of items) {
-    const content = [item.title, item.detail, item.sourceSpan ? `\n— Source: "${item.sourceSpan}"` : '']
+    const content = [item.title, item.detail, item.sourceSpan ? `\n- Source: "${item.sourceSpan}"` : '']
       .filter(Boolean).join('\n\n')
     const hash = contentHash(content)
 

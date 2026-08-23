@@ -17,7 +17,7 @@ import { orderPair } from '@/lib/auth/account-links'
 // Behavior:
 //   - 400 if targetEmail is missing or matches caller's email
 //   - 404 if no Reattend account exists at targetEmail (we don't auto-create
-//     here — the receiving account must already exist)
+//     here - the receiving account must already exist)
 //   - 409 if the two accounts are already linked
 //   - 200 with { message } on success (idempotent: replaces any prior
 //     pending request for the same target_email + requester)
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Replace any prior pending request from the same requester to the
-    // same target — keeps the table clean and lets a user re-send the code.
+    // same target - keeps the table clean and lets a user re-send the code.
     await db
       .delete(schema.accountLinkRequests)
       .where(and(
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         })
       } catch (err) {
         console.error('[link/request] email send failed:', err)
-        // Don't fail the request — the OTP is still valid; user can retry
+        // Don't fail the request - the OTP is still valid; user can retry
       }
     } else {
       // Dev mode: log the OTP for testing

@@ -7,17 +7,17 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 
 /**
- * MarketingNavbar — pixel-mirror of the static landing's topbar
+ * MarketingNavbar - pixel-mirror of the static landing's topbar
  * (/public/landing-design/landing.html lines 36-56). Used by every page
  * wrapped in <MarketingShell>.
  *
  * Visual rules lifted from /public/landing-design/styles.css `.topbar`:
  * - Sticky, backdrop-blur(14px) + saturate(1.2)
- * - Background: oklch(0.985 0.005 80 / 0.78) — warm cream at 78% opacity
- * - Border bottom: var(--rule-2) — subtle warm border
+ * - Background: oklch(0.985 0.005 80 / 0.78) - warm cream at 78% opacity
+ * - Border bottom: var(--rule-2) - subtle warm border
  * - Brand: Instrument Serif "Reattend" + small "Enterprise" mono tag
  * - Nav items: 14px, ink-2 color, hover lifts to ink + bg-2
- * - 3 CTA pattern: ghost "Sign in" / outline "Try for free" / filled "Book a demo"
+ * - 3 CTA pattern: ghost "Sign in" / outline "Sandbox" / filled "Book a demo"
  *
  * The existing React Navbar (@/components/landing/navbar) stays untouched
  * so any non-marketing surface that imports it doesn't change.
@@ -39,7 +39,7 @@ export function MarketingNavbar() {
     { label: 'Compliance', href: '/compliance' },
   ]
 
-  // Active state — match by exact path or top-level segment
+  // Active state - match by exact path or top-level segment
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : (pathname?.startsWith(href) ?? false)
 
@@ -61,7 +61,7 @@ export function MarketingNavbar() {
         }}
       >
         {/* Brand */}
-        {/* Brand wordmark — no "Enterprise" tag. Cofounder feedback (2026-05-05):
+        {/* Brand wordmark - no "Enterprise" tag. Cofounder feedback (2026-05-05):
             an Enterprise pill scares away the 200-person startup ICP. The
             product is just "Reattend." Compliance/scale language lives on
             /compliance + /security where it's appropriate. */}
@@ -80,7 +80,7 @@ export function MarketingNavbar() {
           <span>Reattend</span>
         </Link>
 
-        {/* Desktop nav — hidden on mobile */}
+        {/* Desktop nav - hidden on mobile */}
         <nav className="hidden md:flex items-center gap-1.5">
           {navItems.map((item) => (
             <Link
@@ -101,7 +101,7 @@ export function MarketingNavbar() {
           ))}
         </nav>
 
-        {/* CTA cluster — desktop */}
+        {/* CTA cluster - desktop */}
         <div className="hidden md:flex items-center gap-2">
           <Link
             href="/login"
@@ -129,7 +129,7 @@ export function MarketingNavbar() {
               background: 'oklch(0.992 0.004 80)',
             }}
           >
-            Try for free
+            Sandbox
           </Link>
           <a
             href="https://calendly.com/pb-reattend/30min"
@@ -213,7 +213,7 @@ export function MarketingNavbar() {
                   background: 'oklch(0.992 0.004 80)',
                 }}
               >
-                Try for free
+                Sandbox
               </Link>
               <a
                 href="https://calendly.com/pb-reattend/30min"

@@ -99,7 +99,7 @@ function InboxContent() {
         body: JSON.stringify({ id: notif.id, status: 'done' }),
       })
       setInboxItems(prev => prev.filter(n => n.id !== notif.id))
-      toast.success('Accepted — saved to memories')
+      toast.success('Accepted - saved to memories')
     } catch {
       toast.error('Failed')
     } finally {
@@ -145,7 +145,7 @@ function InboxContent() {
         body: JSON.stringify({ id: notif.id, status: 'done' }),
       })
       setRejectedItems(prev => prev.filter(n => n.id !== notif.id))
-      toast.success('Restored — will be re-processed')
+      toast.success('Restored - will be re-processed')
     } catch {
       toast.error('Failed to rescue')
     } finally {

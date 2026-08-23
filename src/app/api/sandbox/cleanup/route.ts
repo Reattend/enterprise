@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 // everything they own: workspaces, records, decisions, policies, users, etc.
 //
 // Auth: optional bearer token via SANDBOX_CLEANUP_SECRET. If unset, the route
-// runs open — which is fine because the operation is scoped strictly to
+// runs open - which is fine because the operation is scoped strictly to
 // sandbox-prefixed orgs. Wire this to a 10-minute cron on the droplet.
 
 const ONE_HOUR_MS = 60 * 60 * 1000
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     // checked only at COMMIT time, not on every DELETE. Without this, a
     // perfectly-correct cascade order still trips FK violations because
     // some columns (decisions.decided_by_user_id, agents.owner_user_id,
-    // etc.) reference users with NO ACTION onDelete — meaning the engine
+    // etc.) reference users with NO ACTION onDelete - meaning the engine
     // refuses each statement individually even though the referenced
     // user will be gone before the transaction commits.
     const tx = sqlite.transaction(() => {
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
 
       sqlite.prepare(`DELETE FROM organizations WHERE id IN (${orgList})`).run()
 
-      // Finally, sandbox users — only those with no remaining org memberships.
+      // Finally, sandbox users - only those with no remaining org memberships.
       // Personal workspaces created during sandbox launch may still reference
       // them; clear those first.
       if (candidateUserIds.length) {

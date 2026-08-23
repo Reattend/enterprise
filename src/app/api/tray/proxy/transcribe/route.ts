@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server'
 /**
  * POST /api/tray/proxy/transcribe
  *
- * TRAY APP — DISABLED (Apr 2026). This used to proxy audio to Groq's Whisper
+ * TRAY APP - DISABLED (Apr 2026). This used to proxy audio to Groq's Whisper
  * endpoint. Rabbit is text-only; audio transcription is a separate problem we
  * will address when we revisit the tray app. Until then, this endpoint
  * returns 503.

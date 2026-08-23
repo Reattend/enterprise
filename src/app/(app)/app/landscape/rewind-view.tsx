@@ -1,6 +1,6 @@
 'use client'
 
-// Rewind — scrub the org through time.
+// Rewind - scrub the org through time.
 //
 // New design (Landscape.html): amber crumb, serif heading, pill-shaped scrub
 // card with custom track + knob, four-stat row in serif numerals, twin
@@ -87,10 +87,10 @@ export function RewindView() {
   const [playing, setPlaying] = useState(false)
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Debounced fetch — coalesce fast scrubs into one network call.
+  // Debounced fetch - coalesce fast scrubs into one network call.
   // Solo (no-org) users still get a useful Time Machine: the timeline
   // endpoint accepts requests without orgId and scopes to the user's
-  // direct workspace memberships (records timeline only — decisions /
+  // direct workspace memberships (records timeline only - decisions /
   // policies are org-only and stay zero).
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
@@ -193,7 +193,7 @@ export function RewindView() {
       <div className="lsc-head">
         <h1>Scrub the org through <em>time</em>.</h1>
         <p className="sub">
-          Drag the slider or press play. See what the organization looked like on any past month — which decisions were active, what memories existed, how knowledge has grown. Every number on this page is a real point-in-time query against the org&apos;s state.
+          Drag the slider or press play. See what the organization looked like on any past month - which decisions were active, what memories existed, how knowledge has grown. Every number on this page is a real point-in-time query against the org&apos;s state.
         </p>
       </div>
 
@@ -371,7 +371,7 @@ export function RewindView() {
         <div className="lsc-foot-note">
           <FileText size={14} strokeWidth={1.8} />
           <div>
-            <b>{state.counts.publishedPolicies} polic{state.counts.publishedPolicies === 1 ? 'y' : 'ies'}</b> already published as of <b>{fmtMonth(at)}</b>. Every number on this page is a real historical query against the org&apos;s point-in-time state — useful for audits, onboarding new exec hires, and answering &ldquo;what did we know on X day?&rdquo;
+            <b>{state.counts.publishedPolicies} polic{state.counts.publishedPolicies === 1 ? 'y' : 'ies'}</b> already published as of <b>{fmtMonth(at)}</b>. Every number on this page is a real historical query against the org&apos;s point-in-time state - useful for audits, onboarding new exec hires, and answering &ldquo;what did we know on X day?&rdquo;
           </div>
         </div>
       )}

@@ -15,7 +15,7 @@ import crypto from 'crypto'
 const INVITE_TOKEN_BYTES = 24
 const INVITE_TTL_DAYS = 14
 
-// GET /api/enterprise/organizations/[orgId]/members — list org members
+// GET /api/enterprise/organizations/[orgId]/members - list org members
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
       .where(eq(schema.organizationMembers.organizationId, orgId))
 
     // Fetch dept memberships in one query and group client-side. Saves an
-    // N+1 round-trip — the admin members page renders these as badges.
+    // N+1 round-trip - the admin members page renders these as badges.
     const deptRows = await db
       .select({
         userId: schema.departmentMembers.userId,
@@ -71,12 +71,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 }
 
 // POST /api/enterprise/organizations/[orgId]/members
-// Invite (or add, if user exists) — requires org.members.manage.
+// Invite (or add, if user exists) - requires org.members.manage.
 // This uses the existing users table: if the invited email has an account,
 // they're added directly; otherwise we write a workspace_invites-style row
 // keyed to the org (we use organization_members with a status we'll check
 // at signup). For simplicity in this phase, we require the user to already
-// exist — full invite email flow is a follow-up.
+// exist - full invite email flow is a follow-up.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     }
 
     // Enforce work-email policy. Reattend Enterprise invites must go to
-    // organization-provided email addresses — never personal email providers.
+    // organization-provided email addresses - never personal email providers.
     // If the org has a primaryDomain set, the invitee must also match it.
     const orgRow = await db.select().from(schema.organizations).where(eq(schema.organizations.id, orgId)).limit(1)
     const primaryDomain = orgRow[0]?.primaryDomain ?? null
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       }
 
       // Best-effort: don't fail the invite if email send fails; we'll surface
-      // "email delivery failed — share the link manually" in the admin UI.
+      // "email delivery failed - share the link manually" in the admin UI.
       const appUrl = process.env.APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
       const acceptUrl = `${appUrl}/enterprise-invite/${token}`
       let emailError: string | null = null

@@ -1,4 +1,4 @@
-// Confluence Cloud fetcher — uses nango.proxy() to call Atlassian REST.
+// Confluence Cloud fetcher - uses nango.proxy() to call Atlassian REST.
 //
 // Strategy:
 // 1. Discover cloudid (per-tenant routing key) via /oauth/token/accessible-resources

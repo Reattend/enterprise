@@ -1,7 +1,7 @@
 'use client'
 
-// People tab — every active member + record/decision counts. Offboarded
-// users with records get a small risk dot (red) — clicking through opens
+// People tab - every active member + record/decision counts. Offboarded
+// users with records get a small risk dot (red) - clicking through opens
 // their detail with the full at-risk banner.
 
 import { useEffect, useMemo, useState } from 'react'

@@ -1,9 +1,9 @@
 'use client'
 
-// "On this day N years ago" — the Google Photos / Facebook Memories moment
+// "On this day N years ago" - the Google Photos / Facebook Memories moment
 // for org knowledge. Shows up silently when the org is old enough to have
 // records on this calendar day N years back. Returns nothing and renders
-// nothing on young orgs — never a "we got nothing to show you" empty state.
+// nothing on young orgs - never a "we got nothing to show you" empty state.
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'

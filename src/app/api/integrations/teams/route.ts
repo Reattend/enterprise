@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 
-// GET — return Teams connection status + settings
+// GET - return Teams connection status + settings
 export async function GET() {
   try {
     const { userId } = await requireAuth()
@@ -38,7 +38,7 @@ export async function GET() {
   }
 }
 
-// PUT — update settings
+// PUT - update settings
 export async function PUT(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE — disconnect Teams
+// DELETE - disconnect Teams
 export async function DELETE() {
   try {
     const { userId } = await requireAuth()

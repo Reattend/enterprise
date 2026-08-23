@@ -4,10 +4,10 @@ import { eq, desc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { requireAdminAuth } from '@/lib/admin/auth'
 
-// POST — submit feedback, feature request, or enterprise inquiry
+// POST - submit feedback, feature request, or enterprise inquiry
 export async function POST(req: NextRequest) {
   try {
-    // Auth is optional — enterprise inquiries can come from billing page
+    // Auth is optional - enterprise inquiries can come from billing page
     let userId: string | undefined
     let userEmail = ''
     let userName = ''
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         userName = user.name
       }
     } catch {
-      // Not logged in — that's ok for some request types
+      // Not logged in - that's ok for some request types
     }
 
     const body = await req.json()
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET — admin endpoint to list all feedback (used by admin dashboard)
+// GET - admin endpoint to list all feedback (used by admin dashboard)
 export async function GET(req: NextRequest) {
   try {
     await requireAdminAuth()
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PUT — admin: update status/notes
+// PUT - admin: update status/notes
 export async function PUT(req: NextRequest) {
   try {
     await requireAdminAuth()

@@ -253,7 +253,7 @@ export default function ToolsPage() {
         title="Free"
         emphasis="tools"
         emphasisJoiner=" "
-        lede="Slack apps, productivity tools, recorders, and knowledge utilities — all free, no signup required. Built by the team behind Reattend Enterprise."
+        lede="Slack apps, productivity tools, recorders, and knowledge utilities - all free, no signup required. Built by the team behind Reattend Enterprise."
         primaryCta={{ label: 'Try Reattend Enterprise free', href: '/sandbox' }}
         secondaryCta={{ label: 'See how it works', href: '/how-it-works' }}
       />

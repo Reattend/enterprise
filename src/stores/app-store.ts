@@ -93,7 +93,7 @@ interface AppState {
   setActiveEnterpriseOrgId: (id: string | null) => void
   // True once the layout's /api/enterprise/organizations fetch has resolved
   // at least once. Pages dispatching between org/no-org renders should
-  // gate on this — without it, real org users briefly see the no-org
+  // gate on this - without it, real org users briefly see the no-org
   // (Solo) experience while the fetch is in flight.
   enterpriseOrgsLoaded: boolean
   setEnterpriseOrgsLoaded: (v: boolean) => void
@@ -184,12 +184,12 @@ export const useAppStore = create<AppState>((set) => ({
       // Marker the layout reads to decide whether to auto-pick the first
       // org on mount. Without this, the layout's auto-pick would override
       // a deliberate "Personal" choice (id=null) with the first org each
-      // time fetchOrgs runs. Set on every explicit call — covers both
+      // time fetchOrgs runs. Set on every explicit call - covers both
       // picking an org and picking Personal.
       localStorage.setItem('view_context_chosen', '1')
       // Mirror the pick to the server so the desktop app, Chrome extension,
       // and other web tabs read the same context. Best-effort: a network
-      // failure here just means the choice doesn't sync — local state
+      // failure here just means the choice doesn't sync - local state
       // (the localStorage marker above) still works.
       const body = id
         ? { context: 'org' as const, orgId: id }
@@ -198,7 +198,7 @@ export const useAppStore = create<AppState>((set) => ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      }).catch(() => { /* silent — non-critical */ })
+      }).catch(() => { /* silent - non-critical */ })
     }
     set({ activeEnterpriseOrgId: id })
   },

@@ -6,7 +6,7 @@
 // user's personal workspace. Org-scoped read paths (/timeline, /graph,
 // /analytics/home, /wiki/*, admin overview) only query workspaces that
 // have a workspace_org_links row, so personal-workspace records were
-// invisible to org views — even though the user could see them on the
+// invisible to org views - even though the user could see them on the
 // Memories page (Rule 8 of RBAC: workspace_members).
 //
 // GET → preview: { eligibleCount, targetWorkspace: { id, name } | null }
@@ -38,7 +38,7 @@ async function findEligibleAndTarget(opts: { userId: string; orgId: string }) {
     return { personalWorkspaceIds: [], eligibleCount: 0, target: null as { id: string; name: string } | null }
   }
 
-  // Of those owned workspaces, drop any that are linked to ANY org —
+  // Of those owned workspaces, drop any that are linked to ANY org -
   // those aren't "personal" anymore, they're team-backing workspaces.
   const links = await db
     .select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
@@ -54,7 +54,7 @@ async function findEligibleAndTarget(opts: { userId: string; orgId: string }) {
   const resolved = await resolveTargetWorkspace({
     userId,
     orgId,
-    fallbackWorkspaceId: personalIds[0], // dummy fallback — we ignore it if 'personal' is the source
+    fallbackWorkspaceId: personalIds[0], // dummy fallback - we ignore it if 'personal' is the source
   })
   if (resolved.source === 'personal') {
     // No team workspace available in this org for this user.
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest, { params }: { params: { orgId: stri
     }
 
     // Bulk-update each personal workspace's user-authored records to point
-    // at the team workspace. Only the user's own records are moved — never
+    // at the team workspace. Only the user's own records are moved - never
     // touch records authored by anyone else who happens to share the
     // workspace (which shouldn't happen for personal, but defense in depth).
     let moved = 0

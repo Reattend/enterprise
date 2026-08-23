@@ -11,7 +11,7 @@ import { orderPair, ACCOUNT_SWITCH_ORG_SENTINEL } from '@/lib/auth/account-links
 // Auth required. Issues a 60-second SSO ticket for the target user IF
 // the current user is linked to them. Client trades the ticket via the
 // existing 'sso-ticket' NextAuth credentials provider, which mints a real
-// long-lived session cookie for the target user — same flow the sandbox
+// long-lived session cookie for the target user - same flow the sandbox
 // launch uses.
 //
 // Why an SSO ticket instead of writing the cookie directly: NextAuth
@@ -20,7 +20,7 @@ import { orderPair, ACCOUNT_SWITCH_ORG_SENTINEL } from '@/lib/auth/account-links
 // silent-drop bug we've documented. Going through the credentials
 // provider is the only reliable way.
 //
-// Response: { ticket } — caller POSTs this to /api/auth/callback/sso-ticket
+// Response: { ticket } - caller POSTs this to /api/auth/callback/sso-ticket
 // (with form fields: csrfToken + ticket) to complete the switch. The
 // topbar switcher does this transparently.
 

@@ -166,6 +166,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Unknown event — ack it so Nango won't retry.
+  // Unknown event - ack it so Nango won't retry.
   return NextResponse.json({ ok: true, ignored: `unhandled type: ${type}` })
 }

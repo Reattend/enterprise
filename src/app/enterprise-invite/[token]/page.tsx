@@ -196,7 +196,7 @@ export default function EnterpriseInvitePage({ params }: { params: { token: stri
             <Shield className="h-4 w-4 mt-0.5 shrink-0" />
             <p className="text-xs leading-relaxed">
               <strong>Use your work email.</strong> Reattend Enterprise is a separate product from personal Reattend.
-              You must sign in with <span className="font-mono">{invite.email}</span> — not a gmail/hotmail/etc. account.
+              You must sign in with <span className="font-mono">{invite.email}</span> - not a gmail/hotmail/etc. account.
               {invite.organizationPrimaryDomain && (
                 <> Only <span className="font-mono">@{invite.organizationPrimaryDomain}</span> addresses are accepted.</>
               )}

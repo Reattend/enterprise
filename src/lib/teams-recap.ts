@@ -508,7 +508,7 @@ export function buildSummaryCard(responses: RecapResponse[], triggeredByName?: s
           items: [
             {
               type: 'TextBlock',
-              text: 'Powered by **Reattend** — Your team\'s shared memory',
+              text: 'Powered by **Reattend** - Your team\'s shared memory',
               isSubtle: true,
               size: 'Small',
               spacing: 'None',
@@ -589,7 +589,7 @@ export function buildWelcomeCard(): Record<string, any> {
             },
             {
               type: 'TextBlock',
-              text: "Hi! I help your team capture meeting recaps — decisions, action items, and notes — all in one place.",
+              text: "Hi! I help your team capture meeting recaps - decisions, action items, and notes - all in one place.",
               wrap: true,
               spacing: 'Medium',
             },
@@ -606,7 +606,7 @@ export function buildWelcomeCard(): Record<string, any> {
             },
             {
               type: 'TextBlock',
-              text: '**Commands:**\n- `recap` — Start a new meeting recap\n- `done` — Compile and post the summary\n- `help` — Show this message',
+              text: '**Commands:**\n- `recap` - Start a new meeting recap\n- `done` - Compile and post the summary\n- `help` - Show this message',
               wrap: true,
               spacing: 'Medium',
             },
@@ -650,7 +650,7 @@ export function buildHelpCard(): Record<string, any> {
           body: [
             {
               type: 'TextBlock',
-              text: '📋 Meeting Recap Bot — Help',
+              text: '📋 Meeting Recap Bot - Help',
               weight: 'Bolder',
               size: 'Medium',
               color: 'Accent',

@@ -38,7 +38,7 @@ interface ProcessedRow {
 // Accepts up to 200 invites in one call. Returns per-row outcome so the UI
 // can show "42 invited, 3 failed, 5 skipped (already members)".
 //
-// dryRun=true validates without writing to DB or sending emails — used by
+// dryRun=true validates without writing to DB or sending emails - used by
 // the CSV preview step before the admin hits Commit.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       const deptRole: DeptRole | null = raw.deptRole && VALID_DEPT_ROLES.includes(raw.deptRole) ? raw.deptRole : null
 
       if (dryRun) {
-        // Preview path — just mark as "would invite" and move on.
+        // Preview path - just mark as "would invite" and move on.
         results.push({ email, status: 'invited' })
         summary.invited++
         continue
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
         })
       }
 
-      // Email send — best effort, never fails the row
+      // Email send - best effort, never fails the row
       let emailDelivered = false
       let deptName: string | null = null
       if (departmentId) {
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
         })
         emailDelivered = true
       } catch (e) {
-        // Swallow — the invite is valid, admin can copy the link manually
+        // Swallow - the invite is valid, admin can copy the link manually
         console.warn('[bulk invite] email send failed for', email, e)
       }
 

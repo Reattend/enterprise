@@ -52,7 +52,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 }
 
 // POST /api/enterprise/organizations/[orgId]/decisions
-// Body: { title, context?, rationale?, departmentId (required — resolves workspace),
+// Body: { title, context?, rationale?, departmentId (required - resolves workspace),
 //         workspaceId? (advanced override), recordId?, decidedAt? (ISO),
 //         decidedByRoleId?, tags? }
 // Caller is the decidedByUserId. If not provided, decidedAt = now.
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       return NextResponse.json({ error: 'departmentId is required' }, { status: 400 })
     }
 
-    // If departmentId given, validate it's in-org (do this first — both branches need it)
+    // If departmentId given, validate it's in-org (do this first - both branches need it)
     let deptRow: typeof schema.departments.$inferSelect | undefined
     if (departmentId) {
       const rows = await db.select().from(schema.departments).where(eq(schema.departments.id, departmentId)).limit(1)
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       }
     }
 
-    // Now we know the dept context — scope the permission check accordingly.
+    // Now we know the dept context - scope the permission check accordingly.
     const auth = await requireOrgAuth(req, orgId, 'decisions.manage', { departmentId: departmentId ?? null })
     if (isAuthResponse(auth)) return auth
 
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       if (direct[0]) {
         workspaceId = direct[0].workspaceId
       } else {
-        // Walk descendants — collect all dept ids reachable from this dept,
+        // Walk descendants - collect all dept ids reachable from this dept,
         // then pick the first one that has an auto-provisioned workspace.
         // Tree is small enough that an in-memory BFS beats a recursive CTE.
         const allDepts = await db
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
       }
     }
     // Last-resort fallback: any workspace tied to this org. Better than
-    // throwing — a decision still lands somewhere queryable, even if the
+    // throwing - a decision still lands somewhere queryable, even if the
     // owning department is a non-team. Admin can recategorize later.
     if (!workspaceId) {
       const orgWs = await db

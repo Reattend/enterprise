@@ -64,7 +64,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     },
   }
 
-  // Optional FAQPage schema — emitted when the post defines a `faq` array.
+  // Optional FAQPage schema - emitted when the post defines a `faq` array.
   // Makes the post eligible for Google "People Also Ask" + gives AI engines
   // (ChatGPT, Claude, Perplexity) clean Q&A pairs to quote verbatim.
   // See docs/seo-strategy.md for the full AEO playbook.

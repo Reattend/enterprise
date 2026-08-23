@@ -46,7 +46,7 @@ type StatusResp = {
   providers: Provider[]
 }
 
-// Minimal inline icon set — keeps us from hauling in a separate icon package.
+// Minimal inline icon set - keeps us from hauling in a separate icon package.
 function ProviderIcon({ hint, className = 'h-6 w-6' }: { hint: string; className?: string }) {
   if (hint === 'gmail') return (
     <svg className={className} viewBox="0 0 24 24" fill="none">
@@ -158,7 +158,7 @@ export function NangoConnectPanel() {
 
       // Dynamic import keeps the Nango frontend bundle out of pages that
       // don't need it. We use the classic auth() popup flow rather than
-      // openConnectUI() — the latter loads its iframe from connect.nango.dev
+      // openConnectUI() - the latter loads its iframe from connect.nango.dev
       // by default, which doesn't know about our self-hosted instance.
       // auth() goes straight to <our nango>/oauth/connect/<provider>, opens
       // the provider's own consent screen in a popup, and resolves on success.
@@ -170,11 +170,11 @@ export function NangoConnectPanel() {
       })
 
       try {
-        // Don't pass a connection_id — when using session tokens, Nango
+        // Don't pass a connection_id - when using session tokens, Nango
         // generates its own. We recover it via /finalize below.
         await client.auth(session.providerConfigKey)
       } catch (authErr: any) {
-        // User closed popup or denied consent — non-fatal, just stop.
+        // User closed popup or denied consent - non-fatal, just stop.
         if (authErr?.type === 'authorization_cancelled' || authErr?.message?.includes('cancel')) {
           return
         }
@@ -191,12 +191,12 @@ export function NangoConnectPanel() {
       })
       if (!finalizeRes.ok) {
         const err = await finalizeRes.json().catch(() => ({}))
-        toast.error(err.error || 'Connected to provider but failed to register the connection — try Sync now from the panel.')
+        toast.error(err.error || 'Connected to provider but failed to register the connection - try Sync now from the panel.')
         fetchStatus()
         return
       }
 
-      toast.success(`${provider.name} connected — running backfill…`)
+      toast.success(`${provider.name} connected - running backfill…`)
       try {
         const backfillRes = await fetch('/api/integrations/nango/backfill', {
           method: 'POST',
@@ -208,7 +208,7 @@ export function NangoConnectPanel() {
           toast.success(`Backfill done · ${data.added} new, ${data.skipped} already-seen, ${data.filtered} filtered`)
         } else {
           const err = await backfillRes.json().catch(() => ({}))
-          toast.error(err.error || 'Backfill failed — check the Inbox or click Sync now to retry.')
+          toast.error(err.error || 'Backfill failed - check the Inbox or click Sync now to retry.')
         }
       } catch { /* non-fatal */ }
       fetchStatus()
@@ -271,7 +271,7 @@ export function NangoConnectPanel() {
     )
   }
 
-  // Connectors not yet provisioned — show a friendly "coming online" card
+  // Connectors not yet provisioned - show a friendly "coming online" card
   // instead of a panel full of disabled buttons. The customer's admin can't
   // self-serve this; provisioning happens on our infra (one-time, by us).
   if (!data?.configured) {
@@ -477,7 +477,7 @@ function ScopeDialog({
         toast.error(err.error || 'Save failed')
         return
       }
-      toast.success('Scope saved — applies to next sync')
+      toast.success('Scope saved - applies to next sync')
       onOpenChange(false)
     } finally {
       setSaving(false)
@@ -505,7 +505,7 @@ function ScopeDialog({
             <Filter className="h-4 w-4" /> Scope for {provider.name}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            Only records matching these filters will be stored. Applied at ingest —
+            Only records matching these filters will be stored. Applied at ingest -
             rejected records never hit your workspace.
           </DialogDescription>
         </DialogHeader>

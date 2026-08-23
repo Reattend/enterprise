@@ -1,6 +1,6 @@
 'use client'
 
-// Admin analytics — the "where is value coming from" dashboard.
+// Admin analytics - the "where is value coming from" dashboard.
 //
 // Totals strip + most-viewed memories + reach-by-department table +
 // stale-memory alert. Everything windowed to the last 30 days by default.
@@ -182,7 +182,7 @@ export default function AnalyticsPage({ params }: { params: { orgId: string } })
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     These have a verification schedule set but the owner hasn&apos;t re-verified them. Stale memory is
-                    worse than no memory — either re-verify, update, or archive.
+                    worse than no memory - either re-verify, update, or archive.
                   </p>
                 </div>
                 <Button size="sm" variant="outline" asChild>

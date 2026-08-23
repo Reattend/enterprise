@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 
-// GET — return Slack connection status + settings
+// GET - return Slack connection status + settings
 export async function GET() {
   try {
     const { userId } = await requireAuth()
@@ -40,7 +40,7 @@ export async function GET() {
   }
 }
 
-// PUT — update settings
+// PUT - update settings
 export async function PUT(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
@@ -80,7 +80,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE — disconnect Slack
+// DELETE - disconnect Slack
 export async function DELETE() {
   try {
     const { userId } = await requireAuth()

@@ -22,7 +22,7 @@ import type { NormalizedRawItem } from './normalize'
 
 // Providers we fetch ourselves via nango.proxy() instead of nango.listRecords.
 // Self-hosted Nango ships with sync scripts disabled, so listRecords returns
-// empty for these — we must drive the API calls ourselves.
+// empty for these - we must drive the API calls ourselves.
 const PROXY_PROVIDERS: Record<string, true> = {
   'google-mail': true,
   'google-calendar': true,
@@ -49,7 +49,7 @@ export interface ConnectionScope {
   domainWhitelist: string[] // lowercased; if set, text must mention one
 }
 
-// Scope filter — returns true if the record passes, false if it should be
+// Scope filter - returns true if the record passes, false if it should be
 // dropped. Empty arrays = no filter. Case-insensitive substring match.
 function passesScope(text: string, scope: ConnectionScope | null): boolean {
   if (!scope) return true
@@ -130,7 +130,7 @@ export async function ingestFromNango(opts: {
     } catch { /* bad JSON */ }
   }
   if (!nangoConnectionId) {
-    throw new Error(`no nangoConnectionId stored for ${opts.userId}/${opts.providerKey} — connection may not have completed yet`)
+    throw new Error(`no nangoConnectionId stored for ${opts.userId}/${opts.providerKey} - connection may not have completed yet`)
   }
 
   // Branch: providers we fetch ourselves via nango.proxy(), or via Nango's
@@ -189,7 +189,7 @@ export async function ingestFromNango(opts: {
 
   for (const normalized of normalizedItems) {
     try {
-      // Scope filter — user configured which content to keep. Rejected
+      // Scope filter - user configured which content to keep. Rejected
       // records never hit raw_items, saving triage work downstream.
       if (!passesScope(normalized.text, scope)) {
         filtered++
@@ -197,7 +197,7 @@ export async function ingestFromNango(opts: {
       }
 
       // Dedup on externalId within this workspace. Updates don't re-triage
-      // unless content changed meaningfully (left as a TODO — today we keep
+      // unless content changed meaningfully (left as a TODO - today we keep
       // the first triage decision).
       const existing = await db.query.rawItems.findFirst({
         where: and(

@@ -8,7 +8,7 @@ import { ChatView } from './chat-view'
 import { PromptLibraryDrawer } from '@/components/enterprise/prompt-library-drawer'
 import { useAppStore } from '@/stores/app-store'
 
-// Ask — single unified chat surface. The page chrome adopts the new
+// Ask - single unified chat surface. The page chrome adopts the new
 // dashboard design (Incognito + Prompts as pill buttons in the chat-toolbar);
 // the chat itself is still rendered by the existing ChatView, so the
 // streaming, citations, ⌘ Enter, etc. all keep working.

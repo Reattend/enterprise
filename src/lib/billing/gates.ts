@@ -22,7 +22,7 @@ export type SubscriptionRow = typeof schema.subscriptions.$inferSelect
  * none exists. Every authenticated user has exactly one row in this table.
  *
  * If the user is on a paid trial that has ended without a Paddle subscription
- * being created, this also auto-downgrades them to Free (defense in depth —
+ * being created, this also auto-downgrades them to Free (defense in depth -
  * the cron is the primary actor, this is the lazy fallback).
  */
 export async function getOrCreateSubscription(userId: string): Promise<SubscriptionRow> {
@@ -82,7 +82,7 @@ export function hasFeature(
 
 /**
  * Extension feature gate. The Chrome extension (any /api/tray/* endpoint) is
- * a Professional/Enterprise feature — Solo Free users cannot use it. Apply
+ * a Professional/Enterprise feature - Solo Free users cannot use it. Apply
  * this immediately after validateApiToken() in any tray route. The check is
  * cheap (one indexed subscription row read) and re-runs on every call so a
  * downgrade revokes extension access immediately.
@@ -111,7 +111,7 @@ export async function requireExtensionAccess(userId: string): Promise<Response |
  *   - { ok: false, remaining: 0, resetAt: ISO string } when over quota
  *
  * Resets the counter when the calendar month rolls over (rather than running
- * a separate reset cron — calendar-aware so a user's quota doesn't carry stale
+ * a separate reset cron - calendar-aware so a user's quota doesn't carry stale
  * counts across a month boundary).
  */
 export async function consumeAiQuery(userId: string): Promise<
@@ -164,7 +164,7 @@ export async function canAddSeat(userId: string, currentSeatCount: number): Prom
 }
 
 /**
- * Helper for the soft-delete cron — returns the cutoff date for old records
+ * Helper for the soft-delete cron - returns the cutoff date for old records
  * for a given user. Free tier: 90 days ago. Paid: never (returns null).
  */
 export async function retentionCutoffFor(userId: string): Promise<Date | null> {

@@ -1,6 +1,6 @@
 'use client'
 
-// Announcement banner — Guru-style pinned message from admins.
+// Announcement banner - Guru-style pinned message from admins.
 //
 // Shows at the top of the main content area for every user until dismissed
 // (per-user) or the announcement is deactivated / expired. Supports 3

@@ -1,6 +1,6 @@
 'use client'
 
-// Announcements — admin page.
+// Announcements - admin page.
 //
 // Create, edit, deactivate, or delete org-wide banner announcements. Every
 // member sees the banner at the top of their app until they dismiss it.
@@ -117,7 +117,7 @@ export default function AnnouncementsAdminPage({ params }: { params: { orgId: st
         <h1 className="font-display text-3xl tracking-tight">Pin a message across the org</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           Announcements show at the top of every member&apos;s app until they dismiss it. Use for policy
-          rollouts, product changes, maintenance windows — not for day-to-day comms (that&apos;s what
+          rollouts, product changes, maintenance windows - not for day-to-day comms (that&apos;s what
           team broadcasts and Slack are for).
         </p>
       </div>
@@ -134,7 +134,7 @@ export default function AnnouncementsAdminPage({ params }: { params: { orgId: st
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Body (markdown ok)</label>
-            <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="What's changing, what to do, when — include a link if relevant." disabled={creating} />
+            <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="What's changing, what to do, when - include a link if relevant." disabled={creating} />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Tone</label>
@@ -178,7 +178,7 @@ export default function AnnouncementsAdminPage({ params }: { params: { orgId: st
           <EmptyState
             icon={Megaphone}
             title="No announcements yet"
-            description="When you have something for the whole org to see — a policy rollout, a maintenance window, a product update — publish it here."
+            description="When you have something for the whole org to see - a policy rollout, a maintenance window, a product update - publish it here."
           />
         ) : (
           <Card className="p-0 overflow-hidden">

@@ -113,7 +113,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-/** Seeded PRNG — mulberry32 */
+/** Seeded PRNG - mulberry32 */
 function seededRandom(seed: number): () => number {
   let t = seed
   return () => {
@@ -1311,7 +1311,7 @@ function PlayerMode({ gameRoom }: { gameRoom: UseGameRoomReturn }) {
 }
 
 // ---------------------------------------------------------------------------
-// JOIN FLOW (for multiplayer — shown before host/player mode when no name)
+// JOIN FLOW (for multiplayer - shown before host/player mode when no name)
 // ---------------------------------------------------------------------------
 
 function JoinFlow({
@@ -1512,7 +1512,7 @@ export function TeamBingo() {
         <ConnectingScreen roomCode={urlRoomCode ?? undefined} />
       )
     }
-    // No name yet — show join flow
+    // No name yet - show join flow
     return (
       <JoinFlow
         gameRoom={gameRoom}

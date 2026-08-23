@@ -12,7 +12,7 @@ export async function runSlackSync(
   connection: typeof schema.integrationsConnections.$inferSelect,
   workspaceId: string,
 ): Promise<{ synced: number; errors: number; total: number }> {
-  if (!connection.accessToken) throw new Error('No access token — please reconnect Slack')
+  if (!connection.accessToken) throw new Error('No access token - please reconnect Slack')
 
   // Get valid access token (refresh if needed)
   let accessToken: string

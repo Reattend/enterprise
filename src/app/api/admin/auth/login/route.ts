@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       const admin = await db.query.adminUsers.findFirst({
         where: eq(schema.adminUsers.email, normalizedEmail),
       })
-      // Return ok even if not found — don't reveal whether email exists
+      // Return ok even if not found - don't reveal whether email exists
       if (!admin) return NextResponse.json({ ok: true })
     }
 

@@ -1,8 +1,8 @@
 import { serveLandingPage } from '@/lib/seo/landing-head'
 
-// /personal — the side door for individual users.
+// /personal - the side door for individual users.
 //
-// Same product, same codebase, same /app — just a marketing surface that
+// Same product, same codebase, same /app - just a marketing surface that
 // pitches the solo use case ("Notion + Obsidian + Reattend's AI") without
 // touching the homepage's narrowing on the 200-person-startup ICP.
 

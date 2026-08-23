@@ -4,10 +4,10 @@ import { getPermissionSnapshot } from '@/lib/enterprise/permissions'
 
 // GET /api/enterprise/organizations/[orgId]/permissions/me
 //
-// Returns the calling user's full permission snapshot for this org —
+// Returns the calling user's full permission snapshot for this org -
 // org-wide grants + per-department grants. Used by the usePermission()
 // hook so the UI can hide buttons the user can't action without round-
-// tripping for every check. Server still enforces — this is purely UX.
+// tripping for every check. Server still enforces - this is purely UX.
 export const dynamic = 'force-dynamic'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {

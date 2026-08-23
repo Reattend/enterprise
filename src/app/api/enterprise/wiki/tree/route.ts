@@ -14,7 +14,7 @@ import {
 //   - memberCount (direct dept members)
 //   - lastRecordAt (freshness)
 //
-// One flat array — the UI nests via parentId so we don't need recursive JSON.
+// One flat array - the UI nests via parentId so we don't need recursive JSON.
 export async function GET(req: NextRequest) {
   try {
     const { userId } = await requireAuth()

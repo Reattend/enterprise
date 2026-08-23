@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server'
 // verification is required so the JS can short-circuit the verify step
 // during testing. The actual bypass happens server-side in the NextAuth
 // credentials provider (lib/auth/index.ts) so this endpoint can't grant
-// access on its own — it only signals UX.
+// access on its own - it only signals UX.
 
 export const dynamic = 'force-dynamic'
 

@@ -1,11 +1,11 @@
-// GitHub fetcher — uses nango.proxy() to call GitHub REST API.
+// GitHub fetcher - uses nango.proxy() to call GitHub REST API.
 //
 // Strategy: pull the user's most-recently-active repos (public + private
 // they've been granted access to), then for each repo fetch recent PRs and
-// issues. Each PR/issue becomes one raw_item — title + body + author so
+// issues. Each PR/issue becomes one raw_item - title + body + author so
 // triage can decide if it's a "decision" worth preserving.
 //
-// We deliberately skip commits (low signal — most are "WIP", "fix typo")
+// We deliberately skip commits (low signal - most are "WIP", "fix typo")
 // and PR review comments (N+1 explosion on busy repos). v2 can layer in
 // inline comments via /repos/{}/pulls/{}/comments if triage misses
 // signal.
@@ -153,7 +153,7 @@ export async function fetchGithubItems(
       }
     }
 
-    // Step 2b: issues (excluding PRs — GitHub returns both from the same
+    // Step 2b: issues (excluding PRs - GitHub returns both from the same
     // endpoint, distinguished by the `pull_request` field on each item).
     if (includeIssues) {
       try {

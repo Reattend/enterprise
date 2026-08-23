@@ -21,10 +21,10 @@ export const dynamic = 'force-dynamic'
 // Flow:
 //   1. Validate typed confirmation
 //   2. Write an immutable audit marker in every org (gdpr_erasure) with
-//      userHash = sha256(userId + 'salt') — so regulators can confirm the
+//      userHash = sha256(userId + 'salt') - so regulators can confirm the
 //      erasure happened without us keeping the raw user id
 //   3. Null out the user's FK on records + decisions (content stays, but
-//      authorship is disconnected — other members' knowledge is preserved)
+//      authorship is disconnected - other members' knowledge is preserved)
 //   4. Hard delete: notifications, chat sessions, record views, policy acks,
 //      prompts authored, announcement dismissals, API tokens
 //   5. Anonymise audit entries (userId → null, userEmail → '[erased]')
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    // Pull org memberships up-front — we need them for the audit fan-out AND
+    // Pull org memberships up-front - we need them for the audit fan-out AND
     // to delete them at the end.
     const memberships = await db.select()
       .from(schema.organizationMembers)
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     const userHash = createHash('sha256').update(`${userId}::reattend-enterprise`).digest('hex')
     const reqMeta = extractRequestMeta(req)
 
-    // Step 1 — write immutable audit markers BEFORE erasure so the event is
+    // Step 1 - write immutable audit markers BEFORE erasure so the event is
     // hashed into the WORM chain.
     for (const m of memberships) {
       try {
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Step 2 — disconnect authorship from records. Content stays; who made
+    // Step 2 - disconnect authorship from records. Content stays; who made
     // it disappears. record.createdBy is NOT a FK (it's a plain text) so we
     // can safely rewrite it to '[erased]'.
     try {
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
         .where(eq(schema.decisions.decidedByUserId, userId))
     } catch { /* tolerated */ }
 
-    // Step 3 — hard-delete user-specific rows
+    // Step 3 - hard-delete user-specific rows
     const tablesToWipe = [
       { table: schema.inboxNotifications, column: schema.inboxNotifications.userId },
       { table: schema.chatSessions, column: schema.chatSessions.userId },
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Step 4 — anonymise audit log (except the markers we just wrote, which
+    // Step 4 - anonymise audit log (except the markers we just wrote, which
     // are already anonymous). Other rows: blank the identity fields.
     try {
       await db.update(schema.auditLog)
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         .where(eq(schema.auditLog.userId, userId))
     } catch { /* tolerated */ }
 
-    // Step 5 — remove memberships
+    // Step 5 - remove memberships
     try {
       await db.delete(schema.organizationMembers)
         .where(eq(schema.organizationMembers.userId, userId))
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
         .where(eq(schema.workspaceMembers.userId, userId))
     } catch { /* tolerated */ }
 
-    // Step 6 — delete the user row LAST so FKs are all clean
+    // Step 6 - delete the user row LAST so FKs are all clean
     try {
       await db.delete(schema.users).where(eq(schema.users.id, userId))
     } catch (err) {

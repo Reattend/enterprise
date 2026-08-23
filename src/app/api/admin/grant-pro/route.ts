@@ -42,14 +42,14 @@ export async function POST(req: NextRequest) {
     })
 
     const updates = {
-      // Keep planKey populated for legacy callers — 'smart' for any paid tier.
+      // Keep planKey populated for legacy callers - 'smart' for any paid tier.
       planKey: 'smart' as const,
       status: 'active' as const,
       tier,
       seatCount,
       billingCycle,
       trialEndsAt: null,
-      // No real Paddle subscription — leave price/sub/customer ids null so
+      // No real Paddle subscription - leave price/sub/customer ids null so
       // webhook code can detect "manually granted" rows.
       paddlePriceId: null,
       currentPeriodEnd: null,
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/admin/grant-pro
- * Revoke paid tier — move user back to free.
+ * Revoke paid tier - move user back to free.
  * Body: { email }
  */
 export async function DELETE(req: NextRequest) {

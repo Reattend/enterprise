@@ -34,7 +34,7 @@ export interface DedupMiss {
 
 // Exact-hash dedup. Checks records in the same workspace with a matching
 // content hash. Hash is stored in records.meta JSON as { contentHash: "…" }
-// — keeps us out of a migration right now. Callers should set the hash on
+// - keeps us out of a migration right now. Callers should set the hash on
 // insert.
 export async function findExactDuplicate(
   workspaceId: string,

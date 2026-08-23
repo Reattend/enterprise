@@ -1,8 +1,8 @@
-// OCR worker — extracts text from uploaded documents.
+// OCR worker - extracts text from uploaded documents.
 //
 // v1 path: image files (PNG/JPG/TIFF/WEBP/BMP) → tesseract.js.
 // v1 path: PDF with embedded text → pdf-parse.
-// v1 limitation: scanned PDFs (no text layer) need rasterization first — we
+// v1 limitation: scanned PDFs (no text layer) need rasterization first - we
 //   defer per-page rasterization to post-launch. For now, those jobs land in
 //   'needs_review' with a message, and the trainer re-uploads as images.
 //
@@ -15,7 +15,7 @@
 //   6. Update job row with counts, status, resultRecordId
 //
 // Runs in Node only. NOT edge-safe. The API route spawns this via a
-// process-local worker — not the existing jobQueue, because tesseract takes
+// process-local worker - not the existing jobQueue, because tesseract takes
 // time and we want visible progress.
 
 import fs from 'fs'
@@ -25,7 +25,7 @@ import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { redactPII } from './redact'
 
-// Tesseract.js lazy import — heavy, don't eagerly load at module init
+// Tesseract.js lazy import - heavy, don't eagerly load at module init
 type TesseractWorker = any
 let _tesseractMod: any = null
 async function getTesseract() {
@@ -60,7 +60,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
   const row = await db.query.ocrJobs.findFirst({ where: eq(schema.ocrJobs.id, jobId) })
   if (!row) throw new Error(`OCR job ${jobId} not found`)
   if (row.status !== 'pending' && row.status !== 'failed') {
-    // Idempotency — don't reprocess already-done jobs
+    // Idempotency - don't reprocess already-done jobs
     return
   }
 
@@ -81,7 +81,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
 
     const mime = row.mimeType
     if (mime.includes('pdf')) {
-      // Try text extraction first — works for native/editable PDFs
+      // Try text extraction first - works for native/editable PDFs
       try {
         const pdfMod = await import('pdf-parse')
         // Handle both CJS default and ESM shapes
@@ -92,7 +92,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
         pageCount = parsed.numpages || 1
         confidence = extractedText.length > 20 ? 1.0 : 0.0
         if (extractedText.length < 20) {
-          // Probably scanned PDF — no text layer.
+          // Probably scanned PDF - no text layer.
           // v1 limitation: we don't rasterize. Flag for review.
           await db.update(schema.ocrJobs).set({
             status: 'needs_review',
@@ -123,7 +123,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
         await worker.terminate()
       }
     } else if (mime.startsWith('text/')) {
-      // Plain text — no OCR needed
+      // Plain text - no OCR needed
       extractedText = bytes.toString('utf-8')
       confidence = 1.0
       pageCount = 1
@@ -138,7 +138,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
         avgConfidence: confidence,
         extractedTextLength: extractedText.length,
         sourceHash: hash,
-        errorMessage: 'Extracted text too short — scan quality probably too low. Re-scan at higher DPI.',
+        errorMessage: 'Extracted text too short - scan quality probably too low. Re-scan at higher DPI.',
         completedAt: new Date().toISOString(),
       }).where(eq(schema.ocrJobs.id, jobId))
       return
@@ -194,7 +194,7 @@ export async function processOcrJob(opts: ProcessOpts): Promise<void> {
   }
 }
 
-// Process all pending jobs for an org in order. Not parallel — tesseract is
+// Process all pending jobs for an org in order. Not parallel - tesseract is
 // memory-hungry; sequential keeps the droplet responsive.
 export async function drainPendingOcrJobsForOrg(organizationId: string, uploadDir: string): Promise<number> {
   const pending = await db.select()

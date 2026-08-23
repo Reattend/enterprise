@@ -6,7 +6,7 @@
 //   3. Ask Claude for a 100-word summary in our voice (neutral, factual)
 //   4. Cache in wiki_summaries for 7 days or until dirty=true
 //
-// All callers should prefer getOrGenerateSummary() — it handles caching.
+// All callers should prefer getOrGenerateSummary() - it handles caching.
 // Direct regenerateSummary() exists for manual "refresh" buttons.
 
 import { db, schema } from '@/lib/db'
@@ -29,7 +29,7 @@ interface RecordLite {
 }
 
 // Build the prompt for Claude. We keep it opinionated: neutral tone, no
-// marketing, focus on what decisions/patterns emerged. Three flavors —
+// marketing, focus on what decisions/patterns emerged. Three flavors -
 // the scaffolding is identical, only the framing sentence changes.
 function buildPrompt(pageType: WikiPageType, label: string, records: RecordLite[]): string {
   const intro =
@@ -55,7 +55,7 @@ Rules:
 - Factual, neutral, no marketing language.
 - Reference specific decisions or threads only if they appear multiple times.
 - Do NOT speculate beyond the records. If it's thin, say so in one sentence.
-- Do NOT start with "This department..." or "This topic..." — jump straight in.
+- Do NOT start with "This department..." or "This topic..." - jump straight in.
 
 Records (most recent first):
 
@@ -181,7 +181,7 @@ export async function getOrGenerateSummary(opts: {
   return { summary, cached: false, recordCount: opts.records.length, lastRecordAt, generatedAt: new Date().toISOString() }
 }
 
-// Stale detector — 90+ days with no new records => stale. This is the
+// Stale detector - 90+ days with no new records => stale. This is the
 // badge rendered on the wiki page, not the cache TTL (which is 7d for LLM
 // cost reasons).
 export function isPageStale(lastRecordAt: string | null): boolean {

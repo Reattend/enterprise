@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 // GET /api/enterprise/decisions/[decisionId]/blast-radius
 //
-// "If we reverse this decision, what else is affected?" — one of the hardest
+// "If we reverse this decision, what else is affected?" - one of the hardest
 // questions for any exec to answer. We surface the data that would otherwise
 // sit across six tools: which memories cite it, which policies reference it,
 // which other decisions supersede or depend on it, which departments own
@@ -72,7 +72,7 @@ export async function GET(
 
     // ── 2. Policies whose text mentions this decision ──────
     // Rough match: policy body contains decision's title keywords. False
-    // positives are acceptable here — the UI labels them "mentions" not "depends on".
+    // positives are acceptable here - the UI labels them "mentions" not "depends on".
     const decisionKeywords = decision.title
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, ' ')

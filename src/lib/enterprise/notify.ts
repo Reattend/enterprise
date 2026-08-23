@@ -30,7 +30,7 @@ export async function notifyDepartmentMembers(opts: {
 }) {
   const { organizationId, departmentId, workspaceId, excludeUserId, notification } = opts
 
-  // Walk ancestor chain — a decision in Team-X is also relevant to Team-X's parent Division.
+  // Walk ancestor chain - a decision in Team-X is also relevant to Team-X's parent Division.
   const departmentIds = new Set<string>([departmentId])
   let cursorId: string | null = departmentId
   for (let hop = 0; hop < 10 && cursorId; hop++) {
@@ -72,7 +72,7 @@ export async function notifyDepartmentMembers(opts: {
 
   if (recipients.length === 0) return { emitted: 0 }
 
-  // One row per recipient. Fire-and-forget — individual failures don't block
+  // One row per recipient. Fire-and-forget - individual failures don't block
   // the caller (decisions + policies already committed to their own rows).
   let emitted = 0
   for (const userId of recipients) {
@@ -95,7 +95,7 @@ export async function notifyDepartmentMembers(opts: {
 }
 
 // Notify every active member of an org. Used for things like "a new policy
-// was published — please acknowledge."
+// was published - please acknowledge."
 export async function notifyOrgMembers(opts: {
   organizationId: string
   workspaceId: string

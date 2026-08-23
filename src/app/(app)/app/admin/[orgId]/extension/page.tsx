@@ -2,7 +2,7 @@
 
 import { PermissionGate } from '@/components/enterprise/permission-gate'
 
-// Chrome Extension admin — required/recommended domain policy.
+// Chrome Extension admin - required/recommended domain policy.
 //
 // What admins set here shows up in every org member's extension on next
 // poll (GET /api/tray/extension-policy). Required domains are enforced
@@ -69,7 +69,7 @@ function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
         return
       }
       setPolicy(next)
-      toast.success('Policy updated — members pull on next extension poll')
+      toast.success('Policy updated - members pull on next extension poll')
     } finally {
       setSaving(false)
     }
@@ -101,7 +101,7 @@ function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
   }
 
   function copyInstallLink() {
-    // Placeholder — Chrome Web Store URL lands post-publish. Until then, GitHub.
+    // Placeholder - Chrome Web Store URL lands post-publish. Until then, GitHub.
     const link = 'https://github.com/Reattend/enterprise-extension#install'
     navigator.clipboard.writeText(link)
     setCopied(true)
@@ -130,7 +130,7 @@ function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
         <h1 className="font-display text-3xl tracking-tight">Extension policy</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           Control which apps your members&apos; Chrome extensions track. Required domains are
-          enforced — members can&apos;t disable them. Recommended domains surface as suggestions in
+          enforced - members can&apos;t disable them. Recommended domains surface as suggestions in
           their extension options page.
         </p>
       </div>
@@ -250,7 +250,7 @@ function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
             <div className="text-sm font-semibold">Ambient related-memory surfacing</div>
             <p className="text-xs text-muted-foreground mt-0.5">
               When members visit a whitelisted page, the extension shows a subtle corner card with
-              memories your org already has on that topic. RBAC-enforced — members only see
+              memories your org already has on that topic. RBAC-enforced - members only see
               memories they could access in the app. Turn off for orgs where any on-page surfacing
               is a policy violation.
             </p>
@@ -263,7 +263,7 @@ function ExtensionAdminPageInner({ params }: { params: { orgId: string } }) {
           <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
           <div>
             <p><strong className="text-foreground">Propagation:</strong> members&apos; extensions pull the latest policy on startup and every ~30 minutes. Expect full adoption within the hour of a change.</p>
-            <p className="mt-2"><strong className="text-foreground">RBAC:</strong> policy is <em>additive only</em>. It can&apos;t force-enable what a member has no business seeing — the extension still respects record-level access when surfacing ambient memories.</p>
+            <p className="mt-2"><strong className="text-foreground">RBAC:</strong> policy is <em>additive only</em>. It can&apos;t force-enable what a member has no business seeing - the extension still respects record-level access when surfacing ambient memories.</p>
           </div>
         </div>
       </Card>

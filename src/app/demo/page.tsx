@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { DemoExperience } from './demo-experience'
 
 export const metadata: Metadata = {
-  title: 'Interactive Demo | Reattend — Organizational Memory',
+  title: 'Interactive Demo | Reattend - Organizational Memory',
   description: 'Paste a note and watch AI extract entities, classify it, build a knowledge graph, and catch contradictions. Experience Reattend in 90 seconds. No signup required.',
   openGraph: {
     title: 'Interactive Demo | Reattend',

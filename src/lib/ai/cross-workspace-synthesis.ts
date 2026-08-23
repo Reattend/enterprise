@@ -2,7 +2,7 @@ import { db, schema } from '../db'
 import { eq, and, gte, inArray } from 'drizzle-orm'
 import { getLLM } from './llm'
 
-// Cross-workspace team synthesis — fires Wednesday 08:00–09:00 UTC.
+// Cross-workspace team synthesis - fires Wednesday 08:00–09:00 UTC.
 // For each team workspace, finds entities/topics that multiple members
 // independently discussed in their personal workspaces this week, then
 // surfaces them as a synthesis notification in the team workspace.
@@ -130,7 +130,7 @@ export async function runCrossWorkspaceSynthesis(): Promise<{ sent: number }> {
       const entityContext = sharedEntities.map(([name, users]) => {
         const samples = (entityToSamples[name] || []).slice(0, 3)
         const sampleText = samples.map(s => `"${s.title}" (${s.type})`).join(', ')
-        return `- "${name}" — mentioned by ${users.size} team members${sampleText ? `, e.g. ${sampleText}` : ''}`
+        return `- "${name}" - mentioned by ${users.size} team members${sampleText ? `, e.g. ${sampleText}` : ''}`
       }).join('\n')
 
       const weekLabel = `week of ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}`
@@ -156,7 +156,7 @@ Summarize what themes the team is converging on, why these might be worth a team
           workspaceId: teamWs.id,
           userId: member.userId,
           type: 'system',
-          title: `Team synthesis — ${sharedEntities.length} shared topics this week`,
+          title: `Team synthesis - ${sharedEntities.length} shared topics this week`,
           body: synthesis.slice(0, 500),
           objectType: 'cross_workspace_synthesis',
           objectId: teamWs.id,

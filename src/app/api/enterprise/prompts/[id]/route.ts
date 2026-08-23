@@ -10,7 +10,7 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-// POST /api/enterprise/prompts/[id] — bump usage counter
+// POST /api/enterprise/prompts/[id] - bump usage counter
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
@@ -29,7 +29,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-// DELETE /api/enterprise/prompts/[id] — creator or admin
+// DELETE /api/enterprise/prompts/[id] - creator or admin
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params

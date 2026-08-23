@@ -1,6 +1,6 @@
 'use client'
 
-// Blast Radius Simulator — "if we reverse this decision, what breaks?"
+// Blast Radius Simulator - "if we reverse this decision, what breaks?"
 //
 // Opens as a dialog over any decision. Shows:
 //   - Claude's 2-3 sentence impact narrative (if available)
@@ -34,7 +34,7 @@ type BlastData = {
   counts: Counts
 }
 
-// Simple weighting — memories are small splashes, policies + successor chains
+// Simple weighting - memories are small splashes, policies + successor chains
 // are big. Everything above 10 = "careful", above 25 = "systemic risk".
 function computeBlastScore(c: Counts): number {
   return c.memories * 1 + c.policies * 4 + c.predecessors * 3 + c.successors * 5 + c.people * 1
@@ -171,7 +171,7 @@ export function BlastRadiusDialog({
                   ))}
                 </ul>
                 <p className="text-[10px] text-muted-foreground mt-2 italic">
-                  This decision is already superseded — reversing it conflicts with the successor.
+                  This decision is already superseded - reversing it conflicts with the successor.
                 </p>
               </Section>
             )}

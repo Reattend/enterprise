@@ -1,11 +1,11 @@
-// Jira Cloud fetcher — uses nango.proxy() to call Atlassian REST.
+// Jira Cloud fetcher - uses nango.proxy() to call Atlassian REST.
 //
 // Strategy:
 // 1. Discover cloudid via shared helper
 // 2. JQL search recent issues (updated in last 30d, ordered by updated desc)
 // 3. Each issue → one raw_item with summary + description + status + assignee
 //
-// Jira Cloud's description field is in ADF (Atlassian Document Format) — a
+// Jira Cloud's description field is in ADF (Atlassian Document Format) - a
 // JSON tree we walk via the shared adfToText helper.
 
 import type { Nango } from '@nangohq/node'

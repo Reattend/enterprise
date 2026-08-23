@@ -160,7 +160,7 @@ export default function OffboardWizardPage({
         <div>
           <h1 className="text-xl font-semibold">Offboard {impact.user.name || impact.user.email}</h1>
           <p className="text-sm text-muted-foreground">
-            Knowledge stays. Transfer their roles — their records, decisions, and context move with the role.
+            Knowledge stays. Transfer their roles - their records, decisions, and context move with the role.
           </p>
         </div>
       </div>
@@ -260,7 +260,7 @@ function ReviewStep({ impact, onNext }: { impact: Impact; onNext: () => void }) 
             <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5" />
             <div className="text-sm">
               <div className="font-medium">No roles held</div>
-              <div className="text-muted-foreground">This user has no employee roles to transfer. Their decisions and activity records are preserved — only their org membership is being ended.</div>
+              <div className="text-muted-foreground">This user has no employee roles to transfer. Their decisions and activity records are preserved - only their org membership is being ended.</div>
             </div>
           </div>
         </Card>
@@ -336,7 +336,7 @@ function TransferStep({
     <>
       <Card className="p-4">
         <p className="text-sm text-muted-foreground">
-          For each role, name a successor or leave it vacant. Write handover notes — they survive the transition and show up on the successor&apos;s role page.
+          For each role, name a successor or leave it vacant. Write handover notes - they survive the transition and show up on the successor&apos;s role page.
           <br />
           <span className="text-amber-600 dark:text-amber-400">Vacant roles surface as orphaned findings in Self-healing until a successor is named.</span>
         </p>
@@ -367,7 +367,7 @@ function TransferStep({
                 </select>
               </div>
               <Textarea
-                placeholder="Handover notes — what the successor needs to know to pick this up"
+                placeholder="Handover notes - what the successor needs to know to pick this up"
                 value={draft.transferNotes || ''}
                 onChange={(e) => updateDraft(r.roleId, { transferNotes: e.target.value })}
                 rows={2}

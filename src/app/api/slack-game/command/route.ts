@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         blocks: [
           {
             type: 'header',
-            text: { type: 'plain_text', text: '🧠 Memory Match — Results' },
+            text: { type: 'plain_text', text: '🧠 Memory Match - Results' },
           },
           {
             type: 'section',

@@ -211,7 +211,7 @@ export default function RoleDetailPage({
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {new Date(h.startedAt).toLocaleDateString()}
-                  {' — '}
+                  {' - '}
                   {h.endedAt ? new Date(h.endedAt).toLocaleDateString() : 'Present'}
                   <span className="mx-1">·</span>
                   {h.userEmail}

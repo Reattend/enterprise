@@ -12,14 +12,14 @@ export const dynamic = 'force-dynamic'
 
 // GET /api/enterprise/compliance/export
 // GDPR / personal-data export. Any authenticated user can pull THEIR OWN
-// data — everything we hold that ties back to them. Returns a JSON bundle.
+// data - everything we hold that ties back to them. Returns a JSON bundle.
 //
 // Contents:
 //   - user row (email, name, created_at, org memberships)
 //   - organizations + roles (what orgs they're in and as what)
 //   - authored records (all memories they created)
 //   - authored decisions
-//   - chat threads (from /api/chats — id, title, messages)
+//   - chat threads (from /api/chats - id, title, messages)
 //   - inbox notifications sent to them
 //   - policy acknowledgments
 //   - audit log entries they appear in

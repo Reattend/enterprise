@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { getValidAccessToken } from '@/lib/google'
 
-// GET — return Gmail connection status + settings
+// GET - return Gmail connection status + settings
 export async function GET() {
   try {
     const { userId } = await requireAuth()
@@ -58,7 +58,7 @@ export async function GET() {
   }
 }
 
-// PUT — update settings (domain whitelist, sync enabled)
+// PUT - update settings (domain whitelist, sync enabled)
 export async function PUT(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
@@ -104,7 +104,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE — disconnect Gmail
+// DELETE - disconnect Gmail
 export async function DELETE() {
   try {
     const { userId } = await requireAuth()

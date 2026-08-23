@@ -1,6 +1,6 @@
 'use client'
 
-// Prompt Library — org-wide shared prompts.
+// Prompt Library - org-wide shared prompts.
 //
 // Opens as a slide-out drawer from any Ask page. Members browse, search,
 // click to run. A "save this prompt" affordance lets anyone contribute.
@@ -181,7 +181,7 @@ export function PromptLibraryDrawer({
                     <>
                       <BookMarked className="h-6 w-6 mx-auto mb-2 opacity-50" />
                       <p className="font-medium">No prompts yet</p>
-                      <p className="text-xs mt-1 max-w-xs mx-auto">Shared prompts your team can reuse — "Draft a renewal email," "Summarize a customer's history." Save your first one.</p>
+                      <p className="text-xs mt-1 max-w-xs mx-auto">Shared prompts your team can reuse - "Draft a renewal email," "Summarize a customer's history." Save your first one.</p>
                     </>
                   ) : 'No matches'}
                 </div>

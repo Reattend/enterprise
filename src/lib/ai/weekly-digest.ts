@@ -98,7 +98,7 @@ Be specific, reference actual content. No filler. Write in second person ("You..
           workspaceId: ws.id,
           userId: member.userId,
           type: 'system',
-          title: `Weekly digest — ${weekLabel} (${meaningful.length} memories)`,
+          title: `Weekly digest - ${weekLabel} (${meaningful.length} memories)`,
           body: digest.slice(0, 500),
           objectType: 'weekly_digest',
           objectId: ws.id,

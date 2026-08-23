@@ -89,7 +89,7 @@ export default function HealthPage({ params }: { params: { orgId: string } }) {
     setScanning(true)
     setErr(null)
     try {
-      // Scan is always org-wide — it writes both the org roll-up row AND
+      // Scan is always org-wide - it writes both the org roll-up row AND
       // per-dept rows. After the scan, we re-load the current filter scope.
       const res = await fetch(`/api/enterprise/organizations/${orgId}/health`, { method: 'POST' })
       if (!res.ok) {

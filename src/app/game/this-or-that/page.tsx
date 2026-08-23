@@ -28,9 +28,9 @@ export default function Page() {
         description="Rapid-fire binary choices for teams. Coffee or tea? Remote or office? Morning person or night owl? Vote instantly and see exactly where your team stands."
         steps={[
           'A "this or that" pair appears on screen.',
-          'Everyone instantly picks their preference — no overthinking.',
+          'Everyone instantly picks their preference - no overthinking.',
           'See the team split: who picked what.',
-          'Move to the next pair — there are no wrong answers.',
+          'Move to the next pair - there are no wrong answers.',
         ]}
       />
     }>

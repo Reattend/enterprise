@@ -1,6 +1,6 @@
 'use client'
 
-// Memories list — new dashboard design (Memories.html). Three views:
+// Memories list - new dashboard design (Memories.html). Three views:
 // timeline (default), grid, compact. All filters, share/create/import
 // dialogs, and the share-import-on-mount flow are preserved verbatim.
 
@@ -77,7 +77,7 @@ const SOURCE_OPTIONS = [
   { value: 'slack', label: 'Slack' },
 ]
 
-// Category pills shown above the filter bar — quick lenses for common types.
+// Category pills shown above the filter bar - quick lenses for common types.
 const CATEGORIES: Array<{ key: string; label: string }> = [
   { key: 'all', label: 'All' },
   { key: 'decision', label: 'Decisions' },
@@ -158,7 +158,7 @@ const PAGE_SIZE = 50
 
 export default function MemoriesPage() {
   const router = useRouter()
-  // Active org from the store — passed to /api/records and /api/upload so
+  // Active org from the store - passed to /api/records and /api/upload so
   // the create defaults to a team workspace instead of personal. Without
   // this the new memory only shows up under My memories, never on the
   // org wiki / landscape / cockpit.
@@ -175,11 +175,11 @@ export default function MemoriesPage() {
   const [dateRange, setDateRange] = useState('all')
   const [viewMode, setViewMode] = useState<'timeline' | 'grid' | 'compact'>('timeline')
 
-  // Counts for category pills — derived from totals per type. We pull a quick
+  // Counts for category pills - derived from totals per type. We pull a quick
   // tally from the API so the badges feel honest without scanning all records.
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({})
 
-  // (Personal-memories migration banner state was removed — see the
+  // (Personal-memories migration banner state was removed - see the
   // comment in the JSX where the banner used to live.)
 
   // Share state
@@ -216,7 +216,7 @@ export default function MemoriesPage() {
     if (dateRange !== 'all') p.set('dateRange', dateRange)
     // Tells the API to also include records from team workspaces in this
     // org (the user's accessible ones). Without it, /api/records only
-    // returns the personal workspace — which is empty after migration.
+    // returns the personal workspace - which is empty after migration.
     if (activeOrgId) p.set('orgId', activeOrgId)
     return `/api/records?${p}`
   }
@@ -291,7 +291,7 @@ export default function MemoriesPage() {
   useRevalidate([SCOPES.memories], fetchRecords)
   useRevalidate([SCOPES.projects], fetchProjects)
 
-  // (Removed: fetchImportInfo + migratePersonal — they powered the
+  // (Removed: fetchImportInfo + migratePersonal - they powered the
   // "Move to General" banner. The endpoint
   // /api/enterprise/organizations/<orgId>/import-personal stays available
   // for one-shot manual migrations via curl if anyone needs it.)
@@ -508,7 +508,7 @@ export default function MemoriesPage() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search ${total.toLocaleString() || ''} memories — try "hiring freeze", "@kang", or "#pricing"…`}
+              placeholder={`Search ${total.toLocaleString() || ''} memories - try "hiring freeze", "@kang", or "#pricing"…`}
             />
             {searchQuery && (
               <button
@@ -531,7 +531,7 @@ export default function MemoriesPage() {
               </button>
             ))}
           </div>
-          {/* Native selects for type / source — small footprint, accessible */}
+          {/* Native selects for type / source - small footprint, accessible */}
           <select
             className="mem-select"
             value={typeFilter}
@@ -724,16 +724,16 @@ export default function MemoriesPage() {
                       <span key={t} className="mem-tag">{t}</span>
                     ))}
                   </div>
-                  <div className="mem-cmp-source">{SOURCE_LABELS[record.source || ''] || record.source || '—'}</div>
+                  <div className="mem-cmp-source">{SOURCE_LABELS[record.source || ''] || record.source || '-'}</div>
                   <div className="mem-cmp-time">{formatRelativeTime(record.createdAt)}</div>
-                  <div className="mem-cmp-source">{record.confidence != null ? `${Math.round(record.confidence * 100)}%` : '—'}</div>
+                  <div className="mem-cmp-source">{record.confidence != null ? `${Math.round(record.confidence * 100)}%` : '-'}</div>
                 </Link>
               )
             })}
           </div>
         )}
 
-        {/* Footer / pager — `Load more` is the actual control. The numeric
+        {/* Footer / pager - `Load more` is the actual control. The numeric
             pager is decorative (single-page UI) but kept for design parity. */}
         {!loading && filtered.length > 0 && (
           <div className="mem-footer-stats">

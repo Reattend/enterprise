@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  // Create JWT — same pattern as verify-otp
+  // Create JWT - same pattern as verify-otp
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
   if (!secret) {
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })

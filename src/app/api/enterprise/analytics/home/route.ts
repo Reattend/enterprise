@@ -14,10 +14,10 @@ export const dynamic = 'force-dynamic'
 // /analytics/overview which is admin-only and audit-rich; this one is gated
 // on org.read so every active member can see their org's high-level stats:
 //   totals (members, memories, decisions, policies, stale, recent ingestion)
-//   memoriesByType — for the donut
-//   decisionsByStatus — for the status bar
-//   reachByDepartment — top 6 departments by record count
-//   activityLast7Days — bar series of records ingested per day for the last week
+//   memoriesByType - for the donut
+//   decisionsByStatus - for the status bar
+//   reachByDepartment - top 6 departments by record count
+//   activityLast7Days - bar series of records ingested per day for the last week
 
 export async function GET(req: NextRequest) {
   try {
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
       .groupBy(schema.decisions.status)
     const decisionsByStatus = decisionStatusRows.map((r) => ({ status: r.status, count: r.count }))
 
-    // Reach by department — only the 6 most-active for compact rendering
+    // Reach by department - only the 6 most-active for compact rendering
     const deptRows = await db.select()
       .from(schema.departments)
       .where(eq(schema.departments.organizationId, orgId))
@@ -120,7 +120,7 @@ export async function GET(req: NextRequest) {
     }
     reachByDepartment.sort((a, b) => b.recordCount - a.recordCount)
 
-    // Activity bars — records created per day for the last 7 days
+    // Activity bars - records created per day for the last 7 days
     const activityLast7Days: Array<{ date: string; count: number }> = []
     if (orgWsIds.length > 0) {
       const dayRows = await db.select({

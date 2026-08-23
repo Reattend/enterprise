@@ -2,12 +2,12 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// Footer columns — clubbed by intent so each column reads as one cohesive
+// Footer columns - clubbed by intent so each column reads as one cohesive
 // surface. Free Tools / Games / Help moved out of "Product" into "Resources"
 // alongside Blog and Glossary, since they're discovery surfaces not product
 // surfaces. Company + Legal merged because both were thin standalone columns.
 // Brand line is the new positioning ("Organizational memory that never
-// forgets") — see docs/seo-strategy.md for why this matters for SERP CTR.
+// forgets") - see docs/seo-strategy.md for why this matters for SERP CTR.
 const columns = [
   {
     title: 'Product',
@@ -19,7 +19,7 @@ const columns = [
       { label: 'Integrations', href: '/integrations' },
       { label: 'Compliance', href: '/compliance' },
       // "Free tools" intentionally also lives here (in addition to Resources)
-      // — it's a top-of-funnel product offering, not just a side-resource.
+      // - it's a top-of-funnel product offering, not just a side-resource.
       // Two-column placement = max discoverability, costs us one duplicate link.
       { label: 'Free tools', href: '/tool' },
     ],

@@ -1,4 +1,4 @@
-// Shared policy helpers — applicability matching, pending-ack computation,
+// Shared policy helpers - applicability matching, pending-ack computation,
 // and a small diff helper used by the version compare UI.
 
 import { db, schema } from '@/lib/db'
@@ -111,7 +111,7 @@ export async function pendingPoliciesForUser(opts: {
 }
 
 // Line-level diff for the version compare UI. Returns an array of
-// {kind: 'same' | 'add' | 'del', text}. Good enough for policy diffing —
+// {kind: 'same' | 'add' | 'del', text}. Good enough for policy diffing -
 // we're not rendering Git-level quality here.
 export function diffLines(before: string, after: string): Array<{ kind: 'same' | 'add' | 'del'; text: string }> {
   const a = before.split('\n')

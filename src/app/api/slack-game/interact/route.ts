@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       })
 
       if (existingAnswer) {
-        // User already answered — tell them
+        // User already answered - tell them
         const team = await db.query.slackGameTeams.findFirst({
           where: eq(schema.slackGameTeams.teamId, teamId),
         })

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     if (!code || !stateParam) {
       // User installed from Slack App Directory directly (no state param).
-      // Redirect to a friendly error page — they must connect from within Reattend.
+      // Redirect to a friendly error page - they must connect from within Reattend.
       return NextResponse.redirect(new URL('/slack-connect-required', baseUrl))
     }
 

@@ -11,7 +11,7 @@ import { cosineSimilarity } from '@/lib/utils'
 const AI_QUERY_LIMIT = 20
 
 // Tauri desktop calls this from inside its webview (origin tauri://localhost
-// in prod, http://localhost:1420 in dev). Allow all origins — the bearer
+// in prod, http://localhost:1420 in dev). Allow all origins - the bearer
 // token is the actual auth; CORS was never our security boundary.
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
       return `[${i + 1}] ${r.type.toUpperCase()}: ${r.title}${dateLine}${summaryLine}${contentLine}`
     }).join('\n\n---\n\n')
 
-    const prompt = `You are Reattend — the user's AI memory assistant. You have access to their saved notes and meetings.
+    const prompt = `You are Reattend - the user's AI memory assistant. You have access to their saved notes and meetings.
 
 RULES:
 - Use ONLY the memories below. Never invent facts. Cite sources as [1], [2], [3].

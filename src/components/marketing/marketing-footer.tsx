@@ -3,12 +3,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 /**
- * MarketingFooter — pixel-mirror of the static landing's footer
+ * MarketingFooter - pixel-mirror of the static landing's footer
  * (/public/landing-design/landing.html lines 818-873).
  *
  * Visual rules from /public/landing-design/styles.css `.footer-grid`:
  * - Cream-warm background matching the rest of the marketing surfaces
- *   (no dark navbar — that was the old React Footer aesthetic)
+ *   (no dark navbar - that was the old React Footer aesthetic)
  * - Top border: var(--rule), padding 48px var(--pad) 32px
  * - 5-col grid (2fr 1fr 1fr 1fr 1fr); 2-col on mobile
  * - h5 column headers: mono uppercase, 11px, ink-3
@@ -31,7 +31,7 @@ export function MarketingFooter() {
       }}
       role="contentinfo"
     >
-      {/* 5-col grid — 2fr brand + 4 link columns */}
+      {/* 5-col grid - 2fr brand + 4 link columns */}
       <div
         className="mx-auto grid gap-10"
         style={{
@@ -66,7 +66,7 @@ export function MarketingFooter() {
           >
             Organizational memory that never forgets. Built by Reattend Technologies Private Limited.
           </p>
-          {/* Sister content domain — see docs/organizational-amnesia-domains.md */}
+          {/* Sister content domain - see docs/organizational-amnesia-domains.md */}
           <p
             style={{
               fontSize: '12px',

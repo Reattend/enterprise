@@ -53,7 +53,7 @@ export async function GET() {
 }
 
 // DELETE /api/me/linked-accounts
-// Body: { userId: string } — the account to unlink from
+// Body: { userId: string } - the account to unlink from
 //
 // Auth required. Removes the link in both directions (it's stored as one
 // row so a single delete suffices). Either side of the link can unlink.

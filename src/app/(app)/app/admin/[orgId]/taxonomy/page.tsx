@@ -28,7 +28,7 @@ const GOV_PRESET_KINDS: Draft[] = [
   { label: 'Wing', rankOrder: 3, description: 'Functional grouping' },
   { label: 'Directorate', rankOrder: 4, description: 'Operational arm' },
   { label: 'Section', rankOrder: 5, description: 'Working unit' },
-  { label: 'team', rankOrder: 6, description: 'Leaf — has its own memory workspace' },
+  { label: 'team', rankOrder: 6, description: 'Leaf - has its own memory workspace' },
 ]
 const GOV_PRESET_RANKS: Draft[] = [
   { label: 'Secretary', rankOrder: 1, description: 'Secretary to the Government' },
@@ -174,19 +174,19 @@ function TaxonomyPageInner({ params }: { params: { orgId: string } }) {
 
       <Section
         title="Department hierarchy"
-        description={'Listed top→bottom. The bottom-most kind is the "leaf" — it gets its own memory workspace. Reserve the exact string "team" to keep auto-workspace semantics.'}
+        description={'Listed top→bottom. The bottom-most kind is the "leaf" - it gets its own memory workspace. Reserve the exact string "team" to keep auto-workspace semantics.'}
         items={deptKinds}
         setItems={setDeptKinds}
-        emptyLabel="No department kinds yet — add one to start."
+        emptyLabel="No department kinds yet - add one to start."
         addDefault={{ label: '', rankOrder: deptKinds.length + 1, description: '' }}
       />
 
       <Section
         title="Seniority ladder"
-        description="Listed top→bottom — the top is most senior. Used for sorting roles and surfacing VPs/executives in the cockpit."
+        description="Listed top→bottom - the top is most senior. Used for sorting roles and surfacing VPs/executives in the cockpit."
         items={seniority}
         setItems={setSeniority}
-        emptyLabel="No seniority ranks yet — add one."
+        emptyLabel="No seniority ranks yet - add one."
         addDefault={{ label: '', rankOrder: seniority.length + 1, description: '' }}
       />
 

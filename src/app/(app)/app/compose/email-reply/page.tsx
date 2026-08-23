@@ -1,6 +1,6 @@
 'use client'
 
-// Draft Email Reply — an action agent.
+// Draft Email Reply - an action agent.
 //
 // Paste the thread you're replying to. the AI reads it, pulls relevant
 // memory context from your org, and drafts a reply grounded in what you
@@ -37,7 +37,7 @@ export default function DraftEmailReplyPage() {
   async function run() {
     if (!activeOrgId) return
     if (thread.trim().length < 20) {
-      toast.error('Paste the email thread — at least 20 characters')
+      toast.error('Paste the email thread - at least 20 characters')
       return
     }
     setRunning(true)
@@ -91,7 +91,7 @@ export default function DraftEmailReplyPage() {
         <h1 className="font-display text-3xl tracking-tight">Draft an email reply</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           Paste the thread you&apos;re replying to. the AI reads it, pulls relevant memory context
-          from the org, and drafts a grounded reply. No facts fabricated — if memory doesn&apos;t
+          from the org, and drafts a grounded reply. No facts fabricated - if memory doesn&apos;t
           have it, the AI doesn&apos;t invent it.
         </p>
       </div>
@@ -102,7 +102,7 @@ export default function DraftEmailReplyPage() {
           <Textarea
             value={thread}
             onChange={(e) => setThread(e.target.value)}
-            placeholder={`Hi team,\n\nFollowing up on the pricing discussion — can we confirm the enterprise tier pricing before Thursday's customer call? I think we settled on...`}
+            placeholder={`Hi team,\n\nFollowing up on the pricing discussion - can we confirm the enterprise tier pricing before Thursday's customer call? I think we settled on...`}
             rows={12}
             className="text-sm resize-none font-sans"
             disabled={running}

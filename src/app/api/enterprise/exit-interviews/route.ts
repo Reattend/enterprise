@@ -12,7 +12,7 @@ import { isSandboxEmail } from '@/lib/sandbox/detect'
 
 export const dynamic = 'force-dynamic'
 
-// Exit Interview Agent — two-endpoint surface.
+// Exit Interview Agent - two-endpoint surface.
 //
 // POST /api/enterprise/exit-interviews
 //   Body: { orgId, departingUserId, roleTitle? }
@@ -37,7 +37,7 @@ interface PlannedQuestion {
 }
 
 const TOPIC_BLURBS: Record<PlannedQuestion['topic'], string> = {
-  projects:          'Ongoing projects and their current state — what\'s shipped, what\'s in flight, what\'s blocked.',
+  projects:          'Ongoing projects and their current state - what\'s shipped, what\'s in flight, what\'s blocked.',
   relationships:     'Key contacts inside and outside the org the successor must know.',
   tribal_knowledge:  'Undocumented patterns, idioms, "how we actually do X" context.',
   gotchas:           'Mistakes to avoid, systems that break in unexpected ways, fragile dependencies.',
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // Sandbox: echo a canned interview row without hitting the LLM.
     // The seeder already creates one completed interview visible in the list
-    // view — this path covers the "generate another" button.
+    // view - this path covers the "generate another" button.
     if (isSandboxEmail(auth.userEmail)) {
       return NextResponse.json({
         interview: {
@@ -116,8 +116,8 @@ export async function POST(req: NextRequest) {
           questions: [
             { id: 'q1', text: 'The BEPS Pillar Two position has 3 active dependencies. If the Council renegotiates, what\'s the order to update the downstream policies, and who should be in each room?', memoryCount: 12 },
             { id: 'q2', text: 'You\'ve flagged the BEPS submission form bug three times. What\'s the workaround you use, and what breaks for a new hire who tries to submit blind?', memoryCount: 3 },
-            { id: 'q3', text: 'Tuesday 9am Brussels call — who are the three counterparts, what\'s the cadence, and what\'s usually on the agenda?', memoryCount: 18 },
-            { id: 'q4', text: 'Vendor X compliance review — you owned this through February. What\'s your read, and which way should it land?', memoryCount: 7 },
+            { id: 'q3', text: 'Tuesday 9am Brussels call - who are the three counterparts, what\'s the cadence, and what\'s usually on the agenda?', memoryCount: 18 },
+            { id: 'q4', text: 'Vendor X compliance review - you owned this through February. What\'s your read, and which way should it land?', memoryCount: 7 },
             { id: 'q5', text: 'If you could only do one handoff task before leaving, which and why?', memoryCount: 0 },
           ],
           meta: { sandbox: true },
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
         ? `AUTHORED MEMORIES (top ${Math.min(authored.length, 25)}):\n${authored.slice(0, 25).map((r, i) => `[${i + 1}] ${r.type.toUpperCase()} · ${r.title}${r.summary ? `\n    ${r.summary.slice(0, 160)}` : ''}`).join('\n')}`
         : 'No authored memories on file.',
       decisions.length > 0
-        ? `DECISIONS MADE:\n${decisions.map((d, i) => `[${i + 1}] ${d.title}${d.rationale ? ` — ${d.rationale.slice(0, 160)}` : ''}`).join('\n')}`
+        ? `DECISIONS MADE:\n${decisions.map((d, i) => `[${i + 1}] ${d.title}${d.rationale ? ` - ${d.rationale.slice(0, 160)}` : ''}`).join('\n')}`
         : 'No decisions on file.',
     ].join('\n\n')
 
@@ -171,12 +171,12 @@ ${footprintBlock}
 ${roleTitle ? `ROLE: ${roleTitle}\n` : ''}
 
 Rules:
-- Ground every question in what you saw in their footprint. Don't ask generic "what did you work on?" — ask "Project X came up in your memories — what's its current status and who should own it?"
+- Ground every question in what you saw in their footprint. Don't ask generic "what did you work on?" - ask "Project X came up in your memories - what's its current status and who should own it?"
 - Cover all five topic areas: projects, relationships, tribal_knowledge, gotchas, open_loops.
 - 2-3 questions per topic.
 - Each question must be answerable in 2-5 sentences. Don't ask essay questions.
 - Name specific projects, people, and systems from the footprint verbatim.
-- If the footprint is thin, mix in a few default questions — but still write at least 10.
+- If the footprint is thin, mix in a few default questions - but still write at least 10.
 
 Output strict JSON only:
 { "questions": [ { "topic": "projects", "question": "..." }, ... ] }
@@ -254,7 +254,7 @@ function defaultQuestions(): PlannedQuestion[] {
   const defaults: Array<[PlannedQuestion['topic'], string]> = [
     ['projects',         'What are the top 3 projects you\'re leaving in-flight, and what state is each in?'],
     ['projects',         'Which project has no clear successor lined up, and who would you recommend?'],
-    ['relationships',    'Name 3-5 people outside your team whose trust you\'ve earned — and what the relationship is about.'],
+    ['relationships',    'Name 3-5 people outside your team whose trust you\'ve earned - and what the relationship is about.'],
     ['relationships',    'Which external vendors / partners do you own the relationship with?'],
     ['tribal_knowledge', 'Is there anything about "how we actually do things here" that isn\'t written down but matters?'],
     ['tribal_knowledge', 'What naming conventions, code patterns, or working styles should your successor adopt on day one?'],

@@ -11,7 +11,7 @@ const ocrSchema = z.object({
  * Server-side OCR endpoint for Windows desktop app.
  * Receives a base64-encoded screenshot, runs Tesseract, returns extracted text.
  *
- * macOS uses local Swift Vision — this is only needed for Windows.
+ * macOS uses local Swift Vision - this is only needed for Windows.
  * Accepts both Bearer token and X-Device-Id (anonymous).
  */
 export async function POST(req: NextRequest) {

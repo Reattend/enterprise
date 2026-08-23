@@ -3,14 +3,14 @@ import { MarketingNavbar } from './marketing-navbar'
 import { MarketingFooter } from './marketing-footer'
 
 /**
- * MarketingShell — the canonical wrapper for every marketing page outside
+ * MarketingShell - the canonical wrapper for every marketing page outside
  * the static landing.html (tools, games, free utilities, comparison pages,
  * use-case pages, glossary, blog, help center, etc).
  *
  * Inherits the design language from /public/landing-design/styles.css so
  * marketing surfaces feel like one continuous brand. Tokens (oklch palette,
  * Instrument Serif headings, paper-grain background) match the landing
- * verbatim — see that CSS file for the source of truth.
+ * verbatim - see that CSS file for the source of truth.
  *
  * Usage:
  *   <MarketingShell>
@@ -39,7 +39,7 @@ export function MarketingShell({
         fontFamily: 'var(--font-inter), -apple-system, system-ui, sans-serif',
       }}
     >
-      {/* Paper-grain texture — same dot pattern as the landing.html, kept
+      {/* Paper-grain texture - same dot pattern as the landing.html, kept
           subtle so it adds warmth without being noisy under content. */}
       <div
         className="fixed inset-0 pointer-events-none z-[1]"

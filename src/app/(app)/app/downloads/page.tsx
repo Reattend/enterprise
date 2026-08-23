@@ -5,9 +5,9 @@
 // public marketing page. Replaces the previous public /download route.
 //
 // Three install vectors:
-//   1. Mac (signed .app.zip — Apple silicon) — newest, most capable surface
-//   2. Windows (.msi installer) — built via GitHub Actions per release
-//   3. Chrome extension — proven workflow for browser-native users
+//   1. Mac (signed .app.zip - Apple silicon) - newest, most capable surface
+//   2. Windows (.msi installer) - built via GitHub Actions per release
+//   3. Chrome extension - proven workflow for browser-native users
 //
 // Asset URLs point at /downloads/* on the same origin, served as static
 // files from the droplet's /var/www/enterprise/public/downloads/. The
@@ -38,7 +38,7 @@ export default function DownloadsPage() {
           Reattend, where you already are
         </h1>
         <p className="text-[14px] text-muted-foreground max-w-2xl leading-relaxed">
-          Two keystrokes to save. One spotlight to ask. Pick the surface that fits your day — every install signs in with the same API token from{' '}
+          Two keystrokes to save. One spotlight to ask. Pick the surface that fits your day - every install signs in with the same API token from{' '}
           <Link href="/app/settings" className="underline underline-offset-2 hover:text-foreground">Settings</Link>.
         </p>
       </header>
@@ -49,7 +49,7 @@ export default function DownloadsPage() {
           badgeColor="bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
           icon={<Apple className="w-7 h-7" strokeWidth={1.5} />}
           title="Reattend for Mac"
-          tagline="Tray-only. Capture, ask, ambient — one floating click."
+          tagline="Tray-only. Capture, ask, ambient - one floating click."
           features={[
             { icon: <Layers className="w-3.5 h-3.5" />, label: '⌘⇧R · Quick capture' },
             { icon: <Sparkles className="w-3.5 h-3.5" />, label: '⌘⇧A · Ask spotlight (Normal + Deep)' },
@@ -110,7 +110,7 @@ export default function DownloadsPage() {
         <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
         <div className="text-[13px] leading-relaxed text-muted-foreground">
           <span className="font-medium text-foreground">Code-signed, sandbox-respectful.</span>{' '}
-          The Mac build is signed with our Apple Developer ID and notarized — Gatekeeper opens it without warnings.
+          The Mac build is signed with our Apple Developer ID and notarized - Gatekeeper opens it without warnings.
           The Windows build will be signed with Authenticode once the cert is provisioned.
           Auto-updates flow through{' '}
           <code className="text-[11px] px-1 py-0.5 bg-background rounded">/api/updater</code>{' '}

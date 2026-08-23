@@ -1,10 +1,10 @@
 'use client'
 
-// Capture — give us the firehose, we'll split it into structured parts.
+// Capture - give us the firehose, we'll split it into structured parts.
 // New design pulled from claude.ai/design Capture.html: two-column layout
 // with composer (left) and "What Lattice sees" preview (right). All existing
 // wiring (parse, commit, uploadFile, saveLink, toggleRecord, scope picker)
-// is preserved verbatim — only the surrounding chrome changed.
+// is preserved verbatim - only the surrounding chrome changed.
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
@@ -158,13 +158,13 @@ export default function BrainDumpPage() {
   }
 
   async function parse() {
-    // Lower the minimum when "Save as 1 memory" is on — short notes are
+    // Lower the minimum when "Save as 1 memory" is on - short notes are
     // valid in that mode (you're just saving the text verbatim).
     const min = saveAsOne ? 1 : 50
     if (rawText.trim().length < min) {
       toast.error(saveAsOne
         ? 'Type something first.'
-        : 'Dump a bit more — at least 50 characters so there is something to structure.')
+        : 'Dump a bit more - at least 50 characters so there is something to structure.')
       return
     }
     setParsing(true)
@@ -241,7 +241,7 @@ export default function BrainDumpPage() {
   async function uploadFile(file: File) {
     if (!file) return
     if (file.size > 20 * 1024 * 1024) {
-      toast.error('File too big — 20MB max')
+      toast.error('File too big - 20MB max')
       return
     }
     setFileUploading(true)
@@ -266,7 +266,7 @@ export default function BrainDumpPage() {
         })
         toast.success(`Added ${file.name}`)
       } else {
-        toast.success('Uploaded — processing in the background')
+        toast.success('Uploaded - processing in the background')
       }
     } finally {
       setFileUploading(false)
@@ -305,7 +305,7 @@ export default function BrainDumpPage() {
           created: [{ id: r.id, title: r.title || `[Link] ${url}`, kind: 'fact' }],
           skippedDupes: [],
         })
-        toast.success('Link captured — page content will be enriched in background')
+        toast.success('Link captured - page content will be enriched in background')
       }
     } finally {
       setLinkSaving(false)
@@ -360,7 +360,7 @@ export default function BrainDumpPage() {
       <div className="cap-head">
         <h1>Drop, dictate, or <em>drag in</em> anything.</h1>
         <p>
-          One inbox for every kind of input. The AI pulls out the decisions, actions, open questions and facts — you review and commit in one click. Press <span className="kbd">⌘1</span> <span className="kbd">⌘2</span> <span className="kbd">⌘3</span> to switch modes.
+          One inbox for every kind of input. The AI pulls out the decisions, actions, open questions and facts - you review and commit in one click. Press <span className="kbd">⌘1</span> <span className="kbd">⌘2</span> <span className="kbd">⌘3</span> to switch modes.
         </p>
       </div>
 
@@ -411,13 +411,13 @@ export default function BrainDumpPage() {
                 Created {result.created.length} memor{result.created.length === 1 ? 'y' : 'ies'}
               </div>
               <div className="cap-result-sub">
-                Triage is running in the background — the AI will re-title and link them to related memories in ~30s.
+                Triage is running in the background - the AI will re-title and link them to related memories in ~30s.
               </div>
             </div>
           </div>
           {result.skippedDupes.length > 0 && (
             <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-              Skipped {result.skippedDupes.length} duplicate{result.skippedDupes.length === 1 ? '' : 's'} — already in your memory.
+              Skipped {result.skippedDupes.length} duplicate{result.skippedDupes.length === 1 ? '' : 's'} - already in your memory.
             </div>
           )}
           <div className="cap-result-list">
@@ -439,9 +439,9 @@ export default function BrainDumpPage() {
         </div>
       ) : (
         <div className="cap-grid">
-          {/* LEFT — composer */}
+          {/* LEFT - composer */}
           <div className="cap-composer">
-            {/* Scope picker — same behavior the old version had. Default-on
+            {/* Scope picker - same behavior the old version had. Default-on
                 hidden behind a chevron so the 95% case sees no extra UI. */}
             {teams.length > 0 && mode === 'firehose' && (
               <div className="cap-scope-bar">
@@ -501,7 +501,7 @@ export default function BrainDumpPage() {
                   <textarea
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
-                    placeholder='Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts — you review and commit in one click.'
+                    placeholder='Talk or type everything in your head. Reattend splits it into decisions, open questions, actions, and facts - you review and commit in one click.'
                     disabled={parsing || committing}
                   />
                 </div>
@@ -571,7 +571,7 @@ export default function BrainDumpPage() {
                     <Upload className="h-5 w-5" />
                   </div>
                   <p className="cap-dz-title">Drop a file here, or click to pick one</p>
-                  <p className="cap-dz-sub">PDF · Word · image · audio · video — up to 20 MB. Text is extracted, transcribed, and indexed.</p>
+                  <p className="cap-dz-sub">PDF · Word · image · audio · video - up to 20 MB. Text is extracted, transcribed, and indexed.</p>
                   <div className="cap-dz-types">
                     <span className="cap-type-chip">PDF</span>
                     <span className="cap-type-chip">DOCX</span>
@@ -618,14 +618,14 @@ export default function BrainDumpPage() {
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') saveLink() }}
-                      placeholder="Paste a URL — Notion page, Slack thread, Google Doc, GitHub issue, YouTube…"
+                      placeholder="Paste a URL - Notion page, Slack thread, Google Doc, GitHub issue, YouTube…"
                       disabled={linkSaving}
                     />
                   </div>
                   <textarea
                     value={linkNote}
                     onChange={(e) => setLinkNote(e.target.value)}
-                    placeholder="Note (optional) — why this matters, what you want to remember…"
+                    placeholder="Note (optional) - why this matters, what you want to remember…"
                     disabled={linkSaving}
                     className="cap-link-note"
                   />
@@ -646,7 +646,7 @@ export default function BrainDumpPage() {
             )}
           </div>
 
-          {/* RIGHT — preview panel */}
+          {/* RIGHT - preview panel */}
           <aside className="cap-preview">
             <div className="cap-pv-head">
               <Sparkles className="h-4 w-4" style={{ color: 'var(--brand)' }} />
@@ -658,7 +658,7 @@ export default function BrainDumpPage() {
               <div className="cap-empty">
                 <span className="glyph">~</span>
                 {mode === 'firehose' && 'Start typing on the left. We\'ll surface decisions, actions and questions as you go.'}
-                {mode === 'file' && 'Drop a file to extract structured items — decisions, action items, key facts.'}
+                {mode === 'file' && 'Drop a file to extract structured items - decisions, action items, key facts.'}
                 {mode === 'link' && 'Paste a URL to capture and enrich a page in your memory.'}
               </div>
             )}

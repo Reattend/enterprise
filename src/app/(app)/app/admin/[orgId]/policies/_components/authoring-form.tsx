@@ -1,6 +1,6 @@
 'use client'
 
-// Shared authoring form for new + edit flows. Deliberately simple — markdown
+// Shared authoring form for new + edit flows. Deliberately simple - markdown
 // textarea (no WYSIWYG, which would be its own ~3-day rabbit hole).
 // Enterprise admins prefer copy-paste from existing docs anyway.
 
@@ -312,7 +312,7 @@ export function PolicyAuthoringForm({
             <div>
               <div className="text-sm font-medium">Require re-acknowledgment</div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Turn off for typo fixes — existing acks remain valid.
+                Turn off for typo fixes - existing acks remain valid.
               </div>
             </div>
             <Switch checked={requiresReAck} onCheckedChange={setRequiresReAck} />

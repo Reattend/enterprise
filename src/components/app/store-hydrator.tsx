@@ -16,7 +16,7 @@ export function StoreHydrator() {
     try {
       const stored = localStorage.getItem('active_enterprise_org_id')
       if (stored) setActiveEnterpriseOrgId(stored)
-    } catch { /* no-op — private mode / SSR / etc. */ }
+    } catch { /* no-op - private mode / SSR / etc. */ }
     setHasHydratedStore(true)
   }, [setActiveEnterpriseOrgId, setHasHydratedStore])
 

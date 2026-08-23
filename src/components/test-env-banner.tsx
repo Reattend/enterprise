@@ -7,7 +7,7 @@
 // (this is a server component with a fixed runtime check).
 //
 // Mounted at the top of <body> in the root layout so it covers public
-// pages, /login, the dashboard — everywhere.
+// pages, /login, the dashboard - everywhere.
 
 export function TestEnvBanner() {
   if (process.env.NEXT_PUBLIC_ENV !== 'test') return null

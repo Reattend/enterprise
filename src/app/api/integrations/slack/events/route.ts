@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           await db.update(schema.integrationsConnections)
             .set({
               status: 'error',
-              syncError: 'Slack tokens revoked — please reconnect',
+              syncError: 'Slack tokens revoked - please reconnect',
               updatedAt: new Date().toISOString(),
             })
             .where(eq(schema.integrationsConnections.id, conn.id))

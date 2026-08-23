@@ -5,7 +5,7 @@
 // Lets the signed-in user:
 //   - See accounts already linked to this one (with Remove buttons)
 //   - Send a link request to a new email (the OTP goes to that email,
-//     to be entered on THAT account — receiver-confirms model)
+//     to be entered on THAT account - receiver-confirms model)
 //   - Confirm an incoming OTP if someone else requested to link to
 //     this account
 //
@@ -39,7 +39,7 @@ export function LinkedAccountsSection() {
   const [confirmCode, setConfirmCode] = useState('')
   const [confirming, setConfirming] = useState(false)
 
-  // Removing state — userId being removed
+  // Removing state - userId being removed
   const [removing, setRemoving] = useState<string | null>(null)
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export function LinkedAccountsSection() {
       }
       setPendingTarget(requestEmail.trim())
       setRequestEmail('')
-      toast.success(data.message || 'Request sent — check the other account\'s inbox.')
+      toast.success(data.message || 'Request sent - check the other account\'s inbox.')
       if (data.dev) {
         toast.info(`Dev mode code: ${data.dev}`, { duration: 30000 })
       }
@@ -147,7 +147,7 @@ export function LinkedAccountsSection() {
           Linked accounts
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Link another Reattend account (e.g. your work email) so you can switch between them in one tab — no signing in again. Each account stays structurally separate; linking is a UI convenience, not a data merge.
+          Link another Reattend account (e.g. your work email) so you can switch between them in one tab - no signing in again. Each account stays structurally separate; linking is a UI convenience, not a data merge.
         </p>
       </div>
 

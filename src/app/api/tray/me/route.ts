@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm'
  * Returns the authenticated user's basic info + subscription tier so the
  * extension can render an upgrade prompt when extensionAccess is false.
  *
- * This endpoint is intentionally NOT gated by requireExtensionAccess — the
+ * This endpoint is intentionally NOT gated by requireExtensionAccess - the
  * extension needs to bootstrap and know "you're on Free, upgrade to use me"
  * even when every other tray endpoint is returning 402.
  */

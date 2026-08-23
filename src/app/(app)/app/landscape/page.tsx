@@ -1,12 +1,12 @@
 'use client'
 
-// Landscape — three projections of the same memory corpus.
+// Landscape - three projections of the same memory corpus.
 //
 //   Space:  Memory constellation. 3D force-graph, dark cosmic background,
 //           soft bloom, drifting particle field, slow auto-orbit. The
 //           Twitter-screenshot view; this is the default landing mode.
 //   Rewind: Time-Machine slider. Scrub through 24 months of org state.
-//   Board:  Memory graph editor. React Flow layout — manage links here.
+//   Board:  Memory graph editor. React Flow layout - manage links here.
 //
 // Mode persists via ?mode=space|rewind|board. Older mode=temporal still
 // resolves to rewind; mode=causal still resolves to board.
@@ -49,7 +49,7 @@ function LandscapeInner() {
   return (
     <div className="lsc-page-wrap">
       <div className="lsc-page">
-        {/* Mode switch — violet-gradient pill matches design exactly */}
+        {/* Mode switch - violet-gradient pill matches design exactly */}
         <div className="lsc-modes" role="tablist">
           <button
             type="button"

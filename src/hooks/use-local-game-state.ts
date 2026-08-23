@@ -33,7 +33,7 @@ export function useLocalGameState<T>(
       try {
         localStorage.setItem(key, JSON.stringify(state))
       } catch {
-        // localStorage full or unavailable — silently ignore
+        // localStorage full or unavailable - silently ignore
       }
     }, 500)
 

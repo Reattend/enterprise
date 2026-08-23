@@ -1,6 +1,6 @@
 'use client'
 
-// Handoff Generator — one-click personalized handoff doc.
+// Handoff Generator - one-click personalized handoff doc.
 //
 // Admin picks outgoing + incoming person + optional scope ("Project Atlas",
 // "AP accounts", etc.). the AI reads the outgoing person's footprint and

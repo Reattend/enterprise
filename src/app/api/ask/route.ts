@@ -117,7 +117,7 @@ function getNameVariants(name: string): string[] {
 // ─── Intent classification ────────────────────────────────────────────────────
 type QueryIntent = 'factual' | 'entity' | 'temporal' | 'synthesis' | 'actions' | 'history' | 'aggregation'
 
-// Regex fallback — used if LLM classification fails or times out
+// Regex fallback - used if LLM classification fails or times out
 function classifyIntentRegex(question: string): QueryIntent {
   const q = question.toLowerCase()
   if (/\b(total|how much|how many|sum|count|tally|aggregate|combined|altogether|add up|average|avg|budget|cost|spend|spent|revenue|expense|invoice|payment|paid|charged|owe|earned|profit|loss|price|fee|salary|rate|hours?|days?|weeks?|months?|number of|quantity|amount)\b/.test(q)
@@ -134,7 +134,7 @@ function classifyIntentRegex(question: string): QueryIntent {
     return 'temporal'
   if (/^(who|what)\s+is\b|^tell me about\s/.test(q) || (/\bwho\b/.test(q) && q.split(' ').length <= 6))
     return 'entity'
-  // Draft/recap/standup intents — user wants the model to write across
+  // Draft/recap/standup intents - user wants the model to write across
   // their corpus, not search a topic. "Draft a status update", "write me
   // an email update", "weekly recap", "standup", etc. all fall here.
   if (/\b(draft|write|compose|prepare)\b.{0,30}\b(update|status|email|message|note|recap|summary|report|standup|stand-up|brief|briefing)\b/.test(q))
@@ -146,18 +146,18 @@ function classifyIntentRegex(question: string): QueryIntent {
   return 'factual'
 }
 
-// LLM-based intent classifier — runs in parallel with embedding, ~300ms on Groq
+// LLM-based intent classifier - runs in parallel with embedding, ~300ms on Groq
 // Falls back to regex if it fails. Much more accurate for edge cases.
 async function classifyIntentLLM(question: string, llm: import('@/lib/ai/llm').LLMProvider): Promise<QueryIntent> {
   const prompt = `Classify this user question into exactly one of these 6 intent types:
 
-factual     — single specific fact: name, date, number, yes/no, did X happen
-entity      — profile of a person, org, project: "who is X", "tell me about X"
-temporal    — time-bounded: "last week", "in March", "what happened on..."
-synthesis   — broad summary, comparison, full recap: "summarize", "what happened with X", "give me a list"
-actions     — pending/open tasks: "what needs to be done", "action items", "open tasks"
-history     — completed past work: "what has X done", "what did X work on", "X's contributions"
-aggregation — numerical totals/counts: "how much in total", "how many hours", "total budget", "sum of all"
+factual     - single specific fact: name, date, number, yes/no, did X happen
+entity      - profile of a person, org, project: "who is X", "tell me about X"
+temporal    - time-bounded: "last week", "in March", "what happened on..."
+synthesis   - broad summary, comparison, full recap: "summarize", "what happened with X", "give me a list"
+actions     - pending/open tasks: "what needs to be done", "action items", "open tasks"
+history     - completed past work: "what has X done", "what did X work on", "X's contributions"
+aggregation - numerical totals/counts: "how much in total", "how many hours", "total budget", "sum of all"
 
 Question: "${question}"
 
@@ -256,7 +256,7 @@ function formatDate(dateStr: string | null | undefined): string {
 
 // ─── Multi-hop reasoning ─────────────────────────────────────────────────────
 // Detects questions that need chained lookups (find X, then use X to find Y).
-// Detection runs in parallel with SQL retrieval — adds ~0ms for single-hop questions.
+// Detection runs in parallel with SQL retrieval - adds ~0ms for single-hop questions.
 // For multi-hop: Hop1 extracts the bridge fact, Hop2 retrieves records about it.
 interface MultiHopPlan { hop1: string; hop2: string; bridge: string }
 
@@ -272,7 +272,7 @@ async function detectMultiHop(
   if (hasSingleHopStart && !hasMultiHopSignal) return null
   if (!hasMultiHopSignal) return null
 
-  const prompt = `Determine if this question requires multi-hop reasoning — finding one fact first, then using it to answer the real question.
+  const prompt = `Determine if this question requires multi-hop reasoning - finding one fact first, then using it to answer the real question.
 
 Question: "${question}"
 
@@ -283,9 +283,9 @@ Examples:
 - "What's the status of the task Mike was assigned in last week's meeting?" → hop1: "What task was Mike assigned last week?", hop2: "What is the current status of [task]?", bridge: decision
 
 Single-hop (answer directly, no chaining needed):
-- "What did Mike work on this week?" — direct
-- "List all open tasks for the Goodwill project" — direct
-- "Tell me about Sarah" — direct
+- "What did Mike work on this week?" - direct
+- "List all open tasks for the Goodwill project" - direct
+- "Tell me about Sarah" - direct
 
 Output JSON (one of these two forms only):
 {"multiHop": true, "hop1": "first sub-question to resolve", "hop2": "second sub-question that uses hop1 result", "bridge": "entity|event|decision|date"}
@@ -303,7 +303,7 @@ Output JSON (one of these two forms only):
 
 // ─── Query expansion ─────────────────────────────────────────────────────────
 // Generates 2-3 alternate phrasings to surface memories that used different vocabulary.
-// Runs in parallel with candidate retrieval — adds zero wall-clock latency.
+// Runs in parallel with candidate retrieval - adds zero wall-clock latency.
 async function expandQueryTerms(question: string, llm: import('@/lib/ai/llm').LLMProvider): Promise<string[]> {
   const prompt = `Given this search query for a personal memory system, list 2-3 short alternative phrasings that might match how the same information was written down differently.
 
@@ -328,67 +328,67 @@ Rules:
 function buildDepthInstruction(intent: QueryIntent, dateRange: DateRange | null): string {
   switch (intent) {
     case 'history':
-      return `FORMAT — Work Summary (past tense, completed/ongoing work):
+      return `FORMAT - Work Summary (past tense, completed/ongoing work):
 - Open with one sentence: who the person is and what context they're working in (e.g. "Mike is handling data validation for the Goodwill client.")
 - Use ## headers to group by project/area/theme
-- Under each header: bullet what they DID — use past tense ("Mike updated the Excel formulas...", "Mike identified a 297-entry discrepancy...")
+- Under each header: bullet what they DID - use past tense ("Mike updated the Excel formulas...", "Mike identified a 297-entry discrepancy...")
 - Bold key outcomes and deliverables: **297-entry discrepancy identified**, **spreadsheet sent Mar 17**
 - Add [n] citations after each fact
-- End with ## Summary — 1-2 sentences on overall contribution/status
-- Be exhaustive — list every piece of work found across all memories`
+- End with ## Summary - 1-2 sentences on overall contribution/status
+- Be exhaustive - list every piece of work found across all memories`
 
     case 'actions':
-      return `FORMAT — Pending Action Items (open/incomplete tasks only):
-- Open with one sentence: who owns these and from which meeting/note they came (e.g. "From the Goodwill Status Meeting on Mar 17, 2026 — Mike's open items:")
-- Numbered list of ONLY pending/unresolved tasks — each item: **task description** — deadline if known [n]
+      return `FORMAT - Pending Action Items (open/incomplete tasks only):
+- Open with one sentence: who owns these and from which meeting/note they came (e.g. "From the Goodwill Status Meeting on Mar 17, 2026 - Mike's open items:")
+- Numbered list of ONLY pending/unresolved tasks - each item: **task description** - deadline if known [n]
 - Do NOT list completed or already-delivered items
 - If status is unclear, note it: (status unclear)
 - End with a bold count: **X open items for Mike**
-- Be exhaustive — list every unresolved action item, do not truncate`
+- Be exhaustive - list every unresolved action item, do not truncate`
 
     case 'temporal':
-      return `FORMAT — Timeline:
+      return `FORMAT - Timeline:
 - Open: "Here's what happened ${dateRange ? `during ${dateRange.label}` : ''}:"
-- Chronological order — bold each date: "**Mon, Mar 24** — event [n]"
+- Chronological order - bold each date: "**Mon, Mar 24** - event [n]"
 - Use ## DATE headers if multiple distinct days
 - Include participants for each event`
 
     case 'entity':
-      return `FORMAT — Entity Profile:
+      return `FORMAT - Entity Profile:
 ## Who They Are
-[role, org, relationship — 1-3 sentences]
+[role, org, relationship - 1-3 sentences]
 ## Recent Interactions
-[most recent first — bold the date, what was discussed]
+[most recent first - bold the date, what was discussed]
 ## Decisions & Commitments
-[what was agreed/decided/assigned — with date]
+[what was agreed/decided/assigned - with date]
 ## Open Items
 [anything pending with this person]
 Cite [n] after each fact.`
 
     case 'synthesis':
-      return `FORMAT — Synthesis:
+      return `FORMAT - Synthesis:
 - First line: who was involved and when (e.g. "Meeting with Brian Williams, Anjan, and Misha on Mon, Mar 16, 2026 [1]:")
 - Use ## headers to group discussion points by theme
-- Under each header: bullet every specific detail exhaustively — names, numbers, facts, decisions, outcomes
+- Under each header: bullet every specific detail exhaustively - names, numbers, facts, decisions, outcomes
 - Bold the most critical items: **audit target: 27th**
-- Add [n] citation after key facts — do NOT repeat the date on every bullet (it is already in the first line)
-- End with ## Key Takeaways — 2-3 sentences max, the most important outcomes
-- Write every bullet — never truncate`
+- Add [n] citation after key facts - do NOT repeat the date on every bullet (it is already in the first line)
+- End with ## Key Takeaways - 2-3 sentences max, the most important outcomes
+- Write every bullet - never truncate`
 
     case 'aggregation':
-      return `FORMAT — Numerical Aggregation:
+      return `FORMAT - Numerical Aggregation:
 - Open with the direct answer bolded: **Total: $12,500** or **Count: 7 meetings**
 - Show the breakdown line by line: each number, what it's for, date if known, [n] citation
-- If summing: show the calculation explicitly — "$5,000 [1] + $3,500 [2] + $4,000 [3] = **$12,500**"
+- If summing: show the calculation explicitly - "$5,000 [1] + $3,500 [2] + $4,000 [3] = **$12,500**"
 - If counting: list each item with date and [n]
 - Note any ambiguities: different currencies, overlapping periods, unclear if same item counted twice
 - End with a ## Notes line if any numbers seem inconsistent or partial`
 
     case 'factual':
     default:
-      return `FORMAT — Direct Answer:
+      return `FORMAT - Direct Answer:
 - Answer in 1-3 sentences, directly and precisely
-- Quote exact values from the memory — never paraphrase
+- Quote exact values from the memory - never paraphrase
 - Add [n] citation. Include date only if specifically relevant: "confirmed on Mar 24, 2026 [1]"`
   }
 }
@@ -425,7 +425,7 @@ export async function POST(req: NextRequest) {
     // ─── Free-tier AI quota gate ─────────────────────────
     // Free users get 100 questions per calendar month; paid tiers are
     // unlimited. previewOnly skips the LLM (just retrieves sources) so it
-    // doesn't count. Sandbox users are exempt — they hit fixtures, not the
+    // doesn't count. Sandbox users are exempt - they hit fixtures, not the
     // model, and we don't want demo flow to ever 429.
     if (!previewOnly && !isSandboxEmail(userEmail)) {
       const quota = await consumeAiQuery(userId)
@@ -495,7 +495,7 @@ export async function POST(req: NextRequest) {
       metadata: { question: question.slice(0, 500), agentId: agentId || null },
     })
 
-    // Agent query log — fire-and-forget so analytics has per-agent data.
+    // Agent query log - fire-and-forget so analytics has per-agent data.
     // We don't have the answer yet at this point; follow-up PATCH can attach
     // answer preview + latency. For the builder's immediate needs this is
     // enough to drive the "queries/day" sparkline.
@@ -542,7 +542,7 @@ export async function POST(req: NextRequest) {
     const isMetaQuestion = /^(who are you|what are you|what api|what model|what llm|are you (gpt|claude|chatgpt|openai|anthropic)|what is reattend|how do you work|tell me about yourself)/i.test(lowerQ)
     if (isMetaQuestion) {
       const encoder = new TextEncoder()
-      const metaAnswer = `I'm Reattend — your AI memory assistant. I help you recall, connect, and act on everything you've saved: meeting notes, decisions, action items, ideas, and more.
+      const metaAnswer = `I'm Reattend - your AI memory assistant. I help you recall, connect, and act on everything you've saved: meeting notes, decisions, action items, ideas, and more.
 
 Here's what I can do:
 - Answer questions about your saved memories with specific names, dates, and details
@@ -597,7 +597,7 @@ Offers:
     // Extract any temporal range from the question
     const dateRange = extractDateRange(question)
 
-    // Cheap regex intent classification — used below to widen retrieval for
+    // Cheap regex intent classification - used below to widen retrieval for
     // recap/summary/draft queries. These are intent-shaped, not topic-shaped:
     // "Draft a status update from my notes" doesn't have any topic keywords,
     // so the keyword + vector filter would strip 22 of 24 records out and
@@ -668,7 +668,7 @@ Offers:
 
     // Record-level RBAC: strip anything the user can't access (private records
     // of others, dept-scoped records outside their dept, etc.). This is the
-    // critical layer — without it, Chat could leak restricted context.
+    // critical layer - without it, Chat could leak restricted context.
     const accessCtx = await buildAccessContext(userId)
     const allowedIds = await filterToAccessibleRecords(
       accessCtx,
@@ -677,7 +677,7 @@ Offers:
     let allRecords = allRecordsUnfiltered.filter((r) => allowedIds.has(r.id))
 
     // Agent scope enforcement. When an agentId is passed, the agent's
-    // scopeConfig narrows retrieval further — the agent only sees memories
+    // scopeConfig narrows retrieval further - the agent only sees memories
     // matching its types / department / tag filters. This is what makes
     // "HR Assistant" feel scoped; without it, every agent is identical.
     let agentSystemPrompt: string | null = null
@@ -743,7 +743,7 @@ Offers:
         else if (searchText.includes(kw)) score++
       }
 
-      // Proper noun entity boost — with fuzzy name variant matching
+      // Proper noun entity boost - with fuzzy name variant matching
       // Exact match: +10 title / +5 content. Variant match (Mike→Michael): +7 title / +3 content
       for (const pn of properNouns) {
         const variants = getNameVariants(pn)
@@ -753,10 +753,10 @@ Offers:
         else if (variants.some(v => v !== pn && searchText.includes(v))) score += 3
       }
 
-      // Compressed summary boost — dense summaries are preferred over individual old records
+      // Compressed summary boost - dense summaries are preferred over individual old records
       const rTags: string[] = JSON.parse(r.tags || '[]')
       if (rTags.includes('auto-compressed')) score += 4
-      // Penalise individual records that have been compressed — their summary is more useful
+      // Penalise individual records that have been compressed - their summary is more useful
       if (rTags.includes('compressed:source')) score = Math.max(0, score - 3)
 
       // Type boost
@@ -786,14 +786,14 @@ Offers:
     })
 
     // Semantic search across all workspaces
-    // We embed only the current question — not full history context,
+    // We embed only the current question - not full history context,
     // because conversation history dilutes the vector toward past topics.
     try {
       const queryVector = await llm.embed(question)
 
       let similarities: Array<{ recordId: string; sim: number }>
       if (vecLoaded) {
-        // ANN search via sqlite-vec — O(log n) instead of O(n) full scan
+        // ANN search via sqlite-vec - O(log n) instead of O(n) full scan
         const wsSet = new Set(allWorkspaceIds)
         const rows = sqlite.prepare(`
           SELECT m.record_id, m.workspace_id, v.distance
@@ -832,7 +832,7 @@ Offers:
       }
 
       // Add new candidates from semantic search that lie OUTSIDE the keyword/recent window.
-      // This is critical at scale — older memories are invisible without this.
+      // This is critical at scale - older memories are invisible without this.
       const existingIds = new Set(scored.map(x => x.record.id))
       const newSemanticIds = similarities
         .filter(s => !existingIds.has(s.recordId))
@@ -857,10 +857,10 @@ Offers:
     scored.sort((a, b) => b.score - a.score)
 
     // Relative score filter: when proper nouns exist, require records to score at least
-    // 40% of the top record — this eliminates tangentially-related noise
+    // 40% of the top record - this eliminates tangentially-related noise
     const topScore = scored[0]?.score ?? 0
     const minScore = properNouns.length > 0 ? Math.max(topScore * 0.4, 3) : 1
-    // Step 1: widen retrieval to 30 candidates — reranker will narrow to 10.
+    // Step 1: widen retrieval to 30 candidates - reranker will narrow to 10.
     // Previously: sliced to 20 directly. The wider window catches records
     // that hybrid scoring ranked low but Claude Haiku will rank high.
     let candidates = scored
@@ -899,7 +899,7 @@ Offers:
     if (candidates.length === 0) candidates = allRecords.slice(0, 3)
 
     // Step 2: Claude Haiku rerank. Takes 30 → top 10 by semantic relevance
-    // to the question. Skipped for broad-recap intents — the reranker is
+    // to the question. Skipped for broad-recap intents - the reranker is
     // also relevance-shaped, so on a "draft a status update from my notes"
     // query it would re-strip out everything that doesn't topically match
     // the literal phrase, defeating the backfill above. For recap intents
@@ -934,12 +934,12 @@ Offers:
 
     if (top.length === 0) {
       const encoder = new TextEncoder()
-      return new Response(encoder.encode("You don't have any memories saved yet. Here's how to get started:\n\n1. Click **New Memory** in the top right to paste meeting notes, decisions, or ideas\n2. Connect your **Gmail**, **Google Calendar**, or **Slack** from Settings → Integrations to auto-import\n3. Use the **desktop app** to capture thoughts on the fly\n\nOnce you have a few memories saved, come back and ask me anything — I'll connect the dots across everything you've captured.\n\nFollow-up questions:\n- How do I connect my Gmail?\n- What kinds of content should I save?\n- Can you show me an example of what this looks like with real memories?\n\nOffers:\n- If you want, I can walk you through the setup process step by step\n- Do you want me to explain what types of questions work best?"), {
+      return new Response(encoder.encode("You don't have any memories saved yet. Here's how to get started:\n\n1. Click **New Memory** in the top right to paste meeting notes, decisions, or ideas\n2. Connect your **Gmail**, **Google Calendar**, or **Slack** from Settings → Integrations to auto-import\n3. Use the **desktop app** to capture thoughts on the fly\n\nOnce you have a few memories saved, come back and ask me anything - I'll connect the dots across everything you've captured.\n\nFollow-up questions:\n- How do I connect my Gmail?\n- What kinds of content should I save?\n- Can you show me an example of what this looks like with real memories?\n\nOffers:\n- If you want, I can walk you through the setup process step by step\n- Do you want me to explain what types of questions work best?"), {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       })
     }
 
-    // Multi-hop, extraction, number, and conflict passes removed — too slow
+    // Multi-hop, extraction, number, and conflict passes removed - too slow
     // on self-hosted 32B. The answer prompt handles these inline.
 
     // Fetch linked records across all workspaces
@@ -1019,7 +1019,7 @@ Offers:
     } catch { /* continue without profiles */ }
 
     // Strip markdown formatting from content before injecting into LLM prompt.
-    // Meeting transcripts and notes often contain ## headers and **bold** — if passed
+    // Meeting transcripts and notes often contain ## headers and **bold** - if passed
     // verbatim the model tends to reproduce them instead of synthesising.
     const stripMarkdown = (text: string) =>
       text
@@ -1066,7 +1066,7 @@ Offers:
     // can afford richer context. Cap assistant turns at 800 chars.
     const isFollowUp = recentHistory.length > 0
     const historyText = isFollowUp
-      ? '\n\nCONVERSATION SO FAR (for context only — do NOT continue the previous answer):\n' + recentHistory.map(m =>
+      ? '\n\nCONVERSATION SO FAR (for context only - do NOT continue the previous answer):\n' + recentHistory.map(m =>
           m.role === 'user'
             ? `User: ${m.content}`
             : `Assistant: ${m.content.slice(0, 800)}${m.content.length > 800 ? '…' : ''}`
@@ -1081,7 +1081,7 @@ Offers:
     // Per-org "what's actively hot this week" digest, prepended as system
     // context. If the records being shown span multiple orgs (rare but
     // possible for cross-org users), we include each org's cache. Failures
-    // are silent — Ask works without the hot cache, just less grounded.
+    // are silent - Ask works without the hot cache, just less grounded.
     let hotCacheBlock = ''
     try {
       const wsIds = Array.from(new Set(top.map(r => r.workspaceId)))
@@ -1097,7 +1097,7 @@ Offers:
           if (cache) blocks.push(cache)
         }
         if (blocks.length > 0) {
-          hotCacheBlock = `\n\nTOP-OF-MIND CONTEXT (org's active state, last 7 days — use to ground your answer alongside the memories below):\n${blocks.join('\n\n---\n\n')}\n`
+          hotCacheBlock = `\n\nTOP-OF-MIND CONTEXT (org's active state, last 7 days - use to ground your answer alongside the memories below):\n${blocks.join('\n\n---\n\n')}\n`
         }
       }
     } catch (e) {
@@ -1106,10 +1106,10 @@ Offers:
 
     // Persona block: if an agent was passed, its systemPrompt replaces the
     // generic Reattend persona. The "Use only the memories below + cite [1]"
-    // rules remain fixed — they're the safety layer, not the persona.
+    // rules remain fixed - they're the safety layer, not the persona.
     const persona = agentSystemPrompt
       ? `${agentSystemPrompt}\n\n(You are running as the "${agentName}" agent. Your knowledge is scoped to the memories below, which may be a filtered subset of the org's full memory.)`
-      : `You are Reattend — the user's AI memory assistant. You have perfect recall of everything they've saved. You're a sharp, knowledgeable colleague who thinks strategically.
+      : `You are Reattend - the user's AI memory assistant. You have perfect recall of everything they've saved. You're a sharp, knowledgeable colleague who thinks strategically.
 
 WHAT YOU CAN DO:
 - Answer questions about their memories with specific names, dates, and numbers
@@ -1128,7 +1128,7 @@ RULES:
 - Write in clear, natural prose. No markdown headers.
 - If something isn't in the memories, say "I don't have this saved yet."
 - When asked to draft/create something (email, brief, presentation), use the memories as source material and produce a polished output.
-- For follow-up questions, give a complete standalone answer — never a fragment.${wsInstruction}
+- For follow-up questions, give a complete standalone answer - never a fragment.${wsInstruction}
 ${hotCacheBlock}
 ${entityProfileContext}
 MEMORIES:
@@ -1147,14 +1147,14 @@ Follow-up questions:
 - (a forward-looking question about next steps or risks)
 
 Offers:
-- If you want, I can [concrete action — draft an email, create a brief, map out a timeline, etc.]
+- If you want, I can [concrete action - draft an email, create a brief, map out a timeline, etc.]
 - Do you want me to [another concrete action tied to the memories]`
 
     // ─── Preview short-circuit ─────────────────────────────
     // Tasks compose calls /api/ask with previewOnly=true to surface the
     // memory-source chip strip BEFORE the user clicks Draft. We've done
     // the full retrieval (FTS + vector + RBAC + reranker) but skip the
-    // generation call — same shape the X-Sources header carries when
+    // generation call - same shape the X-Sources header carries when
     // the regular endpoint streams an answer.
     if (previewOnly) {
       const sources = top.map((r) => ({
@@ -1181,10 +1181,10 @@ Offers:
       date: formatDate(r.occurredAt || r.createdAt),
     }))))
 
-    // Reasoning trace — the visible "Claude is thinking" ticker on the client.
+    // Reasoning trace - the visible "Claude is thinking" ticker on the client.
     // Each step carries a label and the metric that made it interesting. The
     // client animates through these in order (they already ran; this is
-    // pedagogical replay, not live events — but it feels live and it's honest).
+    // pedagogical replay, not live events - but it feels live and it's honest).
     const traceJson = escapeHeaderValue(JSON.stringify({
       steps: [
         { id: 'keywords', label: 'Extracted keywords from your question', count: keywords.length, detail: keywords.slice(0, 6).join(', ') },

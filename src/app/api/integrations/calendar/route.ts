@@ -102,7 +102,7 @@ export async function PUT(req: NextRequest) {
       ...(body.selectedCalendars !== undefined && { selectedCalendars: body.selectedCalendars }),
     }
 
-    // Reset lastSyncedAt if selected calendars changed — forces full rescan for new calendars
+    // Reset lastSyncedAt if selected calendars changed - forces full rescan for new calendars
     const calendarsChanged = body.selectedCalendars !== undefined &&
       JSON.stringify([...(body.selectedCalendars)].sort()) !== JSON.stringify([...(currentSettings.selectedCalendars || [])].sort())
 

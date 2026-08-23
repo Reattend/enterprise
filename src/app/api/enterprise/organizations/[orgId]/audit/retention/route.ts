@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     const settings = org.settings ? JSON.parse(org.settings) : {}
     const days: number = typeof settings.auditRetentionDays === 'number' ? settings.auditRetentionDays : 0
 
-    // Count rows older than the retention cutoff — preview only, no delete.
+    // Count rows older than the retention cutoff - preview only, no delete.
     let eligibleToPrune = 0
     let cutoffIso: string | null = null
     if (days > 0) {
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 }
 
 // PATCH /api/enterprise/organizations/[orgId]/audit/retention
-// Body: { retentionDays: number } — 0 = infinite retention.
+// Body: { retentionDays: number } - 0 = infinite retention.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -87,7 +87,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ or
 }
 
 // POST /api/enterprise/organizations/[orgId]/audit/retention
-// Body: {} — runs a prune NOW using the configured retentionDays.
+// Body: {} - runs a prune NOW using the configured retentionDays.
 // Returns the count of rows deleted. Requires org.manage (destructive).
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     const settings = org.settings ? JSON.parse(org.settings) : {}
     const days: number = typeof settings.auditRetentionDays === 'number' ? settings.auditRetentionDays : 0
     if (days === 0) {
-      return NextResponse.json({ error: 'retention is infinite — set retentionDays > 0 first' }, { status: 400 })
+      return NextResponse.json({ error: 'retention is infinite - set retentionDays > 0 first' }, { status: 400 })
     }
 
     const cutoffIso = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()

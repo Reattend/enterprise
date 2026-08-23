@@ -76,7 +76,7 @@ async function orgRecords(organizationId: string) {
 // ─── Stale detector ──────────────────────────────────────────────────────────
 // A record is stale if it's older than its type's stale threshold AND hasn't
 // been updated recently. We check updatedAt (not just createdAt) so re-confirmed
-// records don't trigger. Locked records are skipped — they're explicitly fixed.
+// records don't trigger. Locked records are skipped - they're explicitly fixed.
 export async function detectStale(organizationId: string, restrictToDepartmentId?: string): Promise<Finding[]> {
   const all = await orgRecords(organizationId)
   const scoped = restrictToDepartmentId ? all.filter((r) => r.departmentId === restrictToDepartmentId) : all
@@ -158,7 +158,7 @@ export async function detectOrphaned(organizationId: string): Promise<Finding[]>
       kind: 'orphaned' as const,
       severity: 'critical' as const,
       title: rec ? rec.title.slice(0, 80) : `Orphaned record (${o.recordId.slice(0, 8)}…)`,
-      detail: `Owned by role "${role.title}" — role has no current holder`,
+      detail: `Owned by role "${role.title}" - role has no current holder`,
       resourceType: 'record' as const,
       resourceId: o.recordId,
       workspaceId: rec?.workspaceId,
@@ -170,7 +170,7 @@ export async function detectOrphaned(organizationId: string): Promise<Finding[]>
 
 // ─── Gap detector ────────────────────────────────────────────────────────────
 // A department is "silent" if it has members but zero new records in the last
-// GAP_DAYS days. Indicates knowledge isn't being captured — the main failure
+// GAP_DAYS days. Indicates knowledge isn't being captured - the main failure
 // mode we're trying to fix.
 export async function detectGaps(organizationId: string): Promise<Finding[]> {
   const depts = await db
@@ -275,7 +275,7 @@ export async function detectContradictions(organizationId: string): Promise<Find
   if (candidates.length < 2) return []
   const candidateIds = candidates.map((r) => r.id)
 
-  // Group by shared entity — cheap pre-filter before embedding work.
+  // Group by shared entity - cheap pre-filter before embedding work.
   const entityLinks = await db
     .select()
     .from(recordEntities)
@@ -324,7 +324,7 @@ export async function detectContradictions(organizationId: string): Promise<Find
     const b = byId.get(bId)
     if (!a || !b) continue
 
-    // Require opposition in text — skip pure duplicates
+    // Require opposition in text - skip pure duplicates
     const aText = `${a.title}\n${a.summary ?? ''}\n${a.content ?? ''}`
     const bText = `${b.title}\n${b.summary ?? ''}\n${b.content ?? ''}`
     if (!hasOpposition(aText, bText)) continue
@@ -364,7 +364,7 @@ export async function detectContradictions(organizationId: string): Promise<Find
 // ─── Rehashed decisions detector ─────────────────────────────────────────────
 // Flags decisions with very similar titles that have each been reversed at
 // least once. Signal: the organization keeps re-deciding the same thing and
-// flipping. The flagged "contradiction" category covers this in the UI — we
+// flipping. The flagged "contradiction" category covers this in the UI - we
 // emit findings with kind='contradiction' + severity='warning' and a specific
 // detail that says "rehashed N times".
 //
@@ -428,7 +428,7 @@ export async function detectRehashedDecisions(organizationId: string): Promise<F
       kind: 'contradiction',
       severity: reversedCount >= 3 ? 'critical' : 'warning',
       title: `"${primary.title.slice(0, 60)}" has been re-decided ${cluster.length} times`,
-      detail: `${cluster.length} decisions on the same topic · ${reversedCount} reversed or superseded. The org keeps flipping — root cause may be missing context.`,
+      detail: `${cluster.length} decisions on the same topic · ${reversedCount} reversed or superseded. The org keeps flipping - root cause may be missing context.`,
       resourceType: 'record_pair',
       resourceId: primary.id,
       secondaryResourceId: secondary.id,

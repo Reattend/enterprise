@@ -1,6 +1,6 @@
 'use client'
 
-// Sheet — right-side slide-out panel built on Radix Dialog. Use for
+// Sheet - right-side slide-out panel built on Radix Dialog. Use for
 // inspector / detail surfaces that don't fit a centered modal.
 
 import * as React from 'react'

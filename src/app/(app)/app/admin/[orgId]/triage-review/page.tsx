@@ -2,7 +2,7 @@
 
 import { PermissionGate } from '@/components/enterprise/permission-gate'
 
-// Triage Review — admin page.
+// Triage Review - admin page.
 //
 // Inspect the last N raw_items the AI has seen, with its decision (kept,
 // rejected, still pending) and a thumbs-up/down so admins can build a

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         ...p.readThese.map((r) => `- ${r}`),
         '',
         '## People to meet',
-        ...p.peopleToMeet.map((m) => `- **${m.name}** — ${m.role}. ${m.context}`),
+        ...p.peopleToMeet.map((m) => `- **${m.name}** - ${m.role}. ${m.context}`),
         '',
         '## Agents to try',
         ...p.agentsToTry.map((a) => `- ${a}`),
@@ -229,23 +229,23 @@ NEW HIRE:
 - Start date: ${startDate || 'soon'}
 
 DEPARTMENT CONTEXT:
-${recentRecords.slice(0, 10).map((r, i) => `[m${i + 1}] ${r.type}: ${r.title}${r.summary ? ' — ' + r.summary.slice(0, 150) : ''}`).join('\n') || '(no recent memories)'}
+${recentRecords.slice(0, 10).map((r, i) => `[m${i + 1}] ${r.type}: ${r.title}${r.summary ? ' - ' + r.summary.slice(0, 150) : ''}`).join('\n') || '(no recent memories)'}
 
 KEY RECENT DECISIONS (${keyDecisions.length}):
-${keyDecisions.map((d, i) => `[d${i + 1}] ${d.title} (${d.status})${d.rationale ? ' — ' + d.rationale.slice(0, 120) : ''}`).join('\n') || '(no decisions)'}
+${keyDecisions.map((d, i) => `[d${i + 1}] ${d.title} (${d.status})${d.rationale ? ' - ' + d.rationale.slice(0, 120) : ''}`).join('\n') || '(no decisions)'}
 
 POLICIES TO ACK (${publishedPolicies.length}):
 ${publishedPolicies.slice(0, 6).map((p, i) => `[p${i + 1}] ${p.title}${p.category ? ` (${p.category})` : ''}`).join('\n') || '(none)'}
 
 PEOPLE TO MEET (${peopleToMeet.length}):
-${peopleToMeet.map((p, i) => `[u${i + 1}] ${p.name || p.email} — ${p.role}${p.title ? ', ' + p.title : ''}`).join('\n') || '(empty dept)'}
+${peopleToMeet.map((p, i) => `[u${i + 1}] ${p.name || p.email} - ${p.role}${p.title ? ', ' + p.title : ''}`).join('\n') || '(empty dept)'}
 
 AGENTS THEY CAN USE:
 ${agentRows.map((a, i) => `[a${i + 1}] ${a.name}: ${a.description || 'n/a'}`).join('\n')}
 
 Structure:
 # Welcome, {first name}
-Short opening (2-3 sentences) — what this packet is, warm tone.
+Short opening (2-3 sentences) - what this packet is, warm tone.
 
 ## What we do here
 1 paragraph on the department's purpose, inferred from recent memories/decisions.
@@ -254,7 +254,7 @@ Short opening (2-3 sentences) — what this packet is, warm tone.
 Bullet list with decision title + one-sentence "why it matters to you". Cite [d1], [d2].
 
 ## People to meet in week one
-Ordered list, dept head first. For each: name, role, 1-line reason ("ask them about [x]"). Base reasons on the context — don't invent.
+Ordered list, dept head first. For each: name, role, 1-line reason ("ask them about [x]"). Base reasons on the context - don't invent.
 
 ## Policies to acknowledge
 Bullet list with title + 1 line on why. Cite [p1], [p2].
@@ -280,7 +280,7 @@ Begin the packet:`
     }
     if (!markdown) {
       // Plaintext fallback so the button still does something without Claude
-      markdown = `# Welcome, ${name.split(' ')[0]}\n\nYou're joining ${dept.name} as ${roleTitle}. Here's what's on deck for week one:\n\n- ${keyDecisions.length} recent decisions in your dept\n- ${publishedPolicies.length} policies to acknowledge\n- ${peopleToMeet.length} people to meet\n\n(AI narrative unavailable — regenerate when Claude is configured.)`
+      markdown = `# Welcome, ${name.split(' ')[0]}\n\nYou're joining ${dept.name} as ${roleTitle}. Here's what's on deck for week one:\n\n- ${keyDecisions.length} recent decisions in your dept\n- ${publishedPolicies.length} policies to acknowledge\n- ${peopleToMeet.length} people to meet\n\n(AI narrative unavailable - regenerate when Claude is configured.)`
     }
 
     return NextResponse.json({

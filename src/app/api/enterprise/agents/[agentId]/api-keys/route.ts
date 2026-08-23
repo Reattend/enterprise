@@ -9,7 +9,7 @@ import {
   hasOrgPermission,
 } from '@/lib/enterprise'
 
-// GET /api/enterprise/agents/[agentId]/api-keys — list existing keys (masked)
+// GET /api/enterprise/agents/[agentId]/api-keys - list existing keys (masked)
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   try {
     const { userId } = await requireAuth()
@@ -46,7 +46,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ age
 
 // POST /api/enterprise/agents/[agentId]/api-keys
 // Body: { name }
-// Returns the plaintext key ONCE — server stores only sha256 hash.
+// Returns the plaintext key ONCE - server stores only sha256 hash.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   try {
     const { userId } = await requireAuth()
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ age
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    // Key format: `ak_live_<24 random hex>` — 32 total after prefix. Prefix
+    // Key format: `ak_live_<24 random hex>` - 32 total after prefix. Prefix
     // is shown in the list so admins can identify a key later.
     const secret = crypto.randomBytes(24).toString('hex')
     const plaintext = `ak_live_${secret}`
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ age
         keyPrefix: inserted.keyPrefix,
         createdAt: inserted.createdAt,
       },
-      plaintext, // SHOWN ONCE — UI must make this clear
+      plaintext, // SHOWN ONCE - UI must make this clear
     })
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ age
 }
 
 // DELETE /api/enterprise/agents/[agentId]/api-keys?keyId=...
-// Soft-revokes — keeps the row so audit trail + lastUsedAt survive.
+// Soft-revokes - keeps the row so audit trail + lastUsedAt survive.
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   try {
     const { userId } = await requireAuth()

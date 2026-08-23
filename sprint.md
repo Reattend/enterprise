@@ -1,8 +1,13 @@
 # Reattend Enterprise — Sprint Roadmap
 
-**Last updated:** 2026-04-25 (end of Sprint O-a · sandbox + hardening)
-**First client:** **Government / secure org** (gov track is priority, SMB second)
-**Launch target:** ~3 focused weeks from now if execution is tight (Sprints O proper, P, Q, R remain)
+**Last updated:** 2026-08-21 — see `today.md` §0 for the full 2026-04-28 → 2026-06-06 catch-up
+this doc missed (139 commits: rebrand to plain `reattend.com`, Personal/Org merge, billing,
+RBAC finalization, Nango proxy-fetcher connectors, staging environment, Landscape Space mode).
+**First client:** **Government / secure org** (gov track is priority, SMB second) — unchanged
+strategically, though marketing dropped the separate "Enterprise" brand name (today.md §0.1)
+**Launch target:** O/P/Q/R all have commits behind them now. What's left is narrower: the
+Sentry/status-page/HA slice of Q, an accessibility+Lighthouse pass, and confirming two
+unverified items (Nango OAuth app registration, Paddle live-mode). See `today.md` §5.
 
 ---
 
@@ -19,7 +24,30 @@
 
 ## Where we are right now
 
-**✅ Shipped & live at https://enterprise.reattend.com**
+**✅ Shipped & live at https://reattend.com** (domain changed from `enterprise.reattend.com`
+on 2026-05-02 — see `today.md` §0.1)
+
+**Since Sprint O-a (this section was last accurate), also shipped:**
+- **O proper** — full design relaunch across public + app pages (`today.md` §0.4). Accessibility/
+  Lighthouse audit from the original checklist not confirmed done.
+- **P** — Nango connectors via proxy-fetcher pattern: Slack, Notion, GitHub, Linear, Drive,
+  Confluence+Jira, Google Calendar (`today.md` §0.5). OAuth app registration in Nango admin
+  unverified. MS Teams not done.
+- **Q (partial)** — WAL mode + 3-layer backup plan done; Sentry, status page, HA still open
+  (`today.md` §0.7).
+- **R** — Paddle billing live: checkout, portal, trial banner, AI quota gate, downgrade cron
+  (`today.md` §0.2). Live vs sandbox Paddle keys unconfirmed.
+- **Personal/Org unification** — not in the original roadmap at all. Personal Reattend and
+  Enterprise are now one product with a context switcher, not two separate codebases
+  (`today.md` §0.1).
+- **Staging environment** — `test.reattend.com`, 163-user synthetic org, fully separate from
+  prod (`today.md` §0.6, `STAGING.md`).
+- **Landscape Space mode** — 3D memory constellation, new default view at `/app/landscape`
+  (`today.md` §0.8).
+
+---
+
+**Original pre-O-a shipped list (kept for history):**
 
 Foundations + Sprints A through O-a:
 - Org hierarchy, RBAC (8-rule record visibility, two-tier roles), Decisions, Transfers, Policies, Agents (10 seeded), Wiki
@@ -50,25 +78,26 @@ Full feature catalog lives at `/app/legend` and in `today.md`. Recent commits si
 
 ---
 
-## ➡️ Sprint O proper — UI/UX polish · ~2 days · **NEXT** (interactive with user)
+## ✅ Sprint O proper — UI/UX polish — shipped, differently than planned
 
-**Goal:** "AI tool" → "AI product." Every pixel considered. The user has explicitly said this sprint is interactive — don't run autonomously.
+Didn't happen as a discrete polish pass — instead the whole app went through `claude.ai/design`
+handoffs (Stripe-style landing, split-screen sign-in, redone Home/Capture/Memories/Landscape/
+Wiki, warm-cream + indigo-violet theme app-wide). See `today.md` §0.4 for the commit list.
 
-**Deliverables:**
-- Spacing + typography audit — consistent rhythm across every page
-- Color palette review — semantic stability (fuchsia=capture, violet=decisions, emerald=ack, amber=warning, red=destructive)
-- Loading states everywhere — skeletons, spinners, progressive reveal
-- Error boundaries — react errors render a useful card, never a white page
-- Animation timing — framer motion standardized to 150/250/400ms buckets
-- Mobile/tablet final pass — every route tested at 375px / 768px / 1024px
-- Accessibility — keyboard nav through every flow, screen-reader labels, focus rings, color contrast AA+
-- Empty states on every surface — no blank screens
-- Toast consistency — green = success, red = error, blue = info
-- Dark mode full review
+**Genuinely still open from the original checklist** (no commit confirms these):
+- Accessibility — keyboard nav, screen-reader labels, focus rings, color contrast AA+
 - Lighthouse 90+ on Home, Ask, Legend, Landscape
-- Microcopy review
+- Error boundaries — unclear if react error states got a pass
+- Dark mode full review
 
-**Unlocks:** Demo doesn't lose the executive at "wait, the spacing is weird here."
+## ➡️ NEXT — pick from the actually-open items
+
+With O/P/Q/R all having shipped work behind them, there's no single "next sprint" anymore —
+what's left is a punch list (`today.md` §5):
+1. Sentry + status page + HA plan (rest of Sprint Q)
+2. Accessibility + Lighthouse pass (leftover from O)
+3. Confirm Nango OAuth apps are registered (leftover from P)
+4. Confirm Paddle is on live keys, not sandbox (leftover from R)
 
 ---
 

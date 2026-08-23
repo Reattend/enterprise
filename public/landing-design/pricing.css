@@ -220,7 +220,7 @@
   text-decoration: line-through;
 }
 .plan-feats li.dim::before {
-  content: "—";
+  content: "-";
   color: var(--ink-4);
 }
 

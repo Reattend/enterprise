@@ -1,9 +1,9 @@
 'use client'
 
-// Space — the gorgeous-mode 3D memory constellation.
+// Space - the gorgeous-mode 3D memory constellation.
 //
 // Same /api/enterprise/graph data the Board view consumes. The Board owns
-// editing (create / delete links); Space owns *looking* at the graph —
+// editing (create / delete links); Space owns *looking* at the graph -
 // dark cosmic background, soft bloom, drifting particles, slow auto-orbit.
 // Optimized for Twitter screenshots: a "Capture" button in the corner
 // exports a 2× PNG of just the canvas, no chrome.
@@ -15,7 +15,7 @@ import { Camera, Loader2, Sparkles, Eye, EyeOff, Pause, Play } from 'lucide-reac
 import { useAppStore } from '@/stores/app-store'
 import * as THREE from 'three'
 
-// react-force-graph-3d pulls in Three.js — must be client-only.
+// react-force-graph-3d pulls in Three.js - must be client-only.
 const ForceGraph3D = dynamic(
   () => import('react-force-graph-3d').then((m) => m.default),
   { ssr: false, loading: () => null },
@@ -24,14 +24,14 @@ const ForceGraph3D = dynamic(
 // Distinct hues by memory type so the constellation reads as structured
 // without needing labels. Tuned warm/cool so adjacent types contrast.
 const TYPE_COLORS: Record<string, string> = {
-  decision:   '#ff5dab', // hot pink — the high-stakes thing
-  insight:    '#74e07a', // green — "aha" moment
-  meeting:    '#5db4ff', // blue — collaborative
-  idea:       '#ffd13a', // amber — spark
-  context:    '#b88dff', // violet — background knowledge
-  tasklike:   '#ff985e', // orange — actionable
-  note:       '#dadada', // white — generic
-  transcript: '#5beaff', // cyan — speech / source
+  decision:   '#ff5dab', // hot pink - the high-stakes thing
+  insight:    '#74e07a', // green - "aha" moment
+  meeting:    '#5db4ff', // blue - collaborative
+  idea:       '#ffd13a', // amber - spark
+  context:    '#b88dff', // violet - background knowledge
+  tasklike:   '#ff985e', // orange - actionable
+  note:       '#dadada', // white - generic
+  transcript: '#5beaff', // cyan - speech / source
 }
 const FALLBACK_COLOR = '#aaaaaa'
 
@@ -63,7 +63,7 @@ export function SpaceView() {
   const [autoOrbit, setAutoOrbit] = useState(true)
   const [dims, setDims] = useState<{ w: number; h: number }>({ w: 1, h: 1 })
 
-  // Fetch graph data — same endpoint as Board view.
+  // Fetch graph data - same endpoint as Board view.
   useEffect(() => {
     let cancelled = false
     setError(null)
@@ -80,7 +80,7 @@ export function SpaceView() {
           return
         }
 
-        // Degree count for sizing — more-connected memories appear larger.
+        // Degree count for sizing - more-connected memories appear larger.
         const degree = new Map<string, number>()
         for (const e of raw.edges) {
           degree.set(e.fromRecordId, (degree.get(e.fromRecordId) || 0) + 1)
@@ -110,7 +110,7 @@ export function SpaceView() {
     return () => { cancelled = true }
   }, [activeEnterpriseOrgId])
 
-  // Resize observer — keep canvas filling its container.
+  // Resize observer - keep canvas filling its container.
   useEffect(() => {
     if (!containerRef.current) return
     const el = containerRef.current
@@ -136,7 +136,7 @@ export function SpaceView() {
       void SpriteText
       if (cancelled || !fgRef.current) return
 
-      // Bloom — the "everything glows" effect. Tuned for taste, not science.
+      // Bloom - the "everything glows" effect. Tuned for taste, not science.
       try {
         const composer = fgRef.current.postProcessingComposer?.()
         if (composer) {
@@ -144,7 +144,7 @@ export function SpaceView() {
             new THREE.Vector2(window.innerWidth, window.innerHeight),
             1.6,   // strength
             0.55,  // radius
-            0.0,   // threshold — 0 = bloom everything
+            0.0,   // threshold - 0 = bloom everything
           )
           composer.addPass(bloomPass)
         }
@@ -152,7 +152,7 @@ export function SpaceView() {
         console.warn('[SpaceView] bloom unavailable:', e)
       }
 
-      // Starfield — pure decoration. ~1000 tiny dots scattered in a large
+      // Starfield - pure decoration. ~1000 tiny dots scattered in a large
       // sphere around the graph. They never interact with anything; they
       // exist to make the screenshot feel alive.
       try {
@@ -196,11 +196,11 @@ export function SpaceView() {
           starsRef.geometry.dispose()
           ;(starsRef.material as THREE.Material).dispose()
         }
-      } catch { /* mount race — ignore */ }
+      } catch { /* mount race - ignore */ }
     }
   }, [data])
 
-  // Slow auto-orbit — the graph "breathes" even when nobody's interacting.
+  // Slow auto-orbit - the graph "breathes" even when nobody's interacting.
   // Stops on user pointer-down so dragging feels responsive.
   useEffect(() => {
     if (!fgRef.current || !data || !autoOrbit) return
@@ -226,7 +226,7 @@ export function SpaceView() {
     return () => { stopped = true; cancelAnimationFrame(frame) }
   }, [data, autoOrbit])
 
-  // Custom node — small glowing sphere. Material is `MeshBasicMaterial` so
+  // Custom node - small glowing sphere. Material is `MeshBasicMaterial` so
   // the bloom pass catches the full color without needing lighting.
   const nodeThreeObject = useMemo(() => (node: SpaceNode) => {
     const radius = Math.sqrt(node.val) * 1.2
@@ -304,7 +304,7 @@ export function SpaceView() {
               <Sparkles className="w-6 h-6 text-violet-400 mb-2" />
               <p className="text-[15px] font-medium text-white/80">Your constellation will form here</p>
               <p className="text-[12.5px] text-white/50 max-w-xs leading-relaxed">
-                Save a handful of memories — meetings, decisions, notes — and the graph will start drawing itself.
+                Save a handful of memories - meetings, decisions, notes - and the graph will start drawing itself.
               </p>
               <Link href="/app" className="mt-3 text-[12px] text-violet-300 underline underline-offset-2 hover:text-violet-200">
                 Capture your first memory →
@@ -326,7 +326,7 @@ export function SpaceView() {
             </div>
           )}
 
-          {/* Overlay controls — minimal, hide-able for screenshots */}
+          {/* Overlay controls - minimal, hide-able for screenshots */}
           {data && data.nodes.length > 0 && (
             <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
               <button
@@ -385,10 +385,10 @@ export function SpaceView() {
 
 function linkColor(kind: string): string {
   switch (kind) {
-    case 'supersedes':       return 'rgba(255,93,171,0.7)' // pink — newer overrides older
-    case 'contradicts':      return 'rgba(255,80,80,0.8)'  // red — conflict
-    case 'caused_by':        return 'rgba(180,140,255,0.6)'// violet — causal
-    case 'mentions':         return 'rgba(255,255,255,0.18)'// soft white — reference
+    case 'supersedes':       return 'rgba(255,93,171,0.7)' // pink - newer overrides older
+    case 'contradicts':      return 'rgba(255,80,80,0.8)'  // red - conflict
+    case 'caused_by':        return 'rgba(180,140,255,0.6)'// violet - causal
+    case 'mentions':         return 'rgba(255,255,255,0.18)'// soft white - reference
     default:                 return 'rgba(255,255,255,0.22)'
   }
 }

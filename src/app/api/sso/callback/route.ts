@@ -10,7 +10,7 @@ import {
   issueSsoTicket,
 } from '@/lib/sso/oidc'
 
-// Dynamic — reads searchParams + cookies, must run per-request.
+// Dynamic - reads searchParams + cookies, must run per-request.
 export const dynamic = 'force-dynamic'
 
 // GET /api/sso/callback?code=...&state=...
@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
         status: 'active',
       })
     } else if (existingMembership.status !== 'active') {
-      // Reactivate — offboarded user who SSO'd back in gets reinstated
+      // Reactivate - offboarded user who SSO'd back in gets reinstated
       await db.update(schema.organizationMembers)
         .set({ status: 'active', updatedAt: new Date().toISOString() })
         .where(eq(schema.organizationMembers.id, existingMembership.id))

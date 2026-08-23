@@ -23,7 +23,7 @@ function redact(cfg: typeof schema.ssoConfigs.$inferSelect) {
 
 // At-rest secret storage. For a real deployment we'd use a KMS / envelope
 // encryption. For now we encrypt with AES-256-GCM using a key derived from
-// NEXTAUTH_SECRET — same infra NextAuth already relies on.
+// NEXTAUTH_SECRET - same infra NextAuth already relies on.
 function encrypt(plaintext: string): string {
   const secret = process.env.NEXTAUTH_SECRET || 'dev-only-fallback-not-for-production'
   const key = crypto.createHash('sha256').update(secret).digest()

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 /**
- * MarketingHero — the eyebrow + serif H1 + lede + CTA cluster pattern from
+ * MarketingHero - the eyebrow + serif H1 + lede + CTA cluster pattern from
  * the landing.html hero, reusable for every tool/game/free-utility page.
  *
  * Visual rules (mirrored from /public/landing-design/styles.css):
@@ -12,7 +12,7 @@ import { ArrowRight } from 'lucide-react'
  * - Lede: Geist, 18-20px, ink-2 (medium gray), max ~52ch for read width
  * - CTAs: pill buttons, primary filled (dark) + outline secondary
  *
- * The italic-emphasis word is a key landing pattern — `<em>preserved</em>`
+ * The italic-emphasis word is a key landing pattern - `<em>preserved</em>`
  * in the landing's "Your organization's memory, preserved." Keep using it
  * to land the new positioning in 1-2 words per hero.
  */
@@ -21,9 +21,9 @@ export interface MarketingHeroProps {
   eyebrow: string
   /** Plain (non-emphasized) text that opens the title. */
   title: string
-  /** Optional italic-serif emphasis word that closes the title. Set both for "Foo bar — emphasized." */
+  /** Optional italic-serif emphasis word that closes the title. Set both for "Foo bar - emphasized." */
   emphasis?: string
-  /** Punctuation between title and emphasis. Defaults to a comma; some use " — " or just space. */
+  /** Punctuation between title and emphasis. Defaults to a comma; some use " - " or just space. */
   emphasisJoiner?: string
   /** Subhead paragraph. ~1-2 sentences, max ~52ch read width. */
   lede: string
@@ -36,7 +36,7 @@ export interface MarketingHeroProps {
   trustChips?: string[]
   /** Center-align (default) or left-align the hero. Center for tool index pages, left for individual tools where a tool/form sits to the right. */
   align?: 'center' | 'left'
-  /** Children render below the lede + CTAs but inside the hero section — useful for inline form or screenshot. */
+  /** Children render below the lede + CTAs but inside the hero section - useful for inline form or screenshot. */
   children?: React.ReactNode
 }
 
@@ -119,7 +119,7 @@ export function MarketingHero({
           {lede}
         </p>
 
-        {/* CTA cluster — both CTAs are optional. Pages with custom action
+        {/* CTA cluster - both CTAs are optional. Pages with custom action
             buttons (e.g., a phase-changing onClick) pass primaryCta={null}
             and render their own button below the hero. */}
         {(primaryCta || secondaryCta) && (

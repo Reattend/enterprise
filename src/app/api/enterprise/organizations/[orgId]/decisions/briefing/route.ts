@@ -8,10 +8,10 @@ import {
 } from '@/lib/enterprise'
 
 // GET /api/enterprise/organizations/[orgId]/decisions/briefing
-//   ?departmentId=... (optional — scope to one dept)
-//   ?roleId=...       (optional — for transfer handovers)
-//   ?userId=...       (optional — "Partha's decisions")
-//   ?from=ISO&to=ISO  (optional — date window)
+//   ?departmentId=... (optional - scope to one dept)
+//   ?roleId=...       (optional - for transfer handovers)
+//   ?userId=...       (optional - "Partha's decisions")
+//   ?from=ISO&to=ISO  (optional - date window)
 //   ?format=markdown  (default) | json
 //
 // Returns a handover-ready brief. Use case: incoming VP asks "what has

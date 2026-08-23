@@ -13,7 +13,7 @@
 // signup-time. If the inviter's organization has a `primaryDomain` set, the
 // invited email must match that domain.
 
-// Major personal email providers. Not exhaustive — add as users report
+// Major personal email providers. Not exhaustive - add as users report
 // rejections. Every entry lowercased.
 export const PERSONAL_EMAIL_DOMAINS = new Set([
   // Google
@@ -80,7 +80,7 @@ export interface InviteRejection {
 //   - If the org has declared a primaryDomain, enforce it (reject personal
 //     providers AND anything not matching the domain).
 //   - If the org has NO primaryDomain set (starter orgs, small teams), accept
-//     any address — including personal gmail/hotmail. Many real 10-person
+//     any address - including personal gmail/hotmail. Many real 10-person
 //     startups run on founders' personal email.
 export function validateEnterpriseInviteEmail(
   email: string,

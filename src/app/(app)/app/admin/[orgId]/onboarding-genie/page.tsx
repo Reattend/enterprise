@@ -1,6 +1,6 @@
 'use client'
 
-// Onboarding Genie — auto-compose a personalized first-week packet.
+// Onboarding Genie - auto-compose a personalized first-week packet.
 //
 // Admin fills a short form: name, email, role title, department, start date.
 // the AI reads the org's memory and produces a markdown packet they can
@@ -124,7 +124,7 @@ export default function OnboardingGeniePage({ params }: { params: { orgId: strin
         <h1 className="text-3xl font-bold tracking-tight">Auto-write their first week</h1>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
           Tell me who's joining. I'll read your org's memory and write them a personalized
-          welcome packet — decisions to know, people to meet, policies to ack, agents to try.
+          welcome packet - decisions to know, people to meet, policies to ack, agents to try.
         </p>
       </div>
 
@@ -207,7 +207,7 @@ export default function OnboardingGeniePage({ params }: { params: { orgId: strin
             </div>
           </div>
 
-          {/* Ground-truth reference sections — the admin can verify nothing was fabricated */}
+          {/* Ground-truth reference sections - the admin can verify nothing was fabricated */}
           <details className="rounded-xl border bg-muted/20 p-3">
             <summary className="text-xs font-medium cursor-pointer select-none">Source data (what the AI read)</summary>
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

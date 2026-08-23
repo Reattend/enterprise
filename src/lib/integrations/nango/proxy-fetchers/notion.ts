@@ -1,4 +1,4 @@
-// Notion fetcher — uses nango.proxy() to call the Notion API.
+// Notion fetcher - uses nango.proxy() to call the Notion API.
 //
 // Strategy: Notion's "Public integration" model means the integration only
 // sees pages/databases the user has explicitly shared with it (via the
@@ -9,7 +9,7 @@
 // Page-content extraction is best-effort: we walk the top-level blocks and
 // pull rich_text from common types (paragraph, headings, lists, todo,
 // callout, quote). Skipping deeply-nested children keeps this from N+1ing
-// the Notion API on large pages — they get the page title + first ~2000
+// the Notion API on large pages - they get the page title + first ~2000
 // chars of text, which is plenty for triage to make a keep/skip decision.
 
 import type { Nango } from '@nangohq/node'
@@ -92,7 +92,7 @@ export async function fetchNotionPages(
 ): Promise<NormalizedRawItem[]> {
   const maxPages = opts.maxPages ?? 50
   const maxBlocks = opts.maxBlocksPerPage ?? 60
-  const daysPast = opts.daysPast ?? 365 // Notion docs change less often — wider window
+  const daysPast = opts.daysPast ?? 365 // Notion docs change less often - wider window
   const cutoff = Date.now() - daysPast * 86_400_000
 
   // Step 1: search for accessible pages, sorted most-recently-edited first.

@@ -19,7 +19,7 @@ import { useRevalidate, SCOPES } from '@/lib/data-bus'
 import { cn } from '@/lib/utils'
 import { switchToLinkedAccount } from '@/lib/auth/account-switch-client'
 
-// New dashboard sidebar — visual structure from the claude.ai/design Chat.html
+// New dashboard sidebar - visual structure from the claude.ai/design Chat.html
 // handoff (see src/app/(app)/app/dashboard.css). All data hooks + behaviours
 // preserved from the previous Sprint O sidebar:
 //   - useAppStore for sidebar collapse, workspaces, recent chats, inbox count
@@ -115,7 +115,7 @@ export function AppSidebar() {
         orgPlan: o.orgPlan, orgDeployment: o.orgDeployment, role: o.role,
       }))
       setEnterpriseOrgs(orgs)
-      // Same explicit-choice guard as the layout — see comment there.
+      // Same explicit-choice guard as the layout - see comment there.
       // Picking Personal in the topbar writes view_context_chosen=1 so
       // this auto-pick won't override it on the next sidebar revalidate.
       const hasExplicitChoice =
@@ -140,7 +140,7 @@ export function AppSidebar() {
       if (!res.ok) return
       const data = await res.json() as { accounts?: Array<{ userId: string; email: string; name: string | null }> }
       setLinkedAccounts(data.accounts || [])
-    } catch { /* silent — empty list is the safe default */ }
+    } catch { /* silent - empty list is the safe default */ }
   }
 
   async function handleSwitchAccount(targetUserId: string, label: string) {
@@ -190,7 +190,7 @@ export function AppSidebar() {
   // Mobile drawer overlay. The `rail-mobile-drawer` class on the <aside>
   // tells dashboard.css to render this rail in EXPANDED mode regardless of
   // whether the shell has `sidebar-collapsed` (the user may have toggled
-  // collapse on desktop earlier — that should not carry into the mobile
+  // collapse on desktop earlier - that should not carry into the mobile
   // drawer, where horizontal real estate isn't an issue).
   if (mobileSidebarOpen) {
     return (
@@ -217,7 +217,7 @@ export function AppSidebar() {
   function renderRail({ onNavigate }: { onNavigate?: () => void }) {
     return (
       <>
-        {/* Brand + collapse — uses the actual product mark from /public.
+        {/* Brand + collapse - uses the actual product mark from /public.
             Two SVGs swapped via [data-theme] CSS so the same markup works
             in light and dark mode. No border on the mark. */}
         <div className="brand">
@@ -254,7 +254,7 @@ export function AppSidebar() {
         </Link>
 
         {/* Primary nav. Solo (and hybrid users in Personal context) see a
-            trimmed list — Wiki, Hierarchy, and Policies are org-only
+            trimmed list - Wiki, Hierarchy, and Policies are org-only
             surfaces and would render empty / broken without an active
             org context. Filter on activeEnterpriseOrgId, NOT
             enterpriseOrgs.length, so a hybrid user picking "Personal" in
@@ -277,7 +277,7 @@ export function AppSidebar() {
           })}
         </nav>
 
-        {/* Recent chats — capped at 10, only this section scrolls within
+        {/* Recent chats - capped at 10, only this section scrolls within
             the rail. Takes all remaining vertical space so it adapts to the
             viewport height without ever clipping items. */}
         {recentChats && recentChats.length > 0 ? (
@@ -301,7 +301,7 @@ export function AppSidebar() {
           <div style={{ flex: 1 }} />
         )}
 
-        {/* Bottom: Agents only — Settings lives in the user dropdown below. */}
+        {/* Bottom: Agents only - Settings lives in the user dropdown below. */}
         <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10, marginTop: 10 }}>
           <nav className="rail-nav">
             <Link href="/app/agents" className={isActive('/app/agents') ? 'active' : ''} onClick={onNavigate}>
@@ -364,7 +364,7 @@ export function AppSidebar() {
 
               {/* Linked accounts switcher. Only shown if the user has at
                   least one linked account. Clicking switches the active
-                  session via the SSO-ticket trade — see
+                  session via the SSO-ticket trade - see
                   switchToLinkedAccount() in account-switch-client.ts. */}
               {linkedAccounts.length > 0 && (
                 <>

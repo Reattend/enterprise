@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
         const days = JSON.parse(c.scheduleDays) as number[]
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         const dayStr = days.map(d => dayNames[d]).join(', ')
-        return `• *#${c.channelName || c.channelId}* — ${status} — ${c.scheduleTime} ${c.timezone} (${dayStr})`
+        return `• *#${c.channelName || c.channelId}* - ${status} - ${c.scheduleTime} ${c.timezone} (${dayStr})`
       })
 
       return new Response(
@@ -201,12 +201,12 @@ export async function POST(req: NextRequest) {
 
     // ── HELP (default) ──
     return new Response(
-      `*Reattend Standups* — Free async standups for Slack\n\n` +
-      `• \`/standup setup\` — Configure a standup for this channel\n` +
-      `• \`/standup list\` — List all configured standups\n` +
-      `• \`/standup trigger\` — Manually trigger today's standup now\n` +
-      `• \`/standup pause\` — Pause the standup in this channel\n` +
-      `• \`/standup resume\` — Resume a paused standup\n\n` +
+      `*Reattend Standups* - Free async standups for Slack\n\n` +
+      `• \`/standup setup\` - Configure a standup for this channel\n` +
+      `• \`/standup list\` - List all configured standups\n` +
+      `• \`/standup trigger\` - Manually trigger today's standup now\n` +
+      `• \`/standup pause\` - Pause the standup in this channel\n` +
+      `• \`/standup resume\` - Resume a paused standup\n\n` +
       `_<https://reattend.com/free-standup-bot|Learn more about Reattend Standups>_`,
       { status: 200 },
     )

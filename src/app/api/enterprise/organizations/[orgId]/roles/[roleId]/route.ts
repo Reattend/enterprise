@@ -31,7 +31,7 @@ export async function GET(
     const role = roleRows[0]
     if (!role) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
-    // Full assignment history — newest first by startedAt
+    // Full assignment history - newest first by startedAt
     const assignments = await db
       .select()
       .from(schema.roleAssignments)

@@ -80,7 +80,7 @@ export async function runMeetingBriefs(): Promise<{ sent: number }> {
       })
 
       if (relevantRecords.length === 0) {
-        // Nothing relevant — skip, not worth generating an empty brief
+        // Nothing relevant - skip, not worth generating an empty brief
         continue
       }
 
@@ -99,7 +99,7 @@ export async function runMeetingBriefs(): Promise<{ sent: number }> {
       const llm = getLLM()
       const briefPrompt = `You are generating a concise pre-meeting brief for a user.
 
-MEETING: "${meetingTitle}" ${attendeeLabel} — ${timeLabel}
+MEETING: "${meetingTitle}" ${attendeeLabel} - ${timeLabel}
 
 RELEVANT MEMORIES FROM THEIR KNOWLEDGE BASE:
 ${contextSnippets}

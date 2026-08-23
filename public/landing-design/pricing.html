@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reattend — Pricing</title>
+  <title>Reattend - Pricing</title>
   <meta name="description" content="Reattend pricing: Solo is free forever for one person. Professional is $19/seat/month for teams up to 10. Enterprise is $29/seat/month with SSO, RBAC, and audit log. 45-day no-card trial on paid tiers." />
 
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
@@ -374,7 +374,7 @@
     </nav>
     <div style="display:flex; gap:8px;">
       <a class="btn btn-ghost" href="/login">Sign in</a>
-      <a class="btn btn-outline" href="/sandbox">Try for free</a>
+      <a class="btn btn-outline" href="/sandbox">Sandbox</a>
       <a class="btn btn-primary btn-fill" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
     </div>
   </div>
@@ -383,13 +383,13 @@
 <section class="pr-hero">
   <div class="pr-eye pfade">Pricing</div>
   <h1 class="pfade">Free to start. <em>Generous when you grow.</em></h1>
-  <p class="pfade">Reattend is free for one person, forever. Add a teammate and we charge per seat. Annual billing saves 20%. Every paid plan starts with a 45-day trial — no card required.</p>
+  <p class="pfade">Reattend is free for one person, forever. Add a teammate and we charge per seat. Annual billing saves 20%. Every paid plan starts with a 45-day trial - no card required.</p>
 </section>
 
 <div class="pr-toggle pfade">
   <div class="pr-toggle-inner">
     <button class="pr-toggle-btn active" data-cycle="monthly">Monthly</button>
-    <button class="pr-toggle-btn" data-cycle="annual">Annual <span class="pr-toggle-save">— save 20%</span></button>
+    <button class="pr-toggle-btn" data-cycle="annual">Annual <span class="pr-toggle-save">- save 20%</span></button>
   </div>
 </div>
 
@@ -398,7 +398,7 @@
     <div>
       <div class="pr-tier-tag">Solo</div>
       <h3 class="pr-tier-name">Solo</h3>
-      <p class="pr-tier-blurb">Your personal memory layer. Free for one person, forever — <a href="/personal" style="color: var(--accent);">see what you can do</a>.</p>
+      <p class="pr-tier-blurb">Your personal memory layer. Free for one person, forever - <a href="/personal" style="color: var(--accent);">see what you can do</a>.</p>
     </div>
     <div class="pr-tier-price">
       <div class="pr-tier-price-num">$0</div>
@@ -412,7 +412,7 @@
       <li class="pr-tier-feat"><span>Memory list, decision log, graph view</span></li>
       <li class="pr-tier-feat"><span>Email support, ~3 business days</span></li>
     </ul>
-    <a class="pr-tier-cta ghost" href="/register">Start free — no card</a>
+    <a class="pr-tier-cta ghost" href="/register">Start free - no card</a>
     <div class="pr-tier-trial-note">No payment ever required</div>
   </article>
 
@@ -467,7 +467,7 @@
   <div class="pr-faq-list pfade">
     <details>
       <summary>What happens after the 45-day trial ends?<span class="icon-plus">+</span></summary>
-      <div class="ans">If you haven't added a card, your account quietly downgrades to <b>Free</b> on day 46. <b>Your data stays exactly as it was</b> — every memory, decision, and connection. Free-tier limits (100 questions/month, 90-day rolling retention, 1 user) apply going forward. You can upgrade at any time and everything snaps back.</div>
+      <div class="ans">If you haven't added a card, your account quietly downgrades to <b>Free</b> on day 46. <b>Your data stays exactly as it was</b> - every memory, decision, and connection. Free-tier limits (100 questions/month, 90-day rolling retention, 1 user) apply going forward. You can upgrade at any time and everything snaps back.</div>
     </details>
     <details>
       <summary>Do I need a credit card to start the trial?<span class="icon-plus">+</span></summary>
@@ -583,7 +583,7 @@
   });
 
   // Initialize Paddle.js with the public client token. The token is safe to
-  // ship in plain HTML — it only authorizes opening checkouts on approved
+  // ship in plain HTML - it only authorizes opening checkouts on approved
   // domains, never to charge cards directly.
   const PADDLE_TOKEN = 'live_3250f5e8888be722522f090dcba';
   let paddleReady = false;
@@ -638,7 +638,7 @@
           throw new Error(data.error || ('Checkout failed (HTTP ' + res.status + ')'));
         }
         if (!paddleReady) {
-          throw new Error('Payment overlay didn\'t load — please refresh and try again.');
+          throw new Error('Payment overlay didn\'t load - please refresh and try again.');
         }
         Paddle.Checkout.open({
           transactionId: data.transactionId,

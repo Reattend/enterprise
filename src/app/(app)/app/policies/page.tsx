@@ -1,6 +1,6 @@
 'use client'
 
-// Policies list — every org policy with the current user's ack state.
+// Policies list - every org policy with the current user's ack state.
 // Pending policies float to the top; acknowledged drop below.
 
 import { useEffect, useMemo, useState } from 'react'
@@ -175,7 +175,7 @@ export default function PoliciesPage() {
             <EmptyState
               icon={FileText}
               title="No policies authored yet"
-              description="Policies are the rules of your org — ones everyone should know and acknowledge. Author one, publish it, and members will see an ack prompt on Home."
+              description="Policies are the rules of your org - ones everyone should know and acknowledge. Author one, publish it, and members will see an ack prompt on Home."
               action={{
                 label: 'Author first policy',
                 href: `/app/admin/${activeEnterpriseOrgId}/policies/new`,

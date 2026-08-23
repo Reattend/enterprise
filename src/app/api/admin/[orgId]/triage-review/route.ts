@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 //
 // Returns the most-recently ingested raw_items belonging to workspaces in
 // this org, with the triage decision unpacked: was it promoted to a memory,
-// rejected, or still pending. Admin-gated (org.audit.read) — this surface
+// rejected, or still pending. Admin-gated (org.audit.read) - this surface
 // is meant for trust-and-verify of what the AI is doing on incoming data,
 // not for end-user consumption.
 export async function GET(req: NextRequest, { params }: { params: { orgId: string } }) {

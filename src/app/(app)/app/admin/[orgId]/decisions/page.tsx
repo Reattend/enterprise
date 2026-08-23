@@ -95,7 +95,7 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
   }
 
   async function loadWorkspaces() {
-    // Workspaces available to the current user — we use the /api/enterprise/organizations list
+    // Workspaces available to the current user - we use the /api/enterprise/organizations list
     // to find our own workspace ids via the org memberships + browser state. For now, we just
     // use the user's current workspace cookie; create-dialog falls back to that.
     // Simpler: list memberships so we have a name, and let create use the current app workspace.
@@ -135,7 +135,7 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
             Decisions
           </h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Every decision the org has made — who decided, when, why, and whether it stuck. When a decision is
+            Every decision the org has made - who decided, when, why, and whether it stuck. When a decision is
             reversed, the reason is captured. Superseded decisions point to their replacement.
           </p>
         </div>
@@ -145,7 +145,7 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
               Download briefing
             </a>
           </Button>
-          {/* Hidden for guests/members with no dept leadership — they would 403 on submit. */}
+          {/* Hidden for guests/members with no dept leadership - they would 403 on submit. */}
           {!permsLoading && canLogDecision && (
             <Button onClick={() => setShowCreate((v) => !v)}>
               {showCreate ? <X className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
@@ -200,7 +200,7 @@ export default function DecisionsListPage({ params }: { params: { orgId: string 
               <EmptyState
                 icon={Gavel}
                 title="No decisions logged yet"
-                description="Decisions are the load-bearing memories of your org — who decided what, when, and why. Log one to start a chain other memories can cite."
+                description="Decisions are the load-bearing memories of your org - who decided what, when, and why. Log one to start a chain other memories can cite."
                 action={{
                   label: 'Log first decision',
                   onClick: () => {
@@ -290,7 +290,7 @@ function CreateDecisionForm({
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
-  // Only team-kind depts have backing workspaces — those are the valid targets.
+  // Only team-kind depts have backing workspaces - those are the valid targets.
   const teams = departments.filter((d) => d.kind === 'team')
 
   async function submit(e: React.FormEvent) {
@@ -328,20 +328,20 @@ function CreateDecisionForm({
           required
         />
         <Textarea
-          placeholder="Context — what prompted this decision?"
+          placeholder="Context - what prompted this decision?"
           value={context}
           onChange={(e) => setContext(e.target.value)}
           rows={2}
         />
         <Textarea
-          placeholder="Rationale — why this choice?"
+          placeholder="Rationale - why this choice?"
           value={rationale}
           onChange={(e) => setRationale(e.target.value)}
           rows={2}
         />
         {teams.length === 0 ? (
           <div className="text-sm text-amber-700 dark:text-amber-400 border border-amber-500/30 bg-amber-500/5 rounded p-2">
-            No teams yet. Create a team-kind department first — each team gets its own memory workspace.
+            No teams yet. Create a team-kind department first - each team gets its own memory workspace.
           </div>
         ) : (
           <select

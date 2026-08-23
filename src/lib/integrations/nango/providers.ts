@@ -2,7 +2,7 @@
 //
 // `providerConfigKey` must match an integration key set up in the Nango
 // dashboard (self-hosted or SaaS). The `models` field lists the sync model
-// names our webhook handler knows how to normalize — one entry per model.
+// names our webhook handler knows how to normalize - one entry per model.
 //
 // Adding a new provider is:
 //   1. Configure it in Nango (OAuth credentials + a sync script)
@@ -16,7 +16,7 @@ export interface NangoProviderDef {
   name: string              // user-facing label
   category: 'email' | 'docs' | 'chat' | 'wiki' | 'calendar' | 'files' | 'other'
   description: string
-  iconHint: string          // e.g. "gmail" — UI maps this to its SVG
+  iconHint: string          // e.g. "gmail" - UI maps this to its SVG
   // Sync models the provider publishes. Every event whose model name appears
   // here is handed to the normalizer. Unlisted models are ignored.
   models: string[]
@@ -26,7 +26,7 @@ export interface NangoProviderDef {
   // triage rarely promotes (e.g. chat noise).
   triageAggressiveness: 'high' | 'medium' | 'low'
   // One-line setup tip shown after the user connects. Use for "you need to
-  // do something on the provider side before data flows" gotchas — e.g. the
+  // do something on the provider side before data flows" gotchas - e.g. the
   // Slack bot-invite-to-channel step.
   setupHint?: string
 }
@@ -51,7 +51,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'drive',
     models: ['Document', 'GoogleDriveFile'],
     triageAggressiveness: 'high',
-    setupHint: 'Drive shares the Google OAuth app you set up for Gmail — just add drive.readonly to the consent screen scopes and re-add yourself as a test user (already done if you connected Gmail).',
+    setupHint: 'Drive shares the Google OAuth app you set up for Gmail - just add drive.readonly to the consent screen scopes and re-add yourself as a test user (already done if you connected Gmail).',
   },
   {
     key: 'google-calendar-nango',
@@ -72,7 +72,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'slack',
     models: ['SlackMessage', 'Message'],
     triageAggressiveness: 'low',
-    setupHint: 'Invite the Reattend bot to each channel you want captured (type /invite @reattend in the channel). The bot only sees channels it’s invited to — clean privacy model, no firehose.',
+    setupHint: 'Invite the Reattend bot to each channel you want captured (type /invite @reattend in the channel). The bot only sees channels it’s invited to - clean privacy model, no firehose.',
   },
   {
     key: 'notion-nango',
@@ -105,7 +105,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'github',
     models: ['GithubPullRequest', 'GithubIssue', 'PullRequest', 'Issue'],
     triageAggressiveness: 'medium',
-    setupHint: 'During the OAuth screen, GitHub asks which organizations to grant access to — click Grant (or Request) for each org whose repos you want indexed. Without this, only personal repos appear.',
+    setupHint: 'During the OAuth screen, GitHub asks which organizations to grant access to - click Grant (or Request) for each org whose repos you want indexed. Without this, only personal repos appear.',
   },
   {
     key: 'confluence-nango',
@@ -116,7 +116,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'confluence',
     models: ['ConfluencePage', 'Page'],
     triageAggressiveness: 'high',
-    setupHint: 'Confluence uses your Atlassian OAuth app — same credentials as Jira if you set that up. Pick the site to ingest when prompted (v1 picks the first if you have multiple Atlassian workspaces).',
+    setupHint: 'Confluence uses your Atlassian OAuth app - same credentials as Jira if you set that up. Pick the site to ingest when prompted (v1 picks the first if you have multiple Atlassian workspaces).',
   },
   {
     key: 'jira-nango',
@@ -127,7 +127,7 @@ export const NANGO_PROVIDERS: NangoProviderDef[] = [
     iconHint: 'jira',
     models: ['JiraIssue', 'Issue'],
     triageAggressiveness: 'medium',
-    setupHint: 'Jira shares your Atlassian OAuth app with Confluence — same client id/secret, just register a separate Nango integration with the jira-* scopes.',
+    setupHint: 'Jira shares your Atlassian OAuth app with Confluence - same client id/secret, just register a separate Nango integration with the jira-* scopes.',
   },
 ]
 

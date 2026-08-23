@@ -33,7 +33,7 @@ const faqJsonLd = {
       name: 'How much does Reattend cost?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Reattend offers a Pro coming soon with all features — ambient capture, meeting recording, AI triage, semantic search, and more. After the trial, Pro is $20/month for unlimited AI. Or keep using Reattend free forever as a notetaker.',
+        text: 'Reattend offers a Pro coming soon with all features - ambient capture, meeting recording, AI triage, semantic search, and more. After the trial, Pro is $20/month for unlimited AI. Or keep using Reattend free forever as a notetaker.',
       },
     },
     {

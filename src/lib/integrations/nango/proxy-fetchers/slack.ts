@@ -1,4 +1,4 @@
-// Slack fetcher — uses nango.proxy() to call Slack Web API.
+// Slack fetcher - uses nango.proxy() to call Slack Web API.
 //
 // Strategy: pull the connected user's accessible public channels, fetch the
 // last N messages from each, normalize each message into a raw_item. Skips
@@ -138,7 +138,7 @@ export async function fetchSlackMessages(
           author: { source: 'slack', userId: m.user || null, name: userName },
           // Lead with channel + author so triage sees the conversational
           // context immediately. Slack's quirky `<@U123>` mentions are kept
-          // verbatim — the LLM understands them.
+          // verbatim - the LLM understands them.
           text: `[#${ch.name}] ${userName}: ${m.text}`,
           metadata: {
             source: 'slack',

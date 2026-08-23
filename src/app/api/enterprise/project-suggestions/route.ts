@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    // Try Claude for better names + descriptions — best effort, falls back
+    // Try Claude for better names + descriptions - best effort, falls back
     // to heuristic on any failure so the UI always has something to show.
     if (suggestions.length > 0 && process.env.ANTHROPIC_API_KEY) {
       try {
@@ -151,7 +151,7 @@ No prose, no markdown, no code fences. Exactly ${suggestions.length} items in or
           })
         }
       } catch {
-        // Silent — heuristic names already populated
+        // Silent - heuristic names already populated
       }
     }
 
@@ -164,7 +164,7 @@ No prose, no markdown, no code fences. Exactly ${suggestions.length} items in or
   }
 }
 
-// POST: accept a suggestion — creates a project + links records to it
+// POST: accept a suggestion - creates a project + links records to it
 export async function POST(req: NextRequest) {
   try {
     await requireAuth()

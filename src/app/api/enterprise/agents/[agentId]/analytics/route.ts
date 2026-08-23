@@ -10,7 +10,7 @@ import {
 
 // GET /api/enterprise/agents/[agentId]/analytics?days=14
 // Returns per-agent stats: query count, avg rating, queries-per-day sparkline,
-// top question clusters (naive — just the most-asked first 100 chars of each
+// top question clusters (naive - just the most-asked first 100 chars of each
 // unique question).
 export async function GET(req: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   try {
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ agen
     const rated = up + down
     const avgRating = rated === 0 ? null : up / rated
 
-    // Top questions — naive frequency by lower-cased first 100 chars
+    // Top questions - naive frequency by lower-cased first 100 chars
     const qCounts = new Map<string, number>()
     for (const r of recent) {
       const k = r.question.trim().slice(0, 100).toLowerCase()

@@ -267,7 +267,7 @@ export function MemoryDebtCalculator() {
               primaryCta={null}
               trustChips={['Takes about 2 minutes', 'No signup required', 'Anonymous']}
             />
-            {/* Page-specific action button (drives phase change via onClick — the
+            {/* Page-specific action button (drives phase change via onClick - the
                 MarketingHero only takes Link CTAs, so we render this below). */}
             <div className="-mt-4 mb-20 flex justify-center px-5">
               <button

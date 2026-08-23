@@ -95,7 +95,7 @@ export async function buildDecisionsBriefing(scope: BriefingScope): Promise<Brie
   const today = new Date().toISOString().slice(0, 10)
 
   const md: string[] = []
-  md.push(`# Decision briefing — ${scopeLabel}`)
+  md.push(`# Decision briefing - ${scopeLabel}`)
   md.push(``)
   md.push(`_Generated ${today} · ${orgRow?.name || scope.organizationId}_`)
   md.push(``)
@@ -119,7 +119,7 @@ export async function buildDecisionsBriefing(scope: BriefingScope): Promise<Brie
   // ── Reversed ─────────────────────────────────────────────
   if (reversed.length > 0) {
     md.push(`## Reversed decisions`)
-    md.push(`Decisions we once made and then walked back. Read the reason — it's usually where the institutional lesson lives.`)
+    md.push(`Decisions we once made and then walked back. Read the reason - it's usually where the institutional lesson lives.`)
     md.push(``)
     for (const d of reversed) {
       md.push(renderDecision(d, { userById, roleById, deptById, supersededBy }))
@@ -143,7 +143,7 @@ export async function buildDecisionsBriefing(scope: BriefingScope): Promise<Brie
     md.push(`## Archived decisions`)
     md.push(``)
     for (const d of archived) {
-      md.push(`- ${escapeMd(d.title)} — ${d.decidedAt.slice(0, 10)}`)
+      md.push(`- ${escapeMd(d.title)} - ${d.decidedAt.slice(0, 10)}`)
     }
     md.push(``)
   }

@@ -69,7 +69,7 @@ async function getTrialDaysLeft(deviceId: string | null, userId: string | null):
   }
 
   if (!firstRecord) {
-    // No usage yet — full trial
+    // No usage yet - full trial
     return TRIAL_DAYS
   }
 

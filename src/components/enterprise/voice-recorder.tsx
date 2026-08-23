@@ -9,14 +9,14 @@
 //   4. Transcript pipes through the normal /api/records pipeline (triage,
 //      embedding, linking)
 //
-// Minimal dependencies — MediaRecorder is native, the UI is hand-drawn.
+// Minimal dependencies - MediaRecorder is native, the UI is hand-drawn.
 // Shows a live waveform via AudioContext analyser so the demo looks alive.
 
 import { useEffect, useRef, useState } from 'react'
 import { Mic, Square, Loader2, Check, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-const MAX_SECONDS = 120 // 2 min cap — transcripts longer than this should be files
+const MAX_SECONDS = 120 // 2 min cap - transcripts longer than this should be files
 
 export type VoiceResult = { recordId?: string; title: string }
 
@@ -168,7 +168,7 @@ export function VoiceRecorder({
           <div className="text-center max-w-xs">
             <div className="text-sm font-medium">Tap to record</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Up to 2 minutes. The AI transcribes and triages automatically — no typing needed.
+              Up to 2 minutes. The AI transcribes and triages automatically - no typing needed.
             </p>
           </div>
         </>

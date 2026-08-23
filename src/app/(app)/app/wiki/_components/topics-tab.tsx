@@ -1,6 +1,6 @@
 'use client'
 
-// Topics tab — ranked list of tags / entities appearing in ≥2 visible records.
+// Topics tab - ranked list of tags / entities appearing in ≥2 visible records.
 // Same data shape and endpoint as before; row chrome restyled to match the
 // new wiki-tree / wiki-tnode design.
 

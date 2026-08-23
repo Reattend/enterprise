@@ -1,6 +1,6 @@
 'use client'
 
-// The Start-My-Day card — daily briefing card on Home.
+// The Start-My-Day card - daily briefing card on Home.
 //
 // Fetches /api/enterprise/start-my-day and renders a single prominent card
 // with:
@@ -100,7 +100,7 @@ export function StartMyDayCard({ orgId }: { orgId: string }) {
   const c = data.counts
   const hasActivity = c.newMemories + c.newDecisions + c.pendingAcks + c.incomingTransfers > 0
 
-  // Quiet day — if no Claude focus AND no counts, hide entirely so we don't
+  // Quiet day - if no Claude focus AND no counts, hide entirely so we don't
   // take up vertical space with "nothing happened".
   if (!hasActivity && !data.focus) return null
 

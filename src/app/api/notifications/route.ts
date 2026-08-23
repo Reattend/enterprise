@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       conditions.push(inArray(schema.inboxNotifications.type, ['rejected']))
     }
 
-    // Exclude snoozed notifications (snoozedUntil is in the future) — but not for rejected tab
+    // Exclude snoozed notifications (snoozedUntil is in the future) - but not for rejected tab
     if (tab !== 'rejected') {
       conditions.push(
         or(

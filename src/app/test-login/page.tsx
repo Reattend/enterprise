@@ -2,12 +2,12 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { TestLoginForm } from './test-login-form'
 
-// /test-login — only renders on the test droplet (ALLOW_TEST_PASSWORD_LOGIN=true).
+// /test-login - only renders on the test droplet (ALLOW_TEST_PASSWORD_LOGIN=true).
 // On production this returns 404 so the page is invisible to anyone scanning
 // reattend.com.
 //
 // The actual form is a client component that goes through NextAuth's
-// signIn('test-password') — it handles CSRF cookie + token round-trip
+// signIn('test-password') - it handles CSRF cookie + token round-trip
 // correctly. The first version of this page rendered the form server-side
 // and posted directly to /api/auth/callback/test-password with a
 // server-fetched CSRF token; that path silently failed because the CSRF

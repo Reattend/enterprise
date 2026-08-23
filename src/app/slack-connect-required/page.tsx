@@ -28,7 +28,7 @@ export default function SlackConnectRequired() {
           Connect Slack from your Reattend dashboard
         </h1>
         <p className="text-gray-500 mb-8 leading-relaxed">
-          To connect Slack, you need to start from inside Reattend — not from the Slack App Directory.
+          To connect Slack, you need to start from inside Reattend - not from the Slack App Directory.
           Sign in to your account and go to <strong>Integrations</strong> to connect.
         </p>
 

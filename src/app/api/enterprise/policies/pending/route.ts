@@ -7,7 +7,7 @@ import {
 } from '@/lib/enterprise'
 
 // GET /api/enterprise/policies/pending?orgId=...
-// Returns the current user's pending policy acknowledgments — the self-
+// Returns the current user's pending policy acknowledgments - the self-
 // healing signal rendered on Home and in the inbox notifications.
 export async function GET(req: NextRequest) {
   try {

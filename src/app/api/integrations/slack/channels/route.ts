@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { getValidSlackToken, listConversations } from '@/lib/slack'
 
-// GET — return list of Slack channels the user is a member of (for channel picker)
+// GET - return list of Slack channels the user is a member of (for channel picker)
 export async function GET() {
   try {
     const { userId } = await requireAuth()

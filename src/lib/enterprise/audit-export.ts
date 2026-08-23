@@ -3,7 +3,7 @@
 // Every audit row is hashed together with the previous row's hash, forming
 // a chain where any modification (insert, edit, delete) invalidates every
 // subsequent hash. The export includes per-row hashes plus the final
-// "chain tip" — auditors can re-hash the file to verify nothing was altered.
+// "chain tip" - auditors can re-hash the file to verify nothing was altered.
 //
 // We keep this deterministic and format-stable: the hash input is a pinned
 // subset of columns in a pinned order. Changing the column list or order
@@ -38,12 +38,12 @@ export interface AuditExportBundle {
   windowEnd: string | null
   rowCount: number
   chainAlgorithm: 'sha256-chain-v1'
-  chainTip: string // last rowHash in the chain — the "signature" to store
+  chainTip: string // last rowHash in the chain - the "signature" to store
   rows: HashedAuditRow[]
 }
 
 // The canonical string representation used for hashing. Fixed column order
-// is critical — verification depends on byte-equality.
+// is critical - verification depends on byte-equality.
 function canonicalizeRow(row: {
   id: string
   organizationId: string
@@ -72,7 +72,7 @@ function canonicalizeRow(row: {
     row.metadata ?? '',
     row.createdAt,
   ]
-  // Tab separator — matches no characters users can inject into any of the
+  // Tab separator - matches no characters users can inject into any of the
   // above fields if they respect DB constraints. A newline terminator makes
   // per-row hashes unambiguous when chained with the tab-containing body.
   return parts.join('\t') + '\n'
@@ -160,7 +160,7 @@ export function verifyAuditExport(bundle: AuditExportBundle): number {
   return -1
 }
 
-// CSV serialization — RFC 4180-ish. Quoted, escaped, stable column order.
+// CSV serialization - RFC 4180-ish. Quoted, escaped, stable column order.
 export function bundleToCsv(bundle: AuditExportBundle): string {
   const header = [
     'id', 'created_at', 'user_email', 'user_id', 'action',

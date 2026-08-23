@@ -17,7 +17,7 @@ const mono = JetBrains_Mono({
   variable: '--font-mono',
 })
 
-// Enterprise display font — used for page titles in the admin cockpit and
+// Enterprise display font - used for page titles in the admin cockpit and
 // marketing hero moments. Gives the Notion/Bloomberg editorial feel.
 const displaySerif = Instrument_Serif({
   weight: '400',
@@ -33,12 +33,12 @@ export const metadata: Metadata = {
     // was a leftover from Personal Reattend; it cost us every CIO who Googled
     // the company name. The "organizational amnesia" wedge is the term we own.
     // See docs/seo-strategy.md and docs/organizational-amnesia-domains.md.
-    default: 'Reattend — Organizational Memory That Never Forgets',
+    default: 'Reattend - Organizational Memory That Never Forgets',
     template: '%s | Reattend',
   },
-  description: 'Reattend is the organizational memory platform that solves corporate amnesia. Decisions, exit interviews, handoffs, time-machine point-in-time queries — when employees leave, transfer, or retire, their institutional knowledge stays.',
+  description: 'Reattend is the organizational memory platform that solves corporate amnesia. Decisions, exit interviews, handoffs, time-machine point-in-time queries - when employees leave, transfer, or retire, their institutional knowledge stays.',
   keywords: [
-    // Primary wedge keywords — what we want to own
+    // Primary wedge keywords - what we want to own
     'organizational amnesia', 'organisational amnesia', 'organizational memory', 'institutional memory',
     'corporate amnesia', 'knowledge loss', 'knowledge retention',
     // Adjacent intent keywords
@@ -66,20 +66,20 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://reattend.com',
     siteName: 'Reattend',
-    title: 'Reattend — Organizational Memory That Never Forgets',
-    description: 'When employees leave, their institutional knowledge stays. Decisions, exit interviews, handoffs, time-machine queries — the memory layer your wiki can\'t give you.',
+    title: 'Reattend - Organizational Memory That Never Forgets',
+    description: 'When employees leave, their institutional knowledge stays. Decisions, exit interviews, handoffs, time-machine queries - the memory layer your wiki can\'t give you.',
     images: [
       {
         url: '/hero.png',
         width: 1400,
         height: 900,
-        alt: 'Reattend — Organizational Memory That Never Forgets',
+        alt: 'Reattend - Organizational Memory That Never Forgets',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Reattend — Organizational Memory That Never Forgets',
+    title: 'Reattend - Organizational Memory That Never Forgets',
     description: 'When employees leave, their institutional knowledge stays. The org memory layer your wiki can\'t give you.',
     images: ['/hero.png'],
   },

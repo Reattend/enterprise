@@ -3,7 +3,7 @@ import { TEAMS_BOT_APP_ID } from '@/lib/teams-recap'
 
 export const dynamic = 'force-dynamic'
 
-// Minimal 1x1 PNG (color: indigo #4F46E5) base64 — placeholder icons
+// Minimal 1x1 PNG (color: indigo #4F46E5) base64 - placeholder icons
 // Teams requires 192x192 (color) and 32x32 (outline) PNGs in the manifest
 // We generate simple solid-color PNGs inline
 function createMinimalPNG(size: number): Buffer {
@@ -175,7 +175,7 @@ export async function GET() {
     },
     description: {
       short: 'Free meeting recap collector for Teams',
-      full: 'Capture meeting decisions, action items, and notes from your team — all in one place. A free alternative to Microsoft Copilot meeting recaps. After any meeting, mention @Recap recap and everyone can fill in what was decided and what needs to happen next. Compile it into a clean summary with @Recap done.',
+      full: 'Capture meeting decisions, action items, and notes from your team - all in one place. A free alternative to Microsoft Copilot meeting recaps. After any meeting, mention @Recap recap and everyone can fill in what was decided and what needs to happen next. Compile it into a clean summary with @Recap done.',
     },
     icons: {
       color: 'color.png',

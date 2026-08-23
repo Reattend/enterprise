@@ -1,6 +1,6 @@
 'use client'
 
-// Home — daily briefing dashboard.
+// Home - daily briefing dashboard.
 //
 // Visual: claude.ai/design Home.html (tokens + classes in dashboard.css).
 // Data wiring:
@@ -92,7 +92,7 @@ export default function HomePage() {
   const [nextMeeting, setNextMeeting] = useState<NextMeeting | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Always load the user — both org and personal homes need it for the
+  // Always load the user - both org and personal homes need it for the
   // greeting. Doing this outside the org-scoped useEffect lets us pass it
   // straight through to PersonalHomePage without an extra round-trip.
   useEffect(() => {
@@ -126,13 +126,13 @@ export default function HomePage() {
 
   // Personal context (no active org) gets PersonalHomePage. This covers
   // both pure Solo users (no orgs at all) and hybrid users who picked
-  // "Personal" in the topbar context switcher — both have
+  // "Personal" in the topbar context switcher - both have
   // activeEnterpriseOrgId === null.
   //
   // Gate on enterpriseOrgsLoaded: without it, real org users briefly see
   // PersonalHomePage during the ~100ms before /api/enterprise/organizations
   // resolves and the auto-pick sets the active org. While orgs are still
-  // loading, render nothing — the layout already shows the topbar/sidebar
+  // loading, render nothing - the layout already shows the topbar/sidebar
   // shell, so the screen isn't blank.
   if (!enterpriseOrgsLoaded) return null
   if (!activeOrgId) {
@@ -186,28 +186,28 @@ export default function HomePage() {
           icon={<UsersRound className="h-3.5 w-3.5" />}
           tone="accent"
           cap="Active members"
-          val={totals?.activeMembers ?? (loading ? '—' : 0)}
+          val={totals?.activeMembers ?? (loading ? '-' : 0)}
           foot={(totals && totals.activeMembers > 0) ? `${totals.activeMembers} ${totals.activeMembers === 1 ? 'member' : 'members'}` : 'no members yet'}
         />
         <StatCard
           icon={<Database className="h-3.5 w-3.5" />}
           tone="ink"
           cap="Memories"
-          val={totals?.memories ?? (loading ? '—' : 0)}
+          val={totals?.memories ?? (loading ? '-' : 0)}
           foot={totals ? `+${totals.recentMemories.toLocaleString()} this week` : ''}
         />
         <StatCard
           icon={<CheckCircle2 className="h-3.5 w-3.5" />}
           tone="green"
           cap="Decisions"
-          val={totals?.decisions ?? (loading ? '—' : 0)}
+          val={totals?.decisions ?? (loading ? '-' : 0)}
           foot={totals && totals.decisions > 0 ? 'logged in this org' : 'none yet'}
         />
         <StatCard
           icon={<AlertTriangle className="h-3.5 w-3.5" />}
           tone="amber"
           cap="Stale"
-          val={totals?.staleMemories ?? (loading ? '—' : 0)}
+          val={totals?.staleMemories ?? (loading ? '-' : 0)}
           foot="over 90 days untouched"
         />
       </section>
@@ -245,14 +245,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trending — sourced from recent records as a placeholder; replace with
+      {/* Trending - sourced from recent records as a placeholder; replace with
           a real /api/records/trending endpoint when one ships. */}
       {recent.length > 0 && (
         <section style={{ border: '1px solid var(--line)', borderRadius: 14, background: 'var(--panel)', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
             <Flame className="h-3.5 w-3.5" style={{ color: 'var(--amber-ink)' }} />
             <span style={{ fontWeight: 600, fontSize: 14.5 }}>Trending</span>
-            <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>— most recent in your org</span>
+            <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>- most recent in your org</span>
           </div>
           {recent.slice(0, 3).map((r, i) => (
             <Link key={r.id} href={`/app/memories/${r.id}`} style={{

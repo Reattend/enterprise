@@ -10,7 +10,7 @@ const handlers: Record<string, JobHandler> = {
     return result.should_store ? `Stored: ${result.title}` : `Dropped: ${result.why_kept_or_dropped}`
   },
   // Ingest = full AI enrichment for a manually-created record. Previously this
-  // was a fire-and-forget IIFE inside POST /api/records — moved here so it
+  // was a fire-and-forget IIFE inside POST /api/records - moved here so it
   // retries on transient Rabbit failures (524s, timeouts) and so Agent Logs
   // actually shows something.
   ingest: async (payload, workspaceId) => {
@@ -32,7 +32,7 @@ const handlers: Record<string, JobHandler> = {
 
 // ─── Config ──────────────────────────────────────────────
 const JOB_DELAY_MS = 2_500
-const JOB_TIMEOUT_MS = 180_000  // 3 min — Rabbit needs ~30-60s for triage, ~30-80s for linking
+const JOB_TIMEOUT_MS = 180_000  // 3 min - Rabbit needs ~30-60s for triage, ~30-80s for linking
 const STUCK_JOB_THRESHOLD_MS = 5 * 60 * 1_000   // 5 min
 const PERIODIC_RETRY_MS = 30 * 60 * 1_000        // 30 min
 const MAX_ATTEMPTS = 3
@@ -175,7 +175,7 @@ export async function processNextJob(): Promise<boolean> {
       return true
     }
 
-    // Permanent or exhausted — fail after MAX_ATTEMPTS
+    // Permanent or exhausted - fail after MAX_ATTEMPTS
     const shouldRetry = job.attempts < MAX_ATTEMPTS
     await db.update(schema.jobQueue)
       .set({ status: shouldRetry ? 'pending' : 'failed', error: error.message })
@@ -244,7 +244,7 @@ export function ensurePeriodicWorker(): void {
 
   // Hot Cache regeneration (hourly): rebuilds the per-org "what's hot this
   // week" digest that gets prepended to every Ask query. Deterministic for
-  // v1 — no LLM calls — so cheap. Each org takes ~5 SQL queries.
+  // v1 - no LLM calls - so cheap. Each org takes ~5 SQL queries.
   setInterval(() => {
     import('@/lib/enterprise/hot-cache')
       .then((m) => m.regenerateAllHotCaches())
@@ -293,7 +293,7 @@ async function trialMaintenanceTick(): Promise<void> {
   const reminders: Array<{ id: string; userId: string; tier: 'professional' | 'enterprise'; daysLeft: number; expired: boolean }> = []
   for (const row of trialing) {
     if (!row.trialEndsAt) continue
-    if (row.paddleSubscriptionId) continue // already paying — no nudge
+    if (row.paddleSubscriptionId) continue // already paying - no nudge
     const ms = new Date(row.trialEndsAt).getTime() - now
     const daysLeft = Math.ceil(ms / (24 * 60 * 60 * 1000))
     if (ms < 0) {

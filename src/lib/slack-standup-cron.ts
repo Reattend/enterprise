@@ -103,7 +103,7 @@ export async function autoPostSummaries(maxAgeHours: number = 4) {
     })
 
     if (responses.length === 0) {
-      // No responses — just mark as posted
+      // No responses - just mark as posted
       await db.update(schema.standupSessions)
         .set({ status: 'posted' as any })
         .where(eq(schema.standupSessions.id, session.id))
@@ -122,7 +122,7 @@ export async function autoPostSummaries(maxAgeHours: number = 4) {
 
     const postRes = await standupSlackPost('chat.postMessage', team.botToken, {
       channel: config.channelId,
-      text: `📋 Standup Summary — ${session.date}`,
+      text: `📋 Standup Summary - ${session.date}`,
       blocks,
     })
 

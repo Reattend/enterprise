@@ -6,7 +6,7 @@
 // (Sign in / Try for free / Book a demo) down to a single "Go to
 // dashboard" button.
 //
-// Runs as a deferred script — DOM is parsed by the time this fires.
+// Runs as a deferred script - DOM is parsed by the time this fires.
 
 (function () {
   if (typeof fetch !== 'function') return;

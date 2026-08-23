@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and, lt } from 'drizzle-orm'
 import { generateRoomCode } from '@/lib/game/room-code'
 
-// POST — Create a new game room
+// POST - Create a new game room
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET — Poll room state
+// GET - Poll room state
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -194,7 +194,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PUT — Host updates room state
+// PUT - Host updates room state
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json()

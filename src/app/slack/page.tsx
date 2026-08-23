@@ -15,7 +15,7 @@ const features = [
   {
     icon: '⚡',
     title: 'Auto-sync channels',
-    desc: 'Pick the channels that matter. Reattend pulls messages every 30 minutes and enriches them into searchable memory — zero effort.',
+    desc: 'Pick the channels that matter. Reattend pulls messages every 30 minutes and enriches them into searchable memory - zero effort.',
   },
   {
     icon: '💾',
@@ -45,7 +45,7 @@ const features = [
 ]
 
 const steps = [
-  { n: '1', title: 'Create a free Reattend account', desc: 'Sign up at reattend.com — takes 30 seconds, no credit card required.' },
+  { n: '1', title: 'Create a free Reattend account', desc: 'Sign up at reattend.com - takes 30 seconds, no credit card required.' },
   { n: '2', title: 'Connect Slack', desc: 'Go to Settings → Integrations → Slack and click Connect. Authorise the app in your workspace.' },
   { n: '3', title: 'Pick your channels', desc: 'Select which channels to sync. You can change these any time.' },
   { n: '4', title: 'Use it', desc: 'Messages sync automatically. Use /reattend save to save notes and /reattend search to find anything.' },
@@ -76,7 +76,7 @@ export default function SlackLandingPage() {
         </h1>
 
         <p className="text-[18px] text-gray-500 leading-relaxed mb-10 max-w-[560px] mx-auto">
-          Reattend connects to your Slack workspace and turns conversations, decisions, and notes into a searchable AI memory — automatically.
+          Reattend connects to your Slack workspace and turns conversations, decisions, and notes into a searchable AI memory - automatically.
         </p>
 
         {/* Add to Slack button */}

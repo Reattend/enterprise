@@ -10,7 +10,7 @@ import {
 
 // GET /api/enterprise/organizations/[orgId]/audit/export?format=csv|json&from=ISO&to=ISO
 // Returns a tamper-evident audit bundle. The chain tip at the top of the
-// CSV (or `chainTip` in JSON) is the "signature" — auditors re-hash the
+// CSV (or `chainTip` in JSON) is the "signature" - auditors re-hash the
 // rows and compare. Any row edit invalidates every subsequent row hash.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {

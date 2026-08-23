@@ -72,7 +72,7 @@ async function extractText(buffer: Buffer, mimeType: string, fileName: string): 
   return `[Document: ${fileName}]`
 }
 
-// POST /api/upload — upload a file, extract text, create a memory record
+// POST /api/upload - upload a file, extract text, create a memory record
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth()
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Save immediately with defaults — AI enrichment runs in background
+    // Save immediately with defaults - AI enrichment runs in background
     const title = file.name.replace(ext, '')
     const fileTags = [`file:${ext.replace('.', '')}`, 'attachment']
     const hash = contentHash(extractedText)

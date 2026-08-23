@@ -7,7 +7,7 @@ import { orderPair } from '@/lib/auth/account-links'
 // POST /api/auth/link/confirm
 // Body: { code: string }
 //
-// Auth required — caller MUST be the target email's account, NOT the
+// Auth required - caller MUST be the target email's account, NOT the
 // requester. This is the security model: only the receiving account's
 // owner can complete the link, so the requester can't add an arbitrary
 // account they don't control.
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     // Find the most-recent unexpired request for THIS code where the
     // target email matches the caller's email. If multiple requests exist,
-    // pick the latest one — the user might have re-requested.
+    // pick the latest one - the user might have re-requested.
     const [request] = await db
       .select()
       .from(schema.accountLinkRequests)

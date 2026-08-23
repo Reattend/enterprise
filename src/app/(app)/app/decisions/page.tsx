@@ -251,13 +251,13 @@ function LogDecisionForm({
           autoFocus
         />
         <Textarea
-          placeholder="Context — what prompted this decision? (optional)"
+          placeholder="Context - what prompted this decision? (optional)"
           value={context}
           onChange={(e) => setContext(e.target.value)}
           rows={2}
         />
         <Textarea
-          placeholder="Rationale — why this choice? (optional)"
+          placeholder="Rationale - why this choice? (optional)"
           value={rationale}
           onChange={(e) => setRationale(e.target.value)}
           rows={2}

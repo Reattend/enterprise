@@ -12,7 +12,7 @@ import {
 import { processOcrJob } from '@/lib/enterprise/ocr/worker'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 300 // 5 min — tesseract on 10+ images per batch
+export const maxDuration = 300 // 5 min - tesseract on 10+ images per batch
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'data', 'ocr-uploads')
 
@@ -21,11 +21,11 @@ try { fs.mkdirSync(UPLOAD_DIR, { recursive: true }) } catch { /* exists */ }
 
 // POST /api/enterprise/ocr/batch (multipart/form-data)
 // Fields:
-//   orgId     — required
-//   files     — multi-file upload
-//   language  — optional tesseract lang code (default 'eng')
+//   orgId     - required
+//   files     - multi-file upload
+//   language  - optional tesseract lang code (default 'eng')
 //
-// Admin-only. Accepts up to 20 files per batch (tesseract is slow — larger
+// Admin-only. Accepts up to 20 files per batch (tesseract is slow - larger
 // batches split across calls). Each file saved to disk, ocr_jobs row
 // created, processing fired asynchronously so the request returns quickly.
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       metadata: { batchSize: createdJobs.length, skipped: skipped.length, language },
     })
 
-    // Fire processing in the background — don't await. Each job updates its
+    // Fire processing in the background - don't await. Each job updates its
     // own row as it progresses. UI polls /api/enterprise/ocr/jobs to track.
     ;(async () => {
       for (const j of createdJobs) {

@@ -1,5 +1,5 @@
 // Shared helpers for Atlassian Cloud (Confluence + Jira). Both products
-// require a "cloudid" lookup before any data call — Atlassian routes
+// require a "cloudid" lookup before any data call - Atlassian routes
 // requests through a per-tenant URL like /ex/confluence/{cloudid}/...
 //
 // We fetch the user's accessible Atlassian sites once per backfill and

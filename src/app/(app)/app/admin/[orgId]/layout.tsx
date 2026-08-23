@@ -1,6 +1,6 @@
 'use client'
 
-// Control Room layout — sidebar with org header + nav, main page area on
+// Control Room layout - sidebar with org header + nav, main page area on
 // the right. The sidebar mirrors the dashboard rail visually but shows
 // the org name in serif at the top + plan/deployment pills + email/seats,
 // then the same Overview / Analytics / Organogram / Knowledge Transfer

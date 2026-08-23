@@ -3,14 +3,14 @@ import { JSON_LD_GRAPH } from './json-ld'
 // The static HTML pages under /public/landing-design/ are served directly
 // by route.ts handlers that bypass the React <RootLayout>. That means the
 // JSON-LD, og:tags, twitter:card, GA snippet, and canonical link in
-// app/layout.tsx never reach those pages — including the homepage.
+// app/layout.tsx never reach those pages - including the homepage.
 // Crawlers see a stripped-down <head> and we lose every signal that drives
 // rich results / sitelinks eligibility.
 //
 // injectSeoIntoHead() rewrites the static HTML response server-side,
 // inserting the same SEO block before </head> on every static page. The
 // per-page <title> and <meta name="description"> already living in the
-// static HTML stay intact — we only add what was missing.
+// static HTML stay intact - we only add what was missing.
 
 const SITE_URL = 'https://reattend.com'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/black_logo.svg`

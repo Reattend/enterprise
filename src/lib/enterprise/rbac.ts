@@ -11,7 +11,7 @@ import { ROLE_DEFAULTS, DEPT_ROLE_DEFAULTS, type Permission } from './permission
 export type OrgRole = 'super_admin' | 'admin' | 'member' | 'guest'
 export type DeptRole = 'dept_head' | 'manager' | 'member' | 'viewer'
 
-// Legacy permission union — kept for back-compat. New code should import
+// Legacy permission union - kept for back-compat. New code should import
 // `Permission` from src/lib/enterprise/permissions.ts directly.
 export type OrgPermission = Extract<
   Permission,
@@ -24,7 +24,7 @@ export type OrgPermission = Extract<
   | 'agents.manage'
 >
 
-// Legacy dept-permission union — same back-compat note as above.
+// Legacy dept-permission union - same back-compat note as above.
 export type DeptPermission =
   | 'dept.manage'
   | 'dept.members.manage'
@@ -32,7 +32,7 @@ export type DeptPermission =
   | 'dept.records.write'
   | 'dept.decisions.manage'
 
-// Legacy dept-permission map. Not the source of truth anymore — the matrix
+// Legacy dept-permission map. Not the source of truth anymore - the matrix
 // in permissions.ts is. Only used by hasDeptPermission below for callers
 // that pre-date the matrix; new code should use hasPermission with a scope.
 const DEPT_ROLE_PERMS: Record<DeptRole, DeptPermission[]> = {
@@ -96,7 +96,7 @@ export async function getDeptContext(userId: string, departmentId: string): Prom
 
 // Sync, role-default-only check. Reads from ROLE_DEFAULTS in permissions.ts
 // so the matrix is the single source of truth. Returns true only for grants
-// marked 'always' (org-wide) — dept-scoped grants ('own_dept') and
+// marked 'always' (org-wide) - dept-scoped grants ('own_dept') and
 // own-record grants ('own_record') need the async hasPermission() with scope.
 //
 // Legacy callers that pre-date the matrix can still use this function
@@ -248,7 +248,7 @@ export async function filterToAccessibleWorkspaces(userId: string, workspaceIds:
     .from(workspaceOrgLinks)
     .where(inArray(workspaceOrgLinks.workspaceId, workspaceIds))
 
-  // Non-enterprise workspaces (no link row) pass through — the existing
+  // Non-enterprise workspaces (no link row) pass through - the existing
   // workspace_members table governs them. Enterprise-linked ones require org/dept access.
   const enterpriseIds = new Set(links.map((l) => l.workspaceId))
   const passthrough = workspaceIds.filter((id) => !enterpriseIds.has(id))

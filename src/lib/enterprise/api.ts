@@ -20,9 +20,9 @@ export interface EnterpriseAuth {
 }
 
 export interface PermissionScope {
-  /** Department this action targets — required for any 'own_dept' grant */
+  /** Department this action targets - required for any 'own_dept' grant */
   departmentId?: string | null
-  /** Creator of the resource — required for any 'own_record' grant */
+  /** Creator of the resource - required for any 'own_record' grant */
   recordCreatorUserId?: string | null
 }
 
@@ -72,7 +72,7 @@ export async function requireOrgAuth(
   return { userId, userEmail, orgCtx, request: req }
 }
 
-// Type guard — NextResponse is thrown back to the client, EnterpriseAuth proceeds.
+// Type guard - NextResponse is thrown back to the client, EnterpriseAuth proceeds.
 export function isAuthResponse(x: EnterpriseAuth | NextResponse): x is NextResponse {
   return x instanceof NextResponse
 }

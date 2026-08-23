@@ -1,4 +1,4 @@
-/* ===== Reattend Landing v3 — Targeted fixes ===== */
+/* ===== Reattend Landing v3 - Targeted fixes ===== */
 
 
 /* ========== HERO FIX ========== */
@@ -249,7 +249,7 @@
 .qd-owner.s2 { right: 8%; top: 50%; transform: translateY(-50%); }
 .qd-owner.s3 { right: 5%; bottom: 5%; }
 
-/* ========== HOW IT WORKS — CARD REDESIGN ========== */
+/* ========== HOW IT WORKS - CARD REDESIGN ========== */
 .howit-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -338,7 +338,7 @@
 /* Hide the old how-it-works rows */
 .howit-row { display: none !important; }
 
-/* ========== SANDBOX — minimalist split ========== */
+/* ========== SANDBOX - minimalist split ========== */
 .sandbox-frame {
   border: 1px solid var(--rule);
   border-radius: 16px;
@@ -448,7 +448,7 @@
 }
 .sandbox-cite.amber::before { background: var(--amber-deep); }
 
-/* ========== TRUST — single black card, simple cert row ========== */
+/* ========== TRUST - single black card, simple cert row ========== */
 .trust-card {
   position: relative;
   overflow: hidden;
@@ -516,7 +516,7 @@
 /* hide the supplementary feature row entirely */
 .trust-features { display: none !important; }
 
-/* ========== PRICING — minimal row of 4 ========== */
+/* ========== PRICING - minimal row of 4 ========== */
 .pricing-grid {
   gap: 16px !important;
   grid-template-columns: repeat(4, 1fr) !important;
@@ -593,7 +593,7 @@
 }
 .pri-foot:hover { color: var(--accent); }
 
-/* ========== FAQ — flat hr-divided list ========== */
+/* ========== FAQ - flat hr-divided list ========== */
 .faq-head { text-align: center; }
 .faq-head .sec-h2 { max-width: 22ch; margin-left: auto !important; margin-right: auto !important; }
 .faq-grid {
@@ -661,7 +661,7 @@
 .faq-list { display: none !important; }
 
 
-/* ========== Pricing/Sandbox/FAQ heads — eye absolute-left, title centered ========== */
+/* ========== Pricing/Sandbox/FAQ heads - eye absolute-left, title centered ========== */
 .pricing-head, .sandbox-head, .faq-head {
   position: relative;
   display: block !important;

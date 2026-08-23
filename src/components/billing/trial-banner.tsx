@@ -45,11 +45,11 @@ export function TrialBanner() {
 
   if (!me) return null
   if (me.tier === 'free') return null
-  if (me.paddleSubscriptionId) return null  // already paying — no countdown
+  if (me.paddleSubscriptionId) return null  // already paying - no countdown
   if (!me.trialEndsAt) return null
   const ends = new Date(me.trialEndsAt)
   if (isNaN(ends.getTime())) return null
-  if (ends.getTime() < Date.now()) return null  // expired — not our concern, the gate handles it
+  if (ends.getTime() < Date.now()) return null  // expired - not our concern, the gate handles it
 
   const today = new Date().toISOString().slice(0, 10)
   if (dismissedDay === today) return null

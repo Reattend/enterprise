@@ -2,7 +2,7 @@
 
 import { PermissionGate } from '@/components/enterprise/permission-gate'
 
-// Compliance posture — SOC 2 Type 1 prep dashboard.
+// Compliance posture - SOC 2 Type 1 prep dashboard.
 // Each control is a live signal computed from org state, not a manual
 // checkbox. The retention + export controls sit on this page too so admins
 // can configure them without jumping tabs.
@@ -238,7 +238,7 @@ function CompliancePageInner({ params }: { params: { orgId: string } }) {
             </div>
             <div className="flex-1">
               <div className="text-sm font-semibold">Tamper-evident export</div>
-              <div className="text-xs text-muted-foreground">Every row is hashed with the previous row's hash — a modified file fails verification.</div>
+              <div className="text-xs text-muted-foreground">Every row is hashed with the previous row's hash - a modified file fails verification.</div>
             </div>
           </div>
           <div className="flex items-center gap-2">

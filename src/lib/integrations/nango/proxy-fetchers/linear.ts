@@ -1,4 +1,4 @@
-// Linear fetcher — uses nango.proxy() to call Linear's GraphQL API.
+// Linear fetcher - uses nango.proxy() to call Linear's GraphQL API.
 //
 // Strategy: one POST to /graphql returns the most-recently-updated issues
 // across every team the connected user can see. Each issue → one raw_item

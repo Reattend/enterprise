@@ -13,7 +13,7 @@ import { requireExtensionAccess } from '@/lib/billing/gates'
 // (users.active_context_org_id), same behavior, just a different auth
 // mechanism.
 //
-// Gated by requireExtensionAccess (Professional+) — Solo Free users
+// Gated by requireExtensionAccess (Professional+) - Solo Free users
 // can't issue extension/desktop tokens in the first place, so this gate
 // is defense in depth.
 

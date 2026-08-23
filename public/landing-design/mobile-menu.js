@@ -7,7 +7,7 @@
 //
 // Runs deferred so the DOM is parsed when this fires. No-ops if the topbar
 // is missing (signin.html for example) or the drawer was already injected
-// (idempotent — safe if loaded twice).
+// (idempotent - safe if loaded twice).
 
 (function () {
   if (typeof document === 'undefined') return;

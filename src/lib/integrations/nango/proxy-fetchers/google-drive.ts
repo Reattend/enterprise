@@ -1,4 +1,4 @@
-// Google Drive fetcher — uses nango.proxy() to call Drive v3.
+// Google Drive fetcher - uses nango.proxy() to call Drive v3.
 //
 // Strategy: list the user's most-recently-modified files (excluding folders
 // and trash), then for each file extract text content via the appropriate
@@ -123,7 +123,7 @@ export async function fetchDriveFiles(
         const buf = Buffer.from(r.data as ArrayBuffer)
         // Skip very large PDFs (>10MB) to keep latency reasonable.
         if (buf.byteLength > 10_000_000) {
-          body = '(PDF too large to extract — open in Drive)'
+          body = '(PDF too large to extract - open in Drive)'
         } else {
           // pdf-parse is CommonJS; default-import dance for ESM compat.
           const pdfMod: any = await import('pdf-parse')
@@ -145,7 +145,7 @@ export async function fetchDriveFiles(
       }
     } catch (err: any) {
       console.error(`[drive proxy] extract failed for ${f.id} (${f.mimeType}):`, err?.response?.status || err?.message)
-      // Fall through with empty body — we'll still emit a title-only memory.
+      // Fall through with empty body - we'll still emit a title-only memory.
     }
 
     const owner = f.owners?.[0]

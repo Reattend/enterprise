@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
-// GET /api/invite/:id — get invite details (public, no auth required)
+// GET /api/invite/:id - get invite details (public, no auth required)
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -43,7 +43,7 @@ export async function GET(
   }
 }
 
-// POST /api/invite/:id — accept the invitation (auth required)
+// POST /api/invite/:id - accept the invitation (auth required)
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

@@ -75,11 +75,11 @@ type Message = {
   content: string
   sources?: Source[]
   followUps?: string[]
-  // Offer-style suggestions — "If you want, I can…" prompts.
+  // Offer-style suggestions - "If you want, I can…" prompts.
   // Same shape as followUps (just a list of strings), rendered as a
   // separate pill row below the curious follow-ups.
   offers?: string[]
-  // Reasoning trace — populated from X-Trace response header. Lets the
+  // Reasoning trace - populated from X-Trace response header. Lets the
   // ReasoningTrace component replay the pipeline steps that found the answer.
   trace?: TraceData
 }
@@ -93,7 +93,7 @@ export function ChatView() {
   const [chatId, setChatId] = useState<string | null>(null)
   // Track which message's sources are expanded (collapsed by default)
   const [openSourceIds, setOpenSourceIds] = useState<Set<string>>(new Set())
-  // Same pattern for the reasoning trace — closed by default, opens on
+  // Same pattern for the reasoning trace - closed by default, opens on
   // click. Was rendered unconditionally before; users found it noisy.
   const [openTraceIds, setOpenTraceIds] = useState<Set<string>>(new Set())
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({})
@@ -203,7 +203,7 @@ export function ChatView() {
           setChatId(data.chat.id)
           // Push the chat id into the URL bar so refresh / share / browser
           // back all land on the same thread. The chat surface lives at
-          // /app/ask, NOT /app — pointing at /app silently navigates the
+          // /app/ask, NOT /app - pointing at /app silently navigates the
           // user to the home dashboard on refresh.
           window.history.replaceState(null, '', `/app/ask?chat=${data.chat.id}`)
           upsertRecentChat({ id: data.chat.id, title: firstQuestion.slice(0, 60), updatedAt: new Date().toISOString() })
@@ -229,7 +229,7 @@ export function ChatView() {
 
     const firstQuestion = messages.length === 0 ? question.trim() : messages.find(m => m.role === 'user')?.content || question.trim()
 
-    // ── Deepthink branch — hit the structured-dossier endpoint and render
+    // ── Deepthink branch - hit the structured-dossier endpoint and render
     // the response as a single styled message (Situation / Evidence / Risks
     // / Recommendations / Unknowns). Does not stream, so the UI shows the
     // typing-dots indicator until the dossier lands.
@@ -281,7 +281,7 @@ export function ChatView() {
         body: JSON.stringify({
           question: question.trim(),
           history,
-          // Pass agent context — /api/ask can use the system prompt + scope
+          // Pass agent context - /api/ask can use the system prompt + scope
           // to tailor retrieval and the answer persona. Server may ignore for
           // now; UI shows the agent identity either way.
           agentId: agent?.id ?? undefined,
@@ -398,7 +398,7 @@ export function ChatView() {
   }
 
   // Hedge phrases the LLM emits when it has thin grounding. Used to gate
-  // follow-up pills — there's no point asking "want me to dig deeper?"
+  // follow-up pills - there's no point asking "want me to dig deeper?"
   // when the answer literally said "I don't have any information about X".
   const HEDGE_RE = /\b(i (?:don't|do not) (?:have|know|see)|i'?m (?:not sure|uncertain)|no (?:information|memories|records|context)|nothing (?:saved|captured|on record)|(?:can(?:not|'t)|unable to) (?:find|answer))\b/i
   function isLowConfidence(content: string, sourceCount: number) {
@@ -530,7 +530,7 @@ export function ChatView() {
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      {/* Scroll region — empty-state hero + suggestions when no messages,
+      {/* Scroll region - empty-state hero + suggestions when no messages,
           chat thread when there are. The chatbox below is glued to the
           bottom in both states (image 3 spec). */}
       <div className="flex-1 overflow-y-auto min-h-0">
@@ -625,7 +625,7 @@ export function ChatView() {
                         </div>
                       </div>
 
-                      {/* Action bar — thumbs, copy, share */}
+                      {/* Action bar - thumbs, copy, share */}
                       {msg.content && !streaming && (
                         <div className="ml-10 flex items-center gap-1 pt-1">
                           <button
@@ -670,7 +670,7 @@ export function ChatView() {
                         </div>
                       )}
 
-                      {/* Reasoning trace — collapsible. Closed by default so
+                      {/* Reasoning trace - collapsible. Closed by default so
                           the answer is the focus; click the chevron to replay
                           the retrieval pipeline that produced this answer. */}
                       {msg.trace ? (
@@ -692,7 +692,7 @@ export function ChatView() {
                         </div>
                       ) : null}
 
-                      {/* Sources — collapsible chevron */}
+                      {/* Sources - collapsible chevron */}
                       {msg.sources && msg.sources.length > 0 && (
                         <div className="ml-10 space-y-1.5">
                           <button
@@ -735,7 +735,7 @@ export function ChatView() {
                         </div>
                       )}
 
-                      {/* Follow-up questions — capped at 2, suppressed when
+                      {/* Follow-up questions - capped at 2, suppressed when
                           the answer was low-confidence (no sources or hedge
                           phrases like "I don't have information"). */}
                       {msg.followUps && msg.followUps.length > 0 && idx === messages.length - 1 && !streaming &&
@@ -754,7 +754,7 @@ export function ChatView() {
                         </div>
                       )}
 
-                      {/* Offers — things Reattend can do next for the user.
+                      {/* Offers - things Reattend can do next for the user.
                           Tinted indigo to visually distinguish from the neutral
                           follow-up pills above. */}
                       {msg.offers && msg.offers.length > 0 && idx === messages.length - 1 && !streaming && (
@@ -780,7 +780,7 @@ export function ChatView() {
           )}
       </div>
 
-      {/* Sticky chatbox — always glued to the bottom of the chat surface,
+      {/* Sticky chatbox - always glued to the bottom of the chat surface,
           in both empty and active states. The user can ask, scroll the
           answer, then keep typing without losing the input bar. */}
       <div className="shrink-0 border-t border-border bg-background">

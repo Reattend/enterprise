@@ -1,11 +1,11 @@
 'use client'
 
-// The Legend — canonical "everything Reattend Enterprise can do for you" page.
+// The Legend - canonical "everything Reattend Enterprise can do for you" page.
 //
 // Accessible to every role. Groups features by job-to-be-done and surfaces
 // the role gating inline so members see admin-only rows greyed out with
 // "Ask an admin" rather than missing entirely. Source of truth is
-// src/lib/enterprise/rbac.ts — if it's not here, it doesn't exist yet.
+// src/lib/enterprise/rbac.ts - if it's not here, it doesn't exist yet.
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -40,12 +40,12 @@ interface Feature {
 
 const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
   {
-    title: 'Capture — get memory in',
+    title: 'Capture - get memory in',
     blurb: 'Four ways to turn raw thought into structured, searchable memory.',
     features: [
       {
         title: 'Brain Dump (Firehose)',
-        desc: 'Paste or talk through a stream-of-consciousness dump. the AI parses it into decisions, open questions, action items, and facts — you review and commit in one click.',
+        desc: 'Paste or talk through a stream-of-consciousness dump. the AI parses it into decisions, open questions, action items, and facts - you review and commit in one click.',
         icon: BrainCircuit,
         href: '/app/brain-dump',
         who: ['super_admin', 'admin', 'member'],
@@ -86,7 +86,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     ],
   },
   {
-    title: 'Ask — get answers with citations',
+    title: 'Ask - get answers with citations',
     blurb: 'Two modes backed by the same retrieval pipeline. Every answer grounded in your own memory, not the open web.',
     features: [
       {
@@ -133,7 +133,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Anonymous Ask',
-        desc: 'Ask a sensitive question (HR / compliance / reporting) without attribution. Same RBAC applies — you still only see what you could already access — but your identity is stripped from the audit log. One-shot, no thread saved.',
+        desc: 'Ask a sensitive question (HR / compliance / reporting) without attribution. Same RBAC applies - you still only see what you could already access - but your identity is stripped from the audit log. One-shot, no thread saved.',
         icon: Shield,
         href: '/app/anonymous-ask',
         who: ['super_admin', 'admin', 'member', 'guest'],
@@ -149,7 +149,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Trending',
-        desc: 'Home card listing the 5 most-viewed memories in the last 7 days. Hidden on orgs with no views yet. Respects RBAC — you only see what you can access.',
+        desc: 'Home card listing the 5 most-viewed memories in the last 7 days. Hidden on orgs with no views yet. Respects RBAC - you only see what you can access.',
         icon: Sparkles,
         href: '/app',
         who: ['super_admin', 'admin', 'member'],
@@ -200,7 +200,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
         status: 'live',
       },
       {
-        title: 'Wiki — Topics, People, Hierarchy',
+        title: 'Wiki - Topics, People, Hierarchy',
         desc: 'Auto-generated encyclopedia. Three lenses: by department tree, by topic/tag, by person (with "knowledge at risk" flags for sole-source-of-truth individuals).',
         icon: BookOpen,
         href: '/app/wiki',
@@ -233,7 +233,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Agents',
-        desc: 'Purpose-built AI agents — 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Admins can click "Run now" to fire an agent over recent memory; output is saved as a new memory. Activity tab shows every system run.',
+        desc: 'Purpose-built AI agents - 10 seeded (HR, Legal, Finance, Onboarding, Customer Success, etc.). Admins can click "Run now" to fire an agent over recent memory; output is saved as a new memory. Activity tab shows every system run.',
         icon: Bot,
         href: '/app/agents',
         who: ['super_admin', 'admin', 'member'],
@@ -266,7 +266,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     ],
   },
   {
-    title: 'Amnesia-specific — why Reattend exists',
+    title: 'Amnesia-specific - why Reattend exists',
     blurb: 'The features that make Reattend Enterprise distinctly ours. Glean can\'t copy these without our decision graph.',
     features: [
       {
@@ -335,14 +335,14 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Reasoning trace',
-        desc: 'Every Chat answer shows a replayable pipeline trace — retrieval candidates, rerank, synthesis — so you can trust the provenance.',
+        desc: 'Every Chat answer shows a replayable pipeline trace - retrieval candidates, rerank, synthesis - so you can trust the provenance.',
         icon: Target,
         who: ['super_admin', 'admin', 'member'],
         status: 'live',
       },
       {
         title: 'Audit log (admin)',
-        desc: 'Every query, access, role change, export, agent run — timestamped with actor, IP, resource. Hash-chain WORM: every row sha256-linked to the prior row; a "Verify chain" button walks the log and surfaces tamper. Searchable, CSV-exportable, retained per plan.',
+        desc: 'Every query, access, role change, export, agent run - timestamped with actor, IP, resource. Hash-chain WORM: every row sha256-linked to the prior row; a "Verify chain" button walks the log and surfaces tamper. Searchable, CSV-exportable, retained per plan.',
         icon: ScrollText,
         who: ['super_admin', 'admin'],
         status: 'live',
@@ -357,7 +357,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Compliance page (public)',
-        desc: 'Public-facing compliance stance at /compliance — certifications roadmap (SOC 2 I Q1 post-launch, II Q2+, StateRAMP Y2), controls we actually have today, data residency, encryption specifics. Sales hands this to procurement.',
+        desc: 'Public-facing compliance stance at /compliance - certifications roadmap (SOC 2 I Q1 post-launch, II Q2+, StateRAMP Y2), controls we actually have today, data residency, encryption specifics. Sales hands this to procurement.',
         icon: Shield,
         href: '/compliance',
         who: ['super_admin', 'admin', 'member', 'guest'],
@@ -372,7 +372,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Memory Cockpit (admin)',
-        desc: 'Org-wide control panel. Members, departments, decisions, policies, agents, integrations, self-healing, audit, analytics, settings — all one click from the top-left org pill.',
+        desc: 'Org-wide control panel. Members, departments, decisions, policies, agents, integrations, self-healing, audit, analytics, settings - all one click from the top-left org pill.',
         icon: Activity,
         who: ['super_admin', 'admin'],
         status: 'live',
@@ -386,7 +386,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
       },
       {
         title: 'Legal hold + retention (gov track)',
-        desc: 'Every memory supports a legal-hold flag (freezes edits and deletion) plus a retention_until date (earliest purge date — 7/50 years for compliance). Gov-schema foundation; UI in admin-only tools.',
+        desc: 'Every memory supports a legal-hold flag (freezes edits and deletion) plus a retention_until date (earliest purge date - 7/50 years for compliance). Gov-schema foundation; UI in admin-only tools.',
         icon: Shield,
         who: ['super_admin', 'admin'],
         status: 'live',
@@ -394,7 +394,7 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
     ],
   },
   {
-    title: 'Not yet — on the roadmap',
+    title: 'Not yet - on the roadmap',
     blurb: 'What we\'re building next. Vote by sending feedback (pink topbar icon).',
     features: [
       {
@@ -430,8 +430,8 @@ const SECTIONS: Array<{ title: string; blurb: string; features: Feature[] }> = [
 ]
 
 const SHORTCUTS: Array<{ keys: string; desc: string }> = [
-  { keys: '⌘K',      desc: 'Global search — memories, decisions, policies, people' },
-  { keys: '⌘⇧K',     desc: 'Who Should I Ask? — rank experts for a topic' },
+  { keys: '⌘K',      desc: 'Global search - memories, decisions, policies, people' },
+  { keys: '⌘⇧K',     desc: 'Who Should I Ask? - rank experts for a topic' },
   { keys: '⌘N',      desc: 'Open the Quick Capture drawer' },
   { keys: 'G then M', desc: 'Go to Memory' },
   { keys: 'G then W', desc: 'Go to Wiki' },
@@ -443,14 +443,14 @@ const SHORTCUTS: Array<{ keys: string; desc: string }> = [
 ]
 
 const GLOSSARY: Array<{ term: string; desc: string }> = [
-  { term: 'Memory',   desc: 'Any unit of institutional knowledge — a meeting note, a decision, a lesson learned, an insight. The core record type.' },
-  { term: 'Decision', desc: 'A memory elevated to a load-bearing choice — with context, rationale, outcome, and a status (active / superseded / reversed / archived).' },
+  { term: 'Memory',   desc: 'Any unit of institutional knowledge - a meeting note, a decision, a lesson learned, an insight. The core record type.' },
+  { term: 'Decision', desc: 'A memory elevated to a load-bearing choice - with context, rationale, outcome, and a status (active / superseded / reversed / archived).' },
   { term: 'Policy',   desc: 'An org-level rule requiring acknowledgment. Authored by admins, acked by members, versioned.' },
   { term: 'Agent',    desc: 'An AI persona with a system prompt + knowledge scope. "Policy Helper" answers only from policies; "Decision Historian" knows your decision graph.' },
   { term: 'Department', desc: 'A node in your Org → Division → Team hierarchy. RBAC is department-level: HR sees HR, Engineering sees Engineering, admins see all.' },
   { term: 'Visibility', desc: 'Per-record access control: private (you only), team (workspace), department, or org-wide. Cross-dept sharing via explicit grants.' },
   { term: 'Transfer',   desc: 'Role succession: when someone leaves, memory ownership moves to the incoming person. Originals stay linked for provenance.' },
-  { term: 'Blast Radius', desc: 'The downstream impact of reversing a decision — memories, policies, successor decisions, people affected. Scored 0-50+.' },
+  { term: 'Blast Radius', desc: 'The downstream impact of reversing a decision - memories, policies, successor decisions, people affected. Scored 0-50+.' },
 ]
 
 export default function LegendPage() {
@@ -476,7 +476,7 @@ export default function LegendPage() {
         </h1>
         <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
           One page with every feature, scoped by role, linked, and named.
-          Bookmark this. If something isn&apos;t here, it doesn&apos;t exist yet — which means you
+          Bookmark this. If something isn&apos;t here, it doesn&apos;t exist yet - which means you
           can request it via the pink feedback icon in the topbar.
         </p>
         {activeOrg && (
@@ -602,7 +602,7 @@ export default function LegendPage() {
           <div className="text-xs text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Two-tier RBAC, always on.</strong> Every record has a visibility
             (private, team, department, org-wide). Search, chat, graph, and timeline all filter to what you
-            can actually see — nothing leaks through an AI answer or a rerank. Admins read across departments
+            can actually see - nothing leaks through an AI answer or a rerank. Admins read across departments
             in their org; members see only theirs; guests see only what&apos;s explicitly shared. Source of truth:
             {' '}<code className="bg-background px-1 py-0.5 rounded text-[10px]">src/lib/enterprise/rbac.ts</code>.
           </div>

@@ -20,9 +20,9 @@ async function getShare(token: string) {
 export async function generateMetadata({ params }: SharePageProps): Promise<Metadata> {
   const { token } = await params
   const share = await getShare(token)
-  if (!share) return { title: 'Not Found — Reattend' }
+  if (!share) return { title: 'Not Found - Reattend' }
   return {
-    title: `${share.title} — Shared from Reattend`,
+    title: `${share.title} - Shared from Reattend`,
     description: share.summary || 'Meeting notes shared from Reattend',
     openGraph: {
       title: share.title,
@@ -137,7 +137,7 @@ export default async function SharePage({ params }: SharePageProps) {
           </div>
         )}
 
-        {/* Blurred teaser — hint at content */}
+        {/* Blurred teaser - hint at content */}
         <div className="relative rounded-2xl border border-slate-200 bg-white overflow-hidden mb-8">
           <div className="p-6 space-y-3">
             {actionItems.slice(0, 2).map((item, i) => (
@@ -167,7 +167,7 @@ export default async function SharePage({ params }: SharePageProps) {
             Save this memory to Reattend
           </h3>
           <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-            Reattend records, transcribes, and extracts action items from your meetings — all stored securely in your account.
+            Reattend records, transcribes, and extracts action items from your meetings - all stored securely in your account.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -189,7 +189,7 @@ export default async function SharePage({ params }: SharePageProps) {
       {/* Footer */}
       <footer className="border-t border-slate-100 mt-16 py-8 text-center">
         <p className="text-xs text-slate-400">
-          Shared from <a href="https://www.reattend.com" className="text-indigo-500 hover:underline font-medium">Reattend</a> — AI memory layer for your work
+          Shared from <a href="https://www.reattend.com" className="text-indigo-500 hover:underline font-medium">Reattend</a> - AI memory layer for your work
         </p>
       </footer>
     </div>

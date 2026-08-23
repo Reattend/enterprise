@@ -43,7 +43,7 @@ export const normalizeGoogleCalendar: NangoNormalizer = (r): NormalizedRawItem |
     : []
 
   // Compose the text triage will read. Lead with title (most important
-  // signal) then context. Skipping events with no title — they're usually
+  // signal) then context. Skipping events with no title - they're usually
   // private blocks ("personal"), not team meetings worth capturing.
   if (!summary) return null
 

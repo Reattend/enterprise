@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 
 // GET /api/enterprise/sso/[orgSlug]/metadata
 // Returns the SP (service provider) metadata XML that the customer uploads
-// to their IdP to configure the trust. Public — no auth — but scoped to
+// to their IdP to configure the trust. Public - no auth - but scoped to
 // the slug so you can only reach enabled orgs.
 export async function GET(
   _req: NextRequest,

@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 // The Chrome extension's ambient-surface query. Given what the user is
 // looking at in the browser, return up to N memories that reference this
 // URL, mention this title, or share strong topical overlap. All RBAC-
-// filtered — no leaks.
+// filtered - no leaks.
 //
 // Ranking:
 //   1. Exact URL matches (record.content LIKE '%<url>%' OR record.meta has url)

@@ -67,7 +67,7 @@ export function AppTopbar() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
-  // Only consider the user's pick — never silently fall back to the first
+  // Only consider the user's pick - never silently fall back to the first
   // org when activeEnterpriseOrgId is null. The null state IS the "Personal"
   // selection and must render as such; falling back desyncs the button label
   // from the dropdown's checkmark.
@@ -226,7 +226,7 @@ export function AppTopbar() {
 
   return (
     <>
-      {/* New design topbar — class names come from src/app/(app)/app/dashboard.css.
+      {/* New design topbar - class names come from src/app/(app)/app/dashboard.css.
           ALL existing icon buttons preserved verbatim with their handlers. */}
       <header className="topbar-v2">
         {/* Mobile hamburger (shown <md) */}
@@ -238,14 +238,14 @@ export function AppTopbar() {
           <Menu className="h-4 w-4" />
         </button>
 
-        {/* Context switcher — visible pill in the topbar.
+        {/* Context switcher - visible pill in the topbar.
             Always rendered for any signed-in user. Three states:
               - Pure Solo (no orgs)            → reads "Personal", no dropdown action
               - Hybrid (Personal + 1+ orgs)    → reads either "Personal" or the
                   active org name; dropdown lets the user flip
               - Org user with no Personal context selected → reads org name
             Picking "Personal" sets activeEnterpriseOrgId to null, which is
-            the same signal a pure-Solo user has — every downstream surface
+            the same signal a pure-Solo user has - every downstream surface
             (home dispatch, sidebar nav, scoped endpoints) already respects
             that. Picking an org sets it to that orgId. Mode is persisted
             via localStorage by the existing setActiveEnterpriseOrgId. */}
@@ -356,7 +356,7 @@ export function AppTopbar() {
 
         {/* Right: action icons (every existing button preserved) */}
         <div className="top-actions">
-          {/* Plan badge — sourced from the user's subscription tier
+          {/* Plan badge - sourced from the user's subscription tier
              (Free / Professional / Enterprise), not the legacy orgPlan
              field which is no longer the source of truth. */}
           <PlanPill />
@@ -366,7 +366,7 @@ export function AppTopbar() {
           <Link
             href="/app/downloads"
             className="icon-btn"
-            title="Download apps — Mac, Windows, Chrome"
+            title="Download apps - Mac, Windows, Chrome"
           >
             <Chrome className="h-4 w-4" />
           </Link>
@@ -635,7 +635,7 @@ export function AppTopbar() {
         )}
       </AnimatePresence>
 
-      {/* Docs Panel — Reattend Enterprise guide, scoped by role. */}
+      {/* Docs Panel - Reattend Enterprise guide, scoped by role. */}
       <AnimatePresence>
         {docsOpen && (
           <motion.div
@@ -845,7 +845,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
           <h2 className="font-bold text-base mb-1">What is Reattend Enterprise?</h2>
           <p className="text-muted-foreground text-[13px] leading-relaxed">
             Reattend Enterprise is your organisation&apos;s memory system. Every decision, context, policy,
-            and meeting is captured, linked, and searchable — even after people leave. Queries are
+            and meeting is captured, linked, and searchable - even after people leave. Queries are
             answered by AI with citations to the original source. Every record respects department-level
             access control.
           </p>
@@ -868,19 +868,19 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
               <tbody className="divide-y">
                 {([
                   ['Ask / search org memory (scoped)', '✓', '✓', '✓', '◐'],
-                  ['Capture a memory', '✓', '✓', '✓', '—'],
-                  ['See all departments&apos; data', '✓', '✓', '—', '—'],
-                  ['Invite & remove members', '✓', '✓', '—', '—'],
-                  ['Create / edit departments', '✓', '✓', '—', '—'],
-                  ['Author / publish policies', '✓', '✓', '—', '—'],
-                  ['Acknowledge policies', '✓', '✓', '✓', '—'],
-                  ['Create & run agents', '✓', '✓', '◐', '—'],
-                  ['Read audit log', '✓', '✓', '—', '—'],
-                  ['Self-healing dashboard', '✓', '✓', '—', '—'],
-                  ['Onboarding Genie', '✓', '✓', '—', '—'],
-                  ['Time Machine (org-scope)', '✓', '✓', '◐', '—'],
-                  ['Edit billing / plan / SSO', '✓', '—', '—', '—'],
-                  ['Transfer org ownership', '✓', '—', '—', '—'],
+                  ['Capture a memory', '✓', '✓', '✓', '-'],
+                  ['See all departments&apos; data', '✓', '✓', '-', '-'],
+                  ['Invite & remove members', '✓', '✓', '-', '-'],
+                  ['Create / edit departments', '✓', '✓', '-', '-'],
+                  ['Author / publish policies', '✓', '✓', '-', '-'],
+                  ['Acknowledge policies', '✓', '✓', '✓', '-'],
+                  ['Create & run agents', '✓', '✓', '◐', '-'],
+                  ['Read audit log', '✓', '✓', '-', '-'],
+                  ['Self-healing dashboard', '✓', '✓', '-', '-'],
+                  ['Onboarding Genie', '✓', '✓', '-', '-'],
+                  ['Time Machine (org-scope)', '✓', '✓', '◐', '-'],
+                  ['Edit billing / plan / SSO', '✓', '-', '-', '-'],
+                  ['Transfer org ownership', '✓', '-', '-', '-'],
                 ] as const).map(([label, a, b, c, d]) => (
                   <tr key={label} className="bg-card">
                     <td className="px-2 py-1.5">{label}</td>
@@ -894,17 +894,17 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             </table>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">
-            <strong>✓</strong> allowed · <strong>◐</strong> scoped to their department / visibility · <strong>—</strong> hidden or denied
+            <strong>✓</strong> allowed · <strong>◐</strong> scoped to their department / visibility · <strong>-</strong> hidden or denied
           </p>
         </section>
 
         {/* Capture */}
         <section>
-          <SectionHeader>Capture — how memory gets in</SectionHeader>
+          <SectionHeader>Capture - how memory gets in</SectionHeader>
           <div className="space-y-2">
             <DocRow
               title="Quick Capture (⌘)"
-              desc="Top-bar command icon. Type anything — a decision, a meeting note, a lesson learned — and it becomes a memory, auto-classified and linked."
+              desc="Top-bar command icon. Type anything - a decision, a meeting note, a lesson learned - and it becomes a memory, auto-classified and linked."
               can={['super_admin', 'admin', 'member']}
               cannot={['guest']}
             />
@@ -916,7 +916,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Brain Dump"
-              desc="Paste or dictate 1,000 words of raw thinking. the AI splits it into decisions, questions, action items, and facts — each saved as a separate memory."
+              desc="Paste or dictate 1,000 words of raw thinking. the AI splits it into decisions, questions, action items, and facts - each saved as a separate memory."
               can={['super_admin', 'admin', 'member']}
               cannot={['guest']}
             />
@@ -930,11 +930,11 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
 
         {/* Recall */}
         <section>
-          <SectionHeader>Recall — how memory comes back</SectionHeader>
+          <SectionHeader>Recall - how memory comes back</SectionHeader>
           <div className="space-y-2">
             <DocRow
               title="Global search (⌘K)"
-              desc="Fuzzy + semantic search across every record you have access to. Results are always RBAC-filtered — you only see what your departments allow."
+              desc="Fuzzy + semantic search across every record you have access to. Results are always RBAC-filtered - you only see what your departments allow."
               can={['super_admin', 'admin', 'member', 'guest']}
             />
             <DocRow
@@ -977,12 +977,12 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Wiki"
-              desc="Auto-generated encyclopedia of your org. Topics and people pages built from memory clusters — always up to date, never stale."
+              desc="Auto-generated encyclopedia of your org. Topics and people pages built from memory clusters - always up to date, never stale."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
               title="Agents"
-              desc="Reusable AI agents — ten seeded by default (onboarding, meeting synth, policy checker, etc.). Admins can create more; members can run the ones their dept has access to."
+              desc="Reusable AI agents - ten seeded by default (onboarding, meeting synth, policy checker, etc.). Admins can create more; members can run the ones their dept has access to."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -1002,7 +1002,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Time Machine"
-              desc="Scrub the last 24 months. See what the org 'knew' at any point — active decisions, memories that existed, what hadn't been reversed yet. Members see it scoped to their dept; admins see org-wide."
+              desc="Scrub the last 24 months. See what the org 'knew' at any point - active decisions, memories that existed, what hadn't been reversed yet. Members see it scoped to their dept; admins see org-wide."
               can={['super_admin', 'admin', 'member']}
             />
             <DocRow
@@ -1034,7 +1034,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Decisions log + Blast Radius"
-              desc="Every decision made, by whom, when, what it superseded. Blast Radius: 'if we reverse this, what breaks?' — citation graph with impact score."
+              desc="Every decision made, by whom, when, what it superseded. Blast Radius: 'if we reverse this, what breaks?' - citation graph with impact score."
               can={['super_admin', 'admin']}
               cannot={['member', 'guest']}
             />
@@ -1078,7 +1078,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             <p>
               <strong className="text-foreground">Two-tier RBAC.</strong> Every record has an
               organisation and a visibility (<code>org_wide</code> or <code>dept_scoped</code>). Search,
-              chat, graph, and timeline all filter to records you can actually see — nothing leaks
+              chat, graph, and timeline all filter to records you can actually see - nothing leaks
               through an AI answer or a rerank.
             </p>
             <p>
@@ -1088,7 +1088,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             </p>
             <p>
               <strong className="text-foreground">Audit everything.</strong> Queries, exports, permission
-              changes, logins, agent runs — all logged with IP, user agent, timestamp, and scope. Audit
+              changes, logins, agent runs - all logged with IP, user agent, timestamp, and scope. Audit
               log is immutable and admin-readable.
             </p>
             <p>

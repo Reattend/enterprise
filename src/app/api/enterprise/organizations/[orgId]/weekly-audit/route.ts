@@ -4,7 +4,7 @@ import { getWeeklyAuditForOrg } from '@/lib/enterprise/weekly-audit'
 
 // GET /api/enterprise/organizations/[orgId]/weekly-audit
 //
-// Returns the org's "what's rotting in your knowledge" report — score 0-100,
+// Returns the org's "what's rotting in your knowledge" report - score 0-100,
 // top 3 leverage gaps, supporting evidence. Computed on the fly (not cached
 // for v1 since the queries are cheap; v2 will cache hourly).
 //

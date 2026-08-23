@@ -464,7 +464,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-3 py-2.5 text-center text-sm text-gray-600">{u.workspaceCount}</td>
                             <td className="px-3 py-2.5 text-xs text-gray-500 whitespace-nowrap">
-                              {u.lastActive ? formatRelativeTime(u.lastActive) : '—'}
+                              {u.lastActive ? formatRelativeTime(u.lastActive) : '-'}
                             </td>
                             <td className="px-3 py-2.5 text-xs whitespace-nowrap">
                               {trialDays !== null ? (
@@ -473,7 +473,7 @@ export default function AdminDashboard() {
                                 </span>
                               ) : u.renewsAt ? (
                                 <span className="text-gray-400">{new Date(u.renewsAt).toLocaleDateString()}</span>
-                              ) : '—'}
+                              ) : '-'}
                             </td>
                             <td className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">
                               {new Date(u.createdAt).toLocaleDateString()}
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
                               <TypeBadge type={fb.type} />
                             </td>
                             <td className="px-3 py-2.5 whitespace-nowrap">
-                              <div className="text-xs font-medium text-gray-900">{fb.name || '—'}</div>
+                              <div className="text-xs font-medium text-gray-900">{fb.name || '-'}</div>
                               <div className="text-[10px] text-gray-400 font-mono">{fb.email}</div>
                             </td>
                             <td className="px-3 py-2.5 max-w-sm">
@@ -612,7 +612,7 @@ export default function AdminDashboard() {
                         {integrationRequests.map((req) => (
                           <tr key={req.id} className={`hover:bg-gray-50 ${req.status === 'new' ? 'bg-violet-50' : ''}`}>
                             <td className="px-3 py-2.5 font-medium text-gray-900 text-sm">{req.appName}</td>
-                            <td className="px-3 py-2.5 text-xs font-mono text-gray-400">{req.email || '—'}</td>
+                            <td className="px-3 py-2.5 text-xs font-mono text-gray-400">{req.email || '-'}</td>
                             <td className="px-3 py-2.5">
                               {req.status === 'new'
                                 ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 text-violet-700">New</span>
@@ -707,7 +707,7 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Gift className="h-5 w-5 text-violet-500" />Extend Free Trial</DialogTitle>
-            <DialogDescription>Grant a user a comp trial of a paid tier — no card required. Stacks on top of any existing trial.</DialogDescription>
+            <DialogDescription>Grant a user a comp trial of a paid tier - no card required. Stacks on top of any existing trial.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -757,7 +757,7 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Crown className="h-5 w-5 text-amber-500" />Grant Paid Tier</DialogTitle>
-            <DialogDescription>Flip a user to an active paid tier — no Paddle interaction. Overrides any existing plan.</DialogDescription>
+            <DialogDescription>Flip a user to an active paid tier - no Paddle interaction. Overrides any existing plan.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -822,7 +822,7 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" />Add Admin</DialogTitle>
-            <DialogDescription>They will log in via email OTP — no password needed.</DialogDescription>
+            <DialogDescription>They will log in via email OTP - no password needed.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>

@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic'
 // (triage + embedding + linking all run via the 'ingest' job queue).
 //
 // Why Groq Whisper specifically: zero new API key needed on prod, and their
-// whisper-large-v3-turbo is ~5x faster than OpenAI's — a 30-second voice memo
+// whisper-large-v3-turbo is ~5x faster than OpenAI's - a 30-second voice memo
 // transcribes in ~2 seconds. Critical for the "tap to capture, done" feel.
 export async function POST(req: NextRequest) {
   try {
@@ -66,10 +66,10 @@ export async function POST(req: NextRequest) {
     const transcription = await groqRes.json() as { text?: string; duration?: number }
     const transcript = (transcription.text || '').trim()
     if (!transcript) {
-      return NextResponse.json({ error: 'empty transcript — try speaking louder or longer' }, { status: 422 })
+      return NextResponse.json({ error: 'empty transcript - try speaking louder or longer' }, { status: 422 })
     }
 
-    // Brain-dump flow wants JUST the transcript text — it'll route the text
+    // Brain-dump flow wants JUST the transcript text - it'll route the text
     // through Claude parsing before any records are created. Skip the full
     // record creation + ingest enqueue in that case.
     if (req.nextUrl.searchParams.get('transcriptOnly') === '1') {
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       }),
     })
 
-    // Optional project link — same logic as the text path.
+    // Optional project link - same logic as the text path.
     if (projectId && typeof projectId === 'string') {
       await db.insert(schema.projectRecords).values({
         projectId,
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       where: eq(schema.records.id, recordId),
     })
 
-    // Queue triage so Claude retitles, extracts entities, links — same as text.
+    // Queue triage so Claude retitles, extracts entities, links - same as text.
     await enqueueJob(workspaceId, 'ingest', { recordId, content: transcript })
     processAllPendingJobs().catch((e) => console.error('[voice] worker kick failed:', e))
 

@@ -40,7 +40,7 @@ export async function runNotionSync(
   connection: typeof schema.integrationsConnections.$inferSelect,
   workspaceId: string,
 ): Promise<{ synced: number; errors: number }> {
-  if (!connection.accessToken) throw new Error('No access token — please reconnect Notion')
+  if (!connection.accessToken) throw new Error('No access token - please reconnect Notion')
 
   const token = connection.accessToken
 

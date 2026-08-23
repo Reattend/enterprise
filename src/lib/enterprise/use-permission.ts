@@ -5,7 +5,7 @@ import type { Permission, PermissionSnapshot } from './permissions'
 
 // In-memory cache keyed by orgId. Single in-flight promise per org so a page
 // with 20 buttons that all call usePermission() only fires one network call.
-// Cache is per-tab and lives for the session — clear on workspace switch by
+// Cache is per-tab and lives for the session - clear on workspace switch by
 // calling clearPermissionCache(orgId).
 const cache = new Map<string, PermissionSnapshot>()
 const inflight = new Map<string, Promise<PermissionSnapshot | null>>()
@@ -42,16 +42,16 @@ export function clearPermissionCache(orgId?: string) {
 }
 
 export interface UsePermissionOptions {
-  /** Department this action targets — required for any 'own_dept' grant */
+  /** Department this action targets - required for any 'own_dept' grant */
   departmentId?: string | null
-  /** Creator of the resource — required for any 'own_record' grant */
+  /** Creator of the resource - required for any 'own_record' grant */
   recordCreatorUserId?: string | null
 }
 
 interface UsePermissionResult {
   /** True only when the snapshot has loaded AND the user has the permission */
   allowed: boolean
-  /** True while the initial fetch is pending — UI can show a skeleton */
+  /** True while the initial fetch is pending - UI can show a skeleton */
   loading: boolean
   /** The cached snapshot, useful if you need multiple checks at once */
   snapshot: PermissionSnapshot | null
@@ -61,12 +61,12 @@ interface UsePermissionResult {
  * Returns whether the current user has the given permission in the given org.
  *
  * **Defense in depth only.** This hook hides UI to avoid showing buttons that
- * would 403 — the API server is still the source of truth. A permission
+ * would 403 - the API server is still the source of truth. A permission
  * change in the DB takes effect on the server immediately, but the UI stays
  * stale until the next snapshot fetch (or page reload).
  *
  * Returns `{ allowed: false }` while loading so buttons stay hidden until
- * we know — fail-closed beats fail-open.
+ * we know - fail-closed beats fail-open.
  *
  * Usage:
  * ```
@@ -106,7 +106,7 @@ export function usePermission(
   if (snapshot.orgWide.includes(permission)) {
     return { allowed: true, loading: false, snapshot }
   }
-  // Dept-scoped grant — must match the dept the action targets
+  // Dept-scoped grant - must match the dept the action targets
   if (opts.departmentId && snapshot.byDepartment[opts.departmentId]?.includes(permission)) {
     return { allowed: true, loading: false, snapshot }
   }
@@ -120,7 +120,7 @@ export function usePermission(
 }
 
 /**
- * Imperative variant — returns a function you can call repeatedly without
+ * Imperative variant - returns a function you can call repeatedly without
  * triggering re-renders. Useful for menu builders that decide visibility
  * for many items at once.
  */
@@ -128,7 +128,7 @@ export function usePermissionChecker(orgId: string | null | undefined): {
   loading: boolean
   snapshot: PermissionSnapshot | null
   check: (permission: Permission, opts?: UsePermissionOptions) => boolean
-  /** True if the user has the permission ANYWHERE — org-wide OR in at least
+  /** True if the user has the permission ANYWHERE - org-wide OR in at least
    *  one dept they manage. Use this to decide whether to show a "+ Create"
    *  button when the dept will be picked inside the form. */
   hasAnywhere: (permission: Permission) => boolean

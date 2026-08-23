@@ -4,7 +4,7 @@
 
 @layer base {
   /* Reattend Enterprise design tokens.
-     Slate palette with a single indigo accent — MS Fluent / Notion / Linear
+     Slate palette with a single indigo accent - MS Fluent / Notion / Linear
      aesthetic. Higher density, flatter, crisper corners (4px). */
   :root {
     /* Surfaces */
@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Single indigo accent — used sparingly for CTAs + links */
+    /* Single indigo accent - used sparingly for CTAs + links */
     --primary: 239 84% 60%;
     --primary-foreground: 0 0% 100%;
 
@@ -45,7 +45,7 @@
     --sidebar-accent-foreground: 222 47% 11%;
   }
 
-  /* Dark mode — slate-950 base. This is the enterprise default. */
+  /* Dark mode - slate-950 base. This is the enterprise default. */
   .dark {
     --background: 222 47% 7%;
     --foreground: 210 40% 96%;
@@ -78,7 +78,7 @@
     --sidebar-accent-foreground: 210 40% 96%;
   }
 
-  /* Team workspace theme — monochrome, professional, zero color */
+  /* Team workspace theme - monochrome, professional, zero color */
   .team-theme {
     --primary: 0 0% 15%;
     --primary-foreground: 0 0% 100%;
@@ -167,7 +167,7 @@
   }
   /* Headings use the display serif inside admin/cockpit pages.
      Scoped via .enterprise-shell wrapper so marketing pages keep their type.
-     Lock to weight 400 — Instrument Serif only ships a single weight, so
+     Lock to weight 400 - Instrument Serif only ships a single weight, so
      `font-bold` would synth-bold and look gummy. */
   .enterprise-shell h1,
   .enterprise-shell .font-display,
@@ -177,7 +177,7 @@
     font-weight: 400 !important;
   }
   /* Section headings (h2) inside the shell pick up the serif by default
-     too — Notion / Bloomberg / editorial vibe. Pages that want a sans
+     too - Notion / Bloomberg / editorial vibe. Pages that want a sans
      section title can opt out with class="font-sans". */
   .enterprise-shell h2 {
     font-family: var(--font-display), 'Iowan Old Style', Georgia, serif;
@@ -188,7 +188,7 @@
   input, select, textarea, button {
     font-size: inherit;
   }
-  /* Mono — JetBrains Mono on every kbd / code / pre inside the shell. */
+  /* Mono - JetBrains Mono on every kbd / code / pre inside the shell. */
   .enterprise-shell kbd,
   .enterprise-shell code,
   .enterprise-shell pre,
@@ -198,7 +198,7 @@
 }
 
 /* ────────────────────────────────────────────────────────────────────
- * Enterprise palette — design system tokens in OKLCH-equivalent HSL.
+ * Enterprise palette - design system tokens in OKLCH-equivalent HSL.
  *
  * shadcn variables are HSL-component triplets consumed via
  * `hsl(var(--background))`. We override them inside `.enterprise-shell`
@@ -237,7 +237,7 @@
   --secondary-foreground: 258 22% 32%;
   --muted: 48 20% 96%;
   --muted-foreground: 258 6% 50%;
-  /* shadcn `--accent` is the soft hover surface. NOT our brand accent —
+  /* shadcn `--accent` is the soft hover surface. NOT our brand accent -
      that's `--brand` defined in dashboard.css. Keeps menu/dropdown hovers
      visible inside the shell. */
   --accent: 258 30% 95%;
@@ -250,7 +250,7 @@
   --input: 258 8% 91%;
   --ring: 19 53% 54%;
 
-  /* Softer corners — design uses 8-14px on cards, 9-10px on buttons.
+  /* Softer corners - design uses 8-14px on cards, 9-10px on buttons.
      0.625rem = 10px. Tailwind's rounded → 10px, rounded-lg → 14px. */
   --radius: 0.625rem;
 

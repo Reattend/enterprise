@@ -122,7 +122,7 @@ function AuditPageInner({ params }: { params: { orgId: string } }) {
     return entries.filter((e) => e.userEmail.toLowerCase().includes(needle))
   }, [entries, userEmail])
 
-  // Quick-filter presets — one click jumps to the most common slices the
+  // Quick-filter presets - one click jumps to the most common slices the
   // admin team actually wants to see. Especially "Permission overrides" so
   // admins can audit who's been granted/revoked what without learning
   // resourceType + action filter combos.
@@ -146,7 +146,7 @@ function AuditPageInner({ params }: { params: { orgId: string } }) {
 
   return (
     <div className="space-y-4">
-      {/* Quick-filter chip row — admins click a chip, the filters below
+      {/* Quick-filter chip row - admins click a chip, the filters below
           update, the audit list reloads. Keeps the rich filter card
           intact for power users who want unusual combinations. */}
       <div className="flex flex-wrap items-center gap-1.5">
@@ -172,7 +172,7 @@ function AuditPageInner({ params }: { params: { orgId: string } }) {
           <Eye className="h-3.5 w-3.5 text-primary" />
           <span className="font-medium">Viewing history for resource</span>
           <code className="bg-background px-1.5 py-0.5 rounded text-[11px] font-mono">{resourceId.slice(0, 12)}…</code>
-          <span className="text-muted-foreground">— every read, write, and permission change touching this item.</span>
+          <span className="text-muted-foreground">- every read, write, and permission change touching this item.</span>
           <Button variant="ghost" size="sm" className="h-6 text-xs ml-auto" onClick={clearResourceFilter}>
             <X className="h-3 w-3 mr-1" /> Clear filter
           </Button>
@@ -303,12 +303,12 @@ function AuditPageInner({ params }: { params: { orgId: string } }) {
             <Kv k="Action" v={selected.action.replace('_', ' ')} />
             <Kv k="At" v={new Date(selected.createdAt).toLocaleString()} />
             <Kv k="User" v={selected.userEmail} />
-            <Kv k="User ID" v={selected.userId ?? '—'} />
-            <Kv k="Resource" v={selected.resourceType ?? '—'} />
-            <Kv k="Resource ID" v={selected.resourceId ?? '—'} />
-            <Kv k="Department" v={selected.departmentId ?? '—'} />
-            <Kv k="IP" v={selected.ipAddress ?? '—'} />
-            <Kv k="User-Agent" v={selected.userAgent ?? '—'} />
+            <Kv k="User ID" v={selected.userId ?? '-'} />
+            <Kv k="Resource" v={selected.resourceType ?? '-'} />
+            <Kv k="Resource ID" v={selected.resourceId ?? '-'} />
+            <Kv k="Department" v={selected.departmentId ?? '-'} />
+            <Kv k="IP" v={selected.ipAddress ?? '-'} />
+            <Kv k="User-Agent" v={selected.userAgent ?? '-'} />
           </div>
           {selected.metadata && (
             <div className="mt-3">

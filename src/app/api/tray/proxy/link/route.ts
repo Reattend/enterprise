@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server'
 /**
  * POST /api/tray/proxy/link
  *
- * TRAY APP — DISABLED (Apr 2026). See /api/tray/proxy/triage/route.ts for the
+ * TRAY APP - DISABLED (Apr 2026). See /api/tray/proxy/triage/route.ts for the
  * full explanation.
  */
 export async function POST(_req: NextRequest) {

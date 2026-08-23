@@ -1,6 +1,6 @@
 'use client'
 
-// Topic detail — same data shape as before, restyled to match the design's
+// Topic detail - same data shape as before, restyled to match the design's
 // article layout: breadcrumb, serif h2 with topic name, freshness pill,
 // meta row, auto-gen strip, summary, "Appears in" dept chips, recent records.
 
@@ -36,7 +36,7 @@ function fmtRelative(iso: string) {
   return d.toLocaleDateString()
 }
 function fmtShort(iso: string | null | undefined) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 

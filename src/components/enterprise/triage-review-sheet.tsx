@@ -1,6 +1,6 @@
 'use client'
 
-// Triage Review — slide-out panel triggered from /app/integrations.
+// Triage Review - slide-out panel triggered from /app/integrations.
 // Lighter-weight version of /app/admin/[orgId]/triage-review with the same
 // API. Lets admins peek at what triage is doing without leaving the page
 // they just connected a source from.
@@ -155,7 +155,7 @@ export function TriageReviewSheet({
               <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
                 {counts.new + counts.triaged + counts.ignored === 0
                   ? 'Connect Gmail or Calendar above and click Sync now.'
-                  : 'No items match this filter — try a different tab.'}
+                  : 'No items match this filter - try a different tab.'}
               </p>
             </div>
           )}

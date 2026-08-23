@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reattend — Try as someone else</title>
+  <title>Reattend - Try as someone else</title>
   <meta name="description" content="Pick a role and we drop you into a pre-loaded demo organization to feel Reattend from the inside." />
 
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
@@ -287,7 +287,7 @@
     </nav>
     <div style="display:flex; gap:8px;">
       <a class="btn btn-ghost" href="/login">Sign in</a>
-      <a class="btn btn-outline" href="/sandbox">Try for free</a>
+      <a class="btn btn-outline" href="/sandbox">Sandbox</a>
       <a class="btn btn-primary btn-fill" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
     </div>
   </div>
@@ -295,7 +295,7 @@
 
 <section class="sandbox-hero">
   <h1 class="pfade">Try Reattend Enterprise<br /><span class="quiet">as someone else.</span></h1>
-  <p class="pfade">Pick a role. We'll drop you into a pre-loaded demo org — <em>Ministry of Finance</em> with 22 members, 12 decisions, 5 policies, 3 agents, and a completed exit interview.</p>
+  <p class="pfade">Pick a role. We'll drop you into a pre-loaded demo org - <em>Ministry of Finance</em> with 22 members, 12 decisions, 5 policies, 3 agents, and a completed exit interview.</p>
   <div class="sandbox-notice pfade">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
     <div class="text"><b>AI runs in guided-demo mode in the sandbox.</b> Ask Chat, Oracle, and the agents will serve <em>pre-canned scripted responses</em> that show what the real answer would look like on your org's data. Every sandbox session also gets a list of suggested questions that trigger full demos. Your real deployment runs the live AI on your own memory graph.</div>
@@ -479,7 +479,7 @@
   }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
 
-  // Persona launch — replicates the React signIn('sso-ticket', ...) flow:
+  // Persona launch - replicates the React signIn('sso-ticket', ...) flow:
   //   1. POST /api/sandbox/launch  → ticket
   //   2. GET  /api/auth/csrf       → csrfToken
   //   3. POST /api/auth/callback/sso-ticket  → session cookie + url

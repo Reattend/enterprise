@@ -1,12 +1,12 @@
 'use client'
 
-// Meeting Prep Card — a Home surface.
+// Meeting Prep Card - a Home surface.
 //
 // Shows the next upcoming meeting within a configurable window (default 8h).
 // Renders a Claude-synthesized brief, related memories, decisions, and
 // attendees. Hidden when nothing upcoming, to keep Home uncluttered.
 //
-// Seed meetings via POST /api/enterprise/calendar/events — manual today,
+// Seed meetings via POST /api/enterprise/calendar/events - manual today,
 // Nango later.
 
 import { useEffect, useState } from 'react'
@@ -293,7 +293,7 @@ function AddMeetingDialog({ orgId, onClose, onAdded }: { orgId: string; onClose:
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Until calendar sync is live, add upcoming meetings here — so Reattend can brief you 15 minutes ahead.
+          Until calendar sync is live, add upcoming meetings here - so Reattend can brief you 15 minutes ahead.
         </p>
         <div className="space-y-2">
           <Input placeholder="Meeting title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={saving} />

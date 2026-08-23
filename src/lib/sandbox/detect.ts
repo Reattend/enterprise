@@ -3,7 +3,7 @@
 // Visitors landing on /sandbox get a cloned demo org + a synthetic user whose
 // email ends in '@sandbox.reattend.local' and whose org has slug prefix
 // 'sandbox-'. Every AI endpoint checks isSandboxSession() before hitting the
-// LLM — sandbox sessions serve pre-canned fixtures instead, so we can showcase
+// LLM - sandbox sessions serve pre-canned fixtures instead, so we can showcase
 // the product without burning tokens or risking unpredictable output.
 
 const SANDBOX_EMAIL_SUFFIX = '@sandbox.reattend.local'

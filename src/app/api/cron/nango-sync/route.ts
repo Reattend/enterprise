@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic'
 //
 // Idempotency: ingestFromNango dedupes on externalId per workspace, so a
 // double-fire from overlapping cron runs cannot create duplicates. Each
-// connection is processed independently — one provider's failure does not
+// connection is processed independently - one provider's failure does not
 // block the rest.
 export async function GET(req: NextRequest) {
   const startedAt = Date.now()
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    // For proxy providers `model` is unused — pass the first declared model
+    // For proxy providers `model` is unused - pass the first declared model
     // so the listRecords fallback (if it ever runs) has something sensible.
     const model = provider.models[0] || 'unused'
 

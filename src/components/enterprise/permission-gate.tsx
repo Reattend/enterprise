@@ -22,7 +22,7 @@ interface PermissionGateProps {
 
 /**
  * Wrap any admin page or section with this to hide it from users who lack
- * the required permission. Server still enforces — this is purely UX so
+ * the required permission. Server still enforces - this is purely UX so
  * we don't show "Loading…" → 403 → blank.
  *
  * Usage:

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, Loader2, Check, X, ShieldAlert, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Mirror of docs/permissions.md. Kept in sync by the test suite — if a
+// Mirror of docs/permissions.md. Kept in sync by the test suite - if a
 // permission is added to the matrix, add it here too so the toggle UI shows it.
 const PERMISSIONS: Array<{ key: string; label: string; description: string; group: 'org' | 'records' | 'tooling' }> = [
   { key: 'org.manage',                 label: 'Org settings',          description: 'Edit org settings, billing, SSO. Owner-only by default.', group: 'org' },
@@ -199,7 +199,7 @@ export default function PermissionsPage({ params }: { params: { orgId: string; u
             <p className="text-muted-foreground text-xs mt-0.5">
               Grant a permission this user wouldn&apos;t normally have, or revoke one their role grants.
               Use this for one-off cases (e.g. COO who isn&apos;t admin but needs audit access).
-              Don&apos;t invent a new role for one customer — override instead. See <Link href="/docs/permissions" className="underline">docs/permissions.md</Link>.
+              Don&apos;t invent a new role for one customer - override instead. See <Link href="/docs/permissions" className="underline">docs/permissions.md</Link>.
             </p>
           </div>
         </div>
@@ -239,10 +239,10 @@ export default function PermissionsPage({ params }: { params: { orgId: string; u
                         {eff === 'role' && '✓ via role'}
                         {eff === 'granted-override' && '✓ override grant'}
                         {eff === 'revoked-override' && '✗ override revoke'}
-                        {eff === 'none' && '— not granted'}
+                        {eff === 'none' && '- not granted'}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{p.label} — {p.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{p.label} - {p.description}</p>
                     {hasOverride && (
                       <p className="text-[10px] text-muted-foreground mt-1 italic">
                         Override: {overridesByKey.get(p.key)!.granted ? 'granted' : 'revoked'}
@@ -282,7 +282,7 @@ export default function PermissionsPage({ params }: { params: { orgId: string; u
                           disabled={isBusy || !roleGrants.has(p.key)}
                           onClick={() => setOverride(p.key, false)}
                           className="h-7 text-xs text-rose-600 dark:text-rose-400 border-rose-500/30"
-                          title={!roleGrants.has(p.key) ? 'Not granted by role — nothing to revoke' : 'Revoke this permission'}
+                          title={!roleGrants.has(p.key) ? 'Not granted by role - nothing to revoke' : 'Revoke this permission'}
                         >
                           {isBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
                           Revoke

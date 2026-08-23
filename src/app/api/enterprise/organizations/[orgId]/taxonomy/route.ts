@@ -15,7 +15,7 @@ type TaxonomyKind = 'department_kind' | 'seniority_rank'
 const DEFAULT_DEPARTMENT_KINDS = [
   { label: 'department', rankOrder: 1, description: 'Top-level business unit' },
   { label: 'division', rankOrder: 2, description: 'Group within a department' },
-  { label: 'team', rankOrder: 3, description: 'Leaf — has its own workspace' },
+  { label: 'team', rankOrder: 3, description: 'Leaf - has its own workspace' },
 ]
 const DEFAULT_SENIORITY_RANKS = [
   { label: 'c_level', rankOrder: 1, description: 'Executive leadership' },
@@ -28,7 +28,7 @@ const DEFAULT_SENIORITY_RANKS = [
 
 // GET /api/enterprise/organizations/[orgId]/taxonomy
 // Returns the org's taxonomy grouped by kind. If none is configured yet,
-// returns computed defaults (not persisted — admin must save to customize).
+// returns computed defaults (not persisted - admin must save to customize).
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 // PUT /api/enterprise/organizations/[orgId]/taxonomy
 // Body: { departmentKinds: [{label, rankOrder, description?}], seniorityRanks: [...] }
 // Replaces the full taxonomy atomically. Admin must include every row they
-// want to keep — anything missing is deleted.
+// want to keep - anything missing is deleted.
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params

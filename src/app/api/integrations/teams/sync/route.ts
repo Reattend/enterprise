@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!connection.refreshToken) {
-      return NextResponse.json({ error: 'No refresh token — please reconnect Teams' }, { status: 400 })
+      return NextResponse.json({ error: 'No refresh token - please reconnect Teams' }, { status: 400 })
     }
 
     // Find or create Teams source

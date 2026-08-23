@@ -37,7 +37,7 @@ export default function DashboardClient() {
       const data = await tokenRes.json()
       setUser(data)
 
-      // Try deep link in background (bonus — works if app is installed)
+      // Try deep link in background (bonus - works if app is installed)
       try {
         const params = new URLSearchParams({
           token: data.token,

@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 // Single shared site footer for every public marketing surface. Same
 // columns and bottom strip on landing, sandbox, pricing, compliance,
-// privacy, terms, support — so every page reads as part of one site.
+// privacy, terms, support - so every page reads as part of one site.
 export function SiteFooter() {
   const cols: Array<{ heading: string; links: Array<{ label: string; href: string; external?: boolean }> }> = [
     {

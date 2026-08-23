@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       .from(schema.policies)
       .where(eq(schema.policies.organizationId, orgId))
 
-    // Staleness — count records with a cadence whose last-verified is past due
+    // Staleness - count records with a cadence whose last-verified is past due
     let staleCount = 0
     if (orgWsIds.length > 0) {
       const stale = await db.select({ count: sql<number>`cast(count(*) as integer)` })
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
         .filter((x): x is NonNullable<typeof x> => !!x)
     }
 
-    // Queries in the window — count audit log rows where action=query
+    // Queries in the window - count audit log rows where action=query
     const recentQueries = await db.select({ count: sql<number>`cast(count(*) as integer)` })
       .from(schema.auditLog)
       .where(and(
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
         gte(schema.auditLog.createdAt, since),
       ))
 
-    // Reach by department — number of memories per dept (via workspace link)
+    // Reach by department - number of memories per dept (via workspace link)
     const deptRows = await db.select()
       .from(schema.departments)
       .where(eq(schema.departments.organizationId, orgId))
@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
     }
     reachByDepartment.sort((a, b) => b.recordCount - a.recordCount)
 
-    // Memory mix — count by record type (decision/meeting/idea/insight/etc).
+    // Memory mix - count by record type (decision/meeting/idea/insight/etc).
     // Powers the donut on the home dashboard. Capped at 8 buckets server-side.
     let memoriesByType: Array<{ type: string; count: number }> = []
     if (orgWsIds.length > 0) {
@@ -152,7 +152,7 @@ export async function GET(req: NextRequest) {
         .sort((a, b) => b.count - a.count)
     }
 
-    // Decision status mix — active / superseded / reversed / archived
+    // Decision status mix - active / superseded / reversed / archived
     const decisionStatusRows = await db.select({
       status: schema.decisions.status,
       count: sql<number>`cast(count(*) as integer)`,

@@ -1,10 +1,10 @@
 'use client'
 
-// Memory health cockpit — Control Room overview.
+// Memory health cockpit - Control Room overview.
 //
 // Wiring untouched: same /api/enterprise/organizations/:orgId/overview
 // fetch, same scan POST, same data shape (OverviewData). Only the visual
-// layout changed — every panel below is derived from existing fields:
+// layout changed - every panel below is derived from existing fields:
 //
 //   .hero.totalRecords / .recordsLast30d / .askVolume30d
 //     → big LIVE card + 4 chips
@@ -110,7 +110,7 @@ export default function AdminOverviewPage({ params }: { params: { orgId: string 
       <div className="cr-head">
         <h1>Memory health <em>cockpit</em>.</h1>
         <p className="sub">
-          Your organization&apos;s memory at a glance — instrumented signals, decisions, and drift indicators that surface what dashboards can&apos;t show you.
+          Your organization&apos;s memory at a glance - instrumented signals, decisions, and drift indicators that surface what dashboards can&apos;t show you.
         </p>
       </div>
 
@@ -373,7 +373,7 @@ function HealthPanel({ data }: { data: OverviewData }) {
           />
         </svg>
         <div>
-          <div className="cr-health-num">{data.hero.healthScore ?? '—'}<small>/100</small></div>
+          <div className="cr-health-num">{data.hero.healthScore ?? '-'}<small>/100</small></div>
           <div className="cr-health-tag">
             {data.hero.healthScore == null
               ? 'Run scan to compute'
@@ -553,7 +553,7 @@ function DecisionsLedger({
 }) {
   // We don't have an actor / timestamp on `criticalFindings`; format what
   // we have plus a synthesized recency label so the ledger reads like an
-  // activity log. Intentionally light — the real per-event audit log lives
+  // activity log. Intentionally light - the real per-event audit log lives
   // at /app/admin/<orgId>/audit, linked from the row.
   const items = useMemo(() => {
     const rows: Array<{ id: string; tone: 'decision' | 'revert' | 'risk' | 'preserve'; title: string; tag: string; meta: string; href: string; when: string }> = []
@@ -645,7 +645,7 @@ function AmbientSignals({ data, orgId }: { data: OverviewData; orgId: string }) 
       </div>
       <div className="cr-amb-list">
         {cards.length === 0 ? (
-          <div className="cr-empty">Nothing flagged yet — run a scan to surface risks.</div>
+          <div className="cr-empty">Nothing flagged yet - run a scan to surface risks.</div>
         ) : cards.map((c) => (
           <Link key={c.id} href={c.href} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="cr-amb-card">

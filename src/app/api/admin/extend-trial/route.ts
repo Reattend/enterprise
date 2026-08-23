@@ -16,7 +16,7 @@ const VALID_TIERS: Tier[] = ['professional', 'enterprise']
  *   seatCount: defaults to 1 (5 minimum if enterprise)
  *
  * If the user already has an active trial, the trial end date is extended
- * by `days` from the LATER of (now, current trialEndsAt) — so an admin
+ * by `days` from the LATER of (now, current trialEndsAt) - so an admin
  * granting "30 more days" to a user with 5 days left ends up at +35 days
  * total, not 30.
  */
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     const daysLeft = Math.ceil((trialEnd.getTime() - nowMs) / 86_400_000)
 
-    // Fire-and-forget welcome — don't block the admin action on email send.
+    // Fire-and-forget welcome - don't block the admin action on email send.
     sendTrialGrantedEmail({
       toEmail: normalizedEmail,
       name: user.name || normalizedEmail.split('@')[0],

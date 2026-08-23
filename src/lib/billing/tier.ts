@@ -3,9 +3,9 @@
 // "what does the next tier unlock" lists.
 //
 // Pricing (USD):
-//   Free        — $0,   1 seat,  100 AI queries/mo, 90-day retention, manual capture only
-//   Professional— $19/seat/mo (or $182.40/yr = 20% off), 1-10 seats, unlimited everything else
-//   Enterprise  — $29/seat/mo (or $278.40/yr = 20% off), 5+ seats, + RBAC + SSO + audit log
+//   Free        - $0,   1 seat,  100 AI queries/mo, 90-day retention, manual capture only
+//   Professional- $19/seat/mo (or $182.40/yr = 20% off), 1-10 seats, unlimited everything else
+//   Enterprise  - $29/seat/mo (or $278.40/yr = 20% off), 5+ seats, + RBAC + SSO + audit log
 //
 // All paid tiers come with a 45-day no-card trial. After the trial, if the
 // user hasn't added a card the cron downgrades them to Free (no data loss).
@@ -20,9 +20,9 @@ export interface TierLimits {
   minSeats: number       // 1 for Free/Pro, 5 for Enterprise
   // Feature gates (boolean)
   integrationsAll: boolean    // false on Free (manual + extension only)
-  rbac: boolean               // two-tier RBAC (org + dept) — Enterprise only
-  sso: boolean                // SAML/OIDC SSO — Enterprise only
-  auditLog: boolean           // hash-chained audit trail — Enterprise only
+  rbac: boolean               // two-tier RBAC (org + dept) - Enterprise only
+  sso: boolean                // SAML/OIDC SSO - Enterprise only
+  auditLog: boolean           // hash-chained audit trail - Enterprise only
   exitInterviewAgent: boolean // Enterprise only
   adminCockpit: boolean       // Enterprise only
   chromeExtensionAutoIngest: boolean // Pro + Enterprise
@@ -102,7 +102,7 @@ export function priceIdToTier(priceId: string | null | undefined): PriceMapping 
   return map[priceId] || null
 }
 
-// Reverse lookup — used by the checkout endpoint to translate
+// Reverse lookup - used by the checkout endpoint to translate
 // (tier, billingCycle) → Paddle price ID for the transaction creation call.
 export function tierToPriceId(tier: 'professional' | 'enterprise', cycle: 'monthly' | 'annual'): string | null {
   if (tier === 'professional' && cycle === 'monthly') return process.env.PADDLE_PRICE_PROFESSIONAL_MONTHLY || null

@@ -3,10 +3,10 @@ import { NextRequest } from 'next/server'
 /**
  * POST /api/tray/proxy/triage
  *
- * TRAY APP — DISABLED (Apr 2026).
+ * TRAY APP - DISABLED (Apr 2026).
  *
  * The desktop tray app used to proxy triage requests to Groq for sub-second
- * latency. Reattend web is now 100% Rabbit v2.0 — no external LLMs anywhere.
+ * latency. Reattend web is now 100% Rabbit v2.0 - no external LLMs anywhere.
  * The tray app has not yet been migrated to Rabbit because Rabbit's inference
  * latency (~6s on A40) doesn't meet the tray's "instant" UX requirements.
  *

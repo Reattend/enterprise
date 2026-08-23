@@ -1467,7 +1467,7 @@ function HotTakesRoom({ playerName }: { playerName: string }) {
     )
   }
 
-  // Game is active or finished — delegate to host or player view
+  // Game is active or finished - delegate to host or player view
   if (gameRoom.isHost) {
     return <HotTakesHost gameRoom={gameRoom} />
   }
@@ -1652,7 +1652,7 @@ function HotTakesRoomCreator({ playerName }: { playerName: string }) {
     return <HotTakesPlayer gameRoom={gameRoom} />
   }
 
-  // No room yet — show create/join UI
+  // No room yet - show create/join UI
   return (
     <GameLayout
       showResults={false}

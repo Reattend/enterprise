@@ -26,7 +26,7 @@ export async function runHealthScan(organizationId: string): Promise<ScanResult>
 
   const allFindings: Finding[] = [...stale, ...orphaned, ...gaps, ...contradictions, ...rehashed]
 
-  // Total records — denominator for the health score + rendered in the UI.
+  // Total records - denominator for the health score + rendered in the UI.
   const wsLinks = await db
     .select()
     .from(workspaceOrgLinks)
@@ -48,7 +48,7 @@ export async function runHealthScan(organizationId: string): Promise<ScanResult>
 
   // Pull the previous org-level health row BEFORE we insert the new one so we
   // can detect new contradictions (delta) and fire a single `suggestion`
-  // notification to admins — Guru-flavored "stale knowledge flagged" signal.
+  // notification to admins - Guru-flavored "stale knowledge flagged" signal.
   const [priorScan] = await db.select()
     .from(knowledgeHealth)
     .where(and(
@@ -105,7 +105,7 @@ export async function runHealthScan(organizationId: string): Promise<ScanResult>
     }
   }
 
-  // Per-department breakdown — groups findings by their departmentId (skips
+  // Per-department breakdown - groups findings by their departmentId (skips
   // findings that aren't department-scoped like some contradictions).
   const deptRows = await db.select().from(departments).where(eq(departments.organizationId, organizationId))
   for (const d of deptRows) {

@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 // POST /api/enterprise/compose
 //
-// Action agents — the "draft something" tools. Two live kinds today:
+// Action agents - the "draft something" tools. Two live kinds today:
 //
 //   { kind: 'email-reply', orgId, thread: string, instruction?: string }
 //     Claude drafts a memory-grounded reply to an email thread.
@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic'
 //     the medium.
 //
 // Returns { draft, sources[], meta }. User copies the text into wherever
-// (Gmail, Slack, etc.) — real send integrations land in Sprint P with Nango.
+// (Gmail, Slack, etc.) - real send integrations land in Sprint P with Nango.
 
 type ComposeKind = 'email-reply' | 'broadcast'
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
           body: SANDBOX_COMPOSE.body,
           tone: SANDBOX_COMPOSE.tone,
         },
-        sources: [{ id: 'demo-compose-1', title: 'BEPS sync Feb 12, 2026 — minutes', type: 'meeting' }],
+        sources: [{ id: 'demo-compose-1', title: 'BEPS sync Feb 12, 2026 - minutes', type: 'meeting' }],
         meta: { sandbox: true, kind },
       })
     }
@@ -109,7 +109,7 @@ async function handleEmailReply(opts: { userId: string; orgId: string; body: any
     `[M${i + 1}] ${r.type.toUpperCase()} · ${r.title}${r.summary ? `\n    ${r.summary.slice(0, 240)}` : ''}`
   ).join('\n')
 
-  const prompt = `You are drafting a REPLY to the email thread below. Use the memory context to stay factually grounded — do not invent people, dates, or commitments that aren't there.
+  const prompt = `You are drafting a REPLY to the email thread below. Use the memory context to stay factually grounded - do not invent people, dates, or commitments that aren't there.
 
 EMAIL THREAD:
 ---
@@ -122,9 +122,9 @@ ${memoriesBlock || '(none found)'}
 Rules:
 - Write the reply in the same tone and style as the thread. Match formality.
 - Start with a greeting appropriate to the thread.
-- Cite sources parenthetically like "(from our decision log on Nov 4)" — do NOT use [M#] citations in the actual reply. Citations are for humans, not for copy-paste.
-- Keep it concise — no bigger than the original message unless the question demands detail.
-- End with a plain signoff ("Best,") — leave the name blank for the user to fill.
+- Cite sources parenthetically like "(from our decision log on Nov 4)" - do NOT use [M#] citations in the actual reply. Citations are for humans, not for copy-paste.
+- Keep it concise - no bigger than the original message unless the question demands detail.
+- End with a plain signoff ("Best,") - leave the name blank for the user to fill.
 - Output ONLY the reply text. No preamble, no commentary, no markdown headers.`
 
   let draft = ''
@@ -193,7 +193,7 @@ async function handleBroadcast(opts: { userId: string; orgId: string; body: any 
     : `TOPIC: ${topic}`
 
   const memoriesBlock = related.map((r, i) =>
-    `[M${i + 1}] ${r.title}${r.summary ? ` — ${r.summary.slice(0, 160)}` : ''}`
+    `[M${i + 1}] ${r.title}${r.summary ? ` - ${r.summary.slice(0, 160)}` : ''}`
   ).join('\n')
 
   const prompt = `You are drafting an INTERNAL ANNOUNCEMENT for the team about the subject below.
@@ -204,12 +204,12 @@ SUPPORTING MEMORY CONTEXT:
 ${memoriesBlock || '(none)'}
 
 Write two versions:
-1. A SLACK version — short, 2-4 sentences, uses bold for the key ask, ends with a light call-to-action or question
-2. An EMAIL version — longer, structured (short opening / context / what changes / what to do next), ends with a signoff placeholder "Best,"
+1. A SLACK version - short, 2-4 sentences, uses bold for the key ask, ends with a light call-to-action or question
+2. An EMAIL version - longer, structured (short opening / context / what changes / what to do next), ends with a signoff placeholder "Best,"
 
 ${medium === 'email' ? 'Put EMAIL first.' : 'Put SLACK first.'}
 
-Output format — plain text with exactly these two separators, nothing else:
+Output format - plain text with exactly these two separators, nothing else:
 
 --- SLACK ---
 <text>

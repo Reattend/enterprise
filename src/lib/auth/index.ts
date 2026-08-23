@@ -106,7 +106,7 @@ export const {
         // ─── TESTING_MODE bypass ──────────────────────────────────────────
         // When TESTING_MODE=true is set in the env, accept any email and
         // skip the OTP check entirely. The user is auto-created if missing
-        // and signed in. INTENDED FOR TEAM TESTING ONLY — disable before
+        // and signed in. INTENDED FOR TEAM TESTING ONLY - disable before
         // any external user can reach /login. The startup banner in
         // src/lib/db/index.ts (and pm2 logs) screams when this is on.
         if (process.env.TESTING_MODE === 'true') {
@@ -153,7 +153,7 @@ export const {
     // inside authorize. If the env var ever accidentally flips on in prod,
     // your real users still can't bypass OTP because their emails don't
     // match the seed domain. The matching seed users have no real inbox
-    // (RFC-reserved .local TLD) so the OTP path can't reach them either —
+    // (RFC-reserved .local TLD) so the OTP path can't reach them either -
     // this provider is the only way in.
     CredentialsProvider({
       id: 'test-password',
@@ -173,7 +173,7 @@ export const {
         const expected = process.env.TEST_LOGIN_PASSWORD
         if (!expected || password !== expected) return null
 
-        // The seed user must already exist — we never auto-create here.
+        // The seed user must already exist - we never auto-create here.
         // That keeps the seed cohort closed; only the seed script can
         // mint new test users.
         const user = await db.query.users.findFirst({ where: eq(schema.users.email, email) })
@@ -182,7 +182,7 @@ export const {
       },
     }),
 
-    // SSO ticket handoff — the /api/sso/callback endpoint verifies the IdP
+    // SSO ticket handoff - the /api/sso/callback endpoint verifies the IdP
     // id_token and issues a 60-second JWT ticket. The login page trades the
     // ticket here to get a real NextAuth session cookie.
     CredentialsProvider({
@@ -268,11 +268,11 @@ export async function requireAuth() {
   }
 
   // If somehow a user reached here without a workspace, it means
-  // findOrCreateUser never ran (or failed). Throw loudly — do NOT lazy-create,
+  // findOrCreateUser never ran (or failed). Throw loudly - do NOT lazy-create,
   // because that creates half-baked state (workspace without projects).
   // Proper bootstrap happens in findOrCreateUser on signup.
   if (!membership) {
-    throw new Error('No workspace found — run findOrCreateUser on signup')
+    throw new Error('No workspace found - run findOrCreateUser on signup')
   }
 
   return {

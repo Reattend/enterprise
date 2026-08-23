@@ -1,4 +1,4 @@
-// Google Calendar fetcher — uses nango.proxy() to call Calendar API directly.
+// Google Calendar fetcher - uses nango.proxy() to call Calendar API directly.
 // Same reasoning as the Gmail fetcher: self-hosted Nango doesn't run sync
 // scripts by default, so we hit the API ourselves with Nango's stored token.
 

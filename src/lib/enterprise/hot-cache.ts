@@ -1,5 +1,5 @@
 /**
- * Hot Cache — per-org "what's actively hot this week" digest.
+ * Hot Cache - per-org "what's actively hot this week" digest.
  *
  * Inspired by Karpathy's `_hot.md` pattern: a small (~500-token) markdown
  * blurb pinned at the top of every Ask query so the model has top-of-mind
@@ -27,7 +27,7 @@ const HOT_CACHE_MAX_CHARS = 2400 // ~600 tokens; we keep some headroom under the
 /**
  * Cheap read used by the Ask path. Returns the markdown content if a fresh
  * cache exists for this org, or null if no cache yet (worker hasn't run, or
- * the org is brand new). Always non-throwing — if anything goes sideways,
+ * the org is brand new). Always non-throwing - if anything goes sideways,
  * Ask should still work without the hot cache.
  */
 export async function getHotCacheForOrg(organizationId: string): Promise<string | null> {
@@ -48,7 +48,7 @@ export async function getHotCacheForOrg(organizationId: string): Promise<string 
 }
 
 /**
- * Build + upsert the org-wide hot cache. Deterministic SQL aggregation —
+ * Build + upsert the org-wide hot cache. Deterministic SQL aggregation -
  * no LLM call, so cheap to run hourly. Returns the new content for testing.
  */
 export async function regenerateHotCache(organizationId: string): Promise<string> {
@@ -81,7 +81,7 @@ export async function regenerateHotCache(organizationId: string): Promise<string
         : d.status === 'superseded' ? ' [SUPERSEDED]'
         : ''
       const who = d.decidedBy ? ` (by ${d.decidedBy})` : ''
-      const reason = d.rationale ? ` — ${d.rationale.slice(0, 120).replace(/\s+/g, ' ').trim()}` : ''
+      const reason = d.rationale ? ` - ${d.rationale.slice(0, 120).replace(/\s+/g, ' ').trim()}` : ''
       sections.push(`- **${d.title}**${statusTag}${who}${reason}`)
     }
   }
@@ -126,7 +126,7 @@ export async function regenerateHotCache(organizationId: string): Promise<string
   if (entityRows.length > 0) {
     sections.push('\n## Top entities mentioned this week')
     for (const e of entityRows) {
-      sections.push(`- **${e.name}** (${e.kind}) — ${e.cnt} mention${e.cnt === 1 ? '' : 's'}`)
+      sections.push(`- **${e.name}** (${e.kind}) - ${e.cnt} mention${e.cnt === 1 ? '' : 's'}`)
     }
   }
 
@@ -147,7 +147,7 @@ export async function regenerateHotCache(organizationId: string): Promise<string
   if (verifiedRows.length > 0) {
     sections.push('\n## Recently verified (high-trust)')
     for (const v of verifiedRows) {
-      const who = v.verified_by ? ` — verified by ${v.verified_by}` : ''
+      const who = v.verified_by ? ` - verified by ${v.verified_by}` : ''
       sections.push(`- ${v.title}${who}`)
     }
   }
@@ -173,7 +173,7 @@ export async function regenerateHotCache(organizationId: string): Promise<string
   // ─── Compose + truncate ────────────────────────────────────────────────
   let content = sections.join('\n').trim()
   if (!content) {
-    content = '_No recent activity in this org yet — Hot Cache will populate as memories, decisions, and threads accumulate._'
+    content = '_No recent activity in this org yet - Hot Cache will populate as memories, decisions, and threads accumulate._'
   }
   if (content.length > HOT_CACHE_MAX_CHARS) {
     content = content.slice(0, HOT_CACHE_MAX_CHARS) + '\n_(truncated)_'
@@ -204,7 +204,7 @@ export async function regenerateHotCache(organizationId: string): Promise<string
 /**
  * Regenerate hot cache for every active org. Called by the hourly worker
  * cron in src/lib/jobs/worker.ts. Failures on individual orgs don't stop
- * the whole sweep — bad orgs get logged and skipped.
+ * the whole sweep - bad orgs get logged and skipped.
  */
 export async function regenerateAllHotCaches(): Promise<{ ok: number; failed: number }> {
   const orgs = await db

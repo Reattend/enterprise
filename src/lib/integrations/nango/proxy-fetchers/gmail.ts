@@ -1,4 +1,4 @@
-// Gmail fetcher — uses nango.proxy() to call Gmail API directly.
+// Gmail fetcher - uses nango.proxy() to call Gmail API directly.
 //
 // Self-hosted Nango ships with sync scripts disabled (features.scripts: false),
 // so listRecords always returns empty. We use Nango as an OAuth token broker:
@@ -38,7 +38,7 @@ function extractBody(payload: GmailMessageFull['payload']): string {
     const txt = decode(payload.body.data)
     return payload.mimeType === 'text/html' ? txt.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : txt
   }
-  // Multipart — prefer text/plain
+  // Multipart - prefer text/plain
   const parts = payload.parts || []
   for (const p of parts) {
     if (p.mimeType === 'text/plain' && p.body?.data) return decode(p.body.data)
@@ -80,7 +80,7 @@ export async function fetchGmailMessages(
   const messages: Array<{ id: string }> = (listRes.data as any)?.messages ?? []
   if (messages.length === 0) return []
 
-  // Step 2: fetch full message for each (Gmail forces this — list returns IDs only).
+  // Step 2: fetch full message for each (Gmail forces this - list returns IDs only).
   // We do them sequentially to avoid hammering the rate limit on a single token.
   const out: NormalizedRawItem[] = []
   for (const m of messages) {

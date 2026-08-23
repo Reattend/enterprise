@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, CheckCircle2, ExternalLink, Crown, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
-// /app/settings/billing — current plan + upgrade/manage CTAs.
+// /app/settings/billing - current plan + upgrade/manage CTAs.
 //
 // Reads /api/billing/me to know the user's tier and displays:
 //   - Free  → "you're on Free, here's what you'd unlock"
@@ -86,7 +86,7 @@ export default function BillingPage() {
 
   async function startCheckout(tier: 'professional' | 'enterprise', cycle: 'monthly' | 'annual') {
     if (!paddleReady) {
-      toast.error('Payment overlay didn\'t load yet — try again in a moment.')
+      toast.error('Payment overlay didn\'t load yet - try again in a moment.')
       return
     }
     setActing(`${tier}-${cycle}`)
@@ -187,7 +187,7 @@ export default function BillingPage() {
                 value={
                   isTrial ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left` :
                   me.currentPeriodEnd ? new Date(me.currentPeriodEnd).toLocaleDateString() :
-                  '—'
+                  '-'
                 }
               />
             </div>
@@ -215,7 +215,7 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
-        {/* Upgrade options — only show what makes sense */}
+        {/* Upgrade options - only show what makes sense */}
         {!isPaid && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UpgradeCard

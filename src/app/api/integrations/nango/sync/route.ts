@@ -10,7 +10,7 @@ import { getNangoConfig } from '@/lib/integrations/nango/client'
 // POST /api/integrations/nango/sync
 // Body: { providerKey: string, model?: string }
 //
-// Manual sync trigger — pulls the latest records for a connected provider
+// Manual sync trigger - pulls the latest records for a connected provider
 // without waiting for Nango's scheduled sync. Useful right after a user
 // connects (first webhook can lag 15+ seconds).
 export async function POST(req: NextRequest) {

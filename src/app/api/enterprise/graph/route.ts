@@ -11,7 +11,7 @@ import {
 
 // GET /api/enterprise/graph
 // Returns nodes (records) + edges (record_links) scoped to the user's access.
-// Capped at 300 nodes for performance — UI can filter down further.
+// Capped at 300 nodes for performance - UI can filter down further.
 export async function GET(req: NextRequest) {
   try {
     const { userId, workspaceId } = await requireAuth()
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const orgId = req.nextUrl.searchParams.get('orgId')
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '300'), 500)
 
-    // Workspace scoping mirrors /api/records — strict, no mixing:
+    // Workspace scoping mirrors /api/records - strict, no mixing:
     //   - orgId provided  → org workspaces ONLY (links scoped to that org;
     //     filterToAccessibleWorkspaces resolves admin auto-access).
     //   - orgId absent    → personal workspace ONLY (the user's auth

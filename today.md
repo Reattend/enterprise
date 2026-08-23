@@ -1,14 +1,140 @@
 # Reattend Enterprise — Session Handoff
 
-**Last updated:** 2026-04-28 (Sprint P · self-hosted Nango live at nango.enterprise.reattend.com, PM2 wired, only OAuth provider apps remain)
+**Last updated:** 2026-08-21 (see §0 for the 2026-04-28 → 2026-06-06 catch-up — this doc went stale for 5 weeks while a LOT shipped)
 **Branch:** `main` — pushed
-**Live at:** https://enterprise.reattend.com · public sandbox at https://enterprise.reattend.com/sandbox
-**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a, O-b, P (code-complete — see §11)
-**Sprints remaining before launch:** rest of O (UI/UX polish), Q (infra hardening), R (billing), then launch
+**Live at:** https://reattend.com · public sandbox at https://reattend.com/sandbox — **domain changed, see §0**
+**Sprints shipped:** A, B, C, D1-D3, E, F, G, H, I, J, K, L, M, N, O-a, O-b, O proper (via design relaunch), P (Nango, proxy-fetcher pattern, 7 connectors), Q (partial — WAL + backup plan done, Sentry/status-page/HA still open), R (billing — Paddle, live)
+**Sprints remaining before launch:** see §0.6 — mostly infra hardening + Nango OAuth app registration verification
 
 ---
 
-## 1. Where it runs (unchanged)
+## 0. Catch-up: 2026-04-28 → 2026-06-06 (this doc wasn't updated for 5 weeks)
+
+`today.md` stopped being updated after the Sprint P entry below (§11), but 139 commits landed
+in that window. Reconstructed from `git log` — read the commits directly for line-level detail,
+this is the shape of it.
+
+### 0.1 The big one: rebrand + Personal/Org unification (~May 2-8)
+
+- **Domain: `enterprise.reattend.com` → `reattend.com`** (commit `f1f3692`, 2026-05-02). The
+  canonical URL is now bare `reattend.com`. `package.json` name is now `"reattend"`, PM2
+  `ecosystem.config.js` process name is now `reattend` (not `enterprise`), deploy path is now
+  `/var/www/reattend` (not `/var/www/enterprise`). **CLAUDE.md's deploy section is stale on this
+  — it still says `/var/www/enterprise` + `pm2 stop enterprise`.** Verify the live droplet path
+  before running the documented deploy command; don't trust CLAUDE.md's literal paths here
+  without checking `pm2 list` first.
+- **"Enterprise" branding dropped from marketing** (`cddeea8`, 2026-05-05), along with all
+  Rabbit-LLM claims in user-facing copy. This product is no longer positioned as a separate
+  "Reattend Enterprise" brand — it's unified under plain "Reattend."
+- **Personal and Org modes merged into one product.** This is almost certainly why the old
+  `Final Reattend/reattend` (Personal Reattend) folder is gone now — it's not a separate parent
+  project anymore, it's this repo. Landed as a sequence:
+  - `/personal` marketing surface for solo users; Free tier reframed as "Solo" (`89ce757`, `2476c17`)
+  - `/app` renders `PersonalHomePage` for zero-org users (`987c95d`)
+  - Visible **Personal/Org context switcher** in the topbar, server-persisted (`ac38fe8`, `be9df37`)
+  - Strict scoping between org and personal data across records/graph/timeline endpoints (`3391240`)
+  - Account-linking: backend (Wave 3a, `3eee0d9`) + topbar/Settings UI (Wave 3b, `b39aab7`) —
+    link multiple accounts under one identity, switch between them
+  - Landscape, Rewind (Time Machine), Agents all patched to work for no-org (solo) users
+  - Chrome extension gated to Professional+ subscribers only (`5a97363`)
+
+### 0.2 Billing shipped — Sprint R is essentially done (2026-05-02)
+
+- **Paddle** backend: schema, tier model, webhook, checkout, portal (`0b562bb`)
+- Pricing page, billing UI, trial banner, AI quota gate, downgrade cron (`873b270`)
+- Admin dashboard: tier-aware comp + grant flows (`f9a4149`)
+- Email reskin (Instrument Serif + cream) + trial-end cadence emails (`926713a`)
+- Not yet verified: whether Paddle is in live/production mode or still sandbox keys — check
+  before treating billing as launch-ready.
+
+### 0.3 RBAC finalized — Model C (2026-05-03)
+
+- Matrix-based RBAC replacing ad hoc rules, **`docs/permissions.md`** is now the single source
+  of truth (per-role defaults + per-user overrides) — confirmed live in the repo.
+- Closed 5 read-perm-on-write leaks, fixed a graph-endpoint leak, added `usePermission` hook,
+  matrix has its own test coverage (`b27f0ba`, `6984c6b`, `756f3a5`, `d1c38c0`)
+- This matches the RBAC section in CLAUDE.md (8-rule `filterToAccessibleRecords`) — that part
+  is still accurate, the matrix sits on top of it for role/permission grants, not record visibility.
+
+### 0.4 Full design relaunch — Sprint O proper, effectively done (2026-04-28 → 05-03)
+
+Every public page and most of `/app` went through a `claude.ai/design` handoff pass:
+Landing (went through several iterations — Stripe-style, black-and-white, then a Stripe-inspired
+cream-violet v3), Product, Pricing, Compliance, Sign-in (Stripe split-screen, OTP-only),
+Dashboard chrome, Home, Capture v3, Memories v3, Landscape v3, Wiki v3, Sandbox/Support/
+Integrations. Plus: mobile UX pass (real hamburger + drawer + hydration fixes), sidebar/topbar
+polish, warm-cream + indigo-violet theme propagated app-wide.
+
+Not verified: Lighthouse scores, full accessibility pass (keyboard nav / screen reader / AA
+contrast) — the design work shipped but a dedicated audit pass per the original Sprint O
+checklist doesn't show up in commit history. Treat that checklist as still open until checked.
+
+Also in this window: a compliance honesty pass — dropped fabricated claims (Merkle tree, SIEM,
+WebAuthn, BYOK, subprocessors list) that had crept into `/compliance` copy ahead of anything
+actually being built (`24cb211`, `0f8f415`, `3599015`). SEO/AEO pass locking in "organizational
+memory" as the wedge phrase, JSON-LD + GA4 (`795b43b`, `849ec4b`, `68df4e7`).
+
+### 0.5 Nango integrations — proxy-fetcher pattern, 7 connectors (2026-04-28 → 04-29)
+
+Nango's default sync scripts turned out to be unreliable, so the integration layer pivoted to
+calling `nango.proxy()` directly per-provider instead of relying on Nango-hosted syncs:
+
+- Proxy fetchers shipped for: **Slack** (channels + last 30d, ~2k msg ceiling), **Notion**
+  (search → blocks → markdown), **GitHub** (PRs + issues), **Linear** (GraphQL, recent issues),
+  **Google Drive** (mime-aware extraction), **Confluence + Jira** (shared Atlassian OAuth), plus
+  **Google Calendar** (Meeting Prep ingest source)
+- New admin page: **Triage Review** (`/app/integrations` slide-out) — see what the AI decided on
+  each incoming item before it becomes a memory
+- `/api/cron/nango-sync` — iterates every connected integration on a schedule
+- Auth flow switched from `openConnectUI` to a plain `auth()` popup; connection IDs are now
+  Nango-generated (we stopped building our own)
+- **Still open per the original Sprint P checklist**: OAuth provider apps (Google/Slack/Notion/
+  Confluence) registration in the Nango admin — this was the one blocking TODO as of the last
+  §11 entry below and I did not find a commit confirming it was completed. Verify in Nango admin
+  before assuming connectors work end-to-end for a real customer.
+
+### 0.6 Test/staging environment stood up (2026-05-14)
+
+A second droplet, fully separate from prod:
+
+| | |
+|---|---|
+| Domain | `test.reattend.com` |
+| Purpose | validate enterprise features at scale without touching prod data/payments/auth |
+| Seed | synthetic 163-user, 41-department Indian SaaS org (`seed-acme-india`), up to 3 levels deep |
+| Auth | env-gated password mode (`/test-login`), shared password, bypasses OTP |
+| Full details | **`STAGING.md`** at repo root — read that before touching the test droplet |
+
+### 0.7 Infra hardening (Sprint Q) — partial
+
+- ✅ WAL mode already on (`journal_mode = WAL` in `src/lib/db/index.ts` + `migrate.ts`)
+- ✅ `docs/backup.md` — 3-layer plan (local + DO Spaces + Backblaze B2), written 2026-05-03
+- ❌ Sentry — not wired (`@sentry` not in `package.json`)
+- ❌ Status page — no route found under `src/app`
+- ❌ HA / second-droplet failover plan — `test.reattend.com` exists but is explicitly a staging
+  environment, not an HA target
+- Cron jobs (sandbox cleanup, Nango sync) — wired but not re-verified running since this window
+
+### 0.8 Most recent: Landscape Space mode (2026-06-06, commit `23d7e08`)
+
+Big gap between 05-14 and 06-06 — this was the only thing that shipped after the staging push.
+`/app/landscape` got a new default view: a 3D memory constellation via three.js +
+react-force-graph-3d. Glowing nodes color-coded by record type, size scales with graph degree,
+bloom/halo shader, 1,200-point decorative starfield, slow auto-orbit, PNG capture button, edge
+color encodes link kind (contradicts/supersedes/caused_by/mentions). Three modes now live at
+`/app/landscape`: **Space** (new default) → **Rewind** (old Time Machine) → **Board** (old React
+Flow editor). Legacy `?mode=temporal` / `?mode=causal` query params still resolve correctly.
+Bundle is dynamically imported client-side, code-split per route.
+
+No open thread noted for this — it reads as a complete, shipped feature.
+
+---
+
+## 1. Where it runs
+
+**⚠️ Superseded by the rebrand in §0.1 — domain, PM2 process name, and deploy path all changed
+on 2026-05-02. The table below reflects the current repo config (`package.json`,
+`ecosystem.config.js`); the droplet's actual live state hasn't been re-verified since.**
 
 | Thing | Value |
 |---|---|
@@ -16,15 +142,21 @@
 | Extension repo | `/Users/partha/Desktop/enterprise_extension` |
 | GitHub (app) | `github.com/Reattend/enterprise` |
 | Droplet | `167.99.158.143` |
-| PM2 process | `enterprise` |
-| Domain | `enterprise.reattend.com` |
+| PM2 process | `reattend` (was `enterprise` — renamed in `ecosystem.config.js`, verify with `pm2 list` before deploying) |
+| Domain | `https://reattend.com` (was `enterprise.reattend.com`, see §0.1) |
+| Deploy path on droplet | `/var/www/reattend` (was `/var/www/enterprise` — `ecosystem.config.js` `cwd` confirms this) |
 | DB | SQLite via better-sqlite3 + Drizzle |
 | Migrations | `npx tsx src/lib/db/migrate.ts` (custom, additive) |
-| LLMs | Claude (answering) · Groq Llama 3.3 + Haiku rerank · Groq Whisper |
-| Nango | self-hosted at `https://nango.enterprise.reattend.com` (Docker on droplet, SSL live, admin = `pb@reattend.ai`, PM2 env wired). Only OAuth provider apps remain. See §11. |
-| Rabbit | not deployed (Year 2) |
+| LLMs | Claude Sonnet for all 8 ask endpoints (Haiku-tiering was tried 2026-05-05 for cost, reverted same day) · Groq Whisper |
+| Nango | proxy-fetcher pattern now, not Nango-hosted syncs — see §0.5. Self-hosted at `https://nango.enterprise.reattend.com` per the original setup; re-verify this URL still resolves post-rebrand. |
+| Test/staging | `test.reattend.com` — separate droplet, see §0.6 and `STAGING.md` |
+| Rabbit | not deployed (Year 2). Active dev repo is `/Users/partha/Desktop/rabbit`. |
 
-Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git pull --ff-only && rm -rf .next && npm run build && pm2 restart enterprise"`. Always include `npx tsx src/lib/db/migrate.ts` if schema changed.
+Deploy (verify PM2 process name + path on the droplet first — see warning above):
+`git push` → `ssh root@167.99.158.143 "cd /var/www/reattend && git pull --ff-only && pm2 stop reattend && rm -rf .next && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 start reattend --update-env"`.
+Always include `npx tsx src/lib/db/migrate.ts` if schema changed. Full reasoning for the
+stop-before-build sequencing is in CLAUDE.md's deploy section (still accurate on the *why*, just
+check the *names* first).
 
 ---
 
@@ -242,45 +374,32 @@ Backup beats: Onboarding Genie, OCR pipeline, Self-healing, Chrome extension (pi
 
 ## 5. Outstanding before launch
 
-### Sprint O — UI/UX polish (the bonfire before Nango) · ~2 days
-- Spacing + typography audit
-- Loading states everywhere
-- Error boundaries
-- Animation timing standardization
-- Mobile/tablet final pass at 375 / 768 / 1024
-- Accessibility (keyboard nav, screen reader, focus rings, color contrast)
-- Empty states on every surface
-- Toast consistency
-- Dark mode review
-- Lighthouse 90+ on Home / Ask / Legend / Landscape
-- Microcopy review
+**Superseded by §0 — see there for what actually shipped in each of these.** Condensed status:
 
-### Sprint P — Nango + Slack/Notion/MS Teams · ~3-4 days
-- Self-host Nango or managed
-- Slack connector (decision-from-pinned-thread workflow)
-- Notion connector (workspace or selected-db)
-- MS Teams (meetings + channels + files)
-- Slack bot (inline ask)
-- Per-connector permission preview
-- Real-time sync status card on Home
+### Sprint O — UI/UX polish — shipped via full design relaunch (§0.4)
+Every public + most app pages redone. Still genuinely open: a real accessibility pass
+(keyboard nav, screen reader, AA contrast) and Lighthouse numbers — no commit confirms either
+was done, don't assume.
 
-### Sprint Q — Infrastructure hardening · ~1 day
-- WAL + nightly R2/S3 backups
-- HA / second droplet plan
-- Sentry monitoring
-- Status page
-- Secret management (Doppler / dotenv vault)
-- Cron jobs verified running
+### Sprint P — Nango connectors — shipped, proxy-fetcher pattern (§0.5)
+7 connectors live (Slack, Notion, GitHub, Linear, Drive, Confluence+Jira, Google Calendar) —
+more than the original Slack/Notion/Teams scope, MS Teams itself still not done. **Open:**
+verify OAuth provider apps are actually registered in the Nango admin (this was the single
+blocking TODO in the old §11 and no commit confirms closure). Real-time sync status card on
+Home also still not done.
 
-### Sprint R — Billing + pilot signup · ~2 days
-- Paddle/Stripe enterprise subs
-- Org-level plan management UI
-- 30-day trial flow with auto-seeded demo data
-- Seat-based billing + invoicing
-- Pilot signup from landing
-- Gov "Quote" path
+### Sprint Q — Infrastructure hardening — partial (§0.7)
+Done: WAL mode, 3-layer backup plan (`docs/backup.md`). Still open: Sentry, status page, HA/
+second-droplet failover, secret management, re-verify crons are actually running.
 
-Then launch.
+### Sprint R — Billing — shipped (§0.2)
+Paddle backend + checkout + portal + trial banner + AI quota gate + downgrade cron all landed
+2026-05-02. Open: confirm Paddle is on live (not sandbox) keys before treating this as
+launch-ready; gov "Quote" path status unconfirmed.
+
+**What's left before launch, realistically:** the Sentry/status-page/HA half of Sprint Q, the
+accessibility audit from Sprint O, and confirming the two "unverified" items above (Nango OAuth
+apps, Paddle live mode). Everything else in the original 4-sprint plan has commits behind it.
 
 ---
 
@@ -322,11 +441,13 @@ Token flow: `/app/settings` → API keys tab → Generate → paste into extensi
 ```bash
 cd /Users/partha/Desktop/enterprise
 git status                     # clean on main
-git log --oneline -5           # last 5 sprints visible
-npm run test:rbac              # 36/36 passing
+git log --oneline -5           # confirm latest is still 23d7e08 or newer
+npm run test:rbac              # RBAC test suite
+pm2 list                       # on the droplet — confirm process name before deploying (§1)
 ```
 
-Tell next session: "Read today.md and pick up Sprint O proper (UI/UX polish — interactive)." It will know.
+Tell next session: "Read today.md — pick up from §0.6/0.7: the Sentry/status-page/HA gap in
+Sprint Q, or verify the Nango OAuth apps + Paddle live-mode open items." It will know.
 
 ---
 

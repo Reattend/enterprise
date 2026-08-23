@@ -10,7 +10,7 @@
 //   3. Client POSTs to /api/ask with that composed prompt as `question`
 //   4. Answer streams back; refinement chat continues using normal ask
 //
-// This is the Microsoft Copilot analog — but scoped to ALL the user's
+// This is the Microsoft Copilot analog - but scoped to ALL the user's
 // memory, not just the document they have open.
 
 export type FieldType = 'text' | 'textarea' | 'select'
@@ -37,7 +37,7 @@ export interface TaskMode {
   fields: TaskField[]
   // Build the full ask prompt from the form fields.
   buildPrompt: (fields: Record<string, string>) => string
-  // Optional retrieval hint — future /api/ask can read this from the task
+  // Optional retrieval hint - future /api/ask can read this from the task
   // query string to bias context selection (e.g. decisions-only).
   retrievalHint?: {
     types?: string[]
@@ -65,7 +65,7 @@ export const TASK_MODES: TaskMode[] = [
     fields: [
       { key: 'recipient', label: 'To', type: 'text', placeholder: 'e.g. CEO, Finance team, Priya Sharma', required: true },
       { key: 'topic', label: 'Subject / Topic', type: 'text', placeholder: 'e.g. Q4 hiring freeze update', required: true },
-      { key: 'keyPoints', label: 'Key points to include', type: 'textarea', rows: 4, placeholder: 'Bullet points, raw thoughts, decisions to reference — anything.', required: false, helpText: 'Optional. Leave blank and we\'ll pull what\'s relevant from your memory.' },
+      { key: 'keyPoints', label: 'Key points to include', type: 'textarea', rows: 4, placeholder: 'Bullet points, raw thoughts, decisions to reference - anything.', required: false, helpText: 'Optional. Leave blank and we\'ll pull what\'s relevant from your memory.' },
       { key: 'tone', label: 'Tone', type: 'select', options: TONE_OPTIONS },
     ],
     buildPrompt: (f) => `Draft an email to ${f.recipient} about "${f.topic}".
@@ -94,7 +94,7 @@ After the email, list 3 follow-up questions the reader might have, under "Follow
     description: 'Drop the title + attendees. Reattend surfaces the last conversation, open decisions, and any unresolved threads.',
     fields: [
       { key: 'title', label: 'Meeting title / topic', type: 'text', placeholder: 'e.g. Weekly product sync, 1:1 with Raj', required: true },
-      { key: 'attendees', label: 'Attendees', type: 'text', placeholder: 'e.g. Raj, CFO, design team', required: false, helpText: 'Names or roles — comma-separated.' },
+      { key: 'attendees', label: 'Attendees', type: 'text', placeholder: 'e.g. Raj, CFO, design team', required: false, helpText: 'Names or roles - comma-separated.' },
       { key: 'specificFocus', label: 'Anything specific to prep?', type: 'textarea', rows: 3, placeholder: 'e.g. We need to decide on the pricing tiers. Or: cover the Q4 roadmap.', required: false },
     ],
     buildPrompt: (f) => `I have a meeting coming up. Help me prepare.
@@ -103,13 +103,13 @@ Meeting: ${f.title}
 ${f.attendees ? `Attendees: ${f.attendees}` : ''}
 ${f.specificFocus ? `Focus: ${f.specificFocus}` : ''}
 
-Using my memories, produce a briefing with these sections (use plain text, no markdown headers — just the labels):
+Using my memories, produce a briefing with these sections (use plain text, no markdown headers - just the labels):
 
-1. Last interaction — what was discussed in the most recent relevant meeting/email/decision. Include the date. If there's none, say so in one sentence.
-2. Open threads — decisions pending, commitments unfulfilled, questions left unanswered.
-3. Known preferences / positions — what the attendees have said or decided about similar topics in the past.
-4. Suggested agenda — 3-5 bullet points grounded in the open threads.
-5. Risks / things to avoid — contradictions or sensitive topics surfaced by memory.
+1. Last interaction - what was discussed in the most recent relevant meeting/email/decision. Include the date. If there's none, say so in one sentence.
+2. Open threads - decisions pending, commitments unfulfilled, questions left unanswered.
+3. Known preferences / positions - what the attendees have said or decided about similar topics in the past.
+4. Suggested agenda - 3-5 bullet points grounded in the open threads.
+5. Risks / things to avoid - contradictions or sensitive topics surfaced by memory.
 
 Cite sources inline as [1], [2]. Be specific with names, dates, numbers exactly as written. Don't invent.
 
@@ -125,7 +125,7 @@ After the briefing, 3 follow-up questions under "Follow-up questions:".`,
     color: 'from-emerald-500 to-teal-500',
     category: 'write',
     tagline: 'Turn your memories into a 1-pager',
-    description: 'A structured brief on any topic — history, current state, open questions, recommendations. Perfect for handoff or decision support.',
+    description: 'A structured brief on any topic - history, current state, open questions, recommendations. Perfect for handoff or decision support.',
     fields: [
       { key: 'topic', label: 'Topic / title', type: 'text', placeholder: 'e.g. Current state of the Singapore expansion', required: true },
       { key: 'audience', label: 'Audience', type: 'text', placeholder: 'e.g. Board of Directors, incoming VP Eng', required: false },
@@ -137,16 +137,16 @@ ${f.angle ? `Emphasis: ${f.angle}.` : ''}
 
 Structure (use plain text labels, not markdown headers):
 
-- Summary — 2 sentences. What this is about and what the reader needs to know.
-- Background — how we got here. Key decisions, dates, people involved.
-- Current state — what's true today, open commitments, in-flight work.
-- Open questions — unresolved decisions, risks, things we don't know yet.
-- Recommendations — 2-4 bullets, grounded in the memories.
+- Summary - 2 sentences. What this is about and what the reader needs to know.
+- Background - how we got here. Key decisions, dates, people involved.
+- Current state - what's true today, open commitments, in-flight work.
+- Open questions - unresolved decisions, risks, things we don't know yet.
+- Recommendations - 2-4 bullets, grounded in the memories.
 
 Rules:
 - Cite specific decisions and memories inline as [1], [2].
 - Dates, numbers, names exactly as written in memory.
-- If a section is thin ("we don't have this saved"), say so — don't fill with speculation.
+- If a section is thin ("we don't have this saved"), say so - don't fill with speculation.
 
 Aim for 300-500 words total.
 
@@ -178,13 +178,13 @@ ${f.audience ? `Audience: ${f.audience}` : ''}
 
 For each slide, use this format:
 
-Slide N — [Title]
+Slide N - [Title]
 - Bullet
 - Bullet
 - Bullet (speaker note in parens)
 
 Requirements:
-- Draw facts, numbers, decisions, and quotes from my memories below — cite inline [1], [2].
+- Draw facts, numbers, decisions, and quotes from my memories below - cite inline [1], [2].
 - Slide 1 is the title slide (topic + one-line framing).
 - Last slide is "Next steps / questions" grounded in open commitments from memory.
 - Do NOT invent data. If the memory is thin on a section, mark it "[needs input]" instead of making things up.

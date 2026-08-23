@@ -60,7 +60,7 @@ export function PromoteToDecisionDialog({
 
   const submit = async () => {
     if (!activeEnterpriseOrgId) {
-      toast.error('No active organization — pick one first')
+      toast.error('No active organization - pick one first')
       return
     }
     if (!title.trim()) {
@@ -127,12 +127,12 @@ export function PromoteToDecisionDialog({
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground mb-1.5 block">Context — why this decision was needed</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Context - why this decision was needed</Label>
             <Textarea value={context} onChange={(e) => setContext(e.target.value)} rows={2} placeholder="The situation that prompted the decision" className="text-sm" />
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground mb-1.5 block">Rationale — why this option was chosen</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Rationale - why this option was chosen</Label>
             <Textarea value={rationale} onChange={(e) => setRationale(e.target.value)} rows={2} placeholder="Why we picked this over alternatives" className="text-sm" />
           </div>
 

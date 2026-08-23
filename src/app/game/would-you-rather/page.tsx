@@ -24,11 +24,11 @@ export default function Page() {
   return (
     <Suspense fallback={
       <GamePageFallback
-        title="Would You Rather — Work Edition"
+        title="Would You Rather - Work Edition"
         description="Work-themed binary dilemmas for teams. Vote for your choice, see exactly how the team splits, and debate the controversial ones. Free, no signup required."
         steps={[
           'Read each "Would You Rather" dilemma aloud to your team.',
-          'Everyone picks their choice — no fence-sitting.',
+          'Everyone picks their choice - no fence-sitting.',
           'See the exact split: how many chose each option.',
           'Debate the most divisive ones for maximum fun.',
         ]}

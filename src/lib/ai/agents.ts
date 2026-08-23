@@ -125,7 +125,7 @@ export async function runIngestJob(
   // and the 32B model takes longer than that to process an 8k+ prompt. Triage
   // only needs the first ~2000 chars of a transcript to decide title / summary
   // / type / tags; the full content is still stored in the DB for ask-time
-  // retrieval. So we truncate the content fed into the triage prompt — this
+  // retrieval. So we truncate the content fed into the triage prompt - this
   // keeps total prompt length under ~6k chars and well below the Cloudflare
   // timeout.
   const TRIAGE_CONTENT_CAP = 2000
@@ -393,7 +393,7 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
     // ── Project assignment ───────────────────────────────────────
     // Only assign to an explicitly requested project (e.g. user adding a note
     // to a project manually). Triage never auto-creates or auto-assigns projects
-    // — memories land in the Memories list and users organise them into projects.
+    // - memories land in the Memories list and users organise them into projects.
     if (targetProjectId) {
       await db.insert(schema.projectRecords).values({
         projectId: targetProjectId,
@@ -417,7 +417,7 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
         where: eq(schema.workspaceMembers.workspaceId, workspaceId),
       })
 
-      // Auto-accepted items go straight to memories — no inbox notification needed
+      // Auto-accepted items go straight to memories - no inbox notification needed
       if (!autoAccept) {
         const notifType = result.record_type === 'tasklike' ? 'todo'
           : result.record_type === 'decision' ? 'decision_pending'
@@ -475,7 +475,7 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
       meta: JSON.stringify({ recordId, result: result.why_kept_or_dropped }),
     })
   } else {
-    // AI rejected this item — create rejected notification so user can rescue if needed
+    // AI rejected this item - create rejected notification so user can rescue if needed
     try {
       const members = await db.query.workspaceMembers.findMany({
         where: eq(schema.workspaceMembers.workspaceId, workspaceId),
@@ -533,7 +533,7 @@ export async function runEmbeddingJob(recordId: string, workspaceId: string, sug
     try {
       sqlite.prepare(`INSERT OR IGNORE INTO vec_rowid_map(record_id, workspace_id) VALUES (?, ?)`).run(recordId, workspaceId)
       const row = sqlite.prepare(`SELECT rowid FROM vec_rowid_map WHERE record_id = ?`).get(recordId) as { rowid: number }
-      // vec0 requires INTEGER binding (not REAL) — use BigInt to force correct SQLite type
+      // vec0 requires INTEGER binding (not REAL) - use BigInt to force correct SQLite type
       const vecRowid = BigInt(row.rowid)
       sqlite.prepare(`DELETE FROM vec_embeddings WHERE rowid = ?`).run(vecRowid)
       sqlite.prepare(`INSERT INTO vec_embeddings(rowid, embedding) VALUES (?, ?)`).run(vecRowid, JSON.stringify(vector))
@@ -544,7 +544,7 @@ export async function runEmbeddingJob(recordId: string, workspaceId: string, sug
 
   // Near-duplicate detection: now that we have this record's vector, compare
   // against every other embedding in the workspace. Anything > 0.95 cosine
-  // is almost certainly the same thing said twice — auto-link as same_topic
+  // is almost certainly the same thing said twice - auto-link as same_topic
   // so the graph shows the relationship and Chat doesn't retrieve redundant
   // context.
   try {
@@ -557,7 +557,7 @@ export async function runEmbeddingJob(recordId: string, workspaceId: string, sug
       }
     }
   } catch (e) {
-    // Near-dup is best-effort — a failure here shouldn't break ingestion
+    // Near-dup is best-effort - a failure here shouldn't break ingestion
     console.warn('[embed] near-dup detection failed:', (e as Error).message)
   }
 
@@ -746,7 +746,7 @@ export async function upsertEntityProfile(
     // Add new fact: "[date] ([type]) 'Title': summary snippet"
     const factDate = recordDate || new Date().toISOString().slice(0, 10)
     const snippet = recordSummary.slice(0, 200).replace(/\n/g, ' ').trim()
-    const newFact = `${factDate} — "${recordTitle}"${snippet ? `: ${snippet}` : ''}`
+    const newFact = `${factDate} - "${recordTitle}"${snippet ? `: ${snippet}` : ''}`
 
     // Append and cap at 60 facts (evict oldest)
     const updatedFacts = [...existingFacts, newFact].slice(-60)

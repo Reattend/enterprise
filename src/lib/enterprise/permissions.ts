@@ -1,5 +1,5 @@
 /**
- * Permission matrix — single source of truth for "what can a role do."
+ * Permission matrix - single source of truth for "what can a role do."
  *
  * Read docs/permissions.md before changing anything in this file. Every API
  * route and every UI button reads from here. The matrix below is the
@@ -38,7 +38,7 @@ export type Permission =
   | 'org.members.manage'             // org-wide invite, remove, role change
   | 'org.audit.read'
   | 'org.departments.manage'
-  | 'org.read'                       // basic dashboards — every active member
+  | 'org.read'                       // basic dashboards - every active member
   | 'policies.manage'
   | 'agents.manage'
   | 'decisions.manage'
@@ -53,11 +53,11 @@ export type Permission =
   | 'calendar.write'
 
 // Scope of a permission grant for a given role:
-//   'always'     — granted unconditionally for the role
-//   'own_dept'   — granted only for resources in a dept the user manages
-//                   (dept_head or manager — for org-level roles, "always" wins)
-//   'own_record' — granted only for resources the user created
-//   'never'      — not granted by this role
+//   'always'     - granted unconditionally for the role
+//   'own_dept'   - granted only for resources in a dept the user manages
+//                   (dept_head or manager - for org-level roles, "always" wins)
+//   'own_record' - granted only for resources the user created
+//   'never'      - not granted by this role
 type RoleGrant = 'always' | 'own_dept' | 'own_record' | 'never'
 
 // ─── Role defaults (the matrix) ─────────────────────────────────────────
@@ -149,9 +149,9 @@ export const DEPT_ROLE_DEFAULTS: Record<DeptRole, Permission[]> = {
 export interface PermissionContext {
   userId: string
   organizationId: string
-  /** Optional dept scope — required for dept-scoped checks (own_dept) */
+  /** Optional dept scope - required for dept-scoped checks (own_dept) */
   departmentId?: string | null
-  /** Optional record creator id — required for own_record checks */
+  /** Optional record creator id - required for own_record checks */
   recordCreatorUserId?: string | null
 }
 
@@ -210,7 +210,7 @@ export async function hasPermission(
     if (await isUserInDeptOrAncestor(ctx.userId, ctx.departmentId)) return true
   }
 
-  // 4. Dept-role grant — only checked if a dept scope was passed
+  // 4. Dept-role grant - only checked if a dept scope was passed
   if (ctx.departmentId) {
     const deptIds = await accessibleDeptIdsForLeadership(ctx.userId, ctx.organizationId)
     if (deptIds.has(ctx.departmentId)) {
@@ -226,7 +226,7 @@ export async function hasPermission(
 }
 
 /**
- * Synchronous variant — accepts a pre-loaded role + override set so route
+ * Synchronous variant - accepts a pre-loaded role + override set so route
  * handlers can avoid a DB roundtrip per check. Use when you already loaded
  * org membership via requireOrgAuth().
  */
@@ -272,7 +272,7 @@ async function getDeptLeadershipRole(userId: string, departmentId: string): Prom
     .limit(1)
   if (direct[0]) return direct[0].role as DeptRole
 
-  // Else walk up the parent chain — leadership of an ancestor cascades down
+  // Else walk up the parent chain - leadership of an ancestor cascades down
   const dept = await db.select().from(departments).where(eq(departments.id, departmentId)).limit(1)
   if (!dept[0] || !dept[0].parentId) return null
   return getDeptLeadershipRole(userId, dept[0].parentId)
@@ -340,7 +340,7 @@ export interface PermissionSnapshot {
 
 /**
  * Compute every permission this user has in this org. Returned as a
- * snapshot the UI can cache for the session — usePermission() reads it
+ * snapshot the UI can cache for the session - usePermission() reads it
  * synchronously after one fetch.
  */
 export async function getPermissionSnapshot(

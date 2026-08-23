@@ -7,7 +7,7 @@ import { getLLM } from '@/lib/ai/llm'
 import { cosineSimilarity } from '@/lib/utils'
 
 /**
- * Ambient Recall v3 — embed-first, then LLM gate WITH memory context.
+ * Ambient Recall v3 - embed-first, then LLM gate WITH memory context.
  *
  * Old flow (broken): LLM guesses if recall needed → embed → find memories
  *   Problem: LLM can't detect contradictions without seeing the memories.
@@ -23,7 +23,7 @@ import { cosineSimilarity } from '@/lib/utils'
 
 // Whitelist: apps that trigger ambient recall
 const AMBIENT_APPS = [
-  // Browsers — Gmail, Google Docs, Linear, etc. all run here
+  // Browsers - Gmail, Google Docs, Linear, etc. all run here
   'google chrome', 'chrome', 'safari', 'firefox', 'arc', 'brave',
   'microsoft edge', 'edge', 'opera', 'vivaldi',
   // Chat & meetings
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(SKIP)
     }
 
-    // ─── Step 2: LLM gate — now it sees BOTH screen text AND memories ───
+    // ─── Step 2: LLM gate - now it sees BOTH screen text AND memories ───
     // This is where contradiction detection actually works
     const memorySummaries = candidates.map((c, i) =>
       `${i + 1}. [${c.type}] "${c.title}"${c.summary ? `: ${c.summary}` : ''}`
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const llm = getLLM()
-      const gatePrompt = `You decide whether to show a memory popup to a user. Interrupting is COSTLY — only do it when genuinely valuable.
+      const gatePrompt = `You decide whether to show a memory popup to a user. Interrupting is COSTLY - only do it when genuinely valuable.
 
 WHAT THE USER IS CURRENTLY DOING (screen text from ${app_name}):
 ${text}
@@ -175,9 +175,9 @@ POTENTIALLY RELATED MEMORIES FROM THEIR PAST:
 ${memorySummaries}
 
 Show the popup ONLY if one of these is true:
-1. CONTRADICTION — The user is saying/writing something that CONFLICTS with what a memory records. Dates, facts, decisions, names that don't match. Example: screen says "October" but memory says "before September 15th."
-2. FORGOTTEN COMMITMENT — The user is discussing a topic where a memory shows they have an unfulfilled promise, deadline, or action item they may have forgotten.
-3. CRITICAL CONTEXT — The user is making a decision and a memory contains context that would materially change their decision if they knew it.
+1. CONTRADICTION - The user is saying/writing something that CONFLICTS with what a memory records. Dates, facts, decisions, names that don't match. Example: screen says "October" but memory says "before September 15th."
+2. FORGOTTEN COMMITMENT - The user is discussing a topic where a memory shows they have an unfulfilled promise, deadline, or action item they may have forgotten.
+3. CRITICAL CONTEXT - The user is making a decision and a memory contains context that would materially change their decision if they knew it.
 
 DO NOT show the popup if:
 - The memories are just loosely related to the topic (same general area but no actionable insight)
@@ -190,7 +190,7 @@ Which memories (if any) should be shown, and why?
 Respond with ONLY valid JSON:
 {"show": false}
 OR
-{"show": true, "reason": "contradiction|forgotten_commitment|critical_context", "memory_indices": [1, 2], "context": "One sentence explaining the specific conflict or forgotten detail — be precise about what doesn't match or what they're forgetting"}`
+{"show": true, "reason": "contradiction|forgotten_commitment|critical_context", "memory_indices": [1, 2], "context": "One sentence explaining the specific conflict or forgotten detail - be precise about what doesn't match or what they're forgetting"}`
 
       const result = await llm.generateText(gatePrompt)
       try {
@@ -211,11 +211,11 @@ OR
           context: parsed.context || null,
         })
       } catch {
-        // Bad JSON from LLM — skip rather than show noise
+        // Bad JSON from LLM - skip rather than show noise
         return NextResponse.json(SKIP)
       }
     } catch {
-      // LLM unavailable — skip
+      // LLM unavailable - skip
       return NextResponse.json(SKIP)
     }
   } catch (error: any) {

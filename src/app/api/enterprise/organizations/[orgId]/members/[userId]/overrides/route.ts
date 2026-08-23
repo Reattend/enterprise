@@ -15,7 +15,7 @@ import {
 // Why this exists: a customer's COO doesn't need to be `admin` just to see
 // the audit log. Grant her org.audit.read here instead of inventing a new role.
 
-// GET — list overrides for a single member (so the UI can render checked state)
+// GET - list overrides for a single member (so the UI can render checked state)
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ orgId: string; userId: string }> },
@@ -39,13 +39,13 @@ export async function GET(
   }
 }
 
-// POST — grant or revoke a permission for this user.
+// POST - grant or revoke a permission for this user.
 // Body: { permissionKey, granted, scope?, reason? }
 //   granted=true  → grant on top of role default
 //   granted=false → revoke from role default (revoke wins over grants)
 //   scope=null/undefined → org-wide; scope=<dept_id> → dept-scoped
 //
-// Idempotent — upserts on (organization, user, permissionKey, scope).
+// Idempotent - upserts on (organization, user, permissionKey, scope).
 // Audit log captures the grant/revoke + reason.
 export async function POST(
   req: NextRequest,
@@ -96,7 +96,7 @@ export async function POST(
     }
 
     // Upsert. SQLite has ON CONFLICT but drizzle-sqlite requires explicit
-    // conflict target — we just delete-then-insert. Idempotent under the
+    // conflict target - we just delete-then-insert. Idempotent under the
     // unique index (orgId, userId, permissionKey, scope).
     await db
       .delete(schema.organizationMemberPermissionOverrides)
@@ -136,7 +136,7 @@ export async function POST(
   }
 }
 
-// DELETE — remove an override (revert the user to pure role default).
+// DELETE - remove an override (revert the user to pure role default).
 // Body or query: { permissionKey, scope? }
 export async function DELETE(
   req: NextRequest,

@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/auth'
 // GET /api/enterprise/organizations/check-slug?slug=foo
 //
 // Live availability check used by the onboarding flow so the user finds out
-// the slug is taken WHILE they're typing — not on Continue at the end of
+// the slug is taken WHILE they're typing - not on Continue at the end of
 // step 3. Auth-required (any signed-in user) so we don't leak the slug
 // directory to anonymous traffic.
 //

@@ -136,13 +136,13 @@ INTERVIEW ANSWERS:
 ${qaBlock}
 
 Write a handoff doc with these sections (markdown H2):
-1. ## Summary — 2-3 sentences on what the successor is inheriting and the single most important thing to know
-2. ## Active Projects — bulleted, each with (a) current state, (b) who to contact, (c) next action
-3. ## Relationships to Preserve — people + why they matter, grouped
-4. ## Tribal Knowledge — undocumented patterns, idioms, "how we actually do X"
-5. ## Gotchas & Failure Modes — what will surprise you
-6. ## Open Loops — decisions deferred, conversations mid-flight, things you inherit un-decided
-7. ## First Week Checklist — 5-10 specific things the successor should do in week 1
+1. ## Summary - 2-3 sentences on what the successor is inheriting and the single most important thing to know
+2. ## Active Projects - bulleted, each with (a) current state, (b) who to contact, (c) next action
+3. ## Relationships to Preserve - people + why they matter, grouped
+4. ## Tribal Knowledge - undocumented patterns, idioms, "how we actually do X"
+5. ## Gotchas & Failure Modes - what will surprise you
+6. ## Open Loops - decisions deferred, conversations mid-flight, things you inherit un-decided
+7. ## First Week Checklist - 5-10 specific things the successor should do in week 1
 
 Rules:
 - Use ONLY what's in the answers. Don't fabricate. If a section has no content, write "None recorded." and move on.

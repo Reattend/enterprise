@@ -1,4 +1,4 @@
-// Workspace resolver — picks the right workspace for a memory write.
+// Workspace resolver - picks the right workspace for a memory write.
 //
 // The trap this fixes: /api/records POST, /api/upload POST, and the
 // brain-dump endpoint all default to `requireAuth().workspaceId` which
@@ -38,7 +38,7 @@ export async function resolveTargetWorkspace(opts: {
 }): Promise<ResolvedWorkspace> {
   const { userId, requestedWorkspaceId, orgId, fallbackWorkspaceId } = opts
 
-  // 1. Explicit request — verify membership before honoring it.
+  // 1. Explicit request - verify membership before honoring it.
   if (requestedWorkspaceId) {
     const member = await db
       .select({ workspaceId: schema.workspaceMembers.workspaceId })
@@ -55,7 +55,7 @@ export async function resolveTargetWorkspace(opts: {
     // request silently and continue resolution. Better than 403'ing.
   }
 
-  // 2. Org team workspace — pick the user's first accessible team in the org.
+  // 2. Org team workspace - pick the user's first accessible team in the org.
   if (orgId) {
     const teams = await db
       .select({
@@ -80,7 +80,7 @@ export async function resolveTargetWorkspace(opts: {
       }
     }
 
-    // 3. Admin auto-access — super_admin / admin can write to any team
+    // 3. Admin auto-access - super_admin / admin can write to any team
     // workspace in the org even if they're not on the team's member list.
     const role = await db
       .select({ role: schema.organizationMembers.role })
@@ -106,13 +106,13 @@ export async function resolveTargetWorkspace(opts: {
     }
   }
 
-  // 4. Personal fallback — the user always has at least their own.
+  // 4. Personal fallback - the user always has at least their own.
   return { workspaceId: fallbackWorkspaceId, source: 'personal', reason: 'personal workspace' }
 }
 
 // Lightweight helper: list every workspace the user can write to in an
 // org. Used by the New Memory dialog's team picker so we don't paginate
-// or search — there are usually 1-10 teams per org.
+// or search - there are usually 1-10 teams per org.
 export async function listWritableOrgWorkspaces(opts: {
   userId: string
   orgId: string

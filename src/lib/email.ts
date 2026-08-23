@@ -27,7 +27,7 @@ const TOKENS = {
   fontMono: "'JetBrains Mono', 'SF Mono', 'Courier New', monospace",
 } as const
 
-// Reattend logo PNG hosted at reattend.com — image hotlinking is required
+// Reattend logo PNG hosted at reattend.com - image hotlinking is required
 // because email clients almost never render SVG. Keep this URL stable; if
 // it ever moves, every shipped email since 2026-05-03 still references it.
 const LOGO_URL = 'https://reattend.com/icon-128.png'
@@ -44,7 +44,7 @@ interface EmailLayoutOpts {
 
 /**
  * Wraps content in the shared Reattend email shell. Returns full HTML
- * doc ready to pass to Resend. All callers should use this — never
+ * doc ready to pass to Resend. All callers should use this - never
  * write a one-off email layout.
  */
 export function renderEmail(opts: EmailLayoutOpts): string {
@@ -55,7 +55,7 @@ export function renderEmail(opts: EmailLayoutOpts): string {
   const postCta = opts.postCtaHtml
     ? `<p style="font-family:${TOKENS.fontSans}; color:${TOKENS.ink3}; font-size:12.5px; margin:14px 0 0; line-height:1.5;">${opts.postCtaHtml}</p>`
     : ''
-  const signOff = opts.signOff || `Reattend · <a href="https://reattend.com" style="color:${TOKENS.accent}; text-decoration:none;">reattend.com</a><br />Reply to this email any time — it goes to a human.`
+  const signOff = opts.signOff || `Reattend · <a href="https://reattend.com" style="color:${TOKENS.accent}; text-decoration:none;">reattend.com</a><br />Reply to this email any time - it goes to a human.`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -127,7 +127,7 @@ export function renderOtpEmail(code: string): string {
       <div style="background:#fff; border:2px solid ${TOKENS.rule}; border-radius:12px; padding:22px; text-align:center; margin:8px 0 20px;">
         <span style="font-family:${TOKENS.fontMono}; font-size:34px; font-weight:600; letter-spacing:0.32em; color:${TOKENS.ink};">${escapeHtml(code)}</span>
       </div>
-      <p style="margin:0; color:${TOKENS.ink3}; font-size:13.5px;">Expires in <b style="color:${TOKENS.ink2};">10 minutes</b>. If you didn't request this, ignore this email — your account is fine.</p>
+      <p style="margin:0; color:${TOKENS.ink3}; font-size:13.5px;">Expires in <b style="color:${TOKENS.ink2};">10 minutes</b>. If you didn't request this, ignore this email - your account is fine.</p>
     `,
   })
 }
@@ -148,7 +148,7 @@ export function renderAccountLinkEmail(opts: {
     heading: 'Link your accounts?',
     bodyHtml: `
       <p style="margin:0 0 16px;"><b>${requesterLabel}</b> wants to link their Reattend account with this one. Once linked, you can switch between both accounts in one tab without signing in again.</p>
-      <p style="margin:0 0 16px; color:${TOKENS.ink3}; font-size:14px;">Each account stays structurally separate — your memories, integrations, and access stay tied to the account that owns them. Linking is a UI convenience, not a data merge.</p>
+      <p style="margin:0 0 16px; color:${TOKENS.ink3}; font-size:14px;">Each account stays structurally separate - your memories, integrations, and access stay tied to the account that owns them. Linking is a UI convenience, not a data merge.</p>
       <p style="margin:24px 0 12px;">If this is you, sign in to <b>this</b> account and enter:</p>
       <div style="background:#fff; border:2px solid ${TOKENS.rule}; border-radius:12px; padding:22px; text-align:center; margin:8px 0 20px;">
         <span style="font-family:${TOKENS.fontMono}; font-size:34px; font-weight:600; letter-spacing:0.32em; color:${TOKENS.ink};">${escapeHtml(opts.code)}</span>
@@ -164,17 +164,17 @@ export async function sendWelcomeEmail(email: string, name: string) {
     preheader: `Welcome to Reattend, ${name}. Here's how to get started.`,
     heading: `Welcome, ${escapeHtml(name)}.`,
     bodyHtml: `
-      <p style="margin:0 0 18px;">Reattend is the memory layer your team can't get from any other tool. It captures decisions, conversations, and context — so the next person to ask a question gets the answer instantly, with sources cited.</p>
+      <p style="margin:0 0 18px;">Reattend is the memory layer your team can't get from any other tool. It captures decisions, conversations, and context - so the next person to ask a question gets the answer instantly, with sources cited.</p>
       <div style="background:#fff; border:1px solid ${TOKENS.rule}; border-radius:12px; padding:22px; margin:8px 0 24px;">
         <p style="font-family:${TOKENS.fontMono}; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:0.16em; color:${TOKENS.ink3}; margin:0 0 14px;">Get started in 3 steps</p>
         ${stepRow(1, 'Install the Chrome extension', 'Captures context from any whitelisted work app, with a one-click pin and (opt-in) auto-ingest.')}
-        ${stepRow(2, 'Connect an integration', 'Slack, Notion, Gmail, Calendar, Linear — pick one. Reattend syncs in the background.')}
+        ${stepRow(2, 'Connect an integration', 'Slack, Notion, Gmail, Calendar, Linear - pick one. Reattend syncs in the background.')}
         ${stepRow(3, 'Ask your first question', 'Open the side panel: "What did we decide about X?" Cited answers in seconds.')}
       </div>
     `,
     ctaLabel: 'Open your dashboard →',
     ctaUrl: 'https://reattend.com/app',
-    signOff: `— Partha, founder<br /><a href="mailto:pb@reattend.ai" style="color:${TOKENS.accent}; text-decoration:none;">pb@reattend.ai</a> · Reply to this email any time.`,
+    signOff: `- Partha, founder<br /><a href="mailto:pb@reattend.ai" style="color:${TOKENS.accent}; text-decoration:none;">pb@reattend.ai</a> · Reply to this email any time.`,
   })
 
   if (!resend) {
@@ -185,7 +185,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
     await resend.emails.send({
       from: 'Partha from Reattend <pb@reattend.com>',
       to: email,
-      subject: `Welcome to Reattend — you're all set`,
+      subject: `Welcome to Reattend - you're all set`,
       html,
     })
   } catch (err) {
@@ -235,12 +235,12 @@ export async function sendEnterpriseInviteEmail(opts: {
       <p style="margin:0 0 18px;"><strong style="color:${TOKENS.ink};">${escapeHtml(opts.inviterName)}</strong> (${escapeHtml(opts.inviterEmail)}) invited you to <strong style="color:${TOKENS.ink};">${escapeHtml(opts.orgName)}</strong> as a <strong style="color:${TOKENS.ink};">${roleLabel}</strong>${opts.departmentName ? ` in ${escapeHtml(opts.departmentName)}` : ''}.</p>
       <div style="background:#fff; border:1px solid ${TOKENS.rule}; border-radius:12px; padding:18px 20px; margin:8px 0 16px;">
         <p style="font-family:${TOKENS.fontMono}; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:0.16em; color:${TOKENS.ink3}; margin:0 0 8px;">What Reattend does</p>
-        <p style="margin:0; font-size:14px; line-height:1.6;">Your organization's memory — every decision, every conversation, every piece of institutional knowledge preserved and searchable. Even when people leave, transfer, or retire.</p>
+        <p style="margin:0; font-size:14px; line-height:1.6;">Your organization's memory - every decision, every conversation, every piece of institutional knowledge preserved and searchable. Even when people leave, transfer, or retire.</p>
       </div>
     `,
     ctaLabel: 'Accept invitation →',
     ctaUrl: opts.acceptUrl,
-    postCtaHtml: `Link expires ${expiresOn}. Use your work email — Reattend is org-only.`,
+    postCtaHtml: `Link expires ${expiresOn}. Use your work email - Reattend is org-only.`,
   })
 
   if (!resend) {
@@ -281,13 +281,13 @@ export async function sendTrialReminder(opts: {
     preheader: `${urgency}: add a card to keep your ${tierName} plan, or auto-downgrade to Free with all data intact.`,
     heading: opts.daysLeft === 1 ? 'Trial ends tomorrow.' : `${opts.daysLeft} days left.`,
     bodyHtml: `
-      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} — quick heads-up: your <strong style="color:${TOKENS.ink};">Reattend ${tierName}</strong> trial ${opts.daysLeft === 1 ? 'ends tomorrow' : `wraps in ${opts.daysLeft} days`}.</p>
-      <p style="margin:0 0 16px;">If you add a card before then, you continue uninterrupted. <strong style="color:${TOKENS.ink};">No card?</strong> No problem — your account quietly drops to Free with limits on AI questions and retention. <strong style="color:${TOKENS.ink};">Your data stays exactly as it is.</strong> You can re-upgrade anytime.</p>
+      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} - quick heads-up: your <strong style="color:${TOKENS.ink};">Reattend ${tierName}</strong> trial ${opts.daysLeft === 1 ? 'ends tomorrow' : `wraps in ${opts.daysLeft} days`}.</p>
+      <p style="margin:0 0 16px;">If you add a card before then, you continue uninterrupted. <strong style="color:${TOKENS.ink};">No card?</strong> No problem - your account quietly drops to Free with limits on AI questions and retention. <strong style="color:${TOKENS.ink};">Your data stays exactly as it is.</strong> You can re-upgrade anytime.</p>
       ${opts.daysLeft === 1 ? `<p style="margin:0 0 16px; padding:12px 14px; background:#FFF7E6; border-left:3px solid #E0A33C; border-radius:6px; color:${TOKENS.ink}; font-size:14px;">After tomorrow, free-tier limits kick in: 100 AI questions/month and 90-day rolling retention.</p>` : ''}
     `,
     ctaLabel: 'Add a card →',
     ctaUrl: 'https://reattend.com/app/settings/billing',
-    postCtaHtml: `Or reply to this email if you have questions — I read everything. — Partha`,
+    postCtaHtml: `Or reply to this email if you have questions - I read everything. - Partha`,
   })
 
   if (!resend) {
@@ -313,16 +313,16 @@ export async function sendTrialEndedEmail(opts: {
 }) {
   const tierName = opts.tier === 'professional' ? 'Professional' : 'Enterprise'
   const html = renderEmail({
-    preheader: `Your trial ended. You're on Free now — all your data is safe.`,
+    preheader: `Your trial ended. You're on Free now - all your data is safe.`,
     heading: `You're on Free now.`,
     bodyHtml: `
-      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} — your Reattend ${tierName} trial ended. As promised, your account moved to <strong style="color:${TOKENS.ink};">Free</strong> automatically. <strong style="color:${TOKENS.ink};">Every memory, decision, and connection is intact.</strong></p>
+      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} - your Reattend ${tierName} trial ended. As promised, your account moved to <strong style="color:${TOKENS.ink};">Free</strong> automatically. <strong style="color:${TOKENS.ink};">Every memory, decision, and connection is intact.</strong></p>
       <p style="margin:0 0 16px;">From here on out, free-tier limits apply: 100 AI questions per month, 90-day rolling retention. Your records older than 90 days will gradually fade off (we soft-delete with a recovery window).</p>
-      <p style="margin:0 0 16px;">Want to come back to ${tierName}? One click — your old plan, your old data, no migration.</p>
+      <p style="margin:0 0 16px;">Want to come back to ${tierName}? One click - your old plan, your old data, no migration.</p>
     `,
     ctaLabel: 'Re-upgrade to ' + tierName + ' →',
     ctaUrl: 'https://reattend.com/app/settings/billing',
-    postCtaHtml: `If Reattend wasn't the right fit, reply and tell me what didn't work — I'd genuinely like to know. — Partha`,
+    postCtaHtml: `If Reattend wasn't the right fit, reply and tell me what didn't work - I'd genuinely like to know. - Partha`,
   })
 
   if (!resend) {
@@ -333,7 +333,7 @@ export async function sendTrialEndedEmail(opts: {
     await resend.emails.send({
       from: 'Partha from Reattend <pb@reattend.com>',
       to: opts.toEmail,
-      subject: `Your Reattend trial ended — you're on Free, your data is safe`,
+      subject: `Your Reattend trial ended - you're on Free, your data is safe`,
       html,
     })
   } catch (err) {
@@ -343,7 +343,7 @@ export async function sendTrialEndedEmail(opts: {
 
 // ─── Admin-granted trial / comp email ────────────────────────────────────
 // Sent when a super-admin manually extends a trial via the admin dashboard.
-// "Comped X for Y days." — no card needed, no Paddle interaction.
+// "Comped X for Y days." - no card needed, no Paddle interaction.
 export async function sendTrialGrantedEmail(opts: {
   toEmail: string
   name: string
@@ -356,19 +356,19 @@ export async function sendTrialGrantedEmail(opts: {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
   })
   const html = renderEmail({
-    preheader: `${opts.daysGranted} days of Reattend ${tierName} on the house — no card required.`,
+    preheader: `${opts.daysGranted} days of Reattend ${tierName} on the house - no card required.`,
     heading: `${opts.daysGranted} days on us.`,
     bodyHtml: `
-      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} — we've extended your <strong style="color:${TOKENS.ink};">Reattend ${tierName}</strong> trial by <strong style="color:${TOKENS.ink};">${opts.daysGranted} day${opts.daysGranted === 1 ? '' : 's'}</strong>. No card needed.</p>
+      <p style="margin:0 0 16px;">Hey ${escapeHtml(opts.name)} - we've extended your <strong style="color:${TOKENS.ink};">Reattend ${tierName}</strong> trial by <strong style="color:${TOKENS.ink};">${opts.daysGranted} day${opts.daysGranted === 1 ? '' : 's'}</strong>. No card needed.</p>
       <div style="background:#fff; border:1px solid ${TOKENS.rule}; border-radius:12px; padding:16px 18px; margin:8px 0 16px;">
         <p style="margin:0; font-size:14px;"><strong style="color:${TOKENS.ink};">Plan:</strong> ${tierName}</p>
         <p style="margin:6px 0 0; font-size:14px;"><strong style="color:${TOKENS.ink};">Trial ends:</strong> ${expiresOn}</p>
       </div>
-      <p style="margin:0 0 16px;">Use the time to push the limits — pull more memory in, ask harder questions, share with the team. We'll send a heads-up before the trial wraps so nothing surprises you.</p>
+      <p style="margin:0 0 16px;">Use the time to push the limits - pull more memory in, ask harder questions, share with the team. We'll send a heads-up before the trial wraps so nothing surprises you.</p>
     `,
     ctaLabel: 'Open Reattend →',
     ctaUrl: 'https://reattend.com/app',
-    postCtaHtml: `Reply to this email if you want more time, want to chat, or hit a snag. — Partha`,
+    postCtaHtml: `Reply to this email if you want more time, want to chat, or hit a snag. - Partha`,
   })
 
   if (!resend) {
@@ -379,7 +379,7 @@ export async function sendTrialGrantedEmail(opts: {
     await resend.emails.send({
       from: 'Partha from Reattend <pb@reattend.com>',
       to: opts.toEmail,
-      subject: `${opts.daysGranted} more day${opts.daysGranted === 1 ? '' : 's'} of Reattend ${tierName} — on us`,
+      subject: `${opts.daysGranted} more day${opts.daysGranted === 1 ? '' : 's'} of Reattend ${tierName} - on us`,
       html,
     })
   } catch (err) {

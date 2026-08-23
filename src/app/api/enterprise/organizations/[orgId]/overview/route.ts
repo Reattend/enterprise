@@ -52,7 +52,7 @@ function startOfIsoWeek(d: Date): Date {
 
 // GET /api/enterprise/organizations/[orgId]/overview
 // Aggregates every signal the memory-health cockpit renders.
-// Heavy query — we cache nothing yet. At enterprise scale we'll memoize or
+// Heavy query - we cache nothing yet. At enterprise scale we'll memoize or
 // precompute via a job. For now, all in one pass.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
         .where(inArray(schema.users.id, userIds))
       const userById = new Map(userRows.map((u) => [u.id, u]))
 
-      // Records authored — we approximate via createdBy on records
+      // Records authored - we approximate via createdBy on records
       const recordsByUser = new Map<string, number>()
       for (const r of allRecords) {
         if (userIds.includes(r.createdBy)) {
@@ -180,7 +180,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
         }
       }
 
-      // Roles vacated — assignments that ended when they were offboarded
+      // Roles vacated - assignments that ended when they were offboarded
       // Approximation: count assignments for the user with endedAt set where the
       // current state is still vacant (no new active assignment on the same role)
       const endedAssignments = await db
@@ -242,7 +242,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     const ownedByRole = new Map<string, number>()
     for (const o of ownership) ownedByRole.set(o.roleId, (ownedByRole.get(o.roleId) ?? 0) + 1)
 
-    // Most recent "endedAt" for each vacant role — when did it go vacant
+    // Most recent "endedAt" for each vacant role - when did it go vacant
     const lastEnded = vacantRoles.length > 0
       ? await db
           .select()
@@ -268,7 +268,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
       .sort((a, b) => b.ownedRecordsCount - a.ownedRecordsCount)
       .slice(0, 10)
 
-    // ── Decision velocity — weekly buckets, last 12 weeks ────────────────────
+    // ── Decision velocity - weekly buckets, last 12 weeks ────────────────────
     const buckets = new Map<string, WeeklyBucket>()
     for (let i = 11; i >= 0; i--) {
       const weekStart = startOfIsoWeek(new Date(now.getTime() - i * 7 * 86400_000)).toISOString()

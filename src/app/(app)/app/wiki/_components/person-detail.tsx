@@ -1,6 +1,6 @@
 'use client'
 
-// Person detail — same data shape as before. Restyled to match the article
+// Person detail - same data shape as before. Restyled to match the article
 // chrome used by Dept and Topic. The "Knowledge at risk" banner stays on
 // top when the person is offboarded with un-transferred records, and the
 // transfer-history panel still loads independently.
@@ -53,7 +53,7 @@ function fmtRelative(iso: string) {
   return d.toLocaleDateString()
 }
 function fmtShort(iso: string | null | undefined) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 

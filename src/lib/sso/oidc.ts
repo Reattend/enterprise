@@ -1,7 +1,7 @@
 // OIDC single sign-on for Reattend Enterprise.
 //
-// Why OIDC (not SAML): every major enterprise IdP — Azure AD, Okta, Google
-// Workspace, Auth0, PingFederate — supports OIDC. It's OAuth 2.0 plus a
+// Why OIDC (not SAML): every major enterprise IdP - Azure AD, Okta, Google
+// Workspace, Auth0, PingFederate - supports OIDC. It's OAuth 2.0 plus a
 // standardized `id_token` (JWT) that carries user claims. SAML support
 // requires a heavier library and solves the same problem for the same IdPs.
 // If a customer ONLY supports SAML (rare, usually legacy), we'll add it.
@@ -114,7 +114,7 @@ export interface IdTokenClaims {
 }
 
 // Verify the id_token signature using the IdP's JWKS, and validate iss/aud/
-// nonce. This is the security-critical step — a bogus token means a
+// nonce. This is the security-critical step - a bogus token means a
 // forged login.
 export async function verifyIdToken(opts: {
   discovery: OidcDiscovery

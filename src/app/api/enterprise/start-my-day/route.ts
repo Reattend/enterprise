@@ -23,7 +23,7 @@ export const dynamic = 'force-dynamic'
 //   - a Claude-synthesized 3-line focus for today
 //   - highlights: top-3 new items worth clicking
 //
-// Designed to be cached for ~1 hour per (user, org) pair at the UI — daily
+// Designed to be cached for ~1 hour per (user, org) pair at the UI - daily
 // habit cards don't need live numbers.
 export async function GET(req: NextRequest) {
   try {
@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
         focus: `${SANDBOX_START_MY_DAY.headline}\n\n${SANDBOX_START_MY_DAY.focus}`,
         highlights: {
           memories: [
-            { id: 'sb-m1', title: 'Vendor X Secretary escalation — Apr 18', type: 'decision', summary: 'Priya re-escalated the data residency concern to Secretary level.', by: 'Priya Iyer', createdAt: new Date().toISOString() },
-            { id: 'sb-m2', title: 'Data Residency Policy v1.2 flagged stale', type: 'insight', summary: 'Self-healing flagged this policy — last verified 14 months ago.', by: 'Self-Healing', createdAt: new Date().toISOString() },
-            { id: 'sb-m3', title: 'BEPS reservation clock — 23 days to go', type: 'note', summary: 'Apr 14, 2026 review deadline approaching.', by: 'System', createdAt: new Date().toISOString() },
+            { id: 'sb-m1', title: 'Vendor X Secretary escalation - Apr 18', type: 'decision', summary: 'Priya re-escalated the data residency concern to Secretary level.', by: 'Priya Iyer', createdAt: new Date().toISOString() },
+            { id: 'sb-m2', title: 'Data Residency Policy v1.2 flagged stale', type: 'insight', summary: 'Self-healing flagged this policy - last verified 14 months ago.', by: 'Self-Healing', createdAt: new Date().toISOString() },
+            { id: 'sb-m3', title: 'BEPS reservation clock - 23 days to go', type: 'note', summary: 'Apr 14, 2026 review deadline approaching.', by: 'System', createdAt: new Date().toISOString() },
           ],
           decisions: [],
           pendingPolicies: [{ id: 'sb-p1', title: 'GDPR Data Subject Rights Policy v1.3', category: 'Compliance' }],
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
         ))
         .orderBy(desc(schema.records.createdAt))
         .limit(50)
-      // RBAC pass — some depts might be restricted
+      // RBAC pass - some depts might be restricted
       const ctx = await buildAccessContext(userId)
       const allowed = await filterToAccessibleRecords(ctx, rows.map((r) => r.id))
       newRecords = rows.filter((r) => allowed.has(r.id))
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(schema.decisions.decidedAt))
       .limit(20)
 
-    // Reversals/supersessions specifically — the highest-signal event type
+    // Reversals/supersessions specifically - the highest-signal event type
     const reversals = newDecisions.filter((d) => d.status === 'reversed')
     const supersessions = newDecisions.filter((d) => d.status === 'superseded')
 
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
         const firstName = (user?.name || user?.email || 'there').split(' ')[0]
         const highlights = newRecords.slice(0, 6).map((r, i) => {
           const by = creatorById.get(r.createdBy)
-          return `[r${i + 1}] ${r.type}: ${r.title}${by ? ` (by ${by.name || by.email})` : ''}${r.summary ? ` — ${r.summary.slice(0, 150)}` : ''}`
+          return `[r${i + 1}] ${r.type}: ${r.title}${by ? ` (by ${by.name || by.email})` : ''}${r.summary ? ` - ${r.summary.slice(0, 150)}` : ''}`
         }).join('\n')
         const decisionLines = newDecisions.slice(0, 5).map((d, i) => {
           const by = d.decidedByUserId ? creatorById.get(d.decidedByUserId) : null
@@ -175,11 +175,11 @@ Transfers to them: ${incomingTransfers.length}
 Reversals: ${reversals.length}, Supersessions: ${supersessions.length}
 
 Rules:
-- Open with "${firstName}, " — not "Hi".
+- Open with "${firstName}, " - not "Hi".
 - 3-4 sentences max. No bullets, no headers. Tight prose.
 - Surface the highest-stakes item first (reversals > decisions > policy acks > memories).
 - If something needs the reader's action (ack a policy, review a transfer), say so with specific ask.
-- If the day is quiet, say so honestly — "Quiet morning. One new memory on X."
+- If the day is quiet, say so honestly - "Quiet morning. One new memory on X."
 - Do NOT use the word "today" more than once.
 
 Briefing:`

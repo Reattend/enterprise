@@ -5,11 +5,11 @@ import { requireAuth } from '@/lib/auth'
 
 // Only types that are actually actionable by the user. System notifications
 // (failed jobs, etc.) are surfaced elsewhere, not in the "flagged for review"
-// banner — otherwise users see a banner about items they can't action from
+// banner - otherwise users see a banner about items they can't action from
 // the inbox page.
 // Typed as the column's literal union so drizzle's inArray() accepts it.
 // A plain string[] gets rejected; `as const` gives a readonly tuple which
-// drizzle also rejects — it wants a mutable array of the enum literals.
+// drizzle also rejects - it wants a mutable array of the enum literals.
 type NotificationType = 'needs_review' | 'todo' | 'decision_pending' | 'reminder'
 const ACTIONABLE_TYPES: NotificationType[] = ['needs_review', 'todo', 'decision_pending', 'reminder']
 

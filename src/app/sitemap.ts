@@ -7,7 +7,7 @@ import { GLOSSARY_TERMS } from '@/lib/glossary/data'
 
 // All hardcoded lastModified dates use BUILD_DATE so every deploy refreshes
 // the timestamps Google sees. Stale dates make crawlers deprioritize re-fetch
-// — a sitemap that says "lastmod: 2026-02-15" two months later signals
+// - a sitemap that says "lastmod: 2026-02-15" two months later signals
 // nothing has changed, even when the page contents have.
 //
 // Per-resource sources of truth (blog post date, competitor mtime) override
@@ -40,7 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
   ]
 
-  // Marketing surface — every URL here is a real route handler in src/app/.
+  // Marketing surface - every URL here is a real route handler in src/app/.
   // Keep this list in sync with src/app/*/route.ts. If you add a new static
   // landing page, add it here too or it won't be crawled.
   const marketingPages: MetadataRoute.Sitemap = [

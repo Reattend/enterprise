@@ -200,7 +200,7 @@ function SsoPageInner({ params }: { params: { orgId: string } }) {
         <div className="flex items-start gap-3 mb-4 pb-3 border-b border-border">
           <Info className="h-5 w-5 text-primary mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold">Step 1 — Give these to your IdP admin</h3>
+            <h3 className="text-sm font-semibold">Step 1 - Give these to your IdP admin</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               They use these values to configure the trust on their end (Azure AD, Okta, etc.).
             </p>
@@ -222,7 +222,7 @@ function SsoPageInner({ params }: { params: { orgId: string } }) {
         <div className="flex items-start gap-3 mb-4 pb-3 border-b border-border">
           <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold">Step 2 — Paste your IdP details here</h3>
+            <h3 className="text-sm font-semibold">Step 2 - Paste your IdP details here</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               After the IdP admin configures the trust, they give you these values.
             </p>
@@ -287,7 +287,7 @@ function SsoPageInner({ params }: { params: { orgId: string } }) {
         <div className="flex items-start gap-3 mb-4 pb-3 border-b border-border">
           <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold">Step 3 — Provisioning & activation</h3>
+            <h3 className="text-sm font-semibold">Step 3 - Provisioning & activation</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               How new users are handled when they sign in via SSO.
             </p>
@@ -373,7 +373,7 @@ function SsoPageInner({ params }: { params: { orgId: string } }) {
             <p>
               Configuration storage + SP metadata endpoint are live. The SAML/OIDC auth callback (ACS) is scaffolded.
               To complete the handshake, we integrate <code className="px-1 rounded bg-background text-[11px]">@node-saml/node-saml</code> or{' '}
-              <code className="px-1 rounded bg-background text-[11px]">openid-client</code> in the login flow — this requires testing against a real IdP tenant
+              <code className="px-1 rounded bg-background text-[11px]">openid-client</code> in the login flow - this requires testing against a real IdP tenant
               and is the next step after your first enterprise pilot customer is ready.
             </p>
           </div>
@@ -397,7 +397,7 @@ function CopyRow({ label, value, onCopy }: { label: string; value: string; onCop
   return (
     <div className="flex items-center gap-2 py-2 border-b border-border last:border-0">
       <div className="text-xs text-muted-foreground w-36 shrink-0">{label}</div>
-      <code className="flex-1 min-w-0 text-xs truncate font-mono bg-muted/50 px-2 py-1 rounded">{value || '—'}</code>
+      <code className="flex-1 min-w-0 text-xs truncate font-mono bg-muted/50 px-2 py-1 rounded">{value || '-'}</code>
       <button
         onClick={() => value && onCopy(value)}
         className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground"

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reattend — Coming soon</title>
+  <title>Reattend - Coming soon</title>
   <meta name="description" content="This page is on the way. Leave your email and we'll write to you when it's live." />
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
   <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
@@ -42,7 +42,7 @@
     </nav>
     <div style="display:flex; gap:8px;">
       <a class="btn btn-outline" href="/login">Sign in</a>
-      <a class="btn btn-primary btn-fill" href="/register">Try for free</a>
+      <a class="btn btn-primary btn-fill" href="/sandbox">Sandbox</a>
     </div>
   </div>
 </header>
@@ -51,7 +51,7 @@
   <div class="cs-left">
     <span class="crumb pfade"><span class="dot"></span><span id="crumb-label">Coming soon</span></span>
     <h1 class="pfade"><span id="topic-line">This page</span> is being <em>written.</em></h1>
-    <p class="pfade" id="lede">We're a small team and we'd rather ship the right page than a placeholder pretending to be one. Leave your email and we'll write to you the moment it's live — no other newsletter, no upsell, no "check out our blog while you wait."</p>
+    <p class="pfade" id="lede">We're a small team and we'd rather ship the right page than a placeholder pretending to be one. Leave your email and we'll write to you the moment it's live - no other newsletter, no upsell, no "check out our blog while you wait."</p>
 
     <form class="cs-form pfade" id="notify-form" autocomplete="on" novalidate>
       <input type="email" name="email" placeholder="you@company.com" required aria-label="Work email" />
@@ -79,7 +79,7 @@
       </a>
       <a class="cs-card pfade" href="/pricing">
         <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-        <div><div class="t">Pricing &amp; plans</div><div class="d">Starter · Team · Pro · Enterprise — with the math shown</div></div>
+        <div><div class="t">Pricing &amp; plans</div><div class="d">Starter · Team · Pro · Enterprise - with the math shown</div></div>
         <div class="arr">→</div>
       </a>
       <a class="cs-card pfade" href="/about">
@@ -141,25 +141,25 @@ const io = new IntersectionObserver((entries) => {
 }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
 
-// Topic from query string — drives copy + meter
+// Topic from query string - drives copy + meter
 const params = new URLSearchParams(location.search);
 const topicRaw = (params.get('topic') || '').trim();
 const topic = topicRaw.replace(/[<>"]/g, '');
 
 // Per-topic config (stage, owner, eta, percent)
 const config = {
-  Careers:   { stage: 'Drafting',  owner: 'R. Bhattacharya',  eta: '~2 weeks',  pct: 72, lede: "We're hiring across engineering, research, security, and GTM — but we'd rather ship a careers page that does justice to the team than a generic listicle. Leave your email and we'll send the page when it lands, with the openings inline." },
+  Careers:   { stage: 'Drafting',  owner: 'R. Bhattacharya',  eta: '~2 weeks',  pct: 72, lede: "We're hiring across engineering, research, security, and GTM - but we'd rather ship a careers page that does justice to the team than a generic listicle. Leave your email and we'll send the page when it lands, with the openings inline." },
   Blog:      { stage: 'Designing', owner: 'A. Mensah',        eta: '~3 weeks',  pct: 58, lede: "An engineering and research blog. Posts on retrieval, recall precision, and the very specific bugs we've found in the calendar APIs of every major vendor. The first piece is being edited; the publishing infrastructure is being kinder than expected." },
-  Press:     { stage: 'Reviewing', owner: 'D. Klein',         eta: '~10 days',  pct: 84, lede: "Logos, founder photos, fact sheet, and a contact for journalists. Out the door once legal blesses the fact sheet — should be soon." },
-  Docs:      { stage: 'Writing',   owner: 'P. Subramanian',   eta: '~4 weeks',  pct: 41, lede: "Full API reference, SDK guides for Python and TypeScript, integration runbooks, and the recall‑tuning playbook. We're being deliberate — bad docs are worse than no docs." },
+  Press:     { stage: 'Reviewing', owner: 'D. Klein',         eta: '~10 days',  pct: 84, lede: "Logos, founder photos, fact sheet, and a contact for journalists. Out the door once legal blesses the fact sheet - should be soon." },
+  Docs:      { stage: 'Writing',   owner: 'P. Subramanian',   eta: '~4 weeks',  pct: 41, lede: "Full API reference, SDK guides for Python and TypeScript, integration runbooks, and the recall‑tuning playbook. We're being deliberate - bad docs are worse than no docs." },
   Changelog: { stage: 'Backfilling', owner: 'Eng team',       eta: '~1 week',   pct: 90, lede: "Public, dated, with the actual diff link. Backfilling the last six months of releases now." },
-  Status:    { stage: 'Wiring up', owner: 'SRE team',         eta: '~5 days',   pct: 78, lede: "A live status page wired to our internal monitoring, with regional uptime, current incidents, and the post‑mortem archive. The hard part — public‑facing dashboards that don't lie — is in QA." },
-  Support:   { stage: 'Building',  owner: 'GTM team',         eta: '~2 weeks',  pct: 65, lede: "A proper support hub with search, runbooks, contact channels, and an SLA matrix. Until it ships, write to support@reattend.com — average response time is under two hours." },
+  Status:    { stage: 'Wiring up', owner: 'SRE team',         eta: '~5 days',   pct: 78, lede: "A live status page wired to our internal monitoring, with regional uptime, current incidents, and the post‑mortem archive. The hard part - public‑facing dashboards that don't lie - is in QA." },
+  Support:   { stage: 'Building',  owner: 'GTM team',         eta: '~2 weeks',  pct: 65, lede: "A proper support hub with search, runbooks, contact channels, and an SLA matrix. Until it ships, write to support@reattend.com - average response time is under two hours." },
   Contact:   { stage: 'Designing', owner: 'M. Chen',          eta: '~1 week',   pct: 80, lede: "One page, the right inbox for the right question. Until then: hello@reattend.com works for everything and is read by a human." },
-  'SOC 2':   { stage: 'Detailed page',  owner: 'D. Klein',    eta: '~2 weeks',  pct: 60, lede: "The standalone SOC 2 page with the full report (under NDA). For now, the headlines are on the compliance page — and the report itself is available to customers under the trust portal." },
+  'SOC 2':   { stage: 'Detailed page',  owner: 'D. Klein',    eta: '~2 weeks',  pct: 60, lede: "The standalone SOC 2 page with the full report (under NDA). For now, the headlines are on the compliance page - and the report itself is available to customers under the trust portal." },
   HIPAA:     { stage: 'Detailed page',  owner: 'D. Klein',    eta: '~2 weeks',  pct: 60, lede: "Standalone HIPAA page with the BAA template, Hitrust mapping, and PHI handling architecture. Headlines are on the compliance page; the BAA itself is available on request today." },
-  GDPR:      { stage: 'Detailed page',  owner: 'M. Dubois',   eta: '~2 weeks',  pct: 60, lede: "Standalone GDPR page with our Article 28 obligations, SCCs, and a breakdown of every subprocessor we use. Today's compliance page links to the DPA — that contract is signable now." },
-  DPA:       { stage: 'Self‑serve flow',  owner: 'Legal',     eta: '~1 week',   pct: 88, lede: "A self‑serve DPA flow with click‑through countersignature. The DPA itself is available today — write to legal@reattend.com and we'll send it." }
+  GDPR:      { stage: 'Detailed page',  owner: 'M. Dubois',   eta: '~2 weeks',  pct: 60, lede: "Standalone GDPR page with our Article 28 obligations, SCCs, and a breakdown of every subprocessor we use. Today's compliance page links to the DPA - that contract is signable now." },
+  DPA:       { stage: 'Self‑serve flow',  owner: 'Legal',     eta: '~1 week',   pct: 88, lede: "A self‑serve DPA flow with click‑through countersignature. The DPA itself is available today - write to legal@reattend.com and we'll send it." }
 };
 
 const cfg = config[topic] || { stage: 'On the way', owner: 'Web team', eta: 'soon', pct: 60, lede: null };
@@ -167,7 +167,7 @@ const cfg = config[topic] || { stage: 'On the way', owner: 'Web team', eta: 'soo
 if (topic) {
   document.getElementById('crumb-label').textContent = 'Coming soon · ' + topic;
   document.getElementById('topic-line').innerHTML = 'The <span class="topic-name">' + topic + '</span> page';
-  document.title = 'Reattend — ' + topic + ' (coming soon)';
+  document.title = 'Reattend - ' + topic + ' (coming soon)';
 }
 if (cfg.lede) document.getElementById('lede').textContent = cfg.lede;
 document.getElementById('eta-rel').textContent = cfg.eta;

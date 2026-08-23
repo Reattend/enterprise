@@ -1,6 +1,6 @@
 'use client'
 
-// Sandbox banner — surfaces at the top of the app shell whenever the session
+// Sandbox banner - surfaces at the top of the app shell whenever the session
 // belongs to a sandbox user. Reminds the visitor (a) nothing they do persists,
 // (b) AI is in scripted-demo mode, and (c) how to sign up for a real account.
 
@@ -13,7 +13,7 @@ export function SandboxBanner() {
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    // Detect sandbox via the /api/user endpoint — email suffix is the marker
+    // Detect sandbox via the /api/user endpoint - email suffix is the marker
     let cancelled = false
     ;(async () => {
       try {

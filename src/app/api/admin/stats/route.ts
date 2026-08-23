@@ -11,9 +11,9 @@ export async function GET() {
     const totalUsersResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users)
     const totalUsers = totalUsersResult[0]?.count ?? 0
 
-    // Subscription breakdown — counted off the new `tier` column.
+    // Subscription breakdown - counted off the new `tier` column.
     // A user is "paid" if tier is professional/enterprise AND status is active.
-    // "trialing" if status is trialing (regardless of tier — trial only ever
+    // "trialing" if status is trialing (regardless of tier - trial only ever
     // applies to paid tiers anyway). Everyone else is free.
     const allSubs = await db.select({
       tier: schema.subscriptions.tier,
@@ -42,7 +42,7 @@ export async function GET() {
       freeUsers += (totalUsers - subscribedUserCount)
     }
 
-    // Total memories (records) — all records across all workspaces
+    // Total memories (records) - all records across all workspaces
     const memoriesResult = await db.select({ count: sql<number>`count(*)` }).from(schema.records)
     const totalMemories = memoriesResult[0]?.count ?? 0
 
@@ -86,7 +86,7 @@ export async function GET() {
     const chatResult = await db.select({ count: sql<number>`count(*)` }).from(schema.chatSessions)
     const totalChats = chatResult[0]?.count ?? 0
 
-    // Users list — memory count via workspace membership (correct), plus last active from chat sessions
+    // Users list - memory count via workspace membership (correct), plus last active from chat sessions
     const usersList = await db.all(sql`
       SELECT
         u.id,

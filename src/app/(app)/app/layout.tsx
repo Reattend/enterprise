@@ -30,7 +30,7 @@ const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memo
 // Routes a user is allowed to visit when they belong to ZERO organizations.
 // Solo-Free users live entirely inside this list. Routes NOT on this list
 // (e.g. /app/exit-interview, /app/hierarchy, /app/policies, /app/wiki,
-// /app/admin/<orgId>/*) require an org context — visiting them as a no-org
+// /app/admin/<orgId>/*) require an org context - visiting them as a no-org
 // user redirects to /app (their personal home) instead of forcing them
 // into the create-org wizard.
 //
@@ -104,7 +104,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   //
   // Replaced with our own fetch, gated by a real loaded flag. Only after
   // the response resolves do we consider running the redirect.
-  // Org-membership fetch — extracted so the data bus can re-trigger it
+  // Org-membership fetch - extracted so the data bus can re-trigger it
   // when an org name / role changes elsewhere in the app, and so the
   // tab-focus listener (added below via useRevalidate) keeps the cached
   // sidebar / topbar metadata fresh.
@@ -120,7 +120,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Auto-pick the first org as the active context only if the user
         // has never explicitly chosen one. The 'view_context_chosen'
         // localStorage marker is written by setActiveEnterpriseOrgId on
-        // every deliberate pick (including Personal = null) — without
+        // every deliberate pick (including Personal = null) - without
         // this guard, picking Personal in the topbar would get overridden
         // back to the first org on the next fetchOrgs revalidate.
         const hasExplicitChoice =
@@ -152,14 +152,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       NO_ORG_ALLOWED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
     if (onAllowedRoute) return
     // No-org user landed on an org-only surface (e.g. /app/exit-interview,
-    // /app/hierarchy, /app/admin/<orgId>/*). Drop them on /app — their
-    // personal home — rather than the create-org wizard, which would
+    // /app/hierarchy, /app/admin/<orgId>/*). Drop them on /app - their
+    // personal home - rather than the create-org wizard, which would
     // feel like a forced upsell.
     router.replace('/app')
   }, [orgsLoaded, enterpriseOrgs.length, pathname, router])
 
   return (
-    // h-screen (not min-h-screen) — locks the shell to exactly the viewport
+    // h-screen (not min-h-screen) - locks the shell to exactly the viewport
     // so children with flex-1 inherit a definite height. Pages that need to
     // scroll past viewport do so via the inner content wrapper's
     // overflow-y-auto (set when not full-bleed). Pages that pin a footer

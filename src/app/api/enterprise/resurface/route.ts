@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
 //
 // "1 year ago today" for org memory. Returns records created on this calendar
 // day (±1 day) N years ago, where N ∈ {1, 2, 3, 5}. The effect compounds
-// across years — each new year adds a new "this day" cohort automatically.
+// across years - each new year adds a new "this day" cohort automatically.
 //
 // Only returns records the caller can actually read (RBAC). Skips anything
 // older than the user's earliest access; falls back silently to empty if

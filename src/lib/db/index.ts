@@ -32,7 +32,7 @@ try {
     )
   `)
 
-  // vec0 virtual table — 768-dim cosine distance (BGE-base-en-v1.5)
+  // vec0 virtual table - 768-dim cosine distance (BGE-base-en-v1.5)
   sqlite.exec(`
     CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings USING vec0(
       rowid INTEGER PRIMARY KEY,
@@ -41,23 +41,23 @@ try {
   `)
 
   vecLoaded = true
-  console.log('[db] sqlite-vec loaded — ANN search active')
+  console.log('[db] sqlite-vec loaded - ANN search active')
 } catch (e) {
   console.warn('[db] sqlite-vec unavailable, using JS cosine fallback:', (e as Error).message)
 }
 
 // ─── Loud TESTING_MODE banner ──────────────────────────────────────────
 // When TESTING_MODE is on, /login + invite acceptance bypass OTP entirely.
-// That's a wide-open door — useful for internal testing, catastrophic for
+// That's a wide-open door - useful for internal testing, catastrophic for
 // public users. Print a banner every boot so it's impossible to ignore in
 // `pm2 logs`. Disable by removing TESTING_MODE from .env.local and
 // restarting the process.
 if (process.env.TESTING_MODE === 'true') {
   const bar = '═'.repeat(74)
-  console.warn(`\n${bar}\n  ⚠  TESTING_MODE IS ON — OTP is BYPASSED for /login and invite\n     acceptance. ANYONE can sign in as ANY email. Disable before any\n     external user can reach the site (unset TESTING_MODE in .env.local).\n${bar}\n`)
+  console.warn(`\n${bar}\n  ⚠  TESTING_MODE IS ON - OTP is BYPASSED for /login and invite\n     acceptance. ANYONE can sign in as ANY email. Disable before any\n     external user can reach the site (unset TESTING_MODE in .env.local).\n${bar}\n`)
 }
 
-// FTS5 full-text search index — dramatically faster than LIKE '%keyword%'
+// FTS5 full-text search index - dramatically faster than LIKE '%keyword%'
 // at scale. Tokenizes title + summary + content for ranked text search.
 export let ftsReady = false
 try {
@@ -101,7 +101,7 @@ try {
       UPDATE records_fts SET workspace_id = NEW.workspace_id WHERE record_id = NEW.id;
     END;
   `)
-  // One-shot heal on startup (idempotent — UPDATE with WHERE clause that
+  // One-shot heal on startup (idempotent - UPDATE with WHERE clause that
   // only touches drifted rows). Safe to run every cold boot.
   const drifted = (sqlite.prepare(`
     SELECT COUNT(*) as c FROM records_fts f
@@ -109,7 +109,7 @@ try {
     WHERE f.workspace_id != r.workspace_id
   `).get() as { c: number }).c
   if (drifted > 0) {
-    console.log(`[db] FTS5 workspace_id drift detected on ${drifted} rows — healing`)
+    console.log(`[db] FTS5 workspace_id drift detected on ${drifted} rows - healing`)
     sqlite.exec(`
       UPDATE records_fts SET workspace_id = (
         SELECT workspace_id FROM records WHERE id = records_fts.record_id

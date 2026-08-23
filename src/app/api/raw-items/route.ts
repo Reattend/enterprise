@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Best-effort inline processing. If it fails, the periodic worker will
-    // retry — so we never leave the user in a worse state than before.
+    // retry - so we never leave the user in a worse state than before.
     try {
       await processAllPendingJobs()
     } catch (e) {

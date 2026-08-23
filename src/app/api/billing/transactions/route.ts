@@ -32,7 +32,7 @@ export async function GET() {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    // Paddle API failure — return empty list rather than error
+    // Paddle API failure - return empty list rather than error
     console.error('[billing/transactions]', error.message)
     return NextResponse.json({ transactions: [] })
   }

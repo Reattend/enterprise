@@ -462,7 +462,7 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
           <p className="mb-2">
             Organization deletion is not yet available through the UI. Contact{' '}
             <a href="mailto:pb@reattend.com" className="text-primary hover:underline">pb@reattend.com</a>{' '}
-            to request permanent deletion — this will purge all org data, including audit logs, on your scheduled retention boundary.
+            to request permanent deletion - this will purge all org data, including audit logs, on your scheduled retention boundary.
           </p>
         </div>
       </Card>

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'orgId, title, startAt required' }, { status: 400 })
     }
     if (isNaN(Date.parse(startAt))) {
-      return NextResponse.json({ error: 'invalid startAt — must be ISO' }, { status: 400 })
+      return NextResponse.json({ error: 'invalid startAt - must be ISO' }, { status: 400 })
     }
     const auth = await requireOrgAuth(req, orgId, 'calendar.write')
     if (isAuthResponse(auth)) return auth

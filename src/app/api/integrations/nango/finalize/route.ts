@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const connections = (list as any).connections ?? (list as any).data ?? []
 
     // Filter to the integration the user just connected. Pick the most
-    // recently created if multiple exist (user retried OAuth — old ones
+    // recently created if multiple exist (user retried OAuth - old ones
     // remain until disconnect).
     const matching = connections
       .filter((c: any) => c.provider_config_key === provider.providerConfigKey || c.providerConfigKey === provider.providerConfigKey)
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     if (matching.length === 0) {
       return NextResponse.json({
-        error: `No Nango connection found for ${provider.providerConfigKey}. The OAuth popup may have closed before completing — try Connect again.`,
+        error: `No Nango connection found for ${provider.providerConfigKey}. The OAuth popup may have closed before completing - try Connect again.`,
       }, { status: 404 })
     }
 

@@ -22,7 +22,7 @@ import {
 //      become `vacant` (will surface in orphaned detector).
 //   3. Marks organization_members.status='offboarded' + offboardedAt.
 //
-// RBAC: requires org.members.manage. Cannot offboard yourself — guard against
+// RBAC: requires org.members.manage. Cannot offboard yourself - guard against
 // accidental lockout.
 export async function POST(
   req: NextRequest,
@@ -50,7 +50,7 @@ export async function POST(
       return NextResponse.json({ error: 'already offboarded' }, { status: 409 })
     }
 
-    // Refuse to offboard the last super_admin — guards against org lockout.
+    // Refuse to offboard the last super_admin - guards against org lockout.
     if (mem[0].role === 'super_admin') {
       const remainingSuper = await db
         .select({ userId: schema.organizationMembers.userId })
@@ -62,7 +62,7 @@ export async function POST(
         ))
       if (remainingSuper.length <= 1) {
         return NextResponse.json(
-          { error: 'cannot offboard the last super_admin — promote another member first' },
+          { error: 'cannot offboard the last super_admin - promote another member first' },
           { status: 400 },
         )
       }

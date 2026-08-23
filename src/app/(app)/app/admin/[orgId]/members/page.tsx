@@ -45,7 +45,7 @@ const ROLE_LABELS: Record<OrgRole, string> = {
 
 export default function MembersPage({ params }: { params: { orgId: string } }) {
   const { orgId } = params
-  // Server enforces too — this just hides the invite form for non-admins
+  // Server enforces too - this just hides the invite form for non-admins
   // so they don't fill it out and get a 403 on submit.
   const { allowed: canManageMembers, loading: permsLoading } = usePermission(orgId, 'org.members.manage')
   const [members, setMembers] = useState<Member[] | null>(null)
@@ -105,7 +105,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
       setErr(body.error || 'failed')
       return
     }
-    setNotice(body.emailDelivered ? 'Invite email re-sent.' : 'Invite refreshed (email delivery failed — copy the link).')
+    setNotice(body.emailDelivered ? 'Invite email re-sent.' : 'Invite refreshed (email delivery failed - copy the link).')
     await load()
   }
 
@@ -186,14 +186,14 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
       })
       const body = await res.json().catch(() => ({ error: 'failed' }))
       if (!res.ok) {
-        setErr(body.error || (body.hint ? `${body.error} — ${body.hint}` : 'failed'))
+        setErr(body.error || (body.hint ? `${body.error} - ${body.hint}` : 'failed'))
         return
       }
       if (body.invited) {
         setNotice(
           body.emailDelivered
             ? `Invite email sent to ${body.email}. Link expires ${new Date(body.expiresAt).toLocaleDateString()}.`
-            : `Invite created — email delivery failed. Copy the link: ${body.acceptUrl}`,
+            : `Invite created - email delivery failed. Copy the link: ${body.acceptUrl}`,
         )
       } else {
         setNotice(`Added ${body.email} as ${ROLE_LABELS[body.role as OrgRole]}`)
@@ -208,7 +208,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
 
   return (
     <div className="space-y-6">
-      {/* Add members card — hidden for users without org.members.manage.
+      {/* Add members card - hidden for users without org.members.manage.
           permsLoading shows nothing rather than flashing the form briefly. */}
       {!permsLoading && canManageMembers && (
       <Card className="p-5">
@@ -291,7 +291,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
                     <option value="dept_head">Dept head</option>
                   </select>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {inviteDeptId ? 'Dept access inherits downward — a head sees all child depts.' : 'Pick a dept first.'}
+                    {inviteDeptId ? 'Dept access inherits downward - a head sees all child depts.' : 'Pick a dept first.'}
                   </p>
                 </div>
               </div>
@@ -311,7 +311,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-2">
-              Work email only — personal providers (gmail, hotmail, etc.) are rejected.
+              Work email only - personal providers (gmail, hotmail, etc.) are rejected.
               New invitees get a magic-link email to accept.
             </p>
           </>
@@ -444,7 +444,7 @@ export default function MembersPage({ params }: { params: { orgId: string } }) {
                   <div className="text-xs text-muted-foreground truncate">
                     {m.email}{m.title ? ` · ${m.title}` : ''}
                   </div>
-                  {/* Department memberships — badges + remove button. The "Assign to dept"
+                  {/* Department memberships - badges + remove button. The "Assign to dept"
                       action sits in the trailing control cluster so the row stays scannable. */}
                   <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                     {m.departments.length === 0 ? (
@@ -715,7 +715,7 @@ function BulkInvitePanel({
         </Button>
         <span className="text-[11px] text-muted-foreground">
           CSV columns: <code className="text-[10px] bg-muted px-1 rounded">email, role, title, departmentPath, deptRole</code>.
-          departmentPath uses "/" — e.g. <code className="text-[10px] bg-muted px-1 rounded">Engineering/Backend</code>.
+          departmentPath uses "/" - e.g. <code className="text-[10px] bg-muted px-1 rounded">Engineering/Backend</code>.
         </span>
       </div>
 

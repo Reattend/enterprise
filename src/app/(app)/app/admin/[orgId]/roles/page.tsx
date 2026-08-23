@@ -137,7 +137,7 @@ function RolesPageInner({ params }: { params: { orgId: string } }) {
           <div className="flex items-center gap-2 text-sm">
             <UserX className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <span className="font-medium">{vacantCount} vacant role{vacantCount === 1 ? '' : 's'}</span>
-            <span className="text-muted-foreground">— records owned by these roles show as orphaned in Self-healing.</span>
+            <span className="text-muted-foreground">- records owned by these roles show as orphaned in Self-healing.</span>
           </div>
         </Card>
       )}
@@ -164,7 +164,7 @@ function RolesPageInner({ params }: { params: { orgId: string } }) {
           <div className="p-4 text-sm text-muted-foreground">Loading…</div>
         ) : roles.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">
-            No roles yet. Create one — e.g. &quot;VP Engineering&quot; or &quot;Finance Controller&quot;.
+            No roles yet. Create one - e.g. &quot;VP Engineering&quot; or &quot;Finance Controller&quot;.
           </div>
         ) : (
           <ul className="divide-y divide-border">
@@ -191,7 +191,7 @@ function RolesPageInner({ params }: { params: { orgId: string } }) {
                       {r.currentHolder ? (
                         <>Held by <span className="text-foreground">{r.currentHolder.name || r.currentHolder.email}</span> since {new Date(r.currentHolder.startedAt).toLocaleDateString()}</>
                       ) : (
-                        <span className="text-amber-600 dark:text-amber-400">Vacant — no current holder</span>
+                        <span className="text-amber-600 dark:text-amber-400">Vacant - no current holder</span>
                       )}
                       {(r.ownedRecordsCount > 0 || r.decidedCount > 0) && (
                         <>
@@ -297,7 +297,7 @@ function CreateRoleForm({
           required
         />
         <Textarea
-          placeholder="Description (optional — what this role owns, what decisions they make)"
+          placeholder="Description (optional - what this role owns, what decisions they make)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
@@ -396,7 +396,7 @@ function AssignForm({
     <form onSubmit={submit} className="mt-3 ml-7 space-y-2 border-l-2 border-primary/30 pl-3">
       {role.currentHolder && (
         <Textarea
-          placeholder={`Handover notes from ${role.currentHolder.name || role.currentHolder.email} — what the successor needs to know`}
+          placeholder={`Handover notes from ${role.currentHolder.name || role.currentHolder.email} - what the successor needs to know`}
           value={transferNotes}
           onChange={(e) => setTransferNotes(e.target.value)}
           rows={2}

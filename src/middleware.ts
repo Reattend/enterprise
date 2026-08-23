@@ -8,7 +8,7 @@ const SANDBOX_EMAIL_SUFFIX = '@sandbox.reattend.local'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Admin dashboard — separate auth, only protect /admin/dashboard
+  // Admin dashboard - separate auth, only protect /admin/dashboard
   if (pathname.startsWith('/admin/dashboard')) {
     const adminToken = request.cookies.get('admin-session')?.value
     if (!adminToken) {
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Public pages — redirect to /app if already logged in
+  // Public pages - redirect to /app if already logged in
   const publicAuthPages = ['/', '/login', '/register', '/pricing']
   if (publicAuthPages.includes(pathname)) {
     const useSecureCookie = !!(process.env.NEXTAUTH_URL?.startsWith('https://') || process.env.AUTH_URL?.startsWith('https://'))
@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // App routes — NextAuth session
+  // App routes - NextAuth session
   const useSecureCookie = !!(process.env.NEXTAUTH_URL?.startsWith('https://') || process.env.AUTH_URL?.startsWith('https://'))
   const token = await getToken({
     req: request,
@@ -83,7 +83,7 @@ export async function middleware(request: NextRequest) {
         }
       }
     }
-    // /app/admin/onboarding is a no-op for sandbox visitors — they already
+    // /app/admin/onboarding is a no-op for sandbox visitors - they already
     // have an org. Bounce to /app to avoid the empty onboarding flow.
     if (pathname.startsWith('/app/admin/onboarding')) {
       return NextResponse.redirect(new URL('/app', request.url))

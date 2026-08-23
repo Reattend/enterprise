@@ -1,6 +1,6 @@
 'use client'
 
-// Exit interview — participant session page. Admin view read-only.
+// Exit interview - participant session page. Admin view read-only.
 //
 // The departing user answers questions one at a time. Each save persists
 // immediately. On completion, the AI synthesizes a handoff doc and we
@@ -222,7 +222,7 @@ export default function ExitInterviewSessionPage() {
         </div>
         <h1 className="font-display text-3xl tracking-tight">Capture what you know before you leave</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-          the AI pre-read your memory footprint to write these questions. Answer in 2-5 sentences —
+          the AI pre-read your memory footprint to write these questions. Answer in 2-5 sentences -
           save as you go. We synthesize a handoff doc at the end for whoever takes over.
         </p>
       </div>
@@ -285,7 +285,7 @@ export default function ExitInterviewSessionPage() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   rows={8}
-                  placeholder="2-5 sentences. Name people, systems, projects specifically — the more concrete, the more useful the handoff doc."
+                  placeholder="2-5 sentences. Name people, systems, projects specifically - the more concrete, the more useful the handoff doc."
                   disabled={saving || completing}
                   className="text-sm"
                 />

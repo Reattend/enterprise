@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 
-// POST — Player joins a room
+// POST - Player joins a room
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()

@@ -11,10 +11,10 @@ import {
 export const dynamic = 'force-dynamic'
 
 // PATCH /api/enterprise/announcements/[id]
-// Body: { action: 'dismiss' } — any viewer
-//      | { action: 'deactivate' } — admin
-//      | { action: 'activate' } — admin
-//      | { action: 'edit', title?, body?, tone?, endsAt? } — admin
+// Body: { action: 'dismiss' } - any viewer
+//      | { action: 'deactivate' } - admin
+//      | { action: 'activate' } - admin
+//      | { action: 'edit', title?, body?, tone?, endsAt? } - admin
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
@@ -64,7 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-// DELETE /api/enterprise/announcements/[id] — admin only
+// DELETE /api/enterprise/announcements/[id] - admin only
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params

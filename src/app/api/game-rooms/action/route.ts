@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 
-// POST — Submit a game action
+// POST - Submit a game action
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()

@@ -5,7 +5,7 @@ import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { MarketingHero } from '@/components/marketing/marketing-hero'
 
 // Standalone /subprocessors page. The full vendor list is no longer
-// published here — buyers don't need to see our infrastructure choices,
+// published here - buyers don't need to see our infrastructure choices,
 // and the list was attracting more competitor recon than legitimate
 // procurement asks. We share the current list under NDA when an
 // enterprise buyer needs it for vendor review. The URL stays alive
@@ -25,7 +25,7 @@ export default function SubprocessorsPage() {
         title="The list is shared on"
         emphasis="request."
         emphasisJoiner=" "
-        lede="We work with a small number of trusted vendors — cloud, AI inference, transactional email, billing — to deliver Reattend. We don't publish the list publicly; we share it with enterprise buyers under NDA during vendor review."
+        lede="We work with a small number of trusted vendors - cloud, AI inference, transactional email, billing - to deliver Reattend. We don't publish the list publicly; we share it with enterprise buyers under NDA during vendor review."
         primaryCta={{ label: 'Request the current list', href: 'mailto:pb@reattend.ai?subject=Sub-processor%20list%20request' }}
         secondaryCta={{ label: 'See compliance posture', href: '/compliance' }}
       />
@@ -95,7 +95,7 @@ export default function SubprocessorsPage() {
             textAlign: 'center',
           }}
         >
-          For the broader compliance posture — controls, audit log architecture, residency — see the{' '}
+          For the broader compliance posture - controls, audit log architecture, residency - see the{' '}
           <Link href="/compliance" style={{ color: 'oklch(0.45 0.18 280)', textDecoration: 'underline' }}>
             compliance page
           </Link>

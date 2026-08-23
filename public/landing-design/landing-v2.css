@@ -1,4 +1,4 @@
-/* ============== Reattend Landing v2 — Sections aligned to reference ============== */
+/* ============== Reattend Landing v2 - Sections aligned to reference ============== */
 
 /* ============ Hero v2 ============ */
 .hero-v2 {
@@ -470,7 +470,7 @@
   color: var(--ink-3);
   margin-top: 12px;
 }
-.amnesia-stat-cite::before { content: "— "; }
+.amnesia-stat-cite::before { content: "- "; }
 
 /* ============ Cost of Forgetting Calculator ============ */
 .cof-section {
@@ -1929,7 +1929,7 @@
   color: var(--ink-3);
 }
 .quote-attrib::before {
-  content: "—  "; color: var(--ink-3);
+  content: "-  "; color: var(--ink-3);
 }
 .quote-stats {
   display: flex; flex-direction: column; gap: 18px;

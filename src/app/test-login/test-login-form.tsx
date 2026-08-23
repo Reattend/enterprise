@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 
 // Test-droplet sign-in form. NextAuth's client signIn() handles the CSRF
-// cookie + token round-trip natively — none of the manual hidden-input
+// cookie + token round-trip natively - none of the manual hidden-input
 // hand-off the first iteration tried.
 
 export function TestLoginForm() {

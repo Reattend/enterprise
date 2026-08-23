@@ -4,7 +4,7 @@ import { eq, and, notInArray, inArray } from 'drizzle-orm'
 import { getLLM } from '@/lib/ai/llm'
 import { upsertEntityProfile } from '@/lib/ai/agents'
 
-// Simple admin secret check — same pattern as other admin routes
+// Simple admin secret check - same pattern as other admin routes
 async function requireAdmin(req: NextRequest) {
   const secret = req.headers.get('x-admin-secret')
   if (secret !== process.env.ADMIN_SECRET && secret !== 'reattend-admin-2024') {
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       missingEmbeddings,
       totalEntities: allEntities.length,
       entityProfiles: entityProfiles.length,
-      missingProfiles: allEntities.length, // simplified — all need profiles
+      missingProfiles: allEntities.length, // simplified - all need profiles
       vec: vecStats,
     })
   } catch (e: any) {
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST: run backfill — pass { type: 'embeddings' | 'profiles' | 'vec' | 'all', batchSize?: number }
+// POST: run backfill - pass { type: 'embeddings' | 'profiles' | 'vec' | 'all', batchSize?: number }
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin(req)
@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
           sqlite.prepare(`INSERT OR IGNORE INTO vec_rowid_map(record_id, workspace_id) VALUES (?, ?)`).run(emb.recordId, emb.workspaceId)
           const row = sqlite.prepare(`SELECT rowid FROM vec_rowid_map WHERE record_id = ?`).get(emb.recordId) as { rowid: number }
           const vector = JSON.parse(emb.vector) as number[]
-          // vec0 requires INTEGER binding (not REAL) — use BigInt to force correct SQLite type
+          // vec0 requires INTEGER binding (not REAL) - use BigInt to force correct SQLite type
           const vecRowid = BigInt(row.rowid)
           sqlite.prepare(`DELETE FROM vec_embeddings WHERE rowid = ?`).run(vecRowid)
           sqlite.prepare(`INSERT INTO vec_embeddings(rowid, embedding) VALUES (?, ?)`).run(vecRowid, JSON.stringify(vector))

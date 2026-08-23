@@ -125,7 +125,7 @@ export async function GET(
       }
     })
 
-    // Picker options — only populated when the record is org-linked and user
+    // Picker options - only populated when the record is org-linked and user
     // can manage access. Non-enterprise or view-only users get empty arrays.
     let pickerDepartments: { id: string; name: string; kind: string }[] = []
     let pickerRoles: { id: string; title: string }[] = []

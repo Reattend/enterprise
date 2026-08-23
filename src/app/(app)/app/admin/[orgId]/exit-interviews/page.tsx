@@ -2,7 +2,7 @@
 
 import { PermissionGate } from '@/components/enterprise/permission-gate'
 
-// Exit interviews — admin cockpit page.
+// Exit interviews - admin cockpit page.
 //
 // Lists every interview in the org (draft / in_progress / completed). Admin
 // can:
@@ -124,7 +124,7 @@ function ExitInterviewsPageInner({ params }: { params: { orgId: string } }) {
         toast.error(b.error || 'Failed to start')
         return
       }
-      toast.success('Exit interview created — the AI pre-generated questions from their memory')
+      toast.success('Exit interview created - the AI pre-generated questions from their memory')
       setSelectedUserId(null)
       setRoleTitle('')
       await load()

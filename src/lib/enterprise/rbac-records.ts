@@ -146,7 +146,7 @@ export async function filterToAccessibleRecords(
 
     const link = linkByWs.get(r.workspaceId)
     if (!link) {
-      // Rule 8: Non-enterprise workspace — fall back to workspace_members
+      // Rule 8: Non-enterprise workspace - fall back to workspace_members
       if (ctx.workspaceIds.has(r.workspaceId)) allowed.add(r.id)
       continue
     }
@@ -206,7 +206,7 @@ export async function canAccessRecord(ctx: AccessContext, recordId: string): Pro
 }
 
 // Is this user allowed to CHANGE the visibility of a record or create a share?
-// Defers to the permission matrix in src/lib/enterprise/permissions.ts —
+// Defers to the permission matrix in src/lib/enterprise/permissions.ts -
 // `records.share.manage` defaults to:
 //   - super_admin / admin   → always (org-wide)
 //   - dept_head / manager   → own_dept (only records in a dept they manage)
@@ -232,7 +232,7 @@ export async function canManageRecordAccess(ctx: AccessContext, recordId: string
     .limit(1)
 
   if (!link[0]) {
-    // Non-enterprise — creator OR workspace owner / admin (legacy rule).
+    // Non-enterprise - creator OR workspace owner / admin (legacy rule).
     if (r.createdBy === ctx.userId) return true
     const member = await db
       .select()
@@ -245,7 +245,7 @@ export async function canManageRecordAccess(ctx: AccessContext, recordId: string
     return (member[0]?.role === 'owner' || member[0]?.role === 'admin') ?? false
   }
 
-  // Enterprise — delegate to the matrix. recordCreatorUserId covers the
+  // Enterprise - delegate to the matrix. recordCreatorUserId covers the
   // 'own_record' grant; departmentId covers 'own_dept' for dept_head/manager.
   return hasPermission(
     {

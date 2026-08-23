@@ -1,6 +1,6 @@
 'use client'
 
-// Hierarchy tab — flat tree of departments with record counts and a stale
+// Hierarchy tab - flat tree of departments with record counts and a stale
 // indicator. Indented by parent depth. Same data shape as before; only the
 // row chrome changed (now uses .wiki-tree / .wiki-tnode classes from the
 // new design).
@@ -130,7 +130,7 @@ export function HierarchyTab({
           >
             <Building2 className="ico" size={14} strokeWidth={1.7} />
             <span className="lab">{d.name}</span>
-            {stale && <span className="stale-dot" title="Stale — no activity > 90d" aria-label="Stale" />}
+            {stale && <span className="stale-dot" title="Stale - no activity > 90d" aria-label="Stale" />}
             <span className="ct">{d.recordCount.toLocaleString()}</span>
           </button>
         )

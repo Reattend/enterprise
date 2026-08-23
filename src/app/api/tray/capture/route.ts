@@ -15,7 +15,7 @@ const captureSchema = z.object({
 })
 
 /**
- * Clean screen capture text — server-side defense in depth.
+ * Clean screen capture text - server-side defense in depth.
  * Strips obvious UI noise so the triage LLM sees cleaner input.
  */
 function cleanScreenCapture(raw: string): string {
@@ -104,7 +104,7 @@ function cleanScreenCapture(raw: string): string {
 }
 
 /**
- * Simple text similarity (Jaccard on words) — used for dedup
+ * Simple text similarity (Jaccard on words) - used for dedup
  */
 function textSimilarity(a: string, b: string): number {
   const arrA = a.toLowerCase().split(/\s+/).filter(w => w.length > 2)
@@ -159,13 +159,13 @@ export async function POST(req: NextRequest) {
     // Resolve the target workspace using the same logic as /api/records and
     // the brain-dump endpoint. Without this, every extension capture lands
     // in the user's *personal* workspace (the one the API token was issued
-    // against) and is invisible to org views — exactly the trap the
+    // against) and is invisible to org views - exactly the trap the
     // dashboard captures used to hit.
     //
     // Routing precedence:
     //   1. Explicit metadata.workspace_id (extension/desktop override)
     //   2. Explicit metadata.org_id (extension/desktop override)
-    //   3. The user's active context (users.active_context_org_id) — set
+    //   3. The user's active context (users.active_context_org_id) - set
     //      by the workspace switcher on the web. This is what makes the
     //      desktop's clipboard capture follow the user's "I'm in
     //      Acme right now" selection without the desktop having to track

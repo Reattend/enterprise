@@ -168,7 +168,7 @@ export function useGameRoom(options: UseGameRoomOptions): UseGameRoomReturn {
       }
 
       if (!res.ok) {
-        // Transient error — mark disconnected but keep polling
+        // Transient error - mark disconnected but keep polling
         setIsConnected(false)
         return
       }

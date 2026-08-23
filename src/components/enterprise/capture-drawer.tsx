@@ -110,7 +110,7 @@ export function CaptureDrawer() {
         const body = await res.json()
         setSuccess({ recordId: body.record?.id, title: body.record?.title || 'Captured' })
       } else if (tab === 'file' && files.length > 0) {
-        // Use existing /api/upload — it handles PDF/DOC/audio/video/image.
+        // Use existing /api/upload - it handles PDF/DOC/audio/video/image.
         for (const file of files) {
           const fd = new FormData()
           fd.append('file', file)
@@ -120,7 +120,7 @@ export function CaptureDrawer() {
         }
         setSuccess({ recordId: '', title: `${files.length} file${files.length === 1 ? '' : 's'} uploaded` })
       } else {
-        setErr('Nothing to capture — add text, a URL, or a file.')
+        setErr('Nothing to capture - add text, a URL, or a file.')
       }
     } catch (e) {
       setErr((e as Error).message)
@@ -185,7 +185,7 @@ export function CaptureDrawer() {
                 <h3 className="font-display text-xl mb-1">Captured</h3>
                 <p className="text-sm text-muted-foreground text-center max-w-xs">
                   &ldquo;{success.title}&rdquo;<br />
-                  Triaging now — it&apos;ll appear in Memory shortly.
+                  Triaging now - it&apos;ll appear in Memory shortly.
                 </p>
                 <div className="flex gap-2 mt-5">
                   <Button variant="outline" onClick={() => { reset() }}>
@@ -211,7 +211,7 @@ export function CaptureDrawer() {
                       <Textarea
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        placeholder="Paste an email, meeting notes, a Slack thread, a decision rationale — anything. The AI triage agent will turn it into a structured record."
+                        placeholder="Paste an email, meeting notes, a Slack thread, a decision rationale - anything. The AI triage agent will turn it into a structured record."
                         rows={12}
                         className="font-sans text-[13px] resize-none"
                         autoFocus
@@ -282,7 +282,7 @@ export function CaptureDrawer() {
                     </>
                   )}
 
-                  {/* Scope picker — optional, collapsed by default */}
+                  {/* Scope picker - optional, collapsed by default */}
                   <div className="pt-3 mt-3 border-t border-border">
                     {showScope ? (
                       <div className="space-y-2">

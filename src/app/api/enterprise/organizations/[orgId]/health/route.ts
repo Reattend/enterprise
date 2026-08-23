@@ -9,7 +9,7 @@ import { runHealthScan, getLatestHealth } from '@/lib/enterprise/self-healing'
 
 // GET /api/enterprise/organizations/[orgId]/health
 // ?departmentId=... (default: org-wide roll-up)
-// Returns the most recent scan for the given scope — does NOT trigger a scan.
+// Returns the most recent scan for the given scope - does NOT trigger a scan.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {
     const { orgId } = await params
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
 
 // POST /api/enterprise/organizations/[orgId]/health
 // Trigger a new scan. Runs synchronously (a few seconds for modest orgs).
-// Requires org.manage so regular admins — not just super_admins — can kick it.
+// Requires org.manage so regular admins - not just super_admins - can kick it.
 // We use org.audit.read as the gate because viewing findings reveals audit-level data.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
   try {

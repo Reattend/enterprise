@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
       : []
     const holderById = new Map(holderRows.map((h) => [h.id, h]))
 
-    // Ownership counts — records linked via record_role_ownership
+    // Ownership counts - records linked via record_role_ownership
     const ownership = await db
       .select({ roleId: schema.recordRoleOwnership.roleId, recordId: schema.recordRoleOwnership.recordId })
       .from(schema.recordRoleOwnership)

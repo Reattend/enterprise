@@ -2,7 +2,7 @@
 
 // Small Home-dashboard card showing connected integrations + last-sync time.
 // Hidden entirely if Nango isn't configured or the user hasn't connected
-// anything — integrations are configured by admins under
+// anything - integrations are configured by admins under
 // /app/admin/:orgId/integrations, not per-user here.
 
 import { useEffect, useState } from 'react'

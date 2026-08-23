@@ -1,6 +1,6 @@
 'use client'
 
-// Draft Team Broadcast — an action agent.
+// Draft Team Broadcast - an action agent.
 //
 // Pick a decision or enter a topic. Claude writes two versions of an
 // announcement: a short Slack version and a longer email version, grounded

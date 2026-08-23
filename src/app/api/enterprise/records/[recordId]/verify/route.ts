@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 //
 // Owner of the record (or an admin in the org) marks it verified. Optionally
 // sets/updates the verification cadence. Only the record owner or an admin
-// can verify — we want owner accountability, not group verification.
+// can verify - we want owner accountability, not group verification.
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   try {
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rec
     // Owner-or-admin check. We trust the RBAC already running on /memories
     // for read; this endpoint adds a stricter write check.
     if (row.createdBy !== userId) {
-      // Not owner — fall through to admin check. If caller isn't an admin,
+      // Not owner - fall through to admin check. If caller isn't an admin,
       // return 403. We don't have organizationId on records directly here;
       // resolve via workspace_org_links.
       const link = await db.query.workspaceOrgLinks.findFirst({
