@@ -17,12 +17,11 @@ this is the shape of it.
 ### 0.1 The big one: rebrand + Personal/Org unification (~May 2-8)
 
 - **Domain: `enterprise.reattend.com` → `reattend.com`** (commit `f1f3692`, 2026-05-02). The
-  canonical URL is now bare `reattend.com`. `package.json` name is now `"reattend"`, PM2
-  `ecosystem.config.js` process name is now `reattend` (not `enterprise`), deploy path is now
-  `/var/www/reattend` (not `/var/www/enterprise`). **CLAUDE.md's deploy section is stale on this
-  — it still says `/var/www/enterprise` + `pm2 stop enterprise`.** Verify the live droplet path
-  before running the documented deploy command; don't trust CLAUDE.md's literal paths here
-  without checking `pm2 list` first.
+  canonical URL is now bare `reattend.com`. `package.json` name is now `"reattend"` and
+  `ecosystem.config.js` declares process name `reattend` — but **this was never applied to the
+  live droplet**, confirmed by direct SSH audit on 2026-08-23 (§0.9): prod is still PM2 process
+  `enterprise` at `/var/www/enterprise`. CLAUDE.md's deploy section was right all along — trust
+  it over the repo's `ecosystem.config.js` naming until someone actually does the prod rename.
 - **"Enterprise" branding dropped from marketing** (`cddeea8`, 2026-05-05), along with all
   Rabbit-LLM claims in user-facing copy. This product is no longer positioned as a separate
   "Reattend Enterprise" brand — it's unified under plain "Reattend."
@@ -132,9 +131,9 @@ No open thread noted for this — it reads as a complete, shipped feature.
 
 ## 1. Where it runs
 
-**⚠️ Superseded by the rebrand in §0.1 — domain, PM2 process name, and deploy path all changed
-on 2026-05-02. The table below reflects the current repo config (`package.json`,
-`ecosystem.config.js`); the droplet's actual live state hasn't been re-verified since.**
+**Verified directly on the droplet 2026-08-23 — the repo-level rename (`package.json`,
+`ecosystem.config.js` → `reattend`) never actually got applied to prod. Live reality below is
+what to trust, not the config file's declared name.**
 
 | Thing | Value |
 |---|---|
@@ -142,21 +141,46 @@ on 2026-05-02. The table below reflects the current repo config (`package.json`,
 | Extension repo | `/Users/partha/Desktop/enterprise_extension` |
 | GitHub (app) | `github.com/Reattend/enterprise` |
 | Droplet | `167.99.158.143` |
-| PM2 process | `reattend` (was `enterprise` — renamed in `ecosystem.config.js`, verify with `pm2 list` before deploying) |
-| Domain | `https://reattend.com` (was `enterprise.reattend.com`, see §0.1) |
-| Deploy path on droplet | `/var/www/reattend` (was `/var/www/enterprise` — `ecosystem.config.js` `cwd` confirms this) |
+| PM2 process | **still `enterprise`** (confirmed via `pm2 list` — `ecosystem.config.js` says `reattend` but that was never applied live; don't trust the config file here) |
+| Deploy path on droplet | **still `/var/www/enterprise`** (confirmed via `ls /var/www/` — no `/var/www/reattend` exists) |
+| nginx config file | also still named `enterprise` (`/etc/nginx/sites-enabled/enterprise`) |
+| Domain | `https://reattend.com` (canonical since 2026-05-02, §0.1). `enterprise.reattend.com` still resolves and correctly 308s to it — fine, working as intended. |
 | DB | SQLite via better-sqlite3 + Drizzle |
 | Migrations | `npx tsx src/lib/db/migrate.ts` (custom, additive) |
 | LLMs | Claude Sonnet for all 8 ask endpoints (Haiku-tiering was tried 2026-05-05 for cost, reverted same day) · Groq Whisper |
-| Nango | proxy-fetcher pattern now, not Nango-hosted syncs — see §0.5. Self-hosted at `https://nango.enterprise.reattend.com` per the original setup; re-verify this URL still resolves post-rebrand. |
-| Test/staging | `test.reattend.com` — separate droplet, see §0.6 and `STAGING.md` |
+| Nango | proxy-fetcher pattern now, not Nango-hosted syncs — see §0.5. Confirmed live: `nango.enterprise.reattend.com` → 200, `nango-server` + `nango-db` docker containers both up on the **same prod droplet** (not a separate box). Cron `*/30 * * * *` hits `/api/cron/nango-sync`. |
+| Backups | **Confirmed live**, not just documented — `/usr/local/bin/reattend-backup.sh` runs hourly via cron → `/var/log/reattend-backup.log`. Sprint Q's backup item (§0.7) is more done than previously noted. |
+| Test/staging | `test.reattend.com` — **droplet destroyed 2026-08-23** (was costing $12/mo, found dead/unused on audit — see §0.9). DNS A record may still be dangling, see §0.9. |
 | Rabbit | not deployed (Year 2). Active dev repo is `/Users/partha/Desktop/rabbit`. |
 
-Deploy (verify PM2 process name + path on the droplet first — see warning above):
-`git push` → `ssh root@167.99.158.143 "cd /var/www/reattend && git pull --ff-only && pm2 stop reattend && rm -rf .next && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 start reattend --update-env"`.
+Deploy: `git push` → `ssh root@167.99.158.143 "cd /var/www/enterprise && git pull --ff-only && pm2 stop enterprise && rm -rf .next && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 start enterprise --update-env"`.
 Always include `npx tsx src/lib/db/migrate.ts` if schema changed. Full reasoning for the
-stop-before-build sequencing is in CLAUDE.md's deploy section (still accurate on the *why*, just
-check the *names* first).
+stop-before-build sequencing is in CLAUDE.md's deploy section — that part is accurate, CLAUDE.md's
+paths/names turned out to be right all along (it was my §0.1 correction that was wrong — verified
+and fixed here).
+
+### 0.9 Infra audit, 2026-08-23 — dead/dangling things found
+
+- **Test droplet destroyed** (`Test-Reattend`, id `570899941`, `143.198.116.94`) — it was found
+  completely dead before deletion: `pm2 list` empty, `curl` → 502, no systemd pm2 startup unit
+  so it never came back after an Aug 15 reboot. Only traffic was a bot scanning for exposed
+  secrets. $12/mo saved.
+- **`test.reattend.com` DNS A record likely still points at `143.198.116.94`** — that IP is
+  now free for DigitalOcean to reassign to a different customer. Dangling subdomain-takeover
+  risk until the record is deleted. **Open action** — remove it at the DNS registrar/DO panel.
+- **`reattend.ai` — fixed 2026-08-23.** Was dangling (no nginx vhost/cert, fell through to the
+  `enterprise` vhost with a mismatched cert → browser security warning). Now has its own nginx
+  config (`/etc/nginx/sites-enabled/reattend-ai`) + a real Let's Encrypt cert (expires
+  2026-11-21, auto-renews via certbot's systemd timer), 301-redirecting everything to
+  `https://reattend.com`. The `rabbit-web` marketing-site repo this domain was originally meant
+  for was never deployed here and still isn't — this was a redirect, not a revival of that site.
+- **`test.reattend.com` — still dangling, needs manual cleanup.** DNS is on Namecheap (NS:
+  `dns1/dns2.registrar-servers.com`), which I don't have credentials for. The A record still
+  points at `143.198.116.94` (the destroyed droplet's now-unowned IP) — remove it from the
+  Namecheap DNS panel: reattend.com zone → delete the `test` A record. Low urgency (DO would
+  have to reassign that exact IP to someone else for it to matter) but worth doing.
+- Checked `rabbit.reattend.com` — doesn't exist, nothing to clean up there.
+- Prod disk: 14G/77G (18%) — healthy, not a concern.
 
 ---
 
