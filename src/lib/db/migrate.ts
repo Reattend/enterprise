@@ -1186,5 +1186,30 @@ try {
   console.error('permission overrides migration:', e.message)
 }
 
+// ─── BYOK: bring-your-own AI provider keys ─────────────────────────────────
+try {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS ai_provider_keys (
+      id                TEXT PRIMARY KEY,
+      organization_id   TEXT REFERENCES organizations(id) ON DELETE CASCADE,
+      user_id           TEXT REFERENCES users(id) ON DELETE CASCADE,
+      provider          TEXT NOT NULL CHECK(provider IN ('anthropic','openai','gemini')),
+      encrypted_key     TEXT NOT NULL,
+      key_iv            TEXT NOT NULL,
+      key_last4         TEXT NOT NULL,
+      status            TEXT NOT NULL DEFAULT 'unverified' CHECK(status IN ('unverified','valid','invalid')),
+      last_verified_at  TEXT,
+      created_by        TEXT NOT NULL REFERENCES users(id),
+      created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at        TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS ai_provider_keys_org_user_idx ON ai_provider_keys (organization_id, user_id);
+    CREATE INDEX IF NOT EXISTS ai_provider_keys_user_idx ON ai_provider_keys (user_id);
+  `)
+  console.log('✓ ai_provider_keys')
+} catch (e: any) {
+  console.error('ai_provider_keys migration:', e.message)
+}
+
 console.log('Database migration complete!')
 sqlite.close()

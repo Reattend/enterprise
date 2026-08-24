@@ -8,7 +8,7 @@ import {
   filterToAccessibleWorkspaces,
   handleEnterpriseError,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,7 +106,7 @@ Rules:
 - For reporting-type questions (harassment, discrimination, safety), always end with "Your HR / ombuds channel can be reached confidentially" even if that path isn't in memory.
 - Tone: calm, practical, empathetic. No legal disclaimers.`
 
-    const llm = getAskLLM()
+    const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
     const answer = await llm.generateText(prompt, 900)
 
     // Plain-text response. No X-Trace, no X-Sources - those would fingerprint.
@@ -116,6 +116,9 @@ Rules:
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+    if (err instanceof NoAIConfiguredError) {
+      return NextResponse.json({ error: 'ai_not_configured', message: err.message }, { status: 402 })
     }
     return handleEnterpriseError(err)
   }

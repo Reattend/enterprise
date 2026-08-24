@@ -4,6 +4,7 @@ import { eq, and, desc, or, inArray, like, ne } from 'drizzle-orm'
 import { requireAuth, getUserSubscription } from '@/lib/auth'
 import { recordUsage } from '@/lib/metering'
 import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLM, resolveByokKey, NoAIConfiguredError } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
 import {
   auditForAllUserOrgs,
@@ -13,7 +14,7 @@ import {
 } from '@/lib/enterprise'
 import { getHotCacheForOrg } from '@/lib/enterprise/hot-cache'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
-import { consumeAiQuery } from '@/lib/billing/gates'
+import { consumeAiQuery, getOrCreateSubscription } from '@/lib/billing/gates'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { matchSandboxQuestion, SANDBOX_CHAT, SANDBOX_CHAT_FALLBACK } from '@/lib/sandbox/fixtures'
 
@@ -422,29 +423,71 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // ─── Free-tier AI quota gate ─────────────────────────
-    // Free users get 100 questions per calendar month; paid tiers are
-    // unlimited. previewOnly skips the LLM (just retrieves sources) so it
-    // doesn't count. Sandbox users are exempt - they hit fixtures, not the
-    // model, and we don't want demo flow to ever 429.
-    if (!previewOnly && !isSandboxEmail(userEmail)) {
-      const quota = await consumeAiQuery(userId)
-      if (!quota.ok) {
-        return new Response(
-          JSON.stringify({
-            error: 'ai_quota_exceeded',
-            message: 'You\'ve used your 100 free questions for this month.',
-            resetAt: quota.resetAt,
-            upgradeUrl: '/pricing',
-          }),
-          {
-            status: 429,
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Reattend-Reason': 'ai-quota-exceeded',
+    // ─── BYOK / Managed AI-access gate ───────────────────
+    // Resolve org context + whether this user/org has a BYOK key before
+    // touching the platform's own AI keys at all. Three outcomes:
+    //   - BYOK key found (org default, user override, or personal key):
+    //     skip the quota counter entirely - it's their key, their bill.
+    //   - No BYOK, tier is Managed (professional/enterprise): fall through
+    //     to the platform key, still quota-gated (now a Managed-tier cap,
+    //     not the old "unlimited" - see tier.ts).
+    //   - No BYOK, tier is free: hard stop. This is the fix for the
+    //     platform silently footing free users' AI bill - no fallback.
+    // Sandbox users are exempt from all of this - they hit fixtures, not
+    // any real provider.
+    let activeContextOrgId: string | null = null
+    let userTier: 'free' | 'professional' | 'enterprise' = 'free'
+    let usingByok = false
+    if (!isSandboxEmail(userEmail)) {
+      const [userRow, sub] = await Promise.all([
+        db.select({ activeContextOrgId: schema.users.activeContextOrgId }).from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0]),
+        getOrCreateSubscription(userId),
+      ])
+      activeContextOrgId = userRow?.activeContextOrgId ?? null
+      userTier = sub.tier as 'free' | 'professional' | 'enterprise'
+      const byok = await resolveByokKey({ organizationId: activeContextOrgId, userId })
+      usingByok = !!byok
+
+      if (!previewOnly) {
+        if (!usingByok && userTier === 'free') {
+          return new Response(
+            JSON.stringify({
+              error: 'ai_not_configured',
+              message: activeContextOrgId
+                ? 'This organization has no AI provider configured yet. An admin needs to connect an API key, or upgrade to Managed.'
+                : 'Connect an AI provider key in Settings to start asking questions - it\'s free forever with your own key.',
+              settingsUrl: '/app/settings',
+              upgradeUrl: '/pricing',
+            }),
+            {
+              status: 402,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Reattend-Reason': 'ai-not-configured',
+              },
             },
-          },
-        )
+          )
+        }
+        if (!usingByok) {
+          const quota = await consumeAiQuery(userId)
+          if (!quota.ok) {
+            return new Response(
+              JSON.stringify({
+                error: 'ai_quota_exceeded',
+                message: 'You\'ve hit your monthly AI usage on the Managed plan. Heavy usage? Talk to us about Enterprise.',
+                resetAt: quota.resetAt,
+                upgradeUrl: '/pricing',
+              }),
+              {
+                status: 429,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Reattend-Reason': 'ai-quota-exceeded',
+                },
+              },
+            )
+          }
+        }
       }
     }
 
@@ -609,7 +652,16 @@ Offers:
       queryIntent === 'history' ||
       queryIntent === 'actions'
 
-    const llm = getAskLLM(userEmail)
+    // Sandbox never reaches here (short-circuits above), so activeContextOrgId/
+    // userTier are always resolved by this point for real users.
+    const llm = isSandboxEmail(userEmail)
+      ? getAskLLM(userEmail)
+      : await resolveLLM({
+          organizationId: activeContextOrgId,
+          userId,
+          tier: userTier,
+          isPersonal: !activeContextOrgId,
+        })
     // Pre-answer LLM calls (intent, expansion, multi-hop, extraction, conflict
     // detection) were removed. On a self-hosted 32B model each call costs 3-5s,
     // making total answer time 60-120s. The model can infer intent, surface
@@ -1216,6 +1268,12 @@ Offers:
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+    if (error instanceof NoAIConfiguredError) {
+      return new Response(
+        JSON.stringify({ error: 'ai_not_configured', message: error.message, settingsUrl: '/app/settings' }),
+        { status: 402, headers: { 'Content-Type': 'application/json', 'X-Reattend-Reason': 'ai-not-configured' } },
+      )
     }
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

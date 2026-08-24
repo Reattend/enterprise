@@ -328,6 +328,35 @@ export const subscriptions = sqliteTable('subscriptions', {
   paddleSubIdx: index('sub_paddle_sub_idx').on(table.paddleSubscriptionId),
 }))
 
+// ─── BYOK: bring-your-own AI provider keys ──────────────
+// Scope is (organizationId, userId):
+//   org set, user NULL   -> org-wide default key (admin-configured)
+//   org set, user set    -> per-user override within that org (Model C,
+//                           same role-default + per-user-override shape as
+//                           organization_member_permission_overrides)
+//   org NULL, user set   -> Personal-mode key (no org context at all)
+// One row per scope is enforced in application code (byok.ts upserts
+// rather than inserts), not by a DB constraint - SQLite treats every NULL
+// as distinct in a unique index, so a partial-index constraint here would
+// need per-scope indexes; simpler to own it in the resolver.
+export const aiProviderKeys = sqliteTable('ai_provider_keys', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  provider: text('provider', { enum: ['anthropic', 'openai', 'gemini'] }).notNull(),
+  encryptedKey: text('encrypted_key').notNull(), // base64 AES-256-GCM ciphertext+authTag
+  keyIv: text('key_iv').notNull(), // base64 IV
+  keyLast4: text('key_last4').notNull(), // display only, e.g. "...a1b2"
+  status: text('status', { enum: ['unverified', 'valid', 'invalid'] }).notNull().default('unverified'),
+  lastVerifiedAt: text('last_verified_at'),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  orgUserIdx: index('ai_provider_keys_org_user_idx').on(table.organizationId, table.userId),
+  userIdx: index('ai_provider_keys_user_idx').on(table.userId),
+}))
+
 // ─── Integrations ───────────────────────────────────────
 export const integrationsCatalog = sqliteTable('integrations_catalog', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),

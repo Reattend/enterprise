@@ -44,6 +44,7 @@ import { TourTooltip } from '@/components/app/tour-tooltip'
 import { useAppStore } from '@/stores/app-store'
 import { emit, SCOPES } from '@/lib/data-bus'
 import { LinkedAccountsSection } from './linked-accounts-section'
+import { AiProviderSection } from './ai-provider-section'
 
 interface UserData {
   id: string
@@ -552,6 +553,7 @@ export default function SettingsPage() {
         <TabsList className="w-full justify-start">
           <TabsTrigger value="profile"><User className="h-3.5 w-3.5 mr-1.5" /> Profile</TabsTrigger>
           <TabsTrigger value="preferences"><Palette className="h-3.5 w-3.5 mr-1.5" /> Preferences</TabsTrigger>
+          <TabsTrigger value="ai-provider"><Bot className="h-3.5 w-3.5 mr-1.5" /> AI Provider</TabsTrigger>
           <TabsTrigger value="api-keys"><Key className="h-3.5 w-3.5 mr-1.5" /> API keys</TabsTrigger>
         </TabsList>
 
@@ -1060,6 +1062,11 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* API Keys */}
+        {/* AI Provider (BYOK) */}
+        <TabsContent value="ai-provider" className="space-y-4 mt-4">
+          <AiProviderSection />
+        </TabsContent>
+
         <TabsContent value="api-keys" className="space-y-4 mt-4">
           {/* What are API keys */}
           <Card>

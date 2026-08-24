@@ -6,7 +6,7 @@ import {
   handleEnterpriseError,
   getOrgContext,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 
 export const dynamic = 'force-dynamic'
 
@@ -157,9 +157,9 @@ export async function GET(
 
     // ── 5. Claude's 2-3 sentence "if reversed…" narrative ──
     let implicit: string | null = null
-    if (process.env.ANTHROPIC_API_KEY && (linkedRecords.length > 0 || referencingPolicies.length > 0)) {
+    if (linkedRecords.length > 0 || referencingPolicies.length > 0) {
       try {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: decision.organizationId, intent: 'simple' })
         const prompt = `A decision titled "${decision.title}" is about to be reversed. Below is the known blast radius. Write 2-3 sentences describing, in concrete terms, what would break or need re-doing. Cite the linked item types, not details you don't know.
 
 Rules:

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getLLM } from './llm'
+import { resolveLLMForWorkspace, NoAIConfiguredError } from './byok'
 import { PROMPTS } from './prompts'
 import { db, schema, sqlite, vecLoaded, upsertFTS } from '../db'
 import { eq, and, ne, or, like, lt, asc } from 'drizzle-orm'
@@ -115,7 +115,7 @@ export async function runIngestJob(
   workspaceId: string,
   content: string,
 ): Promise<string> {
-  // Route through /v1/raw (via getLLM().generateJSON) rather than /v1/ingest.
+  // Route through /v1/raw (via resolveLLMForWorkspace(...).generateJSON) rather than /v1/ingest.
   // Rabbit's /v1/ingest runs 5 sequential signal calls; on inputs > ~3k chars
   // it either exceeds Cloudflare's 100s proxy limit (524) or returns a
   // truncated gzipped body ("zlib: unexpected end of file"). /v1/raw with a
@@ -145,7 +145,7 @@ export async function runIngestJob(
     }
   }
   if (!result) {
-    const llm = getLLM()
+    const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
     result = await llm.generateJSON(PROMPTS.triage(truncated), triageResultSchema)
   }
 
@@ -268,7 +268,7 @@ const linkingResultSchema = z.object({
 
 // ─── Triage Agent ───────────────────────────────────────
 export async function runTriageAgent(rawItemId: string, workspaceId: string, targetProjectId?: string): Promise<TriageResult> {
-  const llm = getLLM()
+  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
 
   // Fetch raw item
   const rawItem = await db.query.rawItems.findFirst({
@@ -501,7 +501,7 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
 
 // ─── Embedding Job ──────────────────────────────────────
 export async function runEmbeddingJob(recordId: string, workspaceId: string, suggestedLinks?: Array<{ query_text: string; reason: string }>): Promise<void> {
-  const llm = getLLM()
+  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
 
   const record = await db.query.records.findFirst({
     where: eq(schema.records.id, recordId),
@@ -652,7 +652,7 @@ export async function runLinkingAgent(recordId: string, workspaceId: string, sug
   )
   const validCandidates = candidateRecords.filter(Boolean) as Array<{ id: string; title: string; summary: string }>
 
-  const llm = getLLM()
+  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
   const prompt = PROMPTS.linking(record.title, record.summary || '', validCandidates)
 
   try {
@@ -757,7 +757,7 @@ export async function upsertEntityProfile(
     const shouldRegenerate = !summary || (updatedRecordIds.length % 5 === 0)
     if (shouldRegenerate && updatedFacts.length > 0) {
       try {
-        const llm = getLLM()
+        const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
         const summaryPrompt = `Write a concise 2-3 sentence factual summary of "${entityName}" based on these memory facts:
 ${updatedFacts.slice(-20).map(f => `• ${f}`).join('\n')}
 Focus on: what they work on, key decisions, recent activity. Be specific and factual. No filler.`
@@ -794,7 +794,7 @@ Focus on: what they work on, key decisions, recent activity. Be specific and fac
 
 // ─── Ask Agent (Q&A) ───────────────────────────────────
 export async function runAskAgent(question: string, workspaceId: string): Promise<string> {
-  const llm = getLLM()
+  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
 
   const questionVector = await llm.embed(question)
 
@@ -875,7 +875,7 @@ export async function runCompressionJob(
     byMonth.get(month)!.push(r)
   }
 
-  const llm = getLLM()
+  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
   let compressed = 0, skipped = 0, failed = 0
 
   for (const [month, monthRecs] of Array.from(byMonth.entries())) {

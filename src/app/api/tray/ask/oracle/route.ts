@@ -9,7 +9,7 @@ import {
   filterToAccessibleWorkspaces,
   handleEnterpriseError,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 
 export const dynamic = 'force-dynamic'
@@ -202,7 +202,7 @@ ${memoriesBlock}
 
 BEGIN DOSSIER:`
 
-    const llm = getAskLLM()
+    const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: orgId ?? null, intent: 'reasoning' })
     const answer = await llm.generateText(prompt, 3000)
     const dossier = parseOracleSections(answer)
 
@@ -226,6 +226,9 @@ BEGIN DOSSIER:`
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401, headers: corsHeaders })
+    }
+    if (err instanceof NoAIConfiguredError) {
+      return NextResponse.json({ error: 'ai_not_configured', message: err.message }, { status: 402, headers: corsHeaders })
     }
     console.error('[tray/oracle]', err)
     const errResp = handleEnterpriseError(err)

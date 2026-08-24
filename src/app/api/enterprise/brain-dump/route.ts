@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import crypto from 'crypto'
 import { requireAuth } from '@/lib/auth'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
 import { auditForAllUserOrgs, extractRequestMeta } from '@/lib/enterprise'
 import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    const preview = await parseWithClaude(rawText.trim())
+    const preview = await parseWithClaude(rawText.trim(), userId, orgId ?? null)
     return NextResponse.json(preview)
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
@@ -129,15 +129,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function parseWithClaude(raw: string): Promise<Preview> {
-  // No hard Anthropic gate - getAskLLM() routes to Claude when configured
-  // and falls back to Groq when only GROQ_API_KEY is present (this is the
-  // shape used on the test droplet). If neither provider is configured the
-  // underlying llm.generateText() throws, which we catch below.
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.GROQ_API_KEY) {
-    return { items: [], rejectedReason: 'No LLM provider is configured on this server.' }
+async function parseWithClaude(raw: string, userId: string, orgId: string | null): Promise<Preview> {
+  let llm
+  try {
+    llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
+  } catch (err) {
+    if (err instanceof NoAIConfiguredError) {
+      return { items: [], rejectedReason: err.message }
+    }
+    throw err
   }
-  const llm = getAskLLM()
   const prompt = `You are structuring a free-form brain dump into discrete, actionable items. The user's just spoken or typed everything in their head; your job is to extract the load-bearing parts.
 
 Four item kinds:

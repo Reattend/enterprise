@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { handleEnterpriseError } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForWorkspace } from '@/lib/ai/byok'
 
 // GET /api/enterprise/project-suggestions?workspaceId=...
 // Returns AI-inferred project suggestions. Pipeline:
@@ -115,9 +115,9 @@ export async function GET(req: NextRequest) {
 
     // Try Claude for better names + descriptions - best effort, falls back
     // to heuristic on any failure so the UI always has something to show.
-    if (suggestions.length > 0 && process.env.ANTHROPIC_API_KEY) {
+    if (suggestions.length > 0) {
       try {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
         const clusterSummaries = suggestions.map((s, i) => {
           const titles = unassigned
             .filter((r) => s.recordIds.includes(r.id))

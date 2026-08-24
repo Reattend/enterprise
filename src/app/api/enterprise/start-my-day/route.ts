@@ -9,7 +9,7 @@ import {
   filterToAccessibleRecords,
   pendingPoliciesForUser,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_START_MY_DAY } from '@/lib/sandbox/fixtures'
 
@@ -144,9 +144,9 @@ export async function GET(req: NextRequest) {
     const hasSomething =
       newRecords.length + newDecisions.length + pendingPolicies.length + incomingTransfers.length > 0
 
-    if (hasSomething && process.env.ANTHROPIC_API_KEY) {
+    if (hasSomething) {
       try {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
         const firstName = (user?.name || user?.email || 'there').split(' ')[0]
         const highlights = newRecords.slice(0, 6).map((r, i) => {
           const by = creatorById.get(r.createdBy)

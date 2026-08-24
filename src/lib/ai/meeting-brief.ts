@@ -1,6 +1,6 @@
 import { db, schema } from '../db'
+import { resolveLLMForWorkspace } from './byok'
 import { eq, and, or, like } from 'drizzle-orm'
-import { getLLM } from './llm'
 
 // Run 15-minute pre-meeting briefs for all workspaces.
 // Called from the jobs cron every 2 minutes.
@@ -96,7 +96,7 @@ export async function runMeetingBriefs(): Promise<{ sent: number }> {
         `- [${r.type}] ${r.title}: ${(r.summary || '').slice(0, 200)}`
       ).join('\n')
 
-      const llm = getLLM()
+      const llm = await resolveLLMForWorkspace(event.workspaceId, 'simple')
       const briefPrompt = `You are generating a concise pre-meeting brief for a user.
 
 MEETING: "${meetingTitle}" ${attendeeLabel} - ${timeLabel}

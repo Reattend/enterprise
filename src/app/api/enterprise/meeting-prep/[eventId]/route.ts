@@ -10,7 +10,7 @@ import {
   filterToAccessibleRecords,
   filterToAccessibleWorkspaces,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,11 +120,10 @@ No preamble, no closing, no "I hope this helps."`
 
     let brief = ''
     try {
-      if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
       if (relatedRecords.length === 0 && decisionsRaw.length === 0) {
         brief = `### Heads-up\nNo prior context in your memory for this topic yet - it's either new or nobody's captured it.\n\n### Context\n- This meeting is not linked to any existing memory.\n\n### Open questions\n- What's the goal of this meeting, and who should own the follow-up?`
       } else {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: event.organizationId, intent: 'simple' })
         brief = await llm.generateText(prompt, 600)
       }
     } catch (err) {

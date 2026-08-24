@@ -5,7 +5,7 @@ import { validateApiToken } from '@/lib/auth/token'
 import { getUserSubscription } from '@/lib/auth'
 import { requireExtensionAccess } from '@/lib/billing/gates'
 import { recordUsage } from '@/lib/metering'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
 
 const AI_QUERY_LIMIT = 20
@@ -83,7 +83,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const llm = getAskLLM()
+    // requireExtensionAccess() above already confirmed this user's active
+    // context has AI configured (BYOK or Managed) - resolve against the
+    // same context so the two checks can't disagree.
+    const activeCtxRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
+      .from(schema.users).where(eq(schema.users.id, auth.userId)).then(r => r[0])
+    const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: activeCtxRow?.activeContextOrgId ?? null, intent: 'reasoning' })
     const keywords = extractKeywords(question)
 
     // Fetch recent + keyword/FTS records
@@ -223,6 +228,9 @@ Offers:
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
+    }
+    if (error instanceof NoAIConfiguredError) {
+      return Response.json({ error: 'ai_not_configured', message: error.message }, { status: 402, headers: corsHeaders })
     }
     return Response.json({ error: error.message }, { status: 500, headers: corsHeaders })
   }

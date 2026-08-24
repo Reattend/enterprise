@@ -7,7 +7,7 @@ import {
   getOrgContext,
   hasOrgPermission,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_ONBOARDING_GENIE } from '@/lib/sandbox/fixtures'
 
@@ -216,9 +216,9 @@ export async function POST(req: NextRequest) {
 
     // ── Claude weaves the packet ───────────────────────────
     let markdown = ''
-    if (process.env.ANTHROPIC_API_KEY) {
+    {
       try {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
         const prompt = `Write a personalized onboarding packet for a new hire, grounded in the organization's real memory. Format as markdown, ~500 words total, front-to-back readable in under 4 minutes.
 
 NEW HIRE:

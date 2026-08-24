@@ -7,7 +7,7 @@ import {
   auditFromAuth,
   handleEnterpriseError,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { enqueueJob } from '@/lib/jobs/worker'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_HANDOFF_DOC } from '@/lib/sandbox/fixtures'
@@ -120,8 +120,7 @@ Rules:
 
     let handoffDoc = ''
     try {
-      if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
-      const llm = getAskLLM()
+      const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: orgId, intent: 'simple' })
       handoffDoc = await llm.generateText(prompt, 4000)
     } catch (err) {
       console.warn('[handoff] synth failed', err)

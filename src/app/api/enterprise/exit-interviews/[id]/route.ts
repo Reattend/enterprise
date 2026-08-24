@@ -9,7 +9,7 @@ import {
   auditForAllUserOrgs,
   extractRequestMeta,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { enqueueJob } from '@/lib/jobs/worker'
 
 export const dynamic = 'force-dynamic'
@@ -151,8 +151,7 @@ Rules:
 
       let handoffDoc = ''
       try {
-        if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: row.organizationId, intent: 'simple' })
         handoffDoc = await llm.generateText(prompt, 3500)
       } catch (err) {
         console.warn('[exit-interview] handoff gen failed, using fallback', err)

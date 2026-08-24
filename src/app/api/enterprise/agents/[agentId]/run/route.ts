@@ -7,7 +7,7 @@ import {
   getOrgContext,
   hasOrgPermission,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { enqueueJob } from '@/lib/jobs/worker'
 
 export const dynamic = 'force-dynamic'
@@ -80,10 +80,15 @@ ${corpusBlock || '(empty corpus)'}
 
 Produce a short, focused output (~200-400 words) appropriate to your role. If your scope has nothing new, say "No new activity in scope" and stop.`
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return NextResponse.json({ error: 'Claude not configured on server' }, { status: 503 })
+    let llm
+    try {
+      llm = await resolveLLMForRequest({ userId, organizationId: agent.organizationId, intent: 'simple' })
+    } catch (err) {
+      if (err instanceof NoAIConfiguredError) {
+        return NextResponse.json({ error: 'ai_not_configured', message: err.message }, { status: 402 })
+      }
+      throw err
     }
-    const llm = getAskLLM()
     const output = await llm.generateText(prompt, 1500)
 
     // Save output as a new memory

@@ -1,6 +1,6 @@
 import { db, schema } from '../db'
+import { resolveLLMForWorkspace } from './byok'
 import { eq, and, gte, like, inArray } from 'drizzle-orm'
-import { getLLM } from './llm'
 
 // Memory gap detection - fires Friday 08:00–09:00 UTC.
 // Finds topics/people the user has recurring activity around but sparse memory coverage.
@@ -189,7 +189,7 @@ export async function runMemoryGapDetection(): Promise<{ sent: number }> {
         .sort((a, b) => (a.severity === 'high' ? -1 : 1))
         .slice(0, 5)
 
-      const llm = getLLM()
+      const llm = await resolveLLMForWorkspace(ws.id, 'simple')
       const gapPrompt = `You are generating a "memory gap" report to help a knowledge worker capture important context they're missing.
 
 DETECTED GAPS:

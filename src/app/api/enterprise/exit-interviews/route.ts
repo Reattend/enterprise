@@ -7,7 +7,7 @@ import {
   auditFromAuth,
   handleEnterpriseError,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 
 export const dynamic = 'force-dynamic'
@@ -185,8 +185,7 @@ No prose, no preamble, no markdown. Just the JSON.`
 
     let plannedQuestions: PlannedQuestion[] = []
     try {
-      if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
-      const llm = getAskLLM()
+      const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: orgId, intent: 'simple' })
       const raw = await llm.generateText(prompt, 2500)
       const parsed = parseQuestionsJson(raw)
       plannedQuestions = parsed.map((q, i) => ({

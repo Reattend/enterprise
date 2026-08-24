@@ -10,7 +10,7 @@ import {
   auditForAllUserOrgs,
   extractRequestMeta,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { matchSandboxQuestion, SANDBOX_ORACLE } from '@/lib/sandbox/fixtures'
@@ -252,7 +252,7 @@ ${memoriesBlock}
 
 BEGIN DOSSIER:`
 
-    const llm = getAskLLM()
+    const llm = await resolveLLMForRequest({ userId, organizationId: orgId ?? null, intent: 'reasoning' })
     const answer = await llm.generateText(prompt, 3000)
 
     // ── Stage 5: parse the five sections from Claude's output ──────
@@ -278,6 +278,9 @@ BEGIN DOSSIER:`
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+    if (err instanceof NoAIConfiguredError) {
+      return NextResponse.json({ error: 'ai_not_configured', message: err.message, settingsUrl: '/app/settings' }, { status: 402 })
     }
     console.error('[oracle]', err)
     return handleEnterpriseError(err)

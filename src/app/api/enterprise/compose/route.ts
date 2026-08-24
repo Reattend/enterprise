@@ -9,7 +9,7 @@ import {
   filterToAccessibleWorkspaces,
 } from '@/lib/enterprise'
 import { hasPermission } from '@/lib/enterprise/permissions'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { SANDBOX_COMPOSE } from '@/lib/sandbox/fixtures'
 
@@ -129,8 +129,7 @@ Rules:
 
   let draft = ''
   try {
-    if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
-    const llm = getAskLLM()
+    const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
     draft = await llm.generateText(prompt, 1200)
   } catch (err) {
     console.warn('[compose email]', err)
@@ -221,8 +220,7 @@ No preamble, no commentary.`
 
   let draft = ''
   try {
-    if (!process.env.ANTHROPIC_API_KEY) throw new Error('Claude not configured')
-    const llm = getAskLLM()
+    const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
     draft = await llm.generateText(prompt, 1500)
   } catch (err) {
     console.warn('[compose broadcast]', err)

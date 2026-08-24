@@ -8,7 +8,7 @@ import {
   buildAccessContext,
   filterToAccessibleRecords,
 } from '@/lib/enterprise'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForRequest } from '@/lib/ai/byok'
 
 export const dynamic = 'force-dynamic'
 
@@ -237,9 +237,9 @@ export async function GET(req: NextRequest) {
 
     // ── Claude narrates a 1-line "why this person" for the top results
     let narratives: Record<string, string> = {}
-    if (experts.length > 0 && process.env.ANTHROPIC_API_KEY) {
+    if (experts.length > 0) {
       try {
-        const llm = getAskLLM()
+        const llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
         const prompt = `For each person below, write ONE 12-word-or-less sentence explaining why they're the right person to ask about: "${q}".
 
 Rules:

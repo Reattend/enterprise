@@ -1,6 +1,6 @@
 import { db, schema } from '../db'
+import { resolveLLMForWorkspace } from './byok'
 import { eq, and, gte, inArray } from 'drizzle-orm'
-import { getLLM } from './llm'
 
 // Cross-workspace team synthesis - fires Wednesday 08:00–09:00 UTC.
 // For each team workspace, finds entities/topics that multiple members
@@ -134,7 +134,7 @@ export async function runCrossWorkspaceSynthesis(): Promise<{ sent: number }> {
       }).join('\n')
 
       const weekLabel = `week of ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}`
-      const llm = getLLM()
+      const llm = await resolveLLMForWorkspace(teamWs.id, 'simple')
 
       const synthPrompt = `Your team has been independently discussing the same topics this week. Write a brief 3-4 sentence synthesis for the team.
 

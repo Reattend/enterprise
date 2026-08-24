@@ -1,6 +1,6 @@
 import { db, schema } from '../db'
+import { resolveLLMForWorkspace } from './byok'
 import { eq, and, gte, like } from 'drizzle-orm'
-import { getLLM } from './llm'
 
 // Send a weekly digest every Monday 08:00–09:00 UTC.
 // Called from the jobs cron every 2 minutes; the dedup guard ensures
@@ -70,7 +70,7 @@ export async function runWeeklyDigest(): Promise<{ sent: number }> {
 
       const weekLabel = `week of ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}`
 
-      const llm = getLLM()
+      const llm = await resolveLLMForWorkspace(ws.id, 'simple')
       const digestPrompt = `You are generating a weekly memory digest for a knowledge worker.
 
 WEEK: ${weekLabel}

@@ -1,6 +1,7 @@
 import { db, schema, sqlite } from '../db'
 import { eq, and, lt, inArray } from 'drizzle-orm'
 import { runTriageAgent, runEmbeddingJob, runLinkingAgent, runIngestJob } from '../ai/agents'
+import { NoAIConfiguredError } from '../ai/byok'
 
 type JobHandler = (payload: any, workspaceId: string) => Promise<string | undefined>
 
@@ -157,6 +158,18 @@ export async function processNextJob(): Promise<boolean> {
 
     return true
   } catch (error: any) {
+    // No point retrying - the org needs to connect an AI key, more attempts
+    // won't fix that. Fail immediately so notifyJobFailed fires right away
+    // instead of burning MAX_ATTEMPTS retries on a config problem.
+    if (error instanceof NoAIConfiguredError) {
+      console.warn(`[Worker] Job ${job.id} (${job.type}) failed - no AI configured for this workspace`)
+      await db.update(schema.jobQueue)
+        .set({ status: 'failed', error: error.message })
+        .where(eq(schema.jobQueue.id, job.id))
+      await notifyJobFailed(job)
+      return true
+    }
+
     if (isRateLimitError(error)) {
       console.warn(`[Worker] Rate limited on job ${job.id} (${job.type}), backing off`)
       await db.update(schema.jobQueue)

@@ -412,7 +412,7 @@ class RabbitFastEmbedProvider implements LLMProvider {
 const CLAUDE_SONNET_MODEL = 'claude-sonnet-4-6'
 const CLAUDE_HAIKU_MODEL = 'claude-haiku-4-5-20251001'
 
-class ClaudeProvider implements LLMProvider {
+export class ClaudeProvider implements LLMProvider {
   private apiKey: string
   private model: string
 
@@ -568,6 +568,214 @@ class GroqProvider implements LLMProvider {
       start(controller) {
         controller.enqueue(encoder.encode(text))
         controller.close()
+      },
+    })
+  }
+
+  async embed(text: string): Promise<number[]> {
+    const model = await getFastEmbed()
+    const truncated = text.slice(0, 8000)
+    const gen = model.embed([truncated])
+    for await (const batch of gen) {
+      return Array.from(batch[0]) as number[]
+    }
+    return []
+  }
+}
+
+// ─── BYOK: OpenAI Provider ──────────────────────────────
+// OpenAI's chat completions API - same shape as Groq's (both mirror the
+// original OpenAI wire format), so this mirrors GroqProvider almost exactly.
+export const OPENAI_REASONING_MODEL = 'gpt-4o'
+export const OPENAI_FAST_MODEL = 'gpt-4o-mini'
+
+export class OpenAIProvider implements LLMProvider {
+  private apiKey: string
+  private model: string
+
+  constructor(apiKey: string, model = OPENAI_REASONING_MODEL) {
+    this.apiKey = apiKey
+    this.model = model
+  }
+
+  async generateJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
+    const text = await this.generateText(
+      'Respond ONLY with valid JSON. No markdown, no code fences, no explanation.\n\n' + prompt,
+      4096,
+    )
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+    return schema.parse(normalizeTriageOutput(parsed))
+  }
+
+  async generateText(prompt: string, maxTokens?: number): Promise<string> {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: maxTokens ?? 2048,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(30_000),
+    })
+    if (!res.ok) {
+      const err = await res.text().catch(() => '')
+      throw new Error(`OpenAI API error ${res.status}: ${err.slice(0, 200)}`)
+    }
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content || ''
+  }
+
+  async generateTextStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: 4096,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    })
+    if (!res.ok) {
+      const err = await res.text().catch(() => '')
+      throw new Error(`OpenAI API error ${res.status}: ${err.slice(0, 200)}`)
+    }
+
+    const decoder = new TextDecoder()
+    const encoder = new TextEncoder()
+    const reader = res.body!.getReader()
+
+    return new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) { controller.close(); return }
+
+          const chunk = decoder.decode(value, { stream: true })
+          for (const line of chunk.split('\n')) {
+            if (!line.startsWith('data: ')) continue
+            const data = line.slice(6).trim()
+            if (data === '[DONE]') continue
+            try {
+              const event = JSON.parse(data)
+              const delta = event.choices?.[0]?.delta?.content
+              if (delta) controller.enqueue(encoder.encode(delta))
+            } catch { /* skip malformed lines */ }
+          }
+        }
+      },
+    })
+  }
+
+  async embed(text: string): Promise<number[]> {
+    const model = await getFastEmbed()
+    const truncated = text.slice(0, 8000)
+    const gen = model.embed([truncated])
+    for await (const batch of gen) {
+      return Array.from(batch[0]) as number[]
+    }
+    return []
+  }
+}
+
+// ─── BYOK: Gemini Provider ───────────────────────────────
+// Uses Google's OpenAI-compatibility endpoint (same wire format as
+// OpenAI/Groq above) instead of the native Gemini REST shape - fewer
+// moving parts, same code path, Google maintains the compatibility layer.
+export const GEMINI_REASONING_MODEL = 'gemini-2.5-pro'
+export const GEMINI_FAST_MODEL = 'gemini-2.5-flash'
+
+export class GeminiProvider implements LLMProvider {
+  private apiKey: string
+  private model: string
+  private static readonly BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
+
+  constructor(apiKey: string, model = GEMINI_REASONING_MODEL) {
+    this.apiKey = apiKey
+    this.model = model
+  }
+
+  async generateJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
+    const text = await this.generateText(
+      'Respond ONLY with valid JSON. No markdown, no code fences, no explanation.\n\n' + prompt,
+      4096,
+    )
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+    return schema.parse(normalizeTriageOutput(parsed))
+  }
+
+  async generateText(prompt: string, maxTokens?: number): Promise<string> {
+    const res = await fetch(GeminiProvider.BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: maxTokens ?? 2048,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(30_000),
+    })
+    if (!res.ok) {
+      const err = await res.text().catch(() => '')
+      throw new Error(`Gemini API error ${res.status}: ${err.slice(0, 200)}`)
+    }
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content || ''
+  }
+
+  async generateTextStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
+    const res = await fetch(GeminiProvider.BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: 4096,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    })
+    if (!res.ok) {
+      const err = await res.text().catch(() => '')
+      throw new Error(`Gemini API error ${res.status}: ${err.slice(0, 200)}`)
+    }
+
+    const decoder = new TextDecoder()
+    const encoder = new TextEncoder()
+    const reader = res.body!.getReader()
+
+    return new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) { controller.close(); return }
+
+          const chunk = decoder.decode(value, { stream: true })
+          for (const line of chunk.split('\n')) {
+            if (!line.startsWith('data: ')) continue
+            const data = line.slice(6).trim()
+            if (data === '[DONE]') continue
+            try {
+              const event = JSON.parse(data)
+              const delta = event.choices?.[0]?.delta?.content
+              if (delta) controller.enqueue(encoder.encode(delta))
+            } catch { /* skip malformed lines */ }
+          }
+        }
       },
     })
   }

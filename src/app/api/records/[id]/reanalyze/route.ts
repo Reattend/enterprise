@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
-import { getLLM } from '@/lib/ai/llm'
+import { resolveLLMForWorkspace, NoAIConfiguredError } from '@/lib/ai/byok'
 import { enqueueJob } from '@/lib/jobs/worker'
 import { z } from 'zod'
 
@@ -38,7 +38,7 @@ export async function POST(
 
     const textToAnalyze = [record.title, record.summary, record.content].filter(Boolean).join('\n\n')
 
-    const llm = getLLM()
+    const llm = await resolveLLMForWorkspace(record.workspaceId, 'simple')
     const prompt = `You are re-analyzing an edited memory. Extract the best title, a 1-2 sentence summary, and a confidence score (0-1) of how clear and complete this memory is.
 
 Memory content:
@@ -75,6 +75,9 @@ Respond with JSON only:
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (error instanceof NoAIConfiguredError) {
+      return NextResponse.json({ error: 'ai_not_configured', message: error.message }, { status: 402 })
     }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

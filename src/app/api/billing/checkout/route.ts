@@ -28,6 +28,19 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id
   const userEmail = session.user.email
 
+  // Managed/Enterprise are org-scoped products - Personal (zero-org) never
+  // gets Managed, paid or trial (see start-trial's identical guard and
+  // today.md). Real money doesn't buy an exception: without an org,
+  // resolveLLM() would still hard-block AI usage regardless of tier.
+  const [callerRow] = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
+    .from(schema.users).where(eq(schema.users.id, userId)).limit(1)
+  if (!callerRow?.activeContextOrgId) {
+    return NextResponse.json(
+      { error: 'org_required', message: 'Managed requires an organization. Personal accounts are BYOK-only - connect a key in Settings instead.' },
+      { status: 403 },
+    )
+  }
+
   let body: { tier?: string; cycle?: string; seats?: number }
   try { body = await req.json() } catch { body = {} }
 

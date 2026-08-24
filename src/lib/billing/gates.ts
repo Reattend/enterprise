@@ -81,23 +81,52 @@ export function hasFeature(
 }
 
 /**
- * Extension feature gate. The Chrome extension (any /api/tray/* endpoint) is
- * a Professional/Enterprise feature - Solo Free users cannot use it. Apply
- * this immediately after validateApiToken() in any tray route. The check is
- * cheap (one indexed subscription row read) and re-runs on every call so a
- * downgrade revokes extension access immediately.
+ * Extension feature gate. The Chrome extension (any /api/tray/* endpoint)
+ * requires *some* AI actually be configured - either a BYOK key (org
+ * default, per-user override, or personal) or an active Managed
+ * subscription. Both Free/BYOK and Managed get the extension per the
+ * 2026-08-23 restructure; the old "Professional+ only" tier gate is gone.
+ * Personal accounts are excluded entirely regardless of BYOK status - by
+ * design, Personal never gets extension access (see today.md).
+ *
+ * Apply this immediately after validateApiToken() in any tray route. Re-runs
+ * on every call so losing AI access (key removed, subscription lapsed)
+ * revokes extension access immediately.
  *
  * Returns null on success, or a Response with 402 Payment Required + a
  * machine-readable error body the extension can render as an upgrade prompt.
  */
 export async function requireExtensionAccess(userId: string): Promise<Response | null> {
+  const { resolveByokKey } = await import('@/lib/ai/byok')
+
+  const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
+    .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
+  const activeContextOrgId = userRow?.activeContextOrgId ?? null
+
+  // Personal (no active org) is BYOK-only for AI answering, but never gets
+  // the extension at all - even with a personal key configured.
+  if (!activeContextOrgId) {
+    return Response.json(
+      {
+        error: 'extension_not_available_for_personal',
+        message: 'The Reattend extension is available for organization accounts, not Personal.',
+      },
+      { status: 402 },
+    )
+  }
+
+  const byok = await resolveByokKey({ organizationId: activeContextOrgId, userId })
+  if (byok) return null
+
   const sub = await getOrCreateSubscription(userId)
-  if (hasFeature(sub, 'chromeExtensionAutoIngest')) return null
+  if (sub.tier === 'professional' || sub.tier === 'enterprise') return null
+
   return Response.json(
     {
-      error: 'extension_requires_paid_plan',
-      message: 'The Reattend extension is a Professional plan feature. Upgrade at https://reattend.com/pricing to enable it.',
+      error: 'extension_requires_ai_configured',
+      message: 'Connect an AI provider key (free) or upgrade to Managed to enable the extension.',
       currentTier: sub.tier,
+      settingsUrl: 'https://reattend.com/app/settings',
       upgradeUrl: 'https://reattend.com/pricing',
     },
     { status: 402 },

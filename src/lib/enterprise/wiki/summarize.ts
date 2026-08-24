@@ -11,7 +11,7 @@
 
 import { db, schema } from '@/lib/db'
 import { and, eq } from 'drizzle-orm'
-import { getAskLLM } from '@/lib/ai/llm'
+import { resolveLLMForOrg } from '@/lib/ai/byok'
 
 export type WikiPageType = 'dept' | 'topic' | 'person'
 
@@ -62,8 +62,8 @@ Records (most recent first):
 ${body}`
 }
 
-async function runClaudeSummary(prompt: string): Promise<string> {
-  const llm = getAskLLM()
+async function runClaudeSummary(prompt: string, organizationId: string): Promise<string> {
+  const llm = await resolveLLMForOrg(organizationId, 'simple')
   const text = await llm.generateText(prompt, 400)
   return (text || '').trim()
 }
@@ -164,7 +164,7 @@ export async function getOrGenerateSummary(opts: {
   const prompt = buildPrompt(opts.pageType, opts.label, opts.records)
   let summary: string
   try {
-    summary = await runClaudeSummary(prompt)
+    summary = await runClaudeSummary(prompt, opts.organizationId)
   } catch (err) {
     console.error('[wiki.summarize] LLM failed, using fallback:', err)
     summary = `Recent activity: ${opts.records.slice(0, 3).map((r) => r.title).join(' · ')}. (Claude summary will be regenerated automatically on next load.)`
