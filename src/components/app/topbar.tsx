@@ -278,6 +278,11 @@ export function AppTopbar() {
             <div className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
               Switch context
             </div>
+            {/* Personal only stays selectable for pre-2026-08-25 accounts
+                that have no org at all - Reattend is enterprise-only now,
+                so anyone with an org can't switch into a context they have
+                no legitimate data in. See today.md. */}
+            {!hasEnterprise && (
             <DropdownMenuItem
               onClick={() => useAppStore.getState().setActiveEnterpriseOrgId(null)}
               className="cursor-pointer py-2"
@@ -298,6 +303,7 @@ export function AppTopbar() {
                 <Check className="h-3.5 w-3.5 text-primary shrink-0" />
               )}
             </DropdownMenuItem>
+            )}
             {hasEnterprise && (
               <>
                 <DropdownMenuSeparator />

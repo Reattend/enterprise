@@ -1211,5 +1211,25 @@ try {
   console.error('ai_provider_keys migration:', e.message)
 }
 
+// ─── BYOK: admin-set rate limit on org keys ────────────────────────────────
+try {
+  sqlite.exec(`ALTER TABLE ai_provider_keys ADD COLUMN rate_limit_per_month INTEGER;`)
+  console.log('✓ ai_provider_keys.rate_limit_per_month')
+} catch (e: any) {
+  console.log('- ai_provider_keys.rate_limit_per_month (already exists)')
+}
+try {
+  sqlite.exec(`ALTER TABLE ai_provider_keys ADD COLUMN queries_this_month INTEGER NOT NULL DEFAULT 0;`)
+  console.log('✓ ai_provider_keys.queries_this_month')
+} catch (e: any) {
+  console.log('- ai_provider_keys.queries_this_month (already exists)')
+}
+try {
+  sqlite.exec(`ALTER TABLE ai_provider_keys ADD COLUMN queries_reset_at TEXT;`)
+  console.log('✓ ai_provider_keys.queries_reset_at')
+} catch (e: any) {
+  console.log('- ai_provider_keys.queries_reset_at (already exists)')
+}
+
 console.log('Database migration complete!')
 sqlite.close()

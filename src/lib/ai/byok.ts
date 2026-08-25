@@ -5,12 +5,17 @@
 // Anthropic key. Only Managed (paid) tiers get the platform key, and even
 // then only up to the soft-cap gate in billing/gates.ts.
 //
-// Scope resolution order (first match wins):
-//   1. per-user override key   (organizationId + userId)
-//   2. org default key         (organizationId, userId NULL)
-//   3. personal-mode key       (organizationId NULL, userId)  - Personal
-//      accounts are always BYOK, this is their only path, no fallback to
-//      a Managed/platform key ever exists for Personal.
+// Scope resolution (as of 2026-08-25 - Personal ripped out of the main
+// flow, per-user override killed entirely, see today.md):
+//   1. org default key   (organizationId set, userId NULL) - admin-only,
+//      configured in the Control Room, invisible to regular members.
+//      Subject to the admin's own rate limit (their vendor bill, not ours).
+//   2. personal-mode key (organizationId NULL, userId set) - legacy only.
+//      No new account can reach this path; it only serves accounts that
+//      predate the 2026-08-25 change. Never rate-limited.
+// There is no per-user override inside an org anymore. Don't add one back
+// without checking today.md for why it was removed - "employees need not
+// see the API part" was an explicit product call, not an oversight.
 
 import { db, schema } from '@/lib/db'
 import { and, eq, isNull } from 'drizzle-orm'
@@ -28,10 +33,17 @@ export class NoAIConfiguredError extends Error {
   constructor(scope: 'org' | 'personal') {
     super(
       scope === 'org'
-        ? 'This organization has no AI provider configured. An admin needs to connect an API key in Settings before AI features work.'
+        ? 'This organization has no AI provider configured. An admin needs to connect an API key in the Control Room before AI features work.'
         : 'No AI provider configured. Connect an API key in Settings before AI features work.'
     )
     this.name = 'NoAIConfiguredError'
+  }
+}
+
+export class RateLimitExceededError extends Error {
+  constructor(resetAt: string) {
+    super(`This organization has hit its admin-set AI usage limit for this month. Resets ${resetAt}.`)
+    this.name = 'RateLimitExceededError'
   }
 }
 
@@ -51,25 +63,43 @@ async function findKeyRow(organizationId: string | null, userId: string | null) 
   return db.query.aiProviderKeys.findFirst({ where: and(...conditions) })
 }
 
-// Looks up, in order: user override in this org -> org default -> (if no
-// org context) personal key for this user. Returns null if nothing is
-// configured anywhere in the chain.
+// Checks + increments the org key's admin-set monthly cap. No-op (always
+// passes) if rateLimitPerMonth is null - unlimited is the default. Resets
+// on calendar-month rollover, same pattern as subscriptions.aiQueriesThisMonth.
+async function checkAndConsumeOrgKeyRateLimit(rowId: string, rateLimitPerMonth: number | null, queriesThisMonth: number, queriesResetAt: string | null): Promise<void> {
+  if (rateLimitPerMonth === null) return
+
+  const now = new Date()
+  const monthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+  const lastResetMonth = queriesResetAt ? queriesResetAt.slice(0, 7) : ''
+  const used = lastResetMonth === monthKey ? queriesThisMonth : 0
+
+  if (used >= rateLimitPerMonth) {
+    const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+    throw new RateLimitExceededError(nextMonth.toISOString().slice(0, 10))
+  }
+
+  await db.update(schema.aiProviderKeys).set({
+    queriesThisMonth: used + 1,
+    queriesResetAt: now.toISOString(),
+  }).where(eq(schema.aiProviderKeys.id, rowId))
+}
+
+// Looks up the org default key, or (no org context) the legacy personal
+// key. Returns null if nothing is configured. Throws RateLimitExceededError
+// if an org key's admin-set cap is hit - that's a real "can't proceed"
+// state, not a "fall through to something else" state, so it's not encoded
+// as a null return.
 export async function resolveByokKey(opts: {
   organizationId?: string | null
   userId?: string | null
 }): Promise<ResolvedKey | null> {
   const { organizationId = null, userId = null } = opts
 
-  if (organizationId && userId) {
-    const userOverride = await findKeyRow(organizationId, userId)
-    if (userOverride) {
-      return { provider: userOverride.provider as ByokProviderName, apiKey: decryptSecret({ ciphertext: userOverride.encryptedKey, iv: userOverride.keyIv }) }
-    }
-  }
-
   if (organizationId) {
     const orgDefault = await findKeyRow(organizationId, null)
     if (orgDefault) {
+      await checkAndConsumeOrgKeyRateLimit(orgDefault.id, orgDefault.rateLimitPerMonth, orgDefault.queriesThisMonth, orgDefault.queriesResetAt)
       return { provider: orgDefault.provider as ByokProviderName, apiKey: decryptSecret({ ciphertext: orgDefault.encryptedKey, iv: orgDefault.keyIv }) }
     }
   }
@@ -140,6 +170,41 @@ export async function removeKey(organizationId: string | null, userId: string | 
   const existing = await findKeyRow(organizationId, userId)
   if (!existing) return
   await db.delete(schema.aiProviderKeys).where(eq(schema.aiProviderKeys.id, existing.id))
+}
+
+// Org-key rate limit only - doesn't touch the key itself. null clears the
+// limit (unlimited). Personal-scope keys never call this.
+export async function setOrgKeyRateLimit(organizationId: string, rateLimitPerMonth: number | null): Promise<boolean> {
+  const existing = await findKeyRow(organizationId, null)
+  if (!existing) return false
+  await db.update(schema.aiProviderKeys).set({
+    rateLimitPerMonth,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(schema.aiProviderKeys.id, existing.id))
+  return true
+}
+
+export interface OrgKeyDetail extends KeyStatus {
+  rateLimitPerMonth: number | null
+  queriesThisMonth: number
+  queriesResetAt: string | null
+}
+
+export async function getOrgKeyDetail(organizationId: string): Promise<OrgKeyDetail | null> {
+  const row = await findKeyRow(organizationId, null)
+  if (!row) return null
+  const now = new Date()
+  const monthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+  const lastResetMonth = row.queriesResetAt ? row.queriesResetAt.slice(0, 7) : ''
+  return {
+    provider: row.provider as ByokProviderName,
+    keyLast4: row.keyLast4,
+    status: row.status as any,
+    updatedAt: row.updatedAt,
+    rateLimitPerMonth: row.rateLimitPerMonth,
+    queriesThisMonth: lastResetMonth === monthKey ? row.queriesThisMonth : 0,
+    queriesResetAt: row.queriesResetAt,
+  }
 }
 
 function buildProvider(resolved: ResolvedKey, intent: 'reasoning' | 'simple'): LLMProvider {

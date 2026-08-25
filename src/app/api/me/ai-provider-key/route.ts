@@ -6,13 +6,15 @@ import { getKeyStatus, saveKey, removeKey, testProviderKey, type ByokProviderNam
 
 export const dynamic = 'force-dynamic'
 
-// The current user's own key. Scope is derived from activeContextOrgId:
-//   - has an active org  -> this is a per-user override within that org
-//   - no active org      -> Personal mode, this is a pure personal key
-// Either way it's the same row shape (organizationId nullable), so one
-// route handles both - the resolver in lib/ai/byok.ts already treats them
-// identically (user-scoped key beats org default, personal has no org to
-// default to).
+// Legacy-personal-only, as of 2026-08-25. Per-user override inside an org
+// was killed ("employees need not see the API part" - explicit product
+// call, see today.md) - this route now 409s for anyone with an active
+// org. Org keys live exclusively in the Control Room
+// (/api/enterprise/organizations/[orgId]/ai-provider-key), admin-only.
+//
+// The only legitimate callers left are the ~14 pre-2026-08-25 accounts
+// that have no org at all. New signups always get an org, so they can
+// never reach this path.
 
 async function getActiveOrgId(userId: string): Promise<string | null> {
   const row = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
@@ -24,8 +26,11 @@ export async function GET() {
   try {
     const { userId } = await requireAuth()
     const orgId = await getActiveOrgId(userId)
-    const status = await getKeyStatus(orgId, userId)
-    return NextResponse.json({ key: status, scope: orgId ? 'org_override' : 'personal' })
+    if (orgId) {
+      return NextResponse.json({ error: 'not_available', message: 'AI keys for organization accounts are managed by an admin in the Control Room, not here.' }, { status: 409 })
+    }
+    const status = await getKeyStatus(null, userId)
+    return NextResponse.json({ key: status, scope: 'personal' })
   } catch (err: any) {
     if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -36,6 +41,9 @@ export async function PUT(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
     const orgId = await getActiveOrgId(userId)
+    if (orgId) {
+      return NextResponse.json({ error: 'not_available', message: 'AI keys for organization accounts are managed by an admin in the Control Room, not here.' }, { status: 409 })
+    }
 
     const body = await req.json() as { provider?: string; apiKey?: string }
     const provider = body.provider as ByokProviderName
@@ -54,7 +62,7 @@ export async function PUT(req: NextRequest) {
     }
 
     await saveKey({
-      organizationId: orgId,
+      organizationId: null,
       userId,
       provider,
       apiKey,
@@ -62,7 +70,7 @@ export async function PUT(req: NextRequest) {
       status: 'valid',
     })
 
-    return NextResponse.json({ ok: true, key: await getKeyStatus(orgId, userId), scope: orgId ? 'org_override' : 'personal' })
+    return NextResponse.json({ ok: true, key: await getKeyStatus(null, userId), scope: 'personal' })
   } catch (err: any) {
     if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -73,7 +81,10 @@ export async function DELETE() {
   try {
     const { userId } = await requireAuth()
     const orgId = await getActiveOrgId(userId)
-    await removeKey(orgId, userId)
+    if (orgId) {
+      return NextResponse.json({ error: 'not_available', message: 'AI keys for organization accounts are managed by an admin in the Control Room, not here.' }, { status: 409 })
+    }
+    await removeKey(null, userId)
     return NextResponse.json({ ok: true })
   } catch (err: any) {
     if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

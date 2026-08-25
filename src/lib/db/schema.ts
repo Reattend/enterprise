@@ -329,16 +329,17 @@ export const subscriptions = sqliteTable('subscriptions', {
 }))
 
 // ─── BYOK: bring-your-own AI provider keys ──────────────
-// Scope is (organizationId, userId):
-//   org set, user NULL   -> org-wide default key (admin-configured)
-//   org set, user set    -> per-user override within that org (Model C,
-//                           same role-default + per-user-override shape as
-//                           organization_member_permission_overrides)
-//   org NULL, user set   -> Personal-mode key (no org context at all)
-// One row per scope is enforced in application code (byok.ts upserts
-// rather than inserts), not by a DB constraint - SQLite treats every NULL
-// as distinct in a unique index, so a partial-index constraint here would
-// need per-scope indexes; simpler to own it in the resolver.
+// Scope is (organizationId, userId) - as of 2026-08-25, only two shapes:
+//   org set, user NULL   -> org-wide default key, admin-only (Control Room,
+//                           not member Settings). Every member of the org
+//                           uses this one key, transparently.
+//   org NULL, user set   -> legacy Personal-mode key. Personal was ripped
+//                           out of the main flow on 2026-08-25 - this scope
+//                           only serves accounts that predate that change
+//                           (see today.md). Never created by new signups.
+// Per-user override within an org (Model C) existed briefly and was
+// explicitly killed - "employees need not see the API part." Don't
+// reintroduce it without checking today.md for why it was removed.
 export const aiProviderKeys = sqliteTable('ai_provider_keys', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
@@ -349,6 +350,11 @@ export const aiProviderKeys = sqliteTable('ai_provider_keys', {
   keyLast4: text('key_last4').notNull(), // display only, e.g. "...a1b2"
   status: text('status', { enum: ['unverified', 'valid', 'invalid'] }).notNull().default('unverified'),
   lastVerifiedAt: text('last_verified_at'),
+  // Admin-set cap on org-key usage (their own vendor bill, not ours) - null
+  // means unlimited. Personal-scope rows never set this.
+  rateLimitPerMonth: integer('rate_limit_per_month'),
+  queriesThisMonth: integer('queries_this_month').notNull().default(0),
+  queriesResetAt: text('queries_reset_at'),
   createdBy: text('created_by').notNull().references(() => users.id),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),

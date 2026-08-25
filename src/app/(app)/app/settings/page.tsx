@@ -101,6 +101,10 @@ interface AgentLog {
 
 export default function SettingsPage() {
   const { setWorkspaceInfo, workspaceType } = useAppStore()
+  // AI Provider tab only exists for legacy zero-org (pre-2026-08-25
+  // Personal) accounts - org accounts manage their key in the Control
+  // Room, admin-only, and regular members never see this at all.
+  const activeEnterpriseOrgId = useAppStore(s => s.activeEnterpriseOrgId)
 
   const [user, setUser] = useState<UserData | null>(null)
   const [workspace, setWorkspace] = useState<WorkspaceData | null>(null)
@@ -553,7 +557,9 @@ export default function SettingsPage() {
         <TabsList className="w-full justify-start">
           <TabsTrigger value="profile"><User className="h-3.5 w-3.5 mr-1.5" /> Profile</TabsTrigger>
           <TabsTrigger value="preferences"><Palette className="h-3.5 w-3.5 mr-1.5" /> Preferences</TabsTrigger>
-          <TabsTrigger value="ai-provider"><Bot className="h-3.5 w-3.5 mr-1.5" /> AI Provider</TabsTrigger>
+          {!activeEnterpriseOrgId && (
+            <TabsTrigger value="ai-provider"><Bot className="h-3.5 w-3.5 mr-1.5" /> AI Provider</TabsTrigger>
+          )}
           <TabsTrigger value="api-keys"><Key className="h-3.5 w-3.5 mr-1.5" /> API keys</TabsTrigger>
         </TabsList>
 
@@ -1062,10 +1068,12 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* API Keys */}
-        {/* AI Provider (BYOK) */}
-        <TabsContent value="ai-provider" className="space-y-4 mt-4">
-          <AiProviderSection />
-        </TabsContent>
+        {/* AI Provider (BYOK) - legacy Personal accounts only, see tab-list check above */}
+        {!activeEnterpriseOrgId && (
+          <TabsContent value="ai-provider" className="space-y-4 mt-4">
+            <AiProviderSection />
+          </TabsContent>
+        )}
 
         <TabsContent value="api-keys" className="space-y-4 mt-4">
           {/* What are API keys */}

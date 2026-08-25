@@ -4,7 +4,7 @@ import { eq, and, desc, or, inArray, like, ne } from 'drizzle-orm'
 import { requireAuth, getUserSubscription } from '@/lib/auth'
 import { recordUsage } from '@/lib/metering'
 import { getAskLLM } from '@/lib/ai/llm'
-import { resolveLLM, resolveByokKey, NoAIConfiguredError } from '@/lib/ai/byok'
+import { resolveLLM, resolveByokKey, NoAIConfiguredError, RateLimitExceededError } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
 import {
   auditForAllUserOrgs,
@@ -1273,6 +1273,12 @@ Offers:
       return new Response(
         JSON.stringify({ error: 'ai_not_configured', message: error.message, settingsUrl: '/app/settings' }),
         { status: 402, headers: { 'Content-Type': 'application/json', 'X-Reattend-Reason': 'ai-not-configured' } },
+      )
+    }
+    if (error instanceof RateLimitExceededError) {
+      return new Response(
+        JSON.stringify({ error: 'org_rate_limit_exceeded', message: error.message }),
+        { status: 429, headers: { 'Content-Type': 'application/json', 'X-Reattend-Reason': 'org-rate-limit' } },
       )
     }
     return new Response(JSON.stringify({ error: error.message }), {

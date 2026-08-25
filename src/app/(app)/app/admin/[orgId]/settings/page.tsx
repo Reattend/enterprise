@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Building2, Shield, Server, Cloud, AlertCircle, Check, Save, AlertTriangle,
-  Clock, Database, Globe, Key,
+  Clock, Database, Globe, Key, Bot,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AiProviderAdminSection } from './ai-provider-admin-section'
 
 type Plan = 'starter' | 'business' | 'enterprise' | 'government'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
@@ -420,6 +421,15 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
             </div>
           )}
         </form>
+      </Section>
+
+      {/* ── AI Provider (BYOK) ──────────────────────────────────────────── */}
+      <Section
+        icon={Bot}
+        title="AI Provider"
+        desc="Every member uses this key automatically - free forever, only your own vendor bill. Not visible anywhere in member Settings."
+      >
+        <AiProviderAdminSection orgId={orgId} canEdit={canEdit} />
       </Section>
 
       {/* ── Data sovereignty (informational) ──────────────────────────── */}
