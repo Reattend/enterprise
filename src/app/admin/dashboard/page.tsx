@@ -57,6 +57,10 @@ export default function AdminDashboard() {
   const [grantProSeats, setGrantProSeats] = useState('1')
   const [grantProCycle, setGrantProCycle] = useState<'monthly' | 'annual'>('monthly')
   const [grantingPro, setGrantingPro] = useState(false)
+  const [showDeleteUser, setShowDeleteUser] = useState(false)
+  const [deleteUserEmail, setDeleteUserEmail] = useState('')
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('')
+  const [deletingUser, setDeletingUser] = useState(false)
   const [showAddAdmin, setShowAddAdmin] = useState(false)
   const [newAdminEmail, setNewAdminEmail] = useState('')
   const [newAdminName, setNewAdminName] = useState('')
@@ -163,6 +167,22 @@ export default function AdminDashboard() {
       setGrantProTier('professional'); setGrantProSeats('1'); setGrantProCycle('monthly')
       fetchStats()
     } catch { toast.error('Something went wrong') } finally { setGrantingPro(false) }
+  }
+
+  const handleDeleteUser = async () => {
+    if (deleteConfirmInput.trim().toLowerCase() !== deleteUserEmail.trim().toLowerCase()) return
+    setDeletingUser(true)
+    try {
+      const res = await fetch('/api/admin/delete-user', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: deleteUserEmail, confirm: deleteConfirmInput }),
+      })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.message || data.error || 'Failed'); return }
+      toast.success(data.message)
+      setShowDeleteUser(false); setDeleteUserEmail(''); setDeleteConfirmInput('')
+      fetchStats()
+    } catch { toast.error('Something went wrong') } finally { setDeletingUser(false) }
   }
 
   const handleAddAdmin = async () => {
@@ -495,6 +515,13 @@ export default function AdminDashboard() {
                                   >
                                     <Crown className="h-3.5 w-3.5" />
                                   </button>
+                                  <button
+                                    onClick={() => { setDeleteUserEmail(u.email); setDeleteConfirmInput(''); setShowDeleteUser(true) }}
+                                    className="text-gray-400 hover:text-red-600 transition-colors"
+                                    title="Delete account"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
                                 </div>
                               </td>
                             )}
@@ -813,6 +840,43 @@ export default function AdminDashboard() {
             <Button variant="ghost" onClick={() => setShowGrantPro(false)}>Cancel</Button>
             <Button onClick={handleGrantPro} disabled={!grantProEmail.trim() || grantingPro} className="bg-amber-600 hover:bg-amber-700 text-white">
               {grantingPro ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Granting...</> : <><Crown className="h-4 w-4 mr-1" />Grant {grantProTier === 'professional' ? 'Pro' : 'Enterprise'}</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteUser} onOpenChange={setShowDeleteUser}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Trash2 className="h-5 w-5 text-red-600" />Delete Account</DialogTitle>
+            <DialogDescription>
+              Irreversible. Deletes the user, every organization and workspace they created, and all data in them.
+              Meant for cleaning up test accounts, not real customers with a live team.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 font-mono">
+              {deleteUserEmail}
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Type the email to confirm</label>
+              <Input
+                type="email"
+                value={deleteConfirmInput}
+                onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                placeholder={deleteUserEmail}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowDeleteUser(false)}>Cancel</Button>
+            <Button
+              onClick={handleDeleteUser}
+              disabled={deletingUser || deleteConfirmInput.trim().toLowerCase() !== deleteUserEmail.trim().toLowerCase()}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deletingUser ? <><Loader2 className="h-4 w-4 animate-spin mr-1" />Deleting...</> : <><Trash2 className="h-4 w-4 mr-1" />Delete account</>}
             </Button>
           </DialogFooter>
         </DialogContent>
