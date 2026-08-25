@@ -15,7 +15,7 @@
 // is doing its job, but "shouldn't happen" is not "can't happen"), it
 // redirects here instead of rendering Personal.
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -40,7 +40,24 @@ const COMPANY_SIZES: { value: CompanySize; label: string }[] = [
   { value: '1000+', label: '1000+' },
 ]
 
+// useSearchParams() requires a Suspense boundary in the App Router even
+// for a fully client-rendered page like this one, or `next build` fails
+// to prerender it - which means no prerender-manifest.json gets written
+// at all, which crash-loops the whole server on start (learned the hard
+// way in prod, 2026-08-25 - see today.md).
 export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <Loader2 className="h-6 w-6 animate-spin text-[#4F46E5]" />
+      </div>
+    }>
+      <OnboardingInner />
+    </Suspense>
+  )
+}
+
+function OnboardingInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/app'
