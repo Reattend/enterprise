@@ -1,122 +1,32 @@
 'use client'
 
+// Registration is just email -> OTP now. The org-creation + AI-choice
+// steps moved to /onboarding (a standalone page, not owned by this
+// component) so Google OAuth signups go through the exact same flow
+// instead of bypassing it - that gap was letting accounts land in a bare
+// Personal dashboard with no org at all. See today.md 2026-08-25 and
+// /app/onboarding/page.tsx.
+
 import React, { useState, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, ArrowLeft, Lock, KeyRound, Zap, Check } from 'lucide-react'
+import { Loader2, ArrowLeft, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { signIn } from 'next-auth/react'
-
-type ByokProvider = 'anthropic' | 'openai' | 'gemini'
-const PROVIDER_LABELS: Record<ByokProvider, string> = {
-  anthropic: 'Claude (Anthropic)',
-  openai: 'OpenAI',
-  gemini: 'Gemini (Google)',
-}
 
 export default function RegisterPage() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/app'
-  // Personal was ripped out of this flow on 2026-08-25 - every account now
-  // gets an org, no exceptions, so 'org' comes before any AI choice and
-  // isn't skippable. See today.md for why (14 pre-existing accounts were
-  // landing in a bare Personal dashboard with no onboarding at all).
-  const [step, setStep] = useState<'email' | 'otp' | 'org' | 'ai'>('email')
+  const onboardingUrl = redirectTo === '/app' ? '/onboarding' : `/onboarding?redirect=${encodeURIComponent(redirectTo)}`
+
+  const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [devCode, setDevCode] = useState<string | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-
-  // Org step
-  const [orgName, setOrgName] = useState('')
-  const [creatingOrg, setCreatingOrg] = useState(false)
-  const [orgId, setOrgId] = useState<string | null>(null)
-
-  // AI-choice step
-  const [byokProvider, setByokProvider] = useState<ByokProvider>('anthropic')
-  const [byokKey, setByokKey] = useState('')
-  const [connectingByok, setConnectingByok] = useState(false)
-  const [startingTrial, setStartingTrial] = useState(false)
-
-  function goToApp() {
-    window.location.href = redirectTo
-  }
-
-  async function handleCreateOrg() {
-    if (!orgName.trim() || creatingOrg) return
-    setCreatingOrg(true)
-    try {
-      const orgRes = await fetch('/api/enterprise/organizations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: orgName.trim() }),
-      })
-      const orgData = await orgRes.json()
-      if (!orgRes.ok) {
-        toast.error(orgData.message || orgData.error || 'Could not create your organization')
-        return
-      }
-      await fetch('/api/me/active-context', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context: 'org', orgId: orgData.organization.id }),
-      })
-      setOrgId(orgData.organization.id)
-      setStep('ai')
-    } catch {
-      toast.error('Network error - try again')
-    } finally {
-      setCreatingOrg(false)
-    }
-  }
-
-  async function handleConnectByok() {
-    if (!byokKey.trim() || connectingByok || !orgId) return
-    setConnectingByok(true)
-    try {
-      // Account creator is the org's founding super_admin, so this is the
-      // same admin-only route the Control Room uses post-signup - not the
-      // (now personal-only) /api/me/ai-provider-key.
-      const res = await fetch(`/api/enterprise/organizations/${orgId}/ai-provider-key`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: byokProvider, apiKey: byokKey.trim() }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        toast.error(data.message || data.error || 'Could not verify that key')
-        return
-      }
-      toast.success('Key connected - free forever')
-      goToApp()
-    } catch {
-      toast.error('Network error - try again')
-    } finally {
-      setConnectingByok(false)
-    }
-  }
-
-  async function handleStartTrial() {
-    if (startingTrial || !orgId) return
-    setStartingTrial(true)
-    try {
-      const trialRes = await fetch('/api/billing/start-trial', { method: 'POST' })
-      const trialData = await trialRes.json()
-      if (!trialRes.ok) {
-        toast.error(trialData.message || trialData.error || 'Could not start trial')
-        return
-      }
-      toast.success('15-day Managed trial started')
-      goToApp()
-    } catch {
-      toast.error('Network error - try again')
-    } finally {
-      setStartingTrial(false)
-    }
-  }
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -166,7 +76,7 @@ export default function RegisterPage() {
         inputRefs.current[0]?.focus()
       } else {
         toast.success('Account created! Welcome to Reattend.')
-        setStep('org')
+        window.location.href = onboardingUrl
       }
     } catch {
       toast.error('Something went wrong')
@@ -248,9 +158,10 @@ export default function RegisterPage() {
               >
                 <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-8 text-center">Create your workspace</h1>
 
-                {/* Google OAuth */}
+                {/* Google OAuth - routes through the same org-creation +
+                    AI-choice flow as email/OTP, via callbackUrl. */}
                 <button
-                  onClick={() => signIn('google', { callbackUrl: redirectTo })}
+                  onClick={() => signIn('google', { callbackUrl: onboardingUrl })}
                   className="w-full h-[48px] flex items-center justify-center gap-3 bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl text-[14px] font-medium text-[#1a1a2e] hover:bg-white/90 active:scale-[0.98] transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-4"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -302,7 +213,7 @@ export default function RegisterPage() {
                   <Link href="/login" className="text-[#4F46E5] font-medium hover:underline">Log in</Link>
                 </p>
               </motion.div>
-            ) : step === 'otp' ? (
+            ) : (
               <motion.div
                 key="otp"
                 initial={{ opacity: 0, y: 8 }}
@@ -367,119 +278,6 @@ export default function RegisterPage() {
                     Resend code
                   </button>
                 </div>
-              </motion.div>
-            ) : step === 'org' ? (
-              <motion.div
-                key="org"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="w-full"
-              >
-                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">Name your organization</h1>
-                <p className="text-[13px] text-gray-500 text-center mb-6">
-                  You&apos;ll be the admin - invite your team once you&apos;re in.
-                </p>
-
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  placeholder="Organization name (e.g. Acme Inc)"
-                  required
-                  autoFocus
-                  className="w-full h-[48px] px-4 text-[14px] text-[#1a1a2e] bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl outline-none transition-all placeholder:text-gray-400 focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-3"
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleCreateOrg() }}
-                />
-
-                <button
-                  onClick={handleCreateOrg}
-                  disabled={creatingOrg || !orgName.trim()}
-                  className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
-                >
-                  {creatingOrg ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Continue
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="ai"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="w-full"
-              >
-                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">How do you want AI to run?</h1>
-                <p className="text-[13px] text-gray-500 text-center mb-6">
-                  Pick one now, or skip and set it up later in the Control Room.
-                </p>
-
-                {/* BYOK option */}
-                <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <KeyRound className="h-4 w-4 text-[#4F46E5]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Bring your own key</p>
-                    <span className="ml-auto text-[11px] font-semibold text-emerald-600">Free forever</span>
-                  </div>
-                  <p className="text-[12px] text-gray-500 mb-3">
-                    Your own Anthropic, OpenAI, or Gemini key - every teammate uses it automatically, nobody else
-                    has to touch this. Never expires.
-                  </p>
-                  <div className="flex gap-2">
-                    <select
-                      value={byokProvider}
-                      onChange={e => setByokProvider(e.target.value as ByokProvider)}
-                      className="h-[40px] px-2.5 text-[13px] bg-white/70 border border-white/80 rounded-lg outline-none shrink-0"
-                    >
-                      {(Object.keys(PROVIDER_LABELS) as ByokProvider[]).map(p => (
-                        <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="password"
-                      value={byokKey}
-                      onChange={e => setByokKey(e.target.value)}
-                      placeholder="Paste API key"
-                      className="flex-1 min-w-0 h-[40px] px-3 text-[13px] bg-white/70 border border-white/80 rounded-lg outline-none focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10"
-                      onKeyDown={e => { if (e.key === 'Enter') handleConnectByok() }}
-                    />
-                  </div>
-                  <button
-                    onClick={handleConnectByok}
-                    disabled={connectingByok || !byokKey.trim()}
-                    className="w-full h-[40px] mt-2.5 bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {connectingByok ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                    Connect & continue
-                  </button>
-                </div>
-
-                {/* Managed option */}
-                <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Zap className="h-4 w-4 text-[#4F46E5]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Managed</p>
-                    <span className="ml-auto text-[11px] font-semibold text-gray-500">$19/user/mo</span>
-                  </div>
-                  <p className="text-[12px] text-gray-500 mb-3">
-                    We run the AI for you - no key to manage. 15-day free trial, no card needed.
-                  </p>
-                  <button
-                    onClick={handleStartTrial}
-                    disabled={startingTrial}
-                    className="w-full h-[40px] bg-white border border-[#4F46E5]/30 hover:bg-[#4F46E5]/5 active:scale-[0.98] text-[#4F46E5] text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {startingTrial ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                    Start 15-day trial
-                  </button>
-                </div>
-
-                <button
-                  onClick={goToApp}
-                  className="w-full text-center text-[13px] text-gray-500 hover:text-[#4F46E5] font-medium transition-colors"
-                >
-                  Skip for now
-                </button>
               </motion.div>
             )}
           </AnimatePresence>

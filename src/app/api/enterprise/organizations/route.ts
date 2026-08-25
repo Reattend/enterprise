@@ -59,17 +59,20 @@ export async function POST(req: NextRequest) {
     const { userId, session } = await requireAuth()
     const callerEmail = (session?.user?.email ?? '').toLowerCase()
     const body = await req.json()
-    const { name, slug, primaryDomain, plan, deployment } = body as {
+    const { name, slug, primaryDomain, plan, deployment, companySize } = body as {
       name?: string
       slug?: string
       primaryDomain?: string
       plan?: 'free' | 'professional' | 'enterprise'
       deployment?: 'saas' | 'on_prem' | 'air_gapped'
+      companySize?: '1-10' | '11-50' | '51-200' | '201-1000' | '1000+'
     }
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return NextResponse.json({ error: 'name is required' }, { status: 400 })
     }
+    const VALID_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+']
+    const normalizedCompanySize = VALID_SIZES.includes(companySize ?? '') ? companySize : null
 
     // Normalize + strictly validate primaryDomain. Must look like acme.com
     // - no `@`, no protocol, no path, no whitespace.
@@ -127,6 +130,7 @@ export async function POST(req: NextRequest) {
       slug: finalSlug,
       primaryDomain: normalizedDomain,
       plan: plan || 'free',
+      companySize: normalizedCompanySize,
       deployment: deployment || 'saas',
       status: 'active',
       createdBy: userId,

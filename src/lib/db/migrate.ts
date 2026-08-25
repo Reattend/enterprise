@@ -1231,5 +1231,35 @@ try {
   console.log('- ai_provider_keys.queries_reset_at (already exists)')
 }
 
+// ─── Personal grandfather flag + company size ──────────────────────────────
+// The backfill lives INSIDE this try block deliberately - it only runs the
+// one time the ALTER TABLE actually succeeds (column didn't exist yet). On
+// every later deploy the ALTER throws "duplicate column", we skip straight
+// to the catch, and the backfill never runs again. If it ran on every
+// deploy instead, any future account that legitimately ends up zero-org
+// (a bug, an edge case) would get silently grandfathered into Personal
+// access too - defeating the whole point of this flag.
+try {
+  sqlite.exec(`ALTER TABLE users ADD COLUMN personal_legacy_grandfathered INTEGER NOT NULL DEFAULT 0;`)
+  console.log('✓ users.personal_legacy_grandfathered')
+
+  const result = sqlite.prepare(`
+    UPDATE users SET personal_legacy_grandfathered = 1
+    WHERE NOT EXISTS (
+      SELECT 1 FROM organization_members om
+      WHERE om.user_id = users.id AND om.status = 'active'
+    )
+  `).run()
+  console.log(`✓ personal_legacy_grandfathered backfilled (one-time) for ${result.changes} zero-org user(s)`)
+} catch (e: any) {
+  console.log('- users.personal_legacy_grandfathered (already exists, backfill skipped - one-time only)')
+}
+try {
+  sqlite.exec(`ALTER TABLE organizations ADD COLUMN company_size TEXT;`)
+  console.log('✓ organizations.company_size')
+} catch (e: any) {
+  console.log('- organizations.company_size (already exists)')
+}
+
 console.log('Database migration complete!')
 sqlite.close()

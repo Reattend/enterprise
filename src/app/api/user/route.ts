@@ -60,6 +60,7 @@ export async function GET() {
         name: user.name,
         avatarUrl: user.avatarUrl,
         onboardingCompleted: user.onboardingCompleted ?? false,
+        personalLegacyGrandfathered: user.personalLegacyGrandfathered ?? false,
         createdAt: user.createdAt,
       },
       workspace: workspace ? {

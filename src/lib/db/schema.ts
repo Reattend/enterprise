@@ -16,6 +16,14 @@ export const users = sqliteTable('users', {
   // /api/me/active-context so picking "Personal" on the desktop also flips
   // the web tab to Personal.
   activeContextOrgId: text('active_context_org_id'),
+  // True only for the accounts that were already zero-org when Personal
+  // was ripped out of the main flow (2026-08-25) - backfilled once at
+  // migration time, never set for anyone created after. Lets /app tell
+  // "grandfathered legacy Personal account" apart from "new account that
+  // fell through a gap" (e.g. Google OAuth, which bypasses registration's
+  // org-creation step) - the latter gets redirected to /onboarding
+  // instead of silently landing in PersonalHomePage. See today.md.
+  personalLegacyGrandfathered: integer('personal_legacy_grandfathered', { mode: 'boolean' }).notNull().default(false),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 })
 
@@ -802,6 +810,7 @@ export const organizations = sqliteTable('organizations', {
   slug: text('slug').notNull().unique(),
   primaryDomain: text('primary_domain'), // e.g. "acme.com" - used for SSO domain-match
   plan: text('plan', { enum: ['free', 'professional', 'enterprise'] }).notNull().default('free'),
+  companySize: text('company_size', { enum: ['1-10', '11-50', '51-200', '201-1000', '1000+'] }),
   deployment: text('deployment', { enum: ['saas', 'on_prem', 'air_gapped'] }).notNull().default('saas'),
   onPremRabbitUrl: text('on_prem_rabbit_url'),
   seatLimit: integer('seat_limit'),

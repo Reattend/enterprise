@@ -11,6 +11,7 @@
 //   /api/enterprise/meeting-prep           next meeting block
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Plus, MessageSquare, Calendar as CalendarIcon, ChevronRight,
@@ -80,12 +81,13 @@ function greeting(name: string | null) {
 }
 
 export default function HomePage() {
+  const router = useRouter()
   const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const enterpriseOrgs = useAppStore((s) => s.enterpriseOrgs)
   const enterpriseOrgsLoaded = useAppStore((s) => s.enterpriseOrgsLoaded)
   const activeOrg = enterpriseOrgs.find((o) => o.orgId === activeOrgId)
 
-  const [user, setUser] = useState<{ name: string | null; email: string } | null>(null)
+  const [user, setUser] = useState<{ name: string | null; email: string; personalLegacyGrandfathered?: boolean } | null>(null)
   const [totals, setTotals] = useState<AnalyticsTotals | null>(null)
   const [recent, setRecent] = useState<RecentRecord[]>([])
   const [sync, setSync] = useState<SyncProvider[]>([])
@@ -124,18 +126,46 @@ export default function HomePage() {
     return () => { cancelled = true }
   }, [activeOrgId])
 
-  // Personal context (no active org) gets PersonalHomePage. This covers
-  // both pure Solo users (no orgs at all) and hybrid users who picked
-  // "Personal" in the topbar context switcher - both have
-  // activeEnterpriseOrgId === null.
+  // Side effects for the three activeOrgId===null cases described below -
+  // kept out of the render path itself (a Zustand store write or a router
+  // redirect during render is a footgun, even if it happens to work).
+  useEffect(() => {
+    if (!enterpriseOrgsLoaded || activeOrgId) return
+    if (enterpriseOrgs.length > 0) {
+      useAppStore.getState().setActiveEnterpriseOrgId(enterpriseOrgs[0].orgId)
+      return
+    }
+    if (!user) return
+    if (!user.personalLegacyGrandfathered) {
+      router.replace('/onboarding')
+    }
+  }, [enterpriseOrgsLoaded, activeOrgId, enterpriseOrgs, user, router])
+
+  // Personal is gone from the main flow (2026-08-25) - activeOrgId===null
+  // now means one of three things, handled differently:
+  //   1. User HAS orgs but activeOrgId is stale-null (old switcher state
+  //      from before Personal was hidden from the switcher) -> fall back
+  //      to their first org rather than showing Personal at all.
+  //   2. Zero orgs, but grandfathered (existed before the 2026-08-25 cutoff,
+  //      see users.personalLegacyGrandfathered) -> PersonalHomePage, same
+  //      as always, their data lives there.
+  //   3. Zero orgs, NOT grandfathered -> this account fell through a gap
+  //      (Google OAuth used to be one; there may be others we haven't
+  //      found yet) - send it to /onboarding instead of ever rendering
+  //      Personal. See today.md.
   //
   // Gate on enterpriseOrgsLoaded: without it, real org users briefly see
-  // PersonalHomePage during the ~100ms before /api/enterprise/organizations
+  // this branch during the ~100ms before /api/enterprise/organizations
   // resolves and the auto-pick sets the active org. While orgs are still
   // loading, render nothing - the layout already shows the topbar/sidebar
-  // shell, so the screen isn't blank.
+  // shell, so the screen isn't blank. Also wait for `user` to load before
+  // deciding case 2 vs 3 - grandfathered status lives on that response.
+  const showPersonalFallback = enterpriseOrgsLoaded && !activeOrgId && enterpriseOrgs.length === 0
+    && !!user && user.personalLegacyGrandfathered
+
   if (!enterpriseOrgsLoaded) return null
   if (!activeOrgId) {
+    if (!showPersonalFallback) return null
     return <PersonalHomePage user={user} />
   }
 
