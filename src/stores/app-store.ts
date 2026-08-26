@@ -114,7 +114,7 @@ export interface EnterpriseOrgMembership {
   role: 'super_admin' | 'admin' | 'member' | 'guest'
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   sidebarOpen: true,
   sidebarCollapsed: false,
   mobileSidebarOpen: false,
@@ -170,7 +170,26 @@ export const useAppStore = create<AppState>((set) => ({
   setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
 
   enterpriseOrgs: [],
-  setEnterpriseOrgs: (enterpriseOrgs) => set({ enterpriseOrgs }),
+  // Self-heals a stale activeEnterpriseOrgId every time the REAL org list
+  // loads. localStorage isn't scoped per-account - StoreHydrator restores
+  // active_enterprise_org_id on mount straight from localStorage, so a
+  // value left over from a *different* login on this same browser (or a
+  // since-deleted org) survives into a brand new session untouched. Every
+  // consumer used to trust `activeEnterpriseOrgId` truthiness on its own
+  // (page.tsx's org-dashboard branch, sidebar's Control Room button) -
+  // that's how a deleted-account's leftover org id made a fresh signup
+  // render a phantom "your organization" dashboard instead of either
+  // Personal or the onboarding redirect. Fixed at the source instead of
+  // patching every read site: the moment we know the CURRENT user's real
+  // memberships, cross-check and clear if it doesn't match. See today.md
+  // 2026-08-26.
+  setEnterpriseOrgs: (enterpriseOrgs) => {
+    set({ enterpriseOrgs })
+    const current = get().activeEnterpriseOrgId
+    if (current && !enterpriseOrgs.some((o) => o.orgId === current)) {
+      get().setActiveEnterpriseOrgId(null)
+    }
+  },
   enterpriseOrgsLoaded: false,
   setEnterpriseOrgsLoaded: (v) => set({ enterpriseOrgsLoaded: v }),
   // Always null on init (server + first client render agree). The StoreHydrator
