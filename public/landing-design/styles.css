@@ -1,8 +1,8 @@
 /* ============== Reattend Landing - Design Tokens ============== */
 :root {
-  --bg: oklch(0.985 0.005 80);
-  --bg-2: oklch(0.97 0.008 80);
-  --bg-paper: oklch(0.992 0.004 80);
+  --bg: oklch(1 0 0);
+  --bg-2: oklch(0.98 0 0);
+  --bg-paper: oklch(0.995 0 0);
   --ink: oklch(0.18 0.012 270);
   --ink-2: oklch(0.32 0.012 270);
   --ink-3: oklch(0.52 0.012 270);
@@ -16,7 +16,7 @@
   --amber: oklch(0.82 0.13 75);
   --amber-deep: oklch(0.68 0.15 60);
 
-  --serif: "Instrument Serif", "Times New Roman", serif;
+  --serif: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --sans: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -56,7 +56,7 @@ body::before {
 }
 
 /* ============ Type ============ */
-h1, h2, h3 { margin: 0; font-weight: 400; letter-spacing: -0.01em; }
+h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
 .serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em; }
 .mono { font-family: var(--mono); }
 .label {
