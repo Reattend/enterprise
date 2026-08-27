@@ -107,7 +107,11 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-    if (!activeOrgId) return
+    // Gate on enterpriseOrgsLoaded too, not just activeOrgId - a stale
+    // localStorage org id is truthy for a brief window before the store's
+    // self-heal (setEnterpriseOrgs) clears it. Firing org-scoped fetches
+    // during that window is exactly what threw the 403s in prod, 2026-08-26.
+    if (!enterpriseOrgsLoaded || !activeOrgId) return
     let cancelled = false
     setLoading(true)
     Promise.all([
@@ -124,7 +128,7 @@ export default function HomePage() {
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [activeOrgId])
+  }, [activeOrgId, enterpriseOrgsLoaded])
 
   // Side effects for the three activeOrgId===null cases described below -
   // kept out of the render path itself (a Zustand store write or a router

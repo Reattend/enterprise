@@ -178,7 +178,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SandboxBanner />
           <TrialBanner />
           <InboxBanner />
-          <AnnouncementBanner orgId={activeEnterpriseOrgId} />
+          {/* Withhold orgId until orgsLoaded - see page.tsx's analytics-fetch
+              effect for why (2026-08-26 stale-org-id race). */}
+          <AnnouncementBanner orgId={orgsLoaded ? activeEnterpriseOrgId : null} />
           <PolicyPendingBanner />
           <div className={cn(
             'flex-1 overflow-hidden flex flex-col',

@@ -17,7 +17,6 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -61,7 +60,6 @@ function OnboardingInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/app'
-  const { data: session, status } = useSession()
 
   const [checking, setChecking] = useState(true)
   const [step, setStep] = useState<'org' | 'ai'>('org')
@@ -76,17 +74,27 @@ function OnboardingInner() {
   const [connectingByok, setConnectingByok] = useState(false)
   const [startingTrial, setStartingTrial] = useState(false)
 
+  // Auth check via a plain fetch, not the useSession() hook - this app has
+  // never wrapped itself in a <SessionProvider> (every other page checks
+  // auth server-side via requireAuth()/middleware), so useSession() was
+  // throwing "Cannot destructure property 'data' ... as undefined" on
+  // every load. Hitting NextAuth's own session endpoint directly works
+  // with zero provider setup. Learned this in prod, 2026-08-26 - see
+  // today.md before reaching for useSession() anywhere else in this app.
+  //
   // Not signed in -> nothing to onboard, go log in. Already has an org ->
   // nothing to do here (repeat Google login, or direct navigation), go
   // straight to the app instead of re-running the flow.
   useEffect(() => {
-    if (status === 'loading') return
-    if (status === 'unauthenticated') {
-      router.replace(`/login?callbackUrl=${encodeURIComponent('/onboarding')}`)
-      return
-    }
-    ;(async () => {
+    (async () => {
       try {
+        const sessionRes = await fetch('/api/auth/session')
+        const sessionData = sessionRes.ok ? await sessionRes.json() : null
+        if (!sessionData?.user) {
+          router.replace(`/login?callbackUrl=${encodeURIComponent('/onboarding')}`)
+          return
+        }
+
         const res = await fetch('/api/enterprise/organizations')
         const data = await res.json()
         if (Array.isArray(data.organizations) && data.organizations.length > 0) {
@@ -96,7 +104,7 @@ function OnboardingInner() {
       } catch { /* fall through to onboarding on any error */ }
       setChecking(false)
     })()
-  }, [status])
+  }, [])
 
   function goToApp() {
     window.location.href = redirectTo
@@ -174,7 +182,7 @@ function OnboardingInner() {
 
   const recommendTalkToSales = companySize === '201-1000' || companySize === '1000+'
 
-  if (status === 'loading' || checking) {
+  if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
         <Loader2 className="h-6 w-6 animate-spin text-[#4F46E5]" />

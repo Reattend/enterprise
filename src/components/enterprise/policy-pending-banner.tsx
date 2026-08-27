@@ -14,7 +14,7 @@ const DISMISS_KEY = 'policy_pending_banner_dismissed_at'
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000 // 24h
 
 export function PolicyPendingBanner() {
-  const { activeEnterpriseOrgId } = useAppStore()
+  const { activeEnterpriseOrgId, enterpriseOrgsLoaded } = useAppStore()
   const [count, setCount] = useState(0)
   const [dismissed, setDismissed] = useState(false)
 
@@ -29,7 +29,9 @@ export function PolicyPendingBanner() {
   }, [])
 
   useEffect(() => {
-    if (!activeEnterpriseOrgId) { setCount(0); return }
+    // Gate on enterpriseOrgsLoaded too - see page.tsx's analytics-fetch
+    // effect for why (2026-08-26 stale-org-id race).
+    if (!enterpriseOrgsLoaded || !activeEnterpriseOrgId) { setCount(0); return }
     ;(async () => {
       try {
         const res = await fetch(`/api/enterprise/policies/pending?orgId=${activeEnterpriseOrgId}`)
@@ -38,7 +40,7 @@ export function PolicyPendingBanner() {
         setCount(data.count || 0)
       } catch { /* non-fatal */ }
     })()
-  }, [activeEnterpriseOrgId])
+  }, [activeEnterpriseOrgId, enterpriseOrgsLoaded])
 
   if (!activeEnterpriseOrgId || count === 0 || dismissed) return null
 

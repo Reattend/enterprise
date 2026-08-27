@@ -91,6 +91,16 @@ interface AppState {
   setEnterpriseOrgs: (orgs: EnterpriseOrgMembership[]) => void
   activeEnterpriseOrgId: string | null
   setActiveEnterpriseOrgId: (id: string | null) => void
+  // Store-only, no side effects (no localStorage write-back, no POST to
+  // /api/me/active-context) - StoreHydrator uses this instead of
+  // setActiveEnterpriseOrgId to restore the localStorage value on mount.
+  // The full setter's POST assumes the id is already valid; hydration
+  // hasn't validated anything yet, it's just reading back what was
+  // written last time. Firing that POST for an unvalidated (possibly
+  // stale/deleted) org id was itself causing a spurious 403 on every
+  // load with a stale id, on top of the race this was meant to close.
+  // See today.md 2026-08-26.
+  hydrateActiveEnterpriseOrgId: (id: string | null) => void
   // True once the layout's /api/enterprise/organizations fetch has resolved
   // at least once. Pages dispatching between org/no-org renders should
   // gate on this - without it, real org users briefly see the no-org
@@ -221,6 +231,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
     set({ activeEnterpriseOrgId: id })
   },
+  hydrateActiveEnterpriseOrgId: (id) => set({ activeEnterpriseOrgId: id }),
   hasHydratedStore: false,
   setHasHydratedStore: (v) => set({ hasHydratedStore: v }),
 }))
