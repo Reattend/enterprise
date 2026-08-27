@@ -15,8 +15,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/landing-design/styles.css?v=18" />
-  <link rel="stylesheet" href="/landing-design/landing-v2.css?v=4" />
-  <link rel="stylesheet" href="/landing-design/landing-v3.css?v=4" />
+  <link rel="stylesheet" href="/landing-design/landing-v2.css?v=3" />
+  <link rel="stylesheet" href="/landing-design/landing-v3.css?v=3" />
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0J0Y3SL5CY"></script>
@@ -72,93 +72,70 @@
         </div>
       </div>
 
-      <!-- Live "ask your org" demo -->
-      <div class="ask-demo reveal">
-        <div class="ask-demo-card">
-          <div class="ask-demo-bar">
-            <span class="ask-demo-dot"></span>
-            <form class="ask-demo-form" id="ask-demo-form">
-              <input class="ask-demo-input" id="ask-demo-input" placeholder="Ask your org anything…" aria-label="Ask your org anything" autocomplete="off" />
-              <span class="ask-demo-caret" id="ask-demo-caret"></span>
-              <button type="submit" class="ask-demo-submit">Ask Reattend</button>
-            </form>
-          </div>
-          <div class="ask-demo-panel" id="ask-demo-panel">
-            <div class="ask-demo-status">
-              <span class="ask-demo-status-mark">R</span>
-              <span class="ask-demo-status-line" id="ask-demo-status-line">Reattend · answered from org memory</span>
+      <!-- Memory orb stage -->
+      <div class="orb-stage reveal">
+        <!-- Connecting lines -->
+        <svg class="orb-lines" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M40,80 Q140,140 200,200" />
+          <path d="M40,160 Q140,180 200,200" />
+          <path d="M40,240 Q140,220 200,200" />
+          <path d="M40,320 Q140,260 200,200" />
+          <path d="M360,120 Q280,160 200,200" />
+          <path d="M360,280 Q280,240 200,200" />
+        </svg>
+
+        <!-- Apps grid (left) -->
+        <div class="orb-apps">
+          <div class="orb-apps-label">Ingest</div>
+          <div class="orb-app" title="Slack"><img src="https://cdn.simpleicons.org/slack/4A154B" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Gmail"><img src="https://cdn.simpleicons.org/gmail/EA4335" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Notion" style="background:#000;"><img src="https://cdn.simpleicons.org/notion/ffffff" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Linear"><img src="https://cdn.simpleicons.org/linear/5E6AD2" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="GitHub"><img src="https://cdn.simpleicons.org/github/181717" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Figma"><img src="https://cdn.simpleicons.org/figma/F24E1E" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Drive"><img src="https://cdn.simpleicons.org/googledrive/4285F4" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Calendar"><img src="https://cdn.simpleicons.org/googlecalendar/4285F4" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Dropbox"><img src="https://cdn.simpleicons.org/dropbox/0061FF" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Zoom"><img src="https://cdn.simpleicons.org/zoom/0B5CFF" alt="" loading="lazy" /></div>
+          <div class="orb-app" title="Jira"><img src="https://cdn.simpleicons.org/jira/0052CC" alt="" loading="lazy" /></div>
+          <div class="orb-app-more">+more</div>
+        </div>
+
+        <!-- The orb -->
+        <div style="position:relative; padding: 40px 0;">
+          <div class="orb-core">
+            <div class="orb-num">24,193</div>
+            <div class="orb-num-label">memories indexed</div>
+            <div class="orb-stats">
+              <div class="orb-stat"><div class="orb-stat-num">19</div><div class="orb-stat-label">signals</div></div>
+              <div class="orb-stat"><div class="orb-stat-num">6</div><div class="orb-stat-label">hops</div></div>
+              <div class="orb-stat"><div class="orb-stat-num">98.7%</div><div class="orb-stat-label">cite</div></div>
             </div>
-            <p class="ask-demo-title" id="ask-demo-title"></p>
-            <p class="ask-demo-body" id="ask-demo-body"></p>
-            <div class="ask-demo-cites" id="ask-demo-cites"></div>
           </div>
+          <div class="orb-bottom">REATTEND CORE · V3</div>
         </div>
-        <div class="ask-demo-chips" id="ask-demo-chips"></div>
-        <p class="ask-demo-foot">Answers are RBAC-gated. Reattend never sees a record the asker can't.</p>
-      </div>
-    </div>
-  </section>
 
-  <!-- ============== PRODUCT TOUR (real product) ============== -->
-  <section class="tour-v2" data-screen-label="01b Product tour">
-    <div class="wrap">
-      <div class="tour-item reveal">
-        <div class="tour-copy">
-          <h2 class="sec-h2 tour-h2">Everything that needs you, the moment you sign in.</h2>
-          <p class="sec-lede">Active members, memories, decisions logged, and what's gone stale - with the meetings Reattend will brief you on before they start. One screen instead of six dashboards and a Slack search.</p>
-          <span class="tour-tag">01 &nbsp;Control Room</span>
-        </div>
-        <div class="tour-frame">
-          <div class="tour-frame-bar">
-            <span></span><span></span><span></span>
-            <span class="tour-frame-url">reattend.com/app</span>
+        <!-- Callouts -->
+        <div class="orb-callouts">
+          <div class="orb-callout">
+            <div class="orb-callout-head"><span class="avatar">MK</span> <span>"What did we decide on Q3 pricing?"</span></div>
+            <div class="orb-callout-body">Held at <strong>$36k</strong> after Q1 churn data - reverted from Pricing v4.</div>
+            <div class="orb-callout-tags"><span class="orb-callout-tag">ADR-007</span><span class="orb-callout-tag">slack #pricing</span></div>
           </div>
-          <img src="/landing-design/shots/control-room.png" alt="Reattend Control Room, showing active members, memories, decisions and stale records" loading="lazy" onerror="this.closest('.tour-frame').classList.add('tour-frame-empty')" />
+          <div class="orb-callout">
+            <div class="orb-callout-head amber"><span class="dot"></span> Ambient recall</div>
+            <div class="orb-callout-body">You're contradicting Pricing v4. <em>$42k</em> conflicts with prior decision.</div>
+          </div>
+          <div class="orb-callout">
+            <div class="orb-callout-head"><span class="avatar" style="background:oklch(0.78 0.16 65);">SK</span> <span>Sam K. exit · 47 docs</span></div>
+            <div class="orb-callout-body">12 decisions preserved · ramp ready</div>
+          </div>
         </div>
-      </div>
 
-      <div class="tour-item reveal">
-        <div class="tour-copy">
-          <h2 class="sec-h2 tour-h2">A score for what your org is quietly forgetting.</h2>
-          <p class="sec-lede">Instrumented signals, decisions, and drift indicators that surface what dashboards can't show you. Transfer knowledge before someone leaves, run a self-healing scan, and export the whole cockpit for the board.</p>
-          <span class="tour-tag">02 &nbsp;Memory health cockpit</span>
-        </div>
-        <div class="tour-frame">
-          <div class="tour-frame-bar">
-            <span></span><span></span><span></span>
-            <span class="tour-frame-url">reattend.com/app/admin</span>
-          </div>
-          <img src="/landing-design/shots/cockpit.png" alt="Reattend memory health cockpit with setup progress and instrumented signals" loading="lazy" onerror="this.closest('.tour-frame').classList.add('tour-frame-empty')" />
-        </div>
-      </div>
-
-      <div class="tour-item reveal">
-        <div class="tour-copy">
-          <h2 class="sec-h2 tour-h2">What's rotting in your knowledge - and where the next leverage point is hiding.</h2>
-          <p class="sec-lede">Every week, Reattend scores your memory out of 100 and ranks the gaps by leverage: who stopped contributing, what nobody has opened in ninety days, which capture path has gone quiet. Each one ships with a fix.</p>
-          <span class="tour-tag">03 &nbsp;Weekly audit</span>
-        </div>
-        <div class="tour-frame">
-          <div class="tour-frame-bar">
-            <span></span><span></span><span></span>
-            <span class="tour-frame-url">reattend.com/app/admin/audit</span>
-          </div>
-          <img src="/landing-design/shots/weekly-audit.png" alt="Reattend weekly audit scoring knowledge health and ranking leverage gaps" loading="lazy" onerror="this.closest('.tour-frame').classList.add('tour-frame-empty')" />
-        </div>
-      </div>
-
-      <div class="tour-item reveal">
-        <div class="tour-copy">
-          <h2 class="sec-h2 tour-h2">Memory that knows your org chart.</h2>
-          <p class="sec-lede">Ministries, departments, wings, directorates, teams. Every memory is filed against the part of the org that owns it, so access follows structure and a recall never crosses a boundary it shouldn't.</p>
-          <span class="tour-tag">04 &nbsp;Hierarchy</span>
-        </div>
-        <div class="tour-frame">
-          <div class="tour-frame-bar">
-            <span></span><span></span><span></span>
-            <span class="tour-frame-url">reattend.com/app/hierarchy</span>
-          </div>
-          <img src="/landing-design/shots/hierarchy.png" alt="Reattend hierarchy view showing the org graph from top down to teams" loading="lazy" onerror="this.closest('.tour-frame').classList.add('tour-frame-empty')" />
+        <!-- Bottom tags -->
+        <div class="orb-bottom-tags">
+          <span>200+ apps · oauth scoped</span>
+          <span>cited · auditable · live</span>
         </div>
       </div>
     </div>
@@ -872,140 +849,6 @@
       render(tools, 'int-r1');
       render(r2tools, 'int-r2');
       render(r3tools, 'int-r3');
-    })();
-
-    // ============== Hero ask-demo ==============
-    (function askDemo() {
-      const QA = [
-        {
-          q: "What did we decide about pricing in Q3?",
-          h: "Pricing v3 was approved on Aug 14, 2024.",
-          p: "Annual contracts moved from $24k to $36k base after the Acme renewal data came back. The decision owner was Priya R. (CRO). It was reverted in v4 after Q1 churn analysis showed top-of-funnel collapse.",
-          c: ["Pricing committee · Aug 14, 2024", "Acme call · Jul 30, 2024", "Q1 churn memo"]
-        },
-        {
-          q: "Why did we pick AWS over GCP?",
-          h: "Cost modeling and BAA coverage tilted it.",
-          p: "Finance ran a 24-month TCO showing AWS landed 18% cheaper for our retrieval pattern. Compliance flagged GCP's HIPAA BAA as gappy in EU regions. Decision logged in the Infra council on Feb 6, 2024.",
-          c: ["Infra council · Feb 6, 2024", "TCO model · Q1", "Compliance memo"]
-        },
-        {
-          q: "What does Sam own that no one else does?",
-          h: "Three load-bearing things, and two are single points of failure.",
-          p: "Sam is the only person with merge rights on billing-reconcile and the Stripe webhook chain. The Postgres migration runbook lives in a private Notion. Recommend handing the runbook to Mai before Sam's last day.",
-          c: ["billing-reconcile repo", "Stripe webhook · runbook", "pg-migrate-2024 · private"]
-        },
-        {
-          q: "When did the data-retention policy change?",
-          h: "Twice in 18 months. The current version is v3.",
-          p: "Default retention dropped from 36 months to 18 for chat content. PII was carved into a separate 90-day window after the EU DPA review. Approved by Legal and the CISO.",
-          c: ["Retention policy v3 · Sep 2, 2024", "EU DPA review", "CISO sign-off"]
-        }
-      ];
-      const FALLBACK = {
-        h: "No memory matches that in this sample org.",
-        p: "This demo recalls from a small sample graph. In your tenant, Reattend answers from your own decisions, threads and documents - with citations, and only from records the asker is cleared to see.",
-        c: ["RBAC enforced", "Sandbox"]
-      };
-      const MATCH = [
-        [["pric", "contract", "discount"], 0],
-        [["aws", "gcp", "cloud", "vendor", "infra"], 1],
-        [["sam", "own", "leav", "offboard"], 2],
-        [["retention", "policy", "gdpr", "compliance"], 3]
-      ];
-
-      const input = document.getElementById('ask-demo-input');
-      const caret = document.getElementById('ask-demo-caret');
-      const form = document.getElementById('ask-demo-form');
-      const panel = document.getElementById('ask-demo-panel');
-      const statusLine = document.getElementById('ask-demo-status-line');
-      const titleEl = document.getElementById('ask-demo-title');
-      const bodyEl = document.getElementById('ask-demo-body');
-      const citesEl = document.getElementById('ask-demo-cites');
-      const chipsEl = document.getElementById('ask-demo-chips');
-      if (!input || !form) return;
-
-      let i = 0, typed = '', phase = 'typing', words = 0, taken = false, mark = Date.now(), custom = null;
-
-      function current() { return custom || QA[i]; }
-
-      function renderChips() {
-        chipsEl.innerHTML = QA.map((item, idx) =>
-          `<button type="button" class="ask-demo-chip${(taken && i === idx && !custom) ? ' active' : ''}" data-i="${idx}">${item.q}</button>`
-        ).join('');
-        chipsEl.querySelectorAll('.ask-demo-chip').forEach(btn => {
-          btn.addEventListener('click', () => ask(+btn.dataset.i));
-        });
-      }
-
-      function render() {
-        const cur = current();
-        const showPanel = phase === 'thinking' || phase === 'streaming' || phase === 'done';
-        if (!taken) input.value = typed;
-        caret.style.display = (!taken && phase === 'typing') ? '' : 'none';
-        panel.classList.toggle('is-open', showPanel);
-        statusLine.textContent = phase === 'thinking' ? 'Reattend is traversing org memory…' : 'Reattend · answered from org memory';
-        titleEl.textContent = phase === 'thinking' ? '' : cur.h;
-        bodyEl.textContent = phase === 'done' ? cur.p : (phase === 'streaming' ? cur.p.split(' ').slice(0, words).join(' ') : '');
-        citesEl.style.display = phase === 'done' ? '' : 'none';
-        if (phase === 'done') {
-          citesEl.innerHTML = cur.c.map(t => `<span class="ask-demo-cite"><span class="dot"></span>${t}</span>`).join('');
-        }
-        renderChips();
-      }
-
-      function tick() {
-        const cur = current();
-        const now = Date.now();
-        if (phase === 'typing') {
-          if (taken) return;
-          if (typed.length < cur.q.length) {
-            typed = cur.q.slice(0, typed.length + 1);
-          } else {
-            phase = 'thinking'; mark = now;
-          }
-        } else if (phase === 'thinking') {
-          if (now - mark > 850) { phase = 'streaming'; words = 0; mark = now; }
-        } else if (phase === 'streaming') {
-          const total = cur.p.split(' ').length;
-          if (words < total) words = Math.min(total, words + 2);
-          else { phase = 'done'; mark = now; }
-        } else if (phase === 'done') {
-          if (!taken && now - mark > 5200) {
-            i = (i + 1) % QA.length; typed = ''; words = 0; phase = 'typing'; custom = null; mark = now;
-          }
-        }
-        render();
-      }
-
-      function ask(idx) {
-        taken = true; i = idx; custom = null;
-        input.value = QA[idx].q;
-        phase = 'thinking'; words = 0; mark = Date.now();
-        render();
-      }
-
-      input.addEventListener('focus', () => { taken = true; });
-      input.addEventListener('input', () => { taken = true; });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (!text) return;
-        const low = text.toLowerCase();
-        let hit = -1;
-        for (const [keys, idx] of MATCH) {
-          if (keys.some(k => low.indexOf(k) !== -1)) { hit = idx; break; }
-        }
-        taken = true;
-        custom = hit === -1 ? Object.assign({ q: text }, FALLBACK) : null;
-        if (hit !== -1) i = hit;
-        phase = 'thinking'; words = 0; mark = Date.now();
-        render();
-      });
-
-      render();
-      setInterval(tick, 40);
     })();
 
     // ============== Cost calculator ==============
