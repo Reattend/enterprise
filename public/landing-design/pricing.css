@@ -11,7 +11,7 @@
   position: absolute;
   inset: -10% -5%;
   background:
-    radial-gradient(ellipse 50% 35% at 50% 30%, oklch(0.94 0.06 285 / 0.4), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 50% 30%, oklch(0.94 0.04 155 / 0.4), transparent 70%),
     radial-gradient(ellipse 40% 30% at 70% 80%, oklch(0.95 0.05 80 / 0.32), transparent 70%);
   filter: blur(40px);
   pointer-events: none;
@@ -103,12 +103,12 @@
   box-shadow: 0 24px 48px -16px oklch(0.18 0.012 270 / 0.18);
 }
 .plan.featured {
-  border-color: oklch(0.45 0.18 280 / 0.4);
-  box-shadow: 0 16px 40px -8px oklch(0.45 0.18 280 / 0.16);
-  background: linear-gradient(180deg, var(--bg-paper) 0%, oklch(0.99 0.012 285) 100%);
+  border-color: oklch(0.45 0.1 155 / 0.4);
+  box-shadow: 0 16px 40px -8px oklch(0.45 0.1 155 / 0.16);
+  background: linear-gradient(180deg, var(--bg-paper) 0%, oklch(0.99 0.01 155) 100%);
 }
 .plan.featured:hover {
-  box-shadow: 0 28px 56px -12px oklch(0.45 0.18 280 / 0.22);
+  box-shadow: 0 28px 56px -12px oklch(0.45 0.1 155 / 0.22);
 }
 
 .plan-head {
@@ -248,7 +248,7 @@
   transition: border-color 0.2s, transform 0.2s;
 }
 .cap-card:hover {
-  border-color: oklch(0.45 0.18 280 / 0.3);
+  border-color: oklch(0.45 0.1 155 / 0.3);
   transform: translateY(-2px);
 }
 .cap-icon {

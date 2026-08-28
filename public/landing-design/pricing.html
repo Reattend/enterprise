@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reattend - Pricing</title>
-  <meta name="description" content="Reattend pricing: Solo is free forever for one person. Professional is $19/seat/month for teams up to 10. Enterprise is $29/seat/month with SSO, RBAC, and audit log. 45-day no-card trial on paid tiers." />
+  <meta name="description" content="Reattend pricing: Free forever on your own AI key, any team size. Managed is for organizations that want us to provision and govern the key - talk to sales. Government adds on-premise and air-gapped deployment." />
 
   <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
   <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
@@ -25,11 +25,6 @@
     gtag('js', new Date());
     gtag('config', 'G-0J0Y3SL5CY');
   </script>
-
-  <!-- Paddle.js for the checkout overlay. The client token is intentionally
-       public (same model as Stripe's publishable key). Server-side
-       transactions still require the secret API key. -->
-  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 
   <style>
     .pr-hero {
@@ -66,47 +61,6 @@
       max-width: 64ch;
       margin: 0 auto;
       text-wrap: pretty;
-    }
-
-    .pr-toggle {
-      max-width: 1120px;
-      margin: 32px auto 16px;
-      padding: 0 var(--pad);
-      display: flex;
-      justify-content: center;
-    }
-    .pr-toggle-inner {
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      padding: 4px;
-      background: var(--bg-paper);
-      border: 1px solid var(--rule);
-      border-radius: 999px;
-    }
-    .pr-toggle-btn {
-      padding: 8px 18px;
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-      background: transparent;
-      border: none;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: all .18s ease;
-    }
-    .pr-toggle-btn.active {
-      background: oklch(0.18 0.02 270);
-      color: #fff;
-    }
-    .pr-toggle-save {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      margin-left: 4px;
     }
 
     .pr-tiers {
@@ -332,25 +286,6 @@
       line-height: 1.55;
     }
 
-    .pr-toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 14px 22px;
-      background: oklch(0.96 0.06 25);
-      border: 1px solid oklch(0.78 0.18 25);
-      border-radius: 10px;
-      color: oklch(0.35 0.18 25);
-      font-size: 14px;
-      box-shadow: 0 12px 30px -12px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 1000;
-      max-width: 480px;
-      text-align: center;
-    }
-    .pr-toast.show { display: block; }
-
     .pfade { opacity: 0; transform: translateY(10px); transition: opacity .7s ease, transform .7s ease; }
     .pfade.in { opacity: 1; transform: none; }
   </style>
@@ -382,16 +317,9 @@
 
 <section class="pr-hero">
   <div class="pr-eye pfade">Pricing</div>
-  <h1 class="pfade">Free to start. <em>Generous when you grow.</em></h1>
-  <p class="pfade">Bring your own AI key and Reattend is free forever - no seat limit, no query cap, nothing touches our budget. Want us to run the AI for you instead? Managed is per-seat with a 15-day trial, no card required.</p>
+  <h1 class="pfade">Free on your key. <em>Managed when you need us to run it.</em></h1>
+  <p class="pfade">Bring your own AI key and Reattend is free forever - no seat limit, no query cap, nothing touches our budget. Want us to provision and govern the key for your whole org instead? That's Managed - talk to sales.</p>
 </section>
-
-<div class="pr-toggle pfade">
-  <div class="pr-toggle-inner">
-    <button class="pr-toggle-btn active" data-cycle="monthly">Monthly</button>
-    <button class="pr-toggle-btn" data-cycle="annual">Annual <span class="pr-toggle-save">- save 20%</span></button>
-  </div>
-</div>
 
 <div class="pr-tiers">
   <article class="pr-tier pfade">
@@ -418,47 +346,45 @@
 
   <article class="pr-tier featured pfade">
     <div>
-      <div class="pr-tier-tag">Most popular</div>
-      <h3 class="pr-tier-name">Professional</h3>
-      <p class="pr-tier-blurb">For solo operators and teams up to 10.</p>
+      <div class="pr-tier-tag">For organizations</div>
+      <h3 class="pr-tier-name">Managed</h3>
+      <p class="pr-tier-blurb">We provision and govern the AI key for your whole org - your team never sees an API key.</p>
     </div>
     <div class="pr-tier-price">
-      <div class="pr-tier-price-num" data-tier="professional" data-price-monthly="$19" data-price-annual="$15.20">$19</div>
-      <div class="pr-tier-price-unit"><span data-tier-unit="professional">per seat / month</span></div>
+      <div class="pr-tier-price-num" style="font-size: 28px;">Talk to sales</div>
     </div>
     <ul class="pr-tier-feats">
-      <li class="pr-tier-feat"><span><b>1–10 seats</b>, individual or team</span></li>
-      <li class="pr-tier-feat"><span><b>Unlimited</b> AI questions and memory retention</span></li>
+      <li class="pr-tier-feat"><span><b>Org-managed AI key</b> with admin-set rate limits, no key ever shown to employees</span></li>
       <li class="pr-tier-feat"><span><b>Integrations</b> for Slack, Notion, Gmail, Linear, GitHub, Drive, Calendar, and more</span></li>
       <li class="pr-tier-feat"><span><b>Chrome extension</b> for auto-capture and ambient recall</span></li>
-      <li class="pr-tier-feat"><span>Decision log + Time Machine + Memory cockpit</span></li>
-      <li class="pr-tier-feat"><span>Email support, ~1 business day</span></li>
-    </ul>
-    <button class="pr-tier-cta primary" data-checkout="professional" style="background: #fff; color: oklch(0.18 0.02 270);">Start 45-day free trial</button>
-    <div class="pr-tier-trial-note">No card required · cancel anytime</div>
-  </article>
-
-  <article class="pr-tier pfade">
-    <div>
-      <div class="pr-tier-tag">For organizations</div>
-      <h3 class="pr-tier-name">Enterprise</h3>
-      <p class="pr-tier-blurb">For organizations that need governance and audit.</p>
-    </div>
-    <div class="pr-tier-price">
-      <div class="pr-tier-price-num" data-tier="enterprise" data-price-monthly="$29" data-price-annual="$23.20">$29</div>
-      <div class="pr-tier-price-unit"><span data-tier-unit="enterprise">per seat / month</span></div>
-    </div>
-    <ul class="pr-tier-feats">
-      <li class="pr-tier-feat"><span><b>5+ seats</b> minimum, no upper limit</span></li>
-      <li class="pr-tier-feat"><span>Everything in Professional, plus:</span></li>
       <li class="pr-tier-feat"><span><b>Two-tier RBAC</b> (org + department)</span></li>
       <li class="pr-tier-feat"><span><b>SSO / SAML</b>, custom domains, SCIM</span></li>
       <li class="pr-tier-feat"><span><b>Hash-chained audit log</b> + admin cockpit</span></li>
       <li class="pr-tier-feat"><span>Exit Interview Agent + Onboarding Genie</span></li>
       <li class="pr-tier-feat"><span>Same-business-day support + Slack channel</span></li>
     </ul>
-    <button class="pr-tier-cta ghost" data-checkout="enterprise">Start 45-day free trial</button>
-    <div class="pr-tier-trial-note">5-seat minimum · cancel anytime</div>
+    <a class="pr-tier-cta primary" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="background: #fff; color: oklch(0.18 0.02 270);">Talk to sales</a>
+    <div class="pr-tier-trial-note">Scoped to your team size and rollout</div>
+  </article>
+
+  <article class="pr-tier pfade">
+    <div>
+      <div class="pr-tier-tag">Government / regulated</div>
+      <h3 class="pr-tier-name">Government</h3>
+      <p class="pr-tier-blurb">For paper-heavy, on-prem-required organizations.</p>
+    </div>
+    <div class="pr-tier-price">
+      <div class="pr-tier-price-num" style="font-size: 32px;">Quote</div>
+    </div>
+    <ul class="pr-tier-feats">
+      <li class="pr-tier-feat"><span>Everything in Managed, plus:</span></li>
+      <li class="pr-tier-feat"><span><b>On-premise or air-gapped</b> deployment</span></li>
+      <li class="pr-tier-feat"><span>Trainer dispatched to scan and onboard existing paper records</span></li>
+      <li class="pr-tier-feat"><span>OCR ingestion pipeline for physical documents</span></li>
+      <li class="pr-tier-feat"><span>Dedicated single-tenant infrastructure</span></li>
+    </ul>
+    <a class="pr-tier-cta ghost" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a>
+    <div class="pr-tier-trial-note">Custom contract · scoped engagement</div>
   </article>
 </div>
 
@@ -466,46 +392,41 @@
   <h2 class="pfade">Common <em>questions</em>.</h2>
   <div class="pr-faq-list pfade">
     <details>
-      <summary>What happens after the 45-day trial ends?<span class="icon-plus">+</span></summary>
-      <div class="ans">If you haven't added a card, your account quietly downgrades to <b>Free</b> on day 46. <b>Your data stays exactly as it was</b> - every memory, decision, and connection. Free-tier limits (100 questions/month, 90-day rolling retention, 1 user) apply going forward. You can upgrade at any time and everything snaps back.</div>
+      <summary>What does "bring your own key" actually mean?<span class="icon-plus">+</span></summary>
+      <div class="ans">You add an API key from Anthropic, OpenAI, or Gemini in Settings, and Reattend uses it to answer questions and structure your memory. The key is encrypted at rest and never touches our budget - your usage, your bill, directly from the provider.</div>
     </details>
     <details>
-      <summary>Do I need a credit card to start the trial?<span class="icon-plus">+</span></summary>
-      <div class="ans"><b>No.</b> Sign in with email, pick Professional or Enterprise, and you're in for 45 days. We'll email you near the end of the trial; if you add a card before then, you continue uninterrupted. If not, automatic downgrade to Free.</div>
+      <summary>On Managed, do employees ever see the AI key?<span class="icon-plus">+</span></summary>
+      <div class="ans"><b>No.</b> The org admin sets the key once, under Control Room → API keys, along with a monthly rate limit. Employees just use Reattend - the key section doesn't appear anywhere in their account settings.</div>
     </details>
     <details>
-      <summary>How is "per seat" counted?<span class="icon-plus">+</span></summary>
-      <div class="ans">A seat is one person who can sign into your workspace. Adding a teammate to your org adds a seat to your bill on the next invoice cycle. Removing someone removes the seat at the end of that cycle (no proration sting). Enterprise has a 5-seat minimum; Professional caps at 10.</div>
+      <summary>Is there a free trial on Managed?<span class="icon-plus">+</span></summary>
+      <div class="ans">Managed is scoped per organization - team size, deployment shape, and rollout plan all factor in. <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="color:var(--accent); text-decoration:underline;">Talk to sales</a> and we'll figure out a pilot that fits.</div>
     </details>
     <details>
-      <summary>Can I switch between Professional and Enterprise?<span class="icon-plus">+</span></summary>
-      <div class="ans">Yes, anytime, in-product (Settings → Billing). Upgrades are immediate and prorated. Downgrades take effect at the end of your current billing period.</div>
+      <summary>Can I move from Free to Managed later?<span class="icon-plus">+</span></summary>
+      <div class="ans">Yes. Your memory, decisions, and connections carry over - nothing is re-indexed or lost. An admin just adds the org's managed key and everyone's account picks it up automatically.</div>
     </details>
     <details>
-      <summary>What about taxes / VAT / GST?<span class="icon-plus">+</span></summary>
-      <div class="ans">Reattend uses Paddle as our merchant of record. Paddle handles all tax collection and remittance for the 30+ jurisdictions where it's required (EU VAT, India GST, US state sales tax, etc.). Your invoice shows the tax line; you don't need to file anything on our behalf.</div>
+      <summary>What if I want on-premise or air-gapped deployment?<span class="icon-plus">+</span></summary>
+      <div class="ans">That's the Government tier - single-tenant or fully air-gapped, with a trainer dispatched to scan and onboard existing paper records via OCR. Common for public-sector and regulated-industry buyers. <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="color:var(--accent); text-decoration:underline;">Talk to sales</a> and we'll scope it together.</div>
     </details>
     <details>
-      <summary>What if I want on-premise deployment?<span class="icon-plus">+</span></summary>
-      <div class="ans">On-prem (or single-tenant cloud) is available for Enterprise customers under a custom contract. Common for government and regulated-industry buyers. <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="color:var(--accent); text-decoration:underline;">Book a demo</a> and we'll scope it together.</div>
-    </details>
-    <details>
-      <summary>How do I cancel?<span class="icon-plus">+</span></summary>
-      <div class="ans">Settings → Billing → Manage subscription opens Paddle's customer portal where you can cancel in two clicks. Your account drops to Free at the end of the period; data stays intact.</div>
+      <summary>How does support work on Free vs. Managed?<span class="icon-plus">+</span></summary>
+      <div class="ans">Free gets email support, typically within 3 business days. Managed gets same-business-day support plus a shared Slack channel with our team.</div>
     </details>
   </div>
 </section>
 
 <section class="pr-final-cta pfade">
   <h2>Ready to start <em>remembering?</em></h2>
-  <p>Free for one person, forever. 45-day trial on every paid plan. Switch tiers anytime.</p>
+  <p>Free forever on your own key, any team size. Talk to sales when you're ready for a managed rollout.</p>
   <div style="display:inline-flex; gap:12px; flex-wrap:wrap; justify-content:center;">
     <a class="btn btn-primary btn-fill" href="/sandbox">Try the live sandbox</a>
     <a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
   </div>
 </section>
 
-<div class="pr-toast" id="pr-toast"></div>
 
 <footer>
   <div class="footer-grid">
@@ -565,97 +486,6 @@
     for (const e of entries) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }
   }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.pfade').forEach((el) => io.observe(el));
-
-  // Billing-cycle toggle: swaps the displayed price + unit on each tier card.
-  let activeCycle = 'monthly';
-  document.querySelectorAll('.pr-toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeCycle = btn.dataset.cycle;
-      document.querySelectorAll('.pr-toggle-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('[data-tier]').forEach(el => {
-        el.textContent = activeCycle === 'monthly' ? el.dataset.priceMonthly : el.dataset.priceAnnual;
-      });
-      document.querySelectorAll('[data-tier-unit]').forEach(el => {
-        el.textContent = activeCycle === 'monthly' ? 'per seat / month' : 'per seat / month, billed annually';
-      });
-    });
-  });
-
-  // Initialize Paddle.js with the public client token. The token is safe to
-  // ship in plain HTML - it only authorizes opening checkouts on approved
-  // domains, never to charge cards directly.
-  const PADDLE_TOKEN = 'live_3250f5e8888be722522f090dcba';
-  let paddleReady = false;
-  if (typeof Paddle !== 'undefined') {
-    try {
-      Paddle.Environment.set('production');
-      Paddle.Initialize({
-        token: PADDLE_TOKEN,
-        eventCallback: (data) => {
-          if (data && data.name === 'checkout.completed') {
-            window.location.href = '/app/settings/billing?success=1';
-          }
-        },
-      });
-      paddleReady = true;
-    } catch (err) {
-      console.warn('[pricing] Paddle init failed:', err);
-    }
-  }
-
-  const toastEl = document.getElementById('pr-toast');
-  function showToast(message, ms = 4500) {
-    toastEl.textContent = message;
-    toastEl.classList.add('show');
-    setTimeout(() => toastEl.classList.remove('show'), ms);
-  }
-
-  // Checkout: POST /api/billing/checkout to mint a transaction, then open
-  // the Paddle.js overlay. If the user isn't logged in, /api/billing/checkout
-  // returns 401 → bounce to /login with a return path.
-  document.querySelectorAll('[data-checkout]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const tier = btn.dataset.checkout;
-      const cycle = activeCycle;
-      const seats = tier === 'enterprise' ? 5 : 1;
-      btn.disabled = true;
-      const originalText = btn.textContent;
-      btn.textContent = 'Loading…';
-      try {
-        const res = await fetch('/api/billing/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tier, cycle, seats }),
-          credentials: 'same-origin',
-        });
-        if (res.status === 401) {
-          window.location.href = '/login?callbackUrl=' + encodeURIComponent('/pricing');
-          return;
-        }
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.transactionId) {
-          throw new Error(data.error || ('Checkout failed (HTTP ' + res.status + ')'));
-        }
-        if (!paddleReady) {
-          throw new Error('Payment overlay didn\'t load - please refresh and try again.');
-        }
-        Paddle.Checkout.open({
-          transactionId: data.transactionId,
-          settings: {
-            theme: 'light',
-            displayMode: 'overlay',
-            successUrl: window.location.origin + '/app/settings/billing?success=1',
-          },
-        });
-      } catch (err) {
-        showToast((err && err.message) || 'Could not start checkout. Try again.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
-    });
-  });
 </script>
 </body>
 </html>
