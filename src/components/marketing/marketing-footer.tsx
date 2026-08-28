@@ -3,23 +3,22 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 /**
- * MarketingFooter - pixel-mirror of the static landing's footer
- * (/public/landing-design/landing.html lines 818-873).
+ * MarketingFooter - mirrors the static landing's footer
+ * (/public/landing-design/landing.html, canonical footer block).
+ *
+ * Column structure and links are kept identical to the static footer on
+ * purpose - every marketing surface (static HTML or React) should show the
+ * same footer. If a link needs to change, change it in both landing.html
+ * and here.
  *
  * Visual rules from /public/landing-design/styles.css `.footer-grid`:
- * - Cream-warm background matching the rest of the marketing surfaces
- *   (no dark navbar - that was the old React Footer aesthetic)
+ * - White background matching the rest of the marketing surfaces
  * - Top border: var(--rule), padding 48px var(--pad) 32px
  * - 5-col grid (2fr 1fr 1fr 1fr 1fr); 2-col on mobile
  * - h5 column headers: mono uppercase, 11px, ink-3
  * - Links: 14px, ink-2, padding 4px 0, hover → ink
- * - Brand column: serif Reattend + Enterprise tag + tagline (max-width 32ch)
+ * - Brand column: sans-serif Reattend wordmark + tagline (max-width 32ch)
  * - Bottom strip: mono uppercase 11px, copyright + minor links
- *
- * Column structure expanded from landing.html to include our new
- * surfaces (Resources mega-column with Free Tools, Free Games, Glossary,
- * Use Cases). Same intent as the existing dark React <Footer>, but
- * styled to match the static landing.
  */
 export function MarketingFooter() {
   return (
@@ -27,7 +26,7 @@ export function MarketingFooter() {
       style={{
         borderTop: '1px solid oklch(0.88 0.008 270)',
         padding: '48px clamp(20px, 4vw, 48px) 32px',
-        background: 'oklch(0.985 0.005 80)',
+        background: 'oklch(1 0 0)',
       }}
       role="contentinfo"
     >
@@ -46,7 +45,7 @@ export function MarketingFooter() {
             className="flex items-center gap-2.5"
             aria-label="Reattend home"
             style={{
-              fontFamily: 'var(--font-display), "Times New Roman", serif',
+              fontFamily: 'var(--font-inter), -apple-system, system-ui, sans-serif',
               fontSize: '22px',
               letterSpacing: '-0.02em',
               color: 'oklch(0.18 0.012 270)',
@@ -64,7 +63,7 @@ export function MarketingFooter() {
               lineHeight: 1.55,
             }}
           >
-            Organizational memory that never forgets. Built by Reattend Technologies Private Limited.
+            Organizational memory for teams that can&apos;t afford to forget. Built by Reattend Technologies Private Limited.
           </p>
           {/* Sister content domain - see docs/organizational-amnesia-domains.md */}
           <p
@@ -81,7 +80,7 @@ export function MarketingFooter() {
               href="https://organizationalamnesia.com"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'oklch(0.45 0.18 280)', textDecoration: 'underline' }}
+              style={{ color: '#146b47', textDecoration: 'underline' }}
             >
               organizationalamnesia.com
             </a>
@@ -89,17 +88,36 @@ export function MarketingFooter() {
           </p>
         </div>
 
-        {/* Link columns */}
+        {/* Link columns - identical to landing.html's canonical footer */}
         <FooterCol
           title="Product"
           links={[
+            { label: 'Product', href: '/product' },
             { label: 'Pricing', href: '/pricing' },
-            { label: 'Sandbox', href: '/sandbox' },
-            { label: 'How it works', href: '/how-it-works' },
-            { label: 'Features', href: '/features' },
-            { label: 'Integrations', href: '/integrations' },
             { label: 'Compliance', href: '/compliance' },
-            { label: 'Free tools', href: '/tool' },
+            { label: 'Sign in', href: '/login' },
+            { label: 'Integrations', href: '/integrations' },
+          ]}
+        />
+        <FooterCol
+          title="Capabilities"
+          links={[
+            { label: 'Capture', href: '/product#capture' },
+            { label: 'Connect', href: '/product#connect' },
+            { label: 'Recall', href: '/product#recall' },
+            { label: 'Run', href: '/product#run' },
+            { label: 'Govern', href: '/product#govern' },
+            { label: 'Deploy', href: '/product#deploy' },
+          ]}
+        />
+        <FooterCol
+          title="Company"
+          links={[
+            { label: 'About', href: '/about' },
+            { label: 'Careers', href: '/coming-soon' },
+            { label: 'Press', href: '/coming-soon' },
+            { label: 'Privacy', href: '/privacy' },
+            { label: 'Terms', href: '/terms' },
           ]}
         />
         <FooterCol
@@ -107,31 +125,11 @@ export function MarketingFooter() {
           links={[
             { label: 'Blog', href: '/blog' },
             { label: 'Glossary', href: '/glossary' },
-            { label: 'Use cases', href: '/use-case' },
             { label: 'Help center', href: '/help' },
             { label: 'Free tools', href: '/tool' },
             { label: 'Free games', href: '/game' },
-          ]}
-        />
-        <FooterCol
-          title="Developers"
-          links={[
-            { label: 'MCP server', href: '/mcp' },
-            { label: 'GitHub Action', href: '/mcp#github-action' },
-            { label: 'REST API', href: '/mcp#api' },
-            { label: 'API docs', href: '/docs' },
-            { label: 'GitHub', href: 'https://github.com/Reattend' },
-            { label: 'npm package', href: 'https://www.npmjs.com/package/@reattend/mcp' },
-          ]}
-        />
-        <FooterCol
-          title="Company"
-          links={[
-            { label: 'About', href: '/about' },
-            { label: 'Contact', href: 'mailto:pb@reattend.ai' },
-            { label: 'Privacy', href: '/privacy' },
-            { label: 'Terms', href: '/terms' },
-            { label: 'Refund', href: '/refund' },
+            { label: 'Trust', href: '/compliance' },
+            { label: 'Status', href: 'https://stats.uptimerobot.com/KNL7AXsPis' },
           ]}
         />
       </div>
@@ -144,11 +142,8 @@ export function MarketingFooter() {
           margin: '32px auto 0',
           borderTop: '1px solid oklch(0.93 0.006 270)',
           paddingTop: '20px',
-          fontFamily: 'var(--font-mono), monospace',
-          fontSize: '11px',
+          fontSize: '14px',
           color: 'oklch(0.52 0.012 270)',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
         }}
       >
         <span>© {new Date().getFullYear()} Reattend Technologies Private Limited</span>
@@ -156,19 +151,7 @@ export function MarketingFooter() {
           <Link href="/privacy" style={{ color: 'inherit' }}>Privacy</Link>
           <Link href="/terms" style={{ color: 'inherit' }}>Terms</Link>
           <Link href="/compliance" style={{ color: 'inherit' }}>Compliance</Link>
-          <a
-            href="https://stats.uptimerobot.com/KNL7AXsPis"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit' }}
-            className="flex items-center gap-1.5"
-          >
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{ background: 'oklch(0.7 0.18 145)' }}
-            />
-            Status
-          </a>
+          <Link href="/support" style={{ color: 'inherit' }}>Support</Link>
         </span>
       </div>
     </footer>
@@ -198,8 +181,8 @@ function FooterCol({
         {title}
       </h5>
       <ul className="m-0 p-0 list-none">
-        {links.map((link) => (
-          <li key={link.label}>
+        {links.map((link, i) => (
+          <li key={`${link.label}-${i}`}>
             {link.href.startsWith('/') || link.href.startsWith('mailto:') ? (
               <Link
                 href={link.href}

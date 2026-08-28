@@ -13,9 +13,9 @@ import { Menu, X } from 'lucide-react'
  *
  * Visual rules lifted from /public/landing-design/styles.css `.topbar`:
  * - Sticky, backdrop-blur(14px) + saturate(1.2)
- * - Background: oklch(0.985 0.005 80 / 0.78) - warm cream at 78% opacity
- * - Border bottom: var(--rule-2) - subtle warm border
- * - Brand: Instrument Serif "Reattend" + small "Enterprise" mono tag
+ * - Background: oklch(1 0 0 / 0.78) - white at 78% opacity
+ * - Border bottom: var(--rule-2) - subtle border
+ * - Brand: sans-serif "Reattend" wordmark, no "Enterprise" tag
  * - Nav items: 14px, ink-2 color, hover lifts to ink + bg-2
  * - 3 CTA pattern: ghost "Sign in" / outline "Sandbox" / filled "Book a demo"
  *
@@ -49,7 +49,7 @@ export function MarketingNavbar() {
       style={{
         backdropFilter: 'blur(14px) saturate(1.2)',
         WebkitBackdropFilter: 'blur(14px) saturate(1.2)',
-        background: 'oklch(0.985 0.005 80 / 0.78)',
+        background: 'oklch(1 0 0 / 0.78)',
         borderBottom: '1px solid oklch(0.93 0.006 270)',
       }}
     >
@@ -70,7 +70,7 @@ export function MarketingNavbar() {
           className="flex items-center gap-2.5 shrink-0"
           aria-label="Reattend home"
           style={{
-            fontFamily: 'var(--font-display), "Times New Roman", serif',
+            fontFamily: 'var(--font-inter), -apple-system, system-ui, sans-serif',
             fontSize: '22px',
             letterSpacing: '-0.02em',
             color: 'oklch(0.18 0.012 270)',
@@ -90,11 +90,11 @@ export function MarketingNavbar() {
                 padding: '8px 14px',
                 fontSize: '14px',
                 color: isActive(item.href) ? 'oklch(0.18 0.012 270)' : 'oklch(0.32 0.012 270)',
-                background: isActive(item.href) ? 'oklch(0.97 0.008 80)' : 'transparent',
+                background: isActive(item.href) ? 'oklch(0.98 0 0)' : 'transparent',
                 borderRadius: '8px',
                 transition: 'background 0.18s, color 0.18s',
               }}
-              className="hover:bg-[oklch(0.97_0.008_80)] hover:text-[oklch(0.18_0.012_270)]"
+              className="hover:bg-[oklch(0.98_0_0)] hover:text-[oklch(0.18_0.012_270)]"
             >
               {item.label}
             </Link>
@@ -105,7 +105,7 @@ export function MarketingNavbar() {
         <div className="hidden md:flex items-center gap-2">
           <Link
             href="/login"
-            className="hover:bg-[oklch(0.97_0.008_80)] transition-colors"
+            className="hover:bg-[oklch(0.98_0_0)] transition-colors"
             style={{
               padding: '10px 16px',
               fontSize: '14px',
@@ -126,7 +126,7 @@ export function MarketingNavbar() {
               borderRadius: '8px',
               border: '1.5px solid oklch(0.18 0.012 270)',
               color: 'oklch(0.18 0.012 270)',
-              background: 'oklch(0.992 0.004 80)',
+              background: 'oklch(0.995 0 0)',
             }}
           >
             Sandbox
@@ -142,7 +142,7 @@ export function MarketingNavbar() {
               fontWeight: 500,
               borderRadius: '8px',
               background: 'oklch(0.18 0.012 270)',
-              color: 'oklch(0.985 0.005 80)',
+              color: 'oklch(1 0 0)',
               boxShadow: '0 1px 0 oklch(0.18 0.012 270 / 0.08), 0 4px 14px oklch(0.18 0.012 270 / 0.18)',
             }}
           >
@@ -167,7 +167,7 @@ export function MarketingNavbar() {
         <div
           className="md:hidden border-t"
           style={{
-            background: 'oklch(0.985 0.005 80)',
+            background: 'oklch(1 0 0)',
             borderColor: 'oklch(0.93 0.006 270)',
           }}
         >
@@ -210,7 +210,7 @@ export function MarketingNavbar() {
                   borderRadius: '8px',
                   border: '1.5px solid oklch(0.18 0.012 270)',
                   color: 'oklch(0.18 0.012 270)',
-                  background: 'oklch(0.992 0.004 80)',
+                  background: 'oklch(0.995 0 0)',
                 }}
               >
                 Sandbox
@@ -227,7 +227,7 @@ export function MarketingNavbar() {
                   fontWeight: 500,
                   borderRadius: '8px',
                   background: 'oklch(0.18 0.012 270)',
-                  color: 'oklch(0.985 0.005 80)',
+                  color: 'oklch(1 0 0)',
                 }}
               >
                 Book a demo

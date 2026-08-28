@@ -107,7 +107,7 @@
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 30% 50%, oklch(0.45 0.18 280 / 0.08) 0%, transparent 30%),
+    radial-gradient(circle at 30% 50%, oklch(0.45 0.18 155 / 0.08) 0%, transparent 30%),
     radial-gradient(circle at 70% 50%, oklch(0.78 0.16 65 / 0.06) 0%, transparent 30%);
   pointer-events: none;
   z-index: 1;
@@ -120,7 +120,7 @@
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   width: 380px; height: 380px;
-  border: 1px dashed oklch(0.45 0.18 280 / 0.15);
+  border: 1px dashed oklch(0.45 0.18 155 / 0.15);
   border-radius: 50%;
   z-index: 1;
   animation: orbOrbit 30s linear infinite;
@@ -166,7 +166,7 @@
 .orb-app:nth-child(12) { animation-delay: 1.50s !important; }
 @keyframes appWave {
   0%, 100% { transform: translateY(0); box-shadow: 0 2px 6px -3px oklch(0.18 0.012 270 / 0.1); }
-  50% { transform: translateY(-3px); box-shadow: 0 8px 16px -6px oklch(0.45 0.18 280 / 0.25); }
+  50% { transform: translateY(-3px); box-shadow: 0 8px 16px -6px oklch(0.45 0.18 155 / 0.25); }
 }
 
 /* Orb stats counter pulse */
@@ -352,7 +352,7 @@
   .sandbox-frame { grid-template-columns: 1fr; }
 }
 .sandbox-list {
-  background: oklch(0.97 0.01 280 / 0.55);
+  background: oklch(0.97 0.01 155 / 0.55);
   border-right: 1px solid var(--rule);
   padding: 28px 22px;
   display: flex;
@@ -388,7 +388,7 @@
 .sandbox-q.active {
   border-color: var(--accent);
   color: var(--accent);
-  background: oklch(0.97 0.025 285);
+  background: oklch(0.97 0.025 155);
 }
 .sandbox-body {
   padding: 36px 40px 40px;
@@ -613,7 +613,7 @@
   transition: background 0.18s ease;
 }
 .faq-item:hover {
-  background: oklch(0.97 0.01 280 / 0.4) !important;
+  background: oklch(0.97 0.01 155 / 0.4) !important;
   box-shadow: none !important;
   border-color: var(--rule) !important;
   border-bottom-color: var(--rule) !important;

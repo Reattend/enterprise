@@ -50,7 +50,7 @@
   content: "";
   width: 6px; height: 6px; border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.18);
+  box-shadow: 0 0 0 4px oklch(0.45 0.18 155 / 0.18);
 }
 .hv2-h1 {
   font-family: var(--serif);
@@ -144,8 +144,8 @@
   background: transparent;
 }
 @keyframes appPulse {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.45 0.18 280 / 0); }
-  50% { box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.05); }
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.45 0.18 155 / 0); }
+  50% { box-shadow: 0 0 0 4px oklch(0.45 0.18 155 / 0.05); }
 }
 .orb-app:nth-child(2) { animation-delay: 0.2s; }
 .orb-app:nth-child(3) { animation-delay: 0.4s; }
@@ -167,7 +167,7 @@
 }
 .orb-lines path {
   fill: none;
-  stroke: oklch(0.45 0.18 280 / 0.25);
+  stroke: oklch(0.45 0.18 155 / 0.25);
   stroke-width: 1;
   stroke-dasharray: 200;
   stroke-dashoffset: 200;
@@ -196,7 +196,7 @@
   box-shadow:
     0 30px 60px -20px oklch(0.18 0.012 270 / 0.4),
     0 0 0 1px oklch(0.18 0.012 270 / 0.1),
-    inset 0 0 80px oklch(0.45 0.18 280 / 0.15);
+    inset 0 0 80px oklch(0.45 0.18 155 / 0.15);
   z-index: 2;
 }
 .orb-core::before {
@@ -204,7 +204,7 @@
   position: absolute;
   inset: -20px;
   border-radius: 50%;
-  border: 1px solid oklch(0.45 0.18 280 / 0.15);
+  border: 1px solid oklch(0.45 0.18 155 / 0.15);
   animation: orbRing 4s ease-in-out infinite;
 }
 .orb-core::after {
@@ -212,7 +212,7 @@
   position: absolute;
   inset: -40px;
   border-radius: 50%;
-  border: 1px solid oklch(0.45 0.18 280 / 0.08);
+  border: 1px solid oklch(0.45 0.18 155 / 0.08);
   animation: orbRing 4s ease-in-out infinite 1s;
 }
 @keyframes orbRing {
@@ -383,7 +383,7 @@
   opacity: 1;
 }
 .sec-eye::before {
-  box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.18);
+  box-shadow: 0 0 0 4px oklch(0.45 0.18 155 / 0.18);
 }
 .sec-eye.amber { color: var(--amber-deep); }
 .sec-eye.amber::before { box-shadow: 0 0 0 4px oklch(0.78 0.16 65 / 0.18); }
@@ -947,7 +947,7 @@
   background: var(--bg-paper);
   border: 1px solid var(--accent);
   border-radius: 8px;
-  box-shadow: 0 12px 24px -8px oklch(0.45 0.18 280 / 0.2);
+  box-shadow: 0 12px 24px -8px oklch(0.45 0.18 155 / 0.2);
   overflow: hidden;
 }
 .answer-head {
@@ -970,7 +970,7 @@
   color: var(--ink);
 }
 .answer-body em {
-  background: oklch(0.92 0.04 285);
+  background: oklch(0.92 0.04 155);
   font-style: normal;
   padding: 0 3px;
   border-radius: 2px;
@@ -1130,7 +1130,7 @@
   font-weight: 500;
 }
 .rabbit-log-tag.in { background: oklch(0.6 0.13 145); }
-.rabbit-log-tag.idx { background: oklch(0.6 0.18 280); color: oklch(0.98 0.005 80); }
+.rabbit-log-tag.idx { background: oklch(0.6 0.18 155); color: oklch(0.98 0.005 80); }
 .rabbit-log-tag.out { background: oklch(0.78 0.16 65); }
 .rabbit-log-msg { flex: 1; }
 .rabbit-log-msg em { color: oklch(0.78 0.16 65); font-style: normal; }
@@ -1221,7 +1221,7 @@
   position: absolute;
   right: 0; top: 50%;
   transform: translateY(-50%);
-  background: oklch(0.96 0.04 285);
+  background: oklch(0.96 0.04 155);
   border: 1px solid var(--accent);
   border-radius: 6px;
   padding: 8px 10px;
@@ -1652,7 +1652,7 @@
   font-family: var(--mono);
   font-size: 12px;
   color: var(--accent);
-  background: oklch(0.96 0.04 285);
+  background: oklch(0.96 0.04 155);
 }
 .hi-drop-file {
   background: var(--bg-paper);
@@ -1682,7 +1682,7 @@
   letter-spacing: 0.06em;
   padding: 2px 8px;
   border-radius: 4px;
-  background: oklch(0.92 0.04 285);
+  background: oklch(0.92 0.04 155);
   color: var(--accent);
 }
 .hi-tag.amber { background: oklch(0.92 0.07 65); color: oklch(0.4 0.13 65); }
@@ -1790,7 +1790,7 @@
 }
 .sandbox-q:hover { border-color: var(--accent); color: var(--ink); }
 .sandbox-q.active {
-  background: oklch(0.96 0.04 285);
+  background: oklch(0.96 0.04 155);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -1907,7 +1907,7 @@
 .quote-mark {
   font-family: var(--serif);
   font-size: 80px;
-  color: oklch(0.7 0.13 285);
+  color: oklch(0.7 0.13 155);
   line-height: 1;
   font-style: italic;
 }
@@ -2072,7 +2072,7 @@
   text-align: center;
   position: relative;
   z-index: 2;
-  background: radial-gradient(ellipse at top, oklch(0.96 0.04 285 / 0.5), transparent 60%);
+  background: radial-gradient(ellipse at top, oklch(0.96 0.04 155 / 0.5), transparent 60%);
 }
 .finalcta-v2 h2 {
   font-family: var(--serif);

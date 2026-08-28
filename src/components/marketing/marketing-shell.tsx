@@ -35,7 +35,7 @@ export function MarketingShell({
     <div
       className="min-h-screen text-[oklch(0.18_0.012_270)] overflow-x-hidden relative"
       style={{
-        background: 'oklch(0.985 0.005 80)',
+        background: 'oklch(1 0 0)',
         fontFamily: 'var(--font-inter), -apple-system, system-ui, sans-serif',
       }}
     >
