@@ -63,7 +63,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         expiresAt: invite.expiresAt,
         organizationName: org[0]?.name ?? 'Organization',
         organizationSlug: org[0]?.slug ?? '',
-        organizationPlan: org[0]?.plan ?? 'starter',
+        organizationPlan: org[0]?.plan ?? 'free',
         organizationPrimaryDomain: org[0]?.primaryDomain ?? null,
         departmentName,
         inviterName: inviter[0]?.name ?? 'An admin',

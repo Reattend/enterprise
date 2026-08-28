@@ -809,7 +809,7 @@ export const organizations = sqliteTable('organizations', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   primaryDomain: text('primary_domain'), // e.g. "acme.com" - used for SSO domain-match
-  plan: text('plan', { enum: ['free', 'professional', 'enterprise'] }).notNull().default('free'),
+  plan: text('plan', { enum: ['free', 'managed', 'government'] }).notNull().default('free'),
   companySize: text('company_size', { enum: ['1-10', '11-50', '51-200', '201-1000', '1000+'] }),
   deployment: text('deployment', { enum: ['saas', 'on_prem', 'air_gapped'] }).notNull().default('saas'),
   onPremRabbitUrl: text('on_prem_rabbit_url'),

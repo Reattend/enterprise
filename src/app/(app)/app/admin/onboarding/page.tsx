@@ -11,16 +11,18 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
 
-type Plan = 'free' | 'professional' | 'enterprise'
+type Plan = 'free' | 'managed' | 'government'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
 
-// Plan tiles match the live billing tiers in src/lib/db/schema.ts.
-// New orgs default to Free - they upgrade later from the billing page.
-// Government is sales-led + custom-quoted, so it's not a self-serve tile.
+// Plan tiles match organizations.plan in src/lib/db/schema.ts and the
+// public /pricing page. Only Free is self-serve - Reattend never hosts or
+// pays for the AI, so Managed (we provision + govern the org's own key)
+// and Government (on-prem/air-gapped) both require a sales conversation
+// before the org can be created on that plan.
 const PLANS: { key: Plan; name: string; price: string; desc: string; recommended?: boolean }[] = [
-  { key: 'free', name: 'Free', price: '$0', desc: 'Try Reattend Enterprise. 100 AI questions/month, 90-day retention.' },
-  { key: 'professional', name: 'Professional', price: '$19/user/mo', desc: 'Unlimited AI questions, full retention, all connectors.', recommended: true },
-  { key: 'enterprise', name: 'Enterprise', price: '$29/user/mo', desc: '5 seats minimum. SSO/SAML, audit trail, advanced compliance.' },
+  { key: 'free', name: 'Free', price: '$0', desc: 'Bring your own AI key. Unlimited seats, unlimited questions, free forever.', recommended: true },
+  { key: 'managed', name: 'Managed', price: 'Talk to sales', desc: 'We provision and govern the AI key for your org, with admin-set rate limits. No key for employees to manage.' },
+  { key: 'government', name: 'Government', price: 'Quote', desc: 'On-premise or air-gapped, OCR ingestion, trainer dispatched.' },
 ]
 
 const DEPLOYMENTS: { key: Deployment; name: string; desc: string; icon: typeof Cloud }[] = [
@@ -167,7 +169,6 @@ function OrgOnboardingContent() {
   // permitted so the user isn't blocked while debounce is in flight - server
   // re-checks on submit anyway and the create-org route returns 409 'slug already taken'.
   const canAdvance1 = name.trim().length >= 2 && slugStatus !== 'taken' && slugStatus !== 'invalid'
-  const canAdvance2 = true // plan always has a default
   const canSubmit = canAdvance1
 
   // While we check if the user already has an org, show a minimal loading state
@@ -317,9 +318,30 @@ function OrgOnboardingContent() {
                 </button>
               ))}
             </div>
+
+            {plan !== 'free' && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+                <div className="text-sm font-medium">
+                  {plan === 'managed' ? 'Managed' : 'Government'} requires a sales conversation
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  We&apos;ll scope your rollout and provision the org afterward - it&apos;s not something you can self-serve
+                  into right now. Create your org on Free in the meantime; we&apos;ll upgrade it once you&apos;re set up.
+                </p>
+                <a
+                  href="https://calendly.com/pb-reattend/30min"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  → Talk to sales
+                </a>
+              </div>
+            )}
+
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={() => setStep(3)} disabled={!canAdvance2}>
+              <Button onClick={() => setStep(3)} disabled={plan !== 'free'}>
                 Continue <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

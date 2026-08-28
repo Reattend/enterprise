@@ -1139,6 +1139,20 @@ try {
   console.error('plan rename migration:', e.message)
 }
 
+// ─── Org plan rename #2: free/professional/enterprise → free/managed/government ─
+// The BYOK pivot (2026-08-28) collapsed the old per-seat Professional/Enterprise
+// tiers into a single admin-provisioned "Managed" tier (talk to sales, no
+// self-serve checkout), and gave Government its own name back so it matches
+// the public pricing page and CLAUDE.md's ICPs. Idempotent for the same
+// reason as the rename above.
+try {
+  sqlite.exec("UPDATE organizations SET plan = 'managed'    WHERE plan = 'professional';")
+  sqlite.exec("UPDATE organizations SET plan = 'government' WHERE plan = 'enterprise';")
+  console.log('✓ organizations.plan renamed to free/managed/government')
+} catch (e: any) {
+  console.error('plan rename #2 migration:', e.message)
+}
+
 // ─── Hot Cache (per-org "_hot.md" - Karpathy's idea) ──────────────────────
 try {
   sqlite.exec(`

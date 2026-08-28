@@ -29,8 +29,6 @@ interface OrgMeta {
   deployment: string
   status: string
   primaryDomain: string | null
-  seatsUsed?: number
-  seatsTotal?: number
 }
 
 interface Leaf {
@@ -168,16 +166,13 @@ export default function AdminOrgLayout({
           </div>
           {org && (
             <div className="cr-org-pills">
-              <span className="cr-org-pill">{org.plan}</span>
+              <span className="cr-org-pill capitalize">{org.plan}</span>
               <span className="cr-org-pill">{org.deployment.replace('_', ' ')}</span>
             </div>
           )}
           {org?.primaryDomain && (
             <div className="cr-org-meta">
               @{org.primaryDomain}
-              {org.seatsUsed != null && org.seatsTotal != null && (
-                <> · {org.seatsUsed}/{org.seatsTotal} seats</>
-              )}
             </div>
           )}
         </div>

@@ -362,12 +362,6 @@ export function AppTopbar() {
 
         {/* Right: action icons (every existing button preserved) */}
         <div className="top-actions">
-          {/* Plan badge - sourced from the user's subscription tier
-             (Free / Professional / Enterprise), not the legacy orgPlan
-             field which is no longer the source of truth. */}
-          <PlanPill />
-
-
           {/* Chrome extension install */}
           <Link
             href="/app/downloads"
@@ -1141,32 +1135,3 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
   )
 }
 
-// PlanPill is defined inline at file end so it shares the Sparkles + Link
-// imports above. Renders the user's actual subscription tier from
-// /api/billing/me, with a tier-specific badge color. Click → /app/settings/billing.
-function PlanPill() {
-  const [tier, setTier] = useState<'free' | 'professional' | 'enterprise' | null>(null)
-  const [trial, setTrial] = useState(false)
-  useEffect(() => {
-    fetch('/api/billing/me')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (!d) return
-        setTier(d.tier)
-        setTrial(!!d.trialEndsAt && new Date(d.trialEndsAt) > new Date() && !d.paddleSubscriptionId)
-      })
-      .catch(() => {})
-  }, [])
-  if (!tier) return null
-  const label = tier === 'free' ? 'Free' : tier === 'professional' ? 'Professional' : 'Enterprise'
-  // Tier-specific tint: free = neutral, professional = violet, enterprise = amber/gold
-  const styleClass = tier === 'free' ? 'plan-pill plan-pill-free'
-    : tier === 'professional' ? 'plan-pill plan-pill-pro'
-    : 'plan-pill plan-pill-ent'
-  return (
-    <Link href="/app/settings/billing" className={styleClass} title={trial ? `${label} (trial)` : label}>
-      <Sparkles className="h-3 w-3" />
-      <span>{label}{trial ? ' · trial' : ''}</span>
-    </Link>
-  )
-}

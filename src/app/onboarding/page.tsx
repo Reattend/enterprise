@@ -20,7 +20,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Loader2, KeyRound, Zap, Check, Phone } from 'lucide-react'
+import { Loader2, KeyRound, Check, Phone } from 'lucide-react'
 import { toast } from 'sonner'
 
 type ByokProvider = 'anthropic' | 'openai' | 'gemini'
@@ -72,7 +72,6 @@ function OnboardingInner() {
   const [byokProvider, setByokProvider] = useState<ByokProvider>('anthropic')
   const [byokKey, setByokKey] = useState('')
   const [connectingByok, setConnectingByok] = useState(false)
-  const [startingTrial, setStartingTrial] = useState(false)
 
   // Auth check via a plain fetch, not the useSession() hook - this app has
   // never wrapped itself in a <SessionProvider> (every other page checks
@@ -158,25 +157,6 @@ function OnboardingInner() {
       toast.error('Network error - try again')
     } finally {
       setConnectingByok(false)
-    }
-  }
-
-  async function handleStartTrial() {
-    if (startingTrial || !orgId) return
-    setStartingTrial(true)
-    try {
-      const trialRes = await fetch('/api/billing/start-trial', { method: 'POST' })
-      const trialData = await trialRes.json()
-      if (!trialRes.ok) {
-        toast.error(trialData.message || trialData.error || 'Could not start trial')
-        return
-      }
-      toast.success('15-day Managed trial started')
-      goToApp()
-    } catch {
-      toast.error('Network error - try again')
-    } finally {
-      setStartingTrial(false)
     }
   }
 
@@ -305,35 +285,16 @@ function OnboardingInner() {
                   </button>
                 </div>
 
-                <div className={`rounded-xl border p-4 mb-3 ${recommendTalkToSales ? 'border-white/80 bg-white/70' : 'border-white/80 bg-white/70'} backdrop-blur-sm`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Zap className="h-4 w-4 text-[#4F46E5]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Managed</p>
-                    <span className="ml-auto text-[11px] font-semibold text-gray-500">$19/user/mo</span>
-                  </div>
-                  <p className="text-[12px] text-gray-500 mb-3">
-                    We run the AI for you - no key to manage. 15-day free trial, no card needed.
-                  </p>
-                  <button
-                    onClick={handleStartTrial}
-                    disabled={startingTrial}
-                    className="w-full h-[40px] bg-white border border-[#4F46E5]/30 hover:bg-[#4F46E5]/5 active:scale-[0.98] text-[#4F46E5] text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {startingTrial ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                    Start 15-day trial
-                  </button>
-                </div>
-
                 <div className={`rounded-xl border p-4 mb-4 backdrop-blur-sm ${recommendTalkToSales ? 'border-[#4F46E5]/40 bg-[#4F46E5]/5' : 'border-white/80 bg-white/70'}`}>
                   <div className="flex items-center gap-2 mb-1">
                     <Phone className="h-4 w-4 text-[#4F46E5]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Talk to sales</p>
+                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Managed</p>
                     {recommendTalkToSales && (
                       <span className="ml-auto text-[11px] font-semibold text-[#4F46E5]">Recommended for your size</span>
                     )}
                   </div>
                   <p className="text-[12px] text-gray-500 mb-3">
-                    RBAC, SSO, audit log, on-prem - for larger or regulated teams. Quoted, not self-serve.
+                    We provision and govern the AI key for your whole org - RBAC, SSO, audit log, on-prem available. Quoted, not self-serve.
                   </p>
                   <a
                     href="https://calendly.com/pb-reattend/30min"
@@ -341,7 +302,7 @@ function OnboardingInner() {
                     rel="noreferrer"
                     className="w-full h-[40px] border border-[#4F46E5]/30 hover:bg-[#4F46E5]/5 active:scale-[0.98] text-[#4F46E5] text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2"
                   >
-                    Book a call
+                    Talk to sales
                   </a>
                 </div>
 

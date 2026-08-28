@@ -1023,42 +1023,32 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
 
  'account/billing-and-plans': (
    <>
-     <P>Reattend is a desktop app with a simple pricing model.</P>
-     <H2>Free Trial (60 days)</H2>
-     <P>All features unlocked for 60 days. No credit card required.</P>
+     <P>Reattend is bring-your-own-key (BYOK). There&apos;s no Reattend-hosted AI plan to buy - you connect your own AI provider key, and every feature runs on it.</P>
+     <H2>Free</H2>
+     <P>Connect your own Anthropic, OpenAI, or Gemini key and Reattend is free forever - no seat limit, no query cap.</P>
      <UL>
-       <li>Ambient screen capture &amp; OCR</li>
-       <li>AI triage &amp; auto-classification</li>
-       <li>Meeting recording &amp; transcription</li>
-       <li>Semantic search &amp; Ask AI</li>
-       <li>Knowledge graph &amp; entity extraction</li>
-       <li>Writing assist</li>
+       <li>Unlimited seats on your own key</li>
+       <li>Unlimited AI questions and memory retention</li>
+       <li>All integrations, the Chrome extension, decision log, and Time Machine</li>
      </UL>
-     <H2>Pro ($20/month per user)</H2>
-     <P>Unlimited AI processing forever. Everything in the trial, plus:</P>
-     <UL>
-       <li>Unlimited memories &amp; captures</li>
-       <li>Priority support</li>
-       <li>Early access to new features</li>
-       <li>Team workspaces</li>
-     </UL>
-     <H2>Free Forever</H2>
-     <P>After the trial, keep using Reattend as a notetaker:</P>
-     <UL>
-       <li>Browse &amp; export all memories</li>
-       <li>Manual note-taking</li>
-       <li>Local storage (your data is yours)</li>
-       <li>No AI features</li>
-     </UL>
-     <H2>Enterprise</H2>
+     <H2>Managed</H2>
      <P>
-       Custom pricing for large organizations. Includes SSO/SAML, custom data retention, dedicated
-       support, SLAs, and on-premise deployment options. Contact <strong>pb@reattend.ai</strong>.
+       For organizations that want Reattend to provision and govern the AI key centrally, with admin-set
+       rate limits, instead of connecting their own. The key lives in the org&apos;s Control Room and is
+       never shown to individual members. Managed is scoped per organization and isn&apos;t self-serve -{' '}
+       <strong>talk to sales</strong> to set it up.
      </P>
-     <H2>Managing billing</H2>
+     <H2>Government</H2>
      <P>
-       Go to <strong>Billing</strong> in the sidebar to view your current plan, upgrade, or manage
-       your subscription. Payments are handled securely via Paddle.
+       For paper-heavy, on-premise-required organizations. Adds on-premise or air-gapped deployment,
+       OCR ingestion for physical documents, and a trainer dispatched to help onboard existing records.
+       Custom-quoted - contact <strong>pb@reattend.ai</strong>.
+     </P>
+     <H2>Managing your key</H2>
+     <P>
+       Personal accounts manage their key in <strong>Settings → AI Provider</strong>. Org admins manage
+       the org&apos;s key in the <strong>Control Room → Settings → AI Provider</strong> section - it never
+       appears in individual members&apos; account settings.
      </P>
    </>
  ),

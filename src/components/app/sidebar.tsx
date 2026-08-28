@@ -403,9 +403,14 @@ export function AppSidebar() {
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href="/app/settings"><User className="h-3.5 w-3.5 mr-2" /> Account settings</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/app/settings/billing"><CreditCard className="h-3.5 w-3.5 mr-2" /> Billing & plan</Link>
-              </DropdownMenuItem>
+              {/* Org accounts manage plan/AI-provider exclusively in the Control
+                  Room (admin-only) - same reasoning as ai-provider-section.tsx.
+                  Only legacy no-org accounts see this link. */}
+              {!activeEnterpriseOrgId && (
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/app/settings/billing"><CreditCard className="h-3.5 w-3.5 mr-2" /> Billing & plan</Link>
+                </DropdownMenuItem>
+              )}
               {activeEnterpriseOrgId && (
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href={`/app/admin/${activeEnterpriseOrgId}`}>

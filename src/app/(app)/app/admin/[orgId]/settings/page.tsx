@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils'
 import { AiProviderAdminSection } from './ai-provider-admin-section'
 
-type Plan = 'starter' | 'business' | 'enterprise' | 'government'
+type Plan = 'free' | 'managed' | 'government'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
 type Status = 'active' | 'suspended' | 'canceled'
 
@@ -47,16 +47,25 @@ type SavePatch = {
   settings?: Settings
 }
 
+// On-premise / air-gapped deployment (Rabbit v2.1) isn't self-serve yet - it's
+// a year-2 capability per CLAUDE.md. The new-org wizard (admin/onboarding)
+// already gates this behind "talk to sales"; this page used to let an
+// existing org flip to it and type in a live endpoint with no gate at all.
+const DEPLOYMENT_AVAILABLE: Record<Deployment, boolean> = {
+  saas: true,
+  on_prem: false,
+  air_gapped: false,
+}
+
 const DEPLOYMENT_META: Record<Deployment, { label: string; desc: string; icon: typeof Cloud }> = {
   saas: { label: 'SaaS', desc: 'Fully managed by Reattend', icon: Cloud },
-  on_prem: { label: 'On-Premise', desc: 'Rabbit v2.1 on your infrastructure', icon: Server },
-  air_gapped: { label: 'Air-Gapped', desc: 'Zero outbound traffic, sovereign compliance', icon: Shield },
+  on_prem: { label: 'On-Premise', desc: 'Rabbit v2.1 on your infrastructure - talk to sales', icon: Server },
+  air_gapped: { label: 'Air-Gapped', desc: 'Zero outbound traffic, sovereign compliance - talk to sales', icon: Shield },
 }
 
 const PLAN_LABEL: Record<Plan, string> = {
-  starter: 'Starter',
-  business: 'Business',
-  enterprise: 'Enterprise',
+  free: 'Free',
+  managed: 'Managed',
   government: 'Government',
 }
 
@@ -80,7 +89,6 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
   const [primaryDomain, setPrimaryDomain] = useState('')
   const [deployment, setDeployment] = useState<Deployment>('saas')
   const [rabbitUrl, setRabbitUrl] = useState('')
-  const [seatLimit, setSeatLimit] = useState<string>('')
   const [auditRetentionDays, setAuditRetentionDays] = useState<string>('365')
   const [enforceStrictDomain, setEnforceStrictDomain] = useState(true)
 
@@ -104,7 +112,6 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
     setPrimaryDomain(o.primaryDomain ?? '')
     setDeployment(o.deployment)
     setRabbitUrl(o.onPremRabbitUrl ?? '')
-    setSeatLimit(o.seatLimit?.toString() ?? '')
     const s: Settings = o.settings ? safeParse(o.settings) : {}
     setAuditRetentionDays((s.auditRetentionDays ?? 365).toString())
     setEnforceStrictDomain(s.enforceStrictDomainMatch ?? true)
@@ -159,16 +166,6 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
       patch.onPremRabbitUrl = null
     }
     await save(patch)
-  }
-
-  async function saveCapacity(e: React.FormEvent) {
-    e.preventDefault()
-    const n = parseInt(seatLimit, 10)
-    if (seatLimit && (isNaN(n) || n < 1)) {
-      setErr('Seat limit must be a positive number or blank (unlimited).')
-      return
-    }
-    await save({ seatLimit: seatLimit ? n : undefined })
   }
 
   async function saveRetention(e: React.FormEvent) {
@@ -269,46 +266,22 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
         </form>
       </Section>
 
-      {/* ── Plan (read-only for now) ──────────────────────────────────── */}
+      {/* ── Plan ──────────────────────────────────────────────────────── */}
       <Section
         icon={Key}
         title="Plan"
-        desc="Your current plan and seat allocation."
+        desc="Free is unlimited on your own AI key. Managed and Government are provisioned by Reattend - talk to sales to change."
       >
         <div className="flex items-center gap-3">
           <div className={cn(
             'px-3 py-1.5 rounded-full text-xs font-semibold',
-            org.plan === 'enterprise' || org.plan === 'government'
+            org.plan === 'managed' || org.plan === 'government'
               ? 'bg-primary/10 text-primary'
               : 'bg-muted text-muted-foreground',
           )}>
             {PLAN_LABEL[org.plan]}
           </div>
-          <span className="text-sm text-muted-foreground">
-            Status: <span className="capitalize font-medium">{org.status}</span>
-          </span>
         </div>
-        <form onSubmit={saveCapacity} className="mt-4 space-y-3">
-          <Field label="Seat limit" hint="Blank = unlimited.">
-            <Input
-              type="number"
-              min={1}
-              value={seatLimit}
-              onChange={(e) => setSeatLimit(e.target.value)}
-              placeholder="Unlimited"
-              disabled={!canEdit}
-              className="max-w-xs"
-            />
-          </Field>
-          {canEdit && (
-            <div className="flex justify-end">
-              <Button type="submit" disabled={saving} variant="outline">
-                <Save className="h-3.5 w-3.5 mr-1" />
-                Save capacity
-              </Button>
-            </div>
-          )}
-        </form>
       </Section>
 
       {/* ── Deployment ────────────────────────────────────────────────── */}
@@ -323,18 +296,20 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
               const meta = DEPLOYMENT_META[d]
               const Icon = meta.icon
               const active = deployment === d
+              const selectable = DEPLOYMENT_AVAILABLE[d] || active
               return (
                 <button
                   key={d}
                   type="button"
-                  onClick={() => canEdit && setDeployment(d)}
-                  disabled={!canEdit}
+                  onClick={() => canEdit && selectable && setDeployment(d)}
+                  disabled={!canEdit || !selectable}
+                  title={!selectable ? 'Not self-serve yet - talk to sales' : undefined}
                   className={cn(
                     'text-left border rounded-lg p-3 transition-colors flex items-start gap-3',
                     active
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:bg-muted/30',
-                    !canEdit && 'cursor-not-allowed opacity-70',
+                    (!canEdit || !selectable) && 'cursor-not-allowed opacity-70',
                   )}
                 >
                   <Icon className={cn('h-4 w-4 mt-0.5 shrink-0', active ? 'text-primary' : 'text-muted-foreground')} />
@@ -347,6 +322,15 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
               )
             })}
           </div>
+          {deployment === 'saas' && (
+            <p className="text-xs text-muted-foreground">
+              On-Premise and Air-Gapped require a sales conversation.{' '}
+              <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                Talk to sales
+              </a>
+              {' '}to switch.
+            </p>
+          )}
 
           {(deployment === 'on_prem' || deployment === 'air_gapped') && (
             <Field

@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ or
       allowed.primaryDomain = null
     }
 
-    if (typeof body.plan === 'string' && ['starter', 'business', 'enterprise', 'government'].includes(body.plan)) {
+    if (typeof body.plan === 'string' && ['free', 'managed', 'government'].includes(body.plan)) {
       allowed.plan = body.plan
     }
     if (typeof body.deployment === 'string' && ['saas', 'on_prem', 'air_gapped'].includes(body.deployment)) {

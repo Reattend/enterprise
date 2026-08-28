@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       name?: string
       slug?: string
       primaryDomain?: string
-      plan?: 'free' | 'professional' | 'enterprise'
+      plan?: 'free' | 'managed' | 'government'
       deployment?: 'saas' | 'on_prem' | 'air_gapped'
       companySize?: '1-10' | '11-50' | '51-200' | '201-1000' | '1000+'
     }
