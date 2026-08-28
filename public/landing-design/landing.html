@@ -489,12 +489,11 @@
 
       function render() {
         const cur = current();
-        const showPanel = phase === 'thinking' || phase === 'streaming' || phase === 'done';
         if (!taken) input.value = typed;
         caret.style.display = (!taken && phase === 'typing') ? '' : 'none';
-        panel.classList.toggle('is-open', showPanel);
         statusLine.textContent = phase === 'thinking' ? 'Reattend is traversing org memory…' : 'Reattend · answered from org memory';
-        titleEl.textContent = phase === 'thinking' ? '' : cur.h;
+        const revealed = phase === 'streaming' || phase === 'done';
+        titleEl.textContent = revealed ? cur.h : '';
         bodyEl.textContent = phase === 'done' ? cur.p : (phase === 'streaming' ? cur.p.split(' ').slice(0, words).join(' ') : '');
         citesEl.classList.toggle('is-visible', phase === 'done');
         if (phase === 'done') {

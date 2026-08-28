@@ -40,8 +40,9 @@
   -webkit-font-smoothing: antialiased;
 }
 .lv4 * { box-sizing: border-box; }
-.lv4 a { color: var(--lv4-accent); text-decoration: none; }
-.lv4 a:hover { color: var(--lv4-accent-hover); }
+.lv4 a:not(.lv4-btn) { color: var(--lv4-accent); text-decoration: none; }
+.lv4 a:not(.lv4-btn):hover { color: var(--lv4-accent-hover); }
+.lv4 a.lv4-btn { text-decoration: none; }
 .lv4 em { font-style: italic; }
 .lv4 .wrap { max-width: var(--lv4-maxw); margin: 0 auto; padding-left: var(--lv4-pad); padding-right: var(--lv4-pad); }
 
@@ -176,9 +177,15 @@
   transition: background 150ms ease;
 }
 .lv4-ask-submit:hover { background: var(--lv4-dark-2); }
-.lv4-ask-panel { display: none; border-top: 1px solid var(--lv4-border-4); padding: 22px 20px 18px; }
-.lv4-ask-panel.is-open { display: block; animation: lv4-up 380ms ease both; }
-.lv4-ask-status { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.lv4-ask-panel {
+  border-top: 1px solid var(--lv4-border-4);
+  padding: 22px 20px 18px;
+  /* Always rendered (not display:none) and pre-sized to its fullest state
+     so the card never grows/shrinks as the demo cycles through phases -
+     that jump was making the whole hero feel jittery. */
+  min-height: 260px;
+}
+.lv4-ask-status { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 22px; }
 .lv4-ask-status-mark {
   width: 22px; height: 22px; border-radius: 6px;
   background: var(--lv4-accent-soft);
@@ -194,11 +201,11 @@
   color: var(--lv4-ink);
   margin: 0 0 12px;
   text-wrap: pretty;
-  min-height: 1.24em;
+  min-height: calc(1.24em * 2);
 }
 .lv4-ask-body { font-size: 17px; line-height: 1.65; color: var(--lv4-dark-2); margin: 0 0 18px; min-height: 3.3em; text-wrap: pretty; }
-.lv4-ask-cites { display: none; flex-wrap: wrap; gap: 8px; align-items: center; animation: lv4-up 320ms ease both; }
-.lv4-ask-cites.is-visible { display: flex; }
+.lv4-ask-cites { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 30px; visibility: hidden; }
+.lv4-ask-cites.is-visible { visibility: visible; animation: lv4-up 320ms ease both; }
 .lv4-ask-cite {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 13px; color: var(--lv4-dark-2);

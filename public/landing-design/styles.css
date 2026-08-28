@@ -10,9 +10,9 @@
   --rule: oklch(0.88 0.008 270);
   --rule-2: oklch(0.93 0.006 270);
 
-  --accent: oklch(0.45 0.18 280);
-  --accent-2: oklch(0.55 0.20 285);
-  --accent-soft: oklch(0.92 0.04 285);
+  --accent: #146b47;
+  --accent-2: #0f5637;
+  --accent-soft: #eaf4ee;
   --amber: oklch(0.82 0.13 75);
   --amber-deep: oklch(0.68 0.15 60);
 

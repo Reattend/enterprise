@@ -44,7 +44,7 @@
       justify-content: space-between;
       overflow: hidden;
       background:
-        radial-gradient(ellipse 70% 50% at 30% 30%, oklch(0.94 0.06 285 / 0.5), transparent 70%),
+        radial-gradient(ellipse 70% 50% at 30% 30%, oklch(0.94 0.04 155 / 0.5), transparent 70%),
         radial-gradient(ellipse 60% 50% at 80% 80%, oklch(0.95 0.05 80 / 0.45), transparent 70%),
         var(--bg);
       border-right: 1px solid var(--rule-2);
@@ -129,7 +129,7 @@
       margin: 36px 0 0;
       border-radius: 50%;
       background:
-        radial-gradient(circle at 50% 50%, oklch(0.99 0.005 80) 0%, oklch(0.96 0.02 285 / 0.6) 60%, transparent 75%);
+        radial-gradient(circle at 50% 50%, oklch(0.99 0.005 80) 0%, oklch(0.96 0.02 155 / 0.6) 60%, transparent 75%);
       border: 1px solid var(--rule-2);
     }
     .si-orb::before, .si-orb::after {
@@ -151,11 +151,11 @@
       position: absolute; inset: 18%;
       border-radius: 50%;
       background:
-        radial-gradient(circle at 50% 40%, var(--bg-paper) 0%, oklch(0.92 0.05 285 / 0.6) 70%, oklch(0.45 0.18 280 / 0.15) 100%);
+        radial-gradient(circle at 50% 40%, var(--bg-paper) 0%, oklch(0.92 0.04 155 / 0.6) 70%, oklch(0.45 0.1 155 / 0.15) 100%);
       border: 1px solid var(--rule);
       display: grid; place-items: center;
       box-shadow:
-        inset 0 -20px 60px oklch(0.45 0.18 280 / 0.12),
+        inset 0 -20px 60px oklch(0.45 0.1 155 / 0.12),
         0 24px 60px -20px oklch(0.18 0.012 270 / 0.18);
     }
     .orb-core .core-label {
@@ -187,7 +187,7 @@
       display: flex; align-items: center; gap: 6px;
       animation: tagFloat 6s ease-in-out infinite;
     }
-    .orb-tag .ic { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px oklch(0.45 0.18 280 / 0.18); }
+    .orb-tag .ic { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px oklch(0.45 0.1 155 / 0.18); }
     .orb-tag.amber .ic { background: var(--amber-deep); box-shadow: 0 0 0 3px oklch(0.68 0.15 60 / 0.18); }
     .orb-tag.green .ic { background: oklch(0.7 0.15 145); box-shadow: 0 0 0 3px oklch(0.7 0.15 145 / 0.18); }
     .orb-tag.t1 { top: 8%; left: -6%; animation-delay: 0s; }
@@ -273,7 +273,7 @@
     }
     .field .input-wrap:focus-within {
       border-color: var(--accent);
-      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.12);
+      box-shadow: 0 0 0 4px oklch(0.45 0.1 155 / 0.12);
       background: var(--bg-paper);
     }
     .field .input-wrap .leading {
@@ -328,7 +328,7 @@
     }
     .si-submit::before {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, oklch(0.45 0.18 280 / 0.35), transparent);
+      background: linear-gradient(90deg, transparent, oklch(0.45 0.1 155 / 0.35), transparent);
       transform: translateX(-100%);
       transition: transform .9s ease;
     }
@@ -448,7 +448,7 @@
     .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .otp-input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 4px oklch(0.45 0.18 280 / 0.12);
+      box-shadow: 0 0 0 4px oklch(0.45 0.1 155 / 0.12);
       background: var(--bg-paper);
       transform: translateY(-1px);
     }
@@ -572,6 +572,10 @@
 
     <!-- ====== LEFT: brand canvas ====== -->
     <section class="si-left">
+      <a class="si-brand" href="/">
+        <img src="/black_logo.svg" alt="Reattend" width="24" height="24" />
+        Reattend
+      </a>
       <div class="si-pitch">
         <h1>Sign in to your <em>second brain.</em></h1>
         <p>Reattend remembers what your team can't afford to forget - every Slack thread, ticket, design call, and shipped change - and recalls it at the speed of a question.</p>
