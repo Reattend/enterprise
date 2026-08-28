@@ -41,10 +41,11 @@ export function QuickCapture() {
     if (!text.trim() || saving) return
     setSaving(true)
     try {
+      const orgId = useAppStore.getState().activeEnterpriseOrgId
       const res = await fetch('/api/raw-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim() }),
+        body: JSON.stringify({ text: text.trim(), orgId }),
       })
       if (res.ok) {
         toast.success('Memory saved successfully.')

@@ -133,7 +133,7 @@ export default function MemoryDetailPage() {
     const contentChanged = editContent !== (record.content || '')
     const now = new Date().toISOString()
     try {
-      await fetch('/api/records', {
+      const res = await fetch('/api/records', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,6 +143,10 @@ export default function MemoryDetailPage() {
           content: editContent,
         }),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to save')
+      }
       setRecord((prev: any) => ({
         ...prev,
         title: editTitle,
@@ -173,7 +177,7 @@ export default function MemoryDetailPage() {
         } catch { /* best-effort */ }
         finally { setReanalyzing(false) }
       }
-    } catch { toast.error('Failed to save') }
+    } catch (err: any) { toast.error(err?.message || 'Failed to save') }
     finally { setSaving(false) }
   }
 

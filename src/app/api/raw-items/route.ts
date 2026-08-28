@@ -4,6 +4,7 @@ import { eq, and, desc, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { runTriageAgent } from '@/lib/ai/agents'
 import { processAllPendingJobs } from '@/lib/jobs/worker'
+import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 
 export async function GET(req: NextRequest) {
   try {
@@ -67,12 +68,26 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { workspaceId } = await requireAuth()
-    const { text, sourceId, externalId, author, occurredAt, metadata } = await req.json()
+    const auth = await requireAuth()
+    const { userId } = auth
+    const { text, sourceId, externalId, author, occurredAt, metadata, orgId, workspaceId: requestedWorkspaceId } = await req.json()
 
     if (!text) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 })
     }
+
+    // Resolve the right workspace - same trap as /api/records, /api/upload,
+    // and brain-dump: without this, a capture made while the user is in an
+    // org context silently lands in their personal workspace instead, which
+    // is invisible to every org-scoped read path (Memories, Board, Rewind,
+    // wiki, admin). See workspace-resolver.ts for the full trap writeup.
+    const resolved = await resolveTargetWorkspace({
+      userId,
+      requestedWorkspaceId,
+      orgId,
+      fallbackWorkspaceId: auth.workspaceId,
+    })
+    const workspaceId = resolved.workspaceId
 
     const id = crypto.randomUUID()
     await db.insert(schema.rawItems).values({

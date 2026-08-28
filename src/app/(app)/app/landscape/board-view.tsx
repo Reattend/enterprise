@@ -29,6 +29,7 @@ import {
   GitBranch, ChevronRight, Plus, Minus, Maximize,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/stores/app-store'
 
 type RecordType = 'decision' | 'insight' | 'meeting' | 'idea' | 'context' | 'tasklike' | 'note' | 'transcript'
 
@@ -119,6 +120,7 @@ function edgeStyle(kind: string) {
 }
 
 export function BoardView() {
+  const activeEnterpriseOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const [nodes, setNodes] = useState<GraphNode[] | null>(null)
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [err, setErr] = useState<string | null>(null)
@@ -132,6 +134,11 @@ export function BoardView() {
     setErr(null)
     const q = new URLSearchParams()
     if (typeFilter) q.set('type', typeFilter)
+    // Without orgId the server falls back to personal-workspace-only, so a
+    // memory saved to the active org's team workspace would never appear
+    // here even though it's saved correctly. See landing space-view.tsx,
+    // which already does this - Board was the one view that didn't.
+    if (activeEnterpriseOrgId) q.set('orgId', activeEnterpriseOrgId)
     const res = await fetch(`/api/enterprise/graph?${q}`)
     if (!res.ok) {
       setErr((await res.json().catch(() => ({ error: 'failed' }))).error || 'failed')
@@ -142,7 +149,7 @@ export function BoardView() {
     setEdges(data.edges)
   }
 
-  useEffect(() => { reload() }, [typeFilter]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { reload() }, [typeFilter, activeEnterpriseOrgId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { rfNodes, rfEdges } = useMemo(() => {
     if (!nodes) return { rfNodes: [] as Node[], rfEdges: [] as Edge[] }

@@ -9,6 +9,7 @@ import {
   extractRequestMeta,
   buildAccessContext,
   filterToAccessibleRecords,
+  canAccessRecord,
 } from '@/lib/enterprise'
 import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 
@@ -262,12 +263,22 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { workspaceId } = await requireAuth()
+    const { userId, workspaceId } = await requireAuth()
     const body = await req.json()
     const { id, title, summary, content, type, tags, locked, projectId } = body
 
     if (!id) {
       return NextResponse.json({ error: 'id required' }, { status: 400 })
+    }
+
+    // The update below was previously scoped by record id only, with no
+    // check that the caller can even see this record - any authenticated
+    // user who knew (or guessed) a record's UUID could edit it, regardless
+    // of workspace or org. Gate on the same RBAC visibility rule every
+    // read path already uses: if you can't see it, you can't write it.
+    const ctx = await buildAccessContext(userId)
+    if (!(await canAccessRecord(ctx, id))) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     const updates: any = { updatedAt: new Date().toISOString() }
@@ -321,6 +332,13 @@ export async function DELETE(req: NextRequest) {
 
     if (!id) {
       return NextResponse.json({ error: 'id required' }, { status: 400 })
+    }
+
+    // Same gate as PUT above - without this, any authenticated user who
+    // knew a record's UUID could delete it regardless of workspace/org.
+    const ctx = await buildAccessContext(userId)
+    if (!(await canAccessRecord(ctx, id))) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
     await db.delete(schema.records).where(eq(schema.records.id, id))
