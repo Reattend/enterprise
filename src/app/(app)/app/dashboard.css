@@ -14,17 +14,19 @@
   --ink-4: oklch(0.72 0.008 270);
   --line: oklch(0.92 0.005 270);
   --line-2: oklch(0.96 0.004 270);
-  /* Rust-orange brand accent - matches the Control Room rail button
-     (#c86d4b ≈ oklch(0.62 0.13 36)). Used by every primary CTA, badge
-     and accent text in the new dashboard pages. Kept under `--brand*`
-     to avoid colliding with shadcn's HSL `--accent` (which globals.css
-     redefines inside the shell as a soft hover surface). */
-  --brand: oklch(0.62 0.13 36);
-  --brand-soft: oklch(0.95 0.04 50);
-  --brand-ink: oklch(0.4 0.13 30);
-  --serif: "Instrument Serif", "Times New Roman", serif;
+  /* Brand green - matches the marketing site's Landing v2 accent
+     (#146b47 family). Used by every primary CTA, badge and accent text
+     in the dashboard. Kept under `--brand*` to avoid colliding with
+     shadcn's HSL `--accent` (which globals.css redefines inside the
+     shell as a soft hover surface). Was rust-orange (#c86d4b) before
+     the 2026-08-28 dashboard visual-language match - see git history
+     if you need the old value back. */
+  --brand: oklch(0.62 0.13 155);
+  --brand-soft: oklch(0.95 0.04 155);
+  --brand-ink: oklch(0.4 0.13 155);
+  --serif: var(--font-roboto-serif), "Times New Roman", serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --sans: "Inter", system-ui, sans-serif;
+  --sans: var(--font-roboto), system-ui, sans-serif;
 }
 
 /* dark mode mapping */
@@ -165,13 +167,13 @@
   justify-content: center;
   transition: filter .15s ease, transform .05s ease, background .15s ease;
 }
-/* Control Room - flat rust orange #c86d4b. No gradient, slight inset
+/* Control Room - flat brand green. No gradient, slight inset
  * highlight for tactility, soft shadow keyed to the same hue. */
 .enterprise-shell .rail-cta {
-  background: #c86d4b;
+  background: var(--brand);
   box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
 }
-.enterprise-shell .rail-cta:hover { background: #b85e3e; }
+.enterprise-shell .rail-cta:hover { background: var(--brand-ink); }
 .enterprise-shell .rail-cta-2 {
   background: oklch(0.16 0.01 270);
   margin-bottom: 4px;
@@ -646,7 +648,7 @@
   padding: 9px 16px; border-radius: 10px;
   font: inherit; font-weight: 600; font-size: 13px;
   color: white; cursor: pointer; border: 0;
-  background: #c86d4b;
+  background: var(--brand);
   box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
   transition: background .12s;
 }
@@ -1596,7 +1598,7 @@
 }
 .enterprise-shell .lsc-mode-btn:hover { color: var(--ink); }
 .enterprise-shell .lsc-mode-btn.active {
-  background: #c86d4b;
+  background: var(--brand);
   color: white; box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
 }
 .enterprise-shell .lsc-mode-btn .lab-sub {
@@ -2553,9 +2555,9 @@
 .enterprise-shell .int-btn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .int-btn:disabled { opacity: 0.55; cursor: default; }
 .enterprise-shell .int-btn.primary {
-  background: #c86d4b; color: white; border-color: #c86d4b;
+  background: var(--brand); color: white; border-color: var(--brand);
 }
-.enterprise-shell .int-btn.primary:hover { background: #b85e3e; }
+.enterprise-shell .int-btn.primary:hover { background: var(--brand-ink); }
 .enterprise-shell .int-btn.danger {
   color: var(--mem-rose); margin-left: auto;
   border-color: transparent; background: transparent;
@@ -2751,7 +2753,7 @@
 }
 .enterprise-shell .tsk-hero::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px;
-  background: linear-gradient(90deg, oklch(0.65 0.18 220), oklch(0.55 0.2 285), #c86d4b);
+  background: linear-gradient(90deg, oklch(0.65 0.18 220), oklch(0.55 0.2 285), var(--brand));
 }
 .enterprise-shell .tsk-hero-ico {
   width: 52px; height: 52px; border-radius: 13px;
@@ -2832,11 +2834,11 @@
   padding: 9px 18px; border-radius: 10px;
   font: inherit; font-weight: 600; font-size: 13px;
   color: white; cursor: pointer; border: 0;
-  background: #c86d4b;
+  background: var(--brand);
   box-shadow: 0 1px 0 oklch(1 0 0 / 0.18) inset, 0 6px 14px -10px oklch(0.5 0.14 30 / 0.5);
   transition: background .12s;
 }
-.enterprise-shell .tsk-draft-btn:hover { background: #b85e3e; }
+.enterprise-shell .tsk-draft-btn:hover { background: var(--brand-ink); }
 .enterprise-shell .tsk-draft-btn:disabled {
   opacity: 0.5; cursor: default; background: var(--ink-4);
   box-shadow: none;
@@ -3016,7 +3018,7 @@
   font-size: 13.5px; line-height: 1.5;
 }
 .enterprise-shell .tsk-refine-msg.user .bubble {
-  background: #c86d4b; color: white;
+  background: var(--brand); color: white;
 }
 .enterprise-shell .tsk-refine-msg.assistant .bubble {
   background: oklch(0.96 0.005 85); color: var(--ink);
@@ -3039,10 +3041,10 @@
 .enterprise-shell .tsk-refine-input button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; border-radius: 9px;
-  background: #c86d4b; color: white; border: 0;
+  background: var(--brand); color: white; border: 0;
   cursor: pointer; transition: background .12s;
 }
-.enterprise-shell .tsk-refine-input button:hover { background: #b85e3e; }
+.enterprise-shell .tsk-refine-input button:hover { background: var(--brand-ink); }
 .enterprise-shell .tsk-refine-input button:disabled { opacity: 0.5; cursor: default; }
 
 /* ============================================================

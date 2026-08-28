@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Inter, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
+import { Inter, JetBrains_Mono, Instrument_Serif, Roboto, Roboto_Serif } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import { TestEnvBanner } from '@/components/test-env-banner'
@@ -23,6 +23,24 @@ const displaySerif = Instrument_Serif({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-display',
+  style: ['normal', 'italic'],
+})
+
+// Dashboard visual-language match (2026-08-28): the marketing site's
+// "Landing v2" redesign uses Roboto / Roboto Serif. These two are scoped
+// to .enterprise-shell in dashboard.css/globals.css so the dashboard's
+// headings/body match the new brand look without touching --font-display
+// or --font-inter, which other surfaces still depend on.
+const roboto = Roboto({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-roboto',
+})
+
+const robotoSerif = Roboto_Serif({
+  weight: ['400', '500'],
+  subsets: ['latin'],
+  variable: '--font-roboto-serif',
   style: ['normal', 'italic'],
 })
 
@@ -129,7 +147,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.variable} ${mono.variable} ${displaySerif.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${mono.variable} ${displaySerif.variable} ${roboto.variable} ${robotoSerif.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

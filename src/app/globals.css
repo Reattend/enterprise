@@ -172,7 +172,7 @@
   .enterprise-shell h1,
   .enterprise-shell .font-display,
   .enterprise-shell .serif {
-    font-family: var(--font-display), 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+    font-family: var(--font-roboto-serif), 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
     letter-spacing: -0.015em;
     font-weight: 400 !important;
   }
@@ -180,7 +180,7 @@
      too - Notion / Bloomberg / editorial vibe. Pages that want a sans
      section title can opt out with class="font-sans". */
   .enterprise-shell h2 {
-    font-family: var(--font-display), 'Iowan Old Style', Georgia, serif;
+    font-family: var(--font-roboto-serif), 'Iowan Old Style', Georgia, serif;
     letter-spacing: -0.01em;
     font-weight: 400;
   }
@@ -226,10 +226,11 @@
   --popover: 0 0% 100%;
   --popover-foreground: 258 12% 13%;
 
-  /* Primary = rust orange #c86d4b. Used by every shadcn `bg-primary`
-     button and `text-primary` accent across the dashboard, so all
-     CTAs look consistent with the Control Room rail button. */
-  --primary: 19 53% 54%;
+  /* Primary = brand green (#146b47-family, matches the marketing site's
+     Landing v2 accent). Used by every shadcn `bg-primary` button and
+     `text-primary` accent across the dashboard, so all CTAs look
+     consistent with the rest of the product. */
+  --primary: 155 68% 25%;
   --primary-foreground: 0 0% 100%;
 
   /* Soft surfaces */
@@ -248,7 +249,7 @@
 
   --border: 258 8% 91%;
   --input: 258 8% 91%;
-  --ring: 19 53% 54%;
+  --ring: 155 68% 25%;
 
   /* Softer corners - design uses 8-14px on cards, 9-10px on buttons.
      0.625rem = 10px. Tailwind's rounded → 10px, rounded-lg → 14px. */
