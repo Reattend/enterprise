@@ -241,7 +241,7 @@ const INK_2 = 'oklch(0.32 0.012 270)'
 const INK_3 = 'oklch(0.52 0.012 270)'
 const RULE = 'oklch(0.88 0.008 270)'
 const PAPER = 'oklch(0.992 0.004 80)'
-const ACCENT = 'oklch(0.45 0.18 280)'
+const ACCENT = 'oklch(0.45 0.18 155)'
 
 export default function ToolsPage() {
   const totalTools = categories.reduce((sum, c) => sum + c.tools.length, 0)
@@ -306,7 +306,7 @@ export default function ToolsPage() {
                     <div className="flex items-center gap-3 w-full">
                       <div
                         className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ background: 'oklch(0.92 0.04 285)' }}
+                        style={{ background: 'oklch(0.92 0.04 155)' }}
                       >
                         <tool.icon className="w-5 h-5" style={{ color: ACCENT }} />
                       </div>

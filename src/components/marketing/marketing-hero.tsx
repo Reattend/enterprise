@@ -76,8 +76,8 @@ export function MarketingHero({
           <span
             className="inline-block w-1.5 h-1.5 rounded-full"
             style={{
-              background: 'oklch(0.45 0.18 280)',
-              boxShadow: '0 0 0 3px oklch(0.45 0.18 280 / 0.15)',
+              background: 'oklch(0.45 0.18 155)',
+              boxShadow: '0 0 0 3px oklch(0.45 0.18 155 / 0.15)',
               animation: 'mh-pulse 2.4s ease-in-out infinite',
             }}
           />
@@ -100,7 +100,7 @@ export function MarketingHero({
           {emphasis && (
             <>
               {emphasisJoiner}
-              <em style={{ fontStyle: 'italic', color: 'oklch(0.45 0.18 280)' }}>{emphasis}</em>
+              <em style={{ fontStyle: 'italic', color: 'oklch(0.45 0.18 155)' }}>{emphasis}</em>
             </>
           )}
         </h1>
@@ -178,8 +178,8 @@ export function MarketingHero({
 
       <style>{`
         @keyframes mh-pulse {
-          0%, 100% { box-shadow: 0 0 0 3px oklch(0.45 0.18 280 / 0.15); }
-          50%      { box-shadow: 0 0 0 6px oklch(0.45 0.18 280 / 0.05); }
+          0%, 100% { box-shadow: 0 0 0 3px oklch(0.45 0.18 155 / 0.15); }
+          50%      { box-shadow: 0 0 0 6px oklch(0.45 0.18 155 / 0.05); }
         }
       `}</style>
     </section>

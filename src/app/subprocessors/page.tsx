@@ -81,7 +81,7 @@ export default function SubprocessorsPage() {
           </h2>
           <p style={{ fontSize: '15px', color: 'oklch(0.32 0.012 270)', lineHeight: 1.65 }}>
             Anyone evaluating Reattend for an enterprise deployment. Email{' '}
-            <a href="mailto:pb@reattend.ai" style={{ color: 'oklch(0.45 0.18 280)', textDecoration: 'underline' }}>
+            <a href="mailto:pb@reattend.ai" style={{ color: 'oklch(0.45 0.18 155)', textDecoration: 'underline' }}>
               pb@reattend.ai
             </a>{' '}
             with your company and use case; we typically respond within a business day with the list under NDA.
@@ -96,7 +96,7 @@ export default function SubprocessorsPage() {
           }}
         >
           For the broader compliance posture - controls, audit log architecture, residency - see the{' '}
-          <Link href="/compliance" style={{ color: 'oklch(0.45 0.18 280)', textDecoration: 'underline' }}>
+          <Link href="/compliance" style={{ color: 'oklch(0.45 0.18 155)', textDecoration: 'underline' }}>
             compliance page
           </Link>
           .
