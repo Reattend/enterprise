@@ -289,6 +289,20 @@ export function ChatView() {
         }),
       })
 
+      // A 402 (ai_not_configured / ai_quota_exceeded) or other error still
+      // has a readable body, but it's JSON, not a streamed answer - without
+      // this check the raw error payload got decoded and rendered verbatim
+      // as if it were the AI's response text. settingsUrl (when present)
+      // becomes a real markdown link since messages render through
+      // ReactMarkdown below.
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({} as { message?: string; error?: string; settingsUrl?: string }))
+        const msg = j.message || j.error || 'Something went wrong answering that.'
+        const content = j.settingsUrl ? `${msg}\n\n[Connect a key in Settings →](${j.settingsUrl})` : msg
+        setMessages(prev => prev.map(m => m.id === aiId ? { ...m, content } : m))
+        return
+      }
+
       let sources: Source[] = []
       let trace: TraceData | undefined = undefined
       try {

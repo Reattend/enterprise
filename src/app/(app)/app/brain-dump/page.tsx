@@ -68,6 +68,7 @@ export default function BrainDumpPage() {
   const [items, setItems] = useState<DumpItem[] | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [rejectedReason, setRejectedReason] = useState<string | null>(null)
+  const [aiNotConfigured, setAiNotConfigured] = useState(false)
   const [committing, setCommitting] = useState(false)
   const [result, setResult] = useState<{ created: Array<{ id: string; title: string; kind: ItemKind }>; skippedDupes: string[] } | null>(null)
 
@@ -171,6 +172,7 @@ export default function BrainDumpPage() {
     setItems(null)
     setSelected(new Set())
     setRejectedReason(null)
+    setAiNotConfigured(false)
     try {
       const res = await fetch('/api/enterprise/brain-dump', {
         method: 'POST',
@@ -185,6 +187,7 @@ export default function BrainDumpPage() {
       const data = await res.json()
       setItems(data.items || [])
       setRejectedReason(data.rejectedReason || null)
+      setAiNotConfigured(!!data.aiNotConfigured)
       setSelected(new Set(Array.from({ length: (data.items || []).length }, (_, i) => i)))
     } finally {
       setParsing(false)
@@ -234,6 +237,7 @@ export default function BrainDumpPage() {
     setSelected(new Set())
     setResult(null)
     setRejectedReason(null)
+    setAiNotConfigured(false)
     setLinkUrl('')
     setLinkNote('')
   }
@@ -397,7 +401,15 @@ export default function BrainDumpPage() {
       )}
 
       {rejectedReason && !items?.length && (
-        <div className="cap-rejected">{rejectedReason}</div>
+        <div className="cap-rejected">
+          {rejectedReason}
+          {aiNotConfigured && (
+            <>
+              {' '}
+              <Link href="/app/settings" className="cap-rejected-link">Connect a key in Settings →</Link>
+            </>
+          )}
+        </div>
       )}
 
       {result ? (

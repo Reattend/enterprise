@@ -40,6 +40,11 @@ interface DumpItem {
 interface Preview {
   items: DumpItem[]
   rejectedReason: string | null
+  // Distinguishes "no AI key connected" from every other rejection reason
+  // (empty dump, parse failure) - only this one is actually fixable by the
+  // user, via a link to Settings, so the frontend needs to tell it apart
+  // from a plain unclickable message rather than string-matching the text.
+  aiNotConfigured?: boolean
 }
 
 export async function POST(req: NextRequest) {
@@ -135,7 +140,7 @@ async function parseWithClaude(raw: string, userId: string, orgId: string | null
     llm = await resolveLLMForRequest({ userId, organizationId: orgId, intent: 'simple' })
   } catch (err) {
     if (err instanceof NoAIConfiguredError) {
-      return { items: [], rejectedReason: err.message }
+      return { items: [], rejectedReason: err.message, aiNotConfigured: true }
     }
     throw err
   }

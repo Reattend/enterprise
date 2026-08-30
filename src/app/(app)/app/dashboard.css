@@ -393,9 +393,9 @@
 }
 .enterprise-shell .pill-btn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .pill-btn.dark {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .pill-btn.dark:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .pill-btn.dark:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 
 .enterprise-shell .chat-stage {
   flex: 1; display: flex; flex-direction: column;
@@ -472,7 +472,7 @@
   cursor: pointer;
   transition: filter .12s, background .12s;
 }
-.enterprise-shell .send-btn.ready { background: var(--ink); color: white; border-color: var(--ink); }
+.enterprise-shell .send-btn.ready { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .enterprise-shell .send-btn:hover { filter: brightness(0.97); }
 .enterprise-shell .composer-hint {
   text-align: center; color: var(--ink-3);
@@ -527,7 +527,7 @@
 }
 .enterprise-shell .cap-mode-btn:hover { color: var(--ink); }
 .enterprise-shell .cap-mode-btn.active {
-  background: var(--ink); color: white;
+  background: var(--ink); color: var(--bg);
   box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
 }
 .enterprise-shell .cap-mode-btn .ico { width: 14px; height: 14px; }
@@ -808,6 +808,11 @@
   border-radius: 12px; padding: 12px 14px; font-size: 13px;
   margin-bottom: 14px;
 }
+.enterprise-shell .cap-rejected-link {
+  color: oklch(0.45 0.11 60); font-weight: 600; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.enterprise-shell .cap-rejected-link:hover { opacity: 0.75; }
 
 /* ============================================================
  * Memories list + detail pages - extracted from design's
@@ -874,9 +879,15 @@
 }
 .enterprise-shell .mem-btn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .mem-btn.primary {
-  background: var(--ink); color: white; border-color: var(--ink);
+  /* --ink flips near-black/near-white between light and dark mode - text
+     must flip opposite to stay legible, so use --bg (always --ink's
+     inverse) instead of a hardcoded "white" that only worked in light
+     mode. Hardcoded white text on a near-white dark-mode --ink background
+     was rendering this button (and the icon, via currentColor)
+     completely invisible - found via live screenshot report 2026-08-30. */
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .mem-btn.primary:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .mem-btn.primary:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 .enterprise-shell .mem-btn.danger {
   color: var(--mem-rose);
   border-color: color-mix(in oklch, var(--mem-rose), white 70%);
@@ -897,7 +908,7 @@
 }
 .enterprise-shell .mem-cat:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .mem-cat.active {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
 .enterprise-shell .mem-cat .n {
   font-family: var(--mono); font-size: 11px; opacity: 0.7;
@@ -931,7 +942,7 @@
   font: inherit; font-size: 12px; font-weight: 500;
   color: var(--ink-3); cursor: pointer; border: 0; background: transparent;
 }
-.enterprise-shell .mem-date-pill.active { background: var(--ink); color: white; }
+.enterprise-shell .mem-date-pill.active { background: var(--ink); color: var(--bg); }
 .enterprise-shell .mem-select {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 10px 6px 12px;
@@ -951,7 +962,7 @@
   cursor: pointer;
 }
 .enterprise-shell .mem-view-btn:hover { color: var(--ink); }
-.enterprise-shell .mem-view-btn.active { background: var(--ink); color: white; }
+.enterprise-shell .mem-view-btn.active { background: var(--ink); color: var(--bg); }
 
 /* Day caption */
 .enterprise-shell .mem-day-cap {
@@ -1172,7 +1183,7 @@
   background: oklch(0.97 0.005 85); color: var(--ink);
 }
 .enterprise-shell .mem-pager button.active {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
 .enterprise-shell .mem-pager button:disabled { opacity: 0.4; cursor: default; }
 
@@ -1234,9 +1245,9 @@
   border-color: color-mix(in oklch, var(--mem-rose), white 70%);
 }
 .enterprise-shell .mem-act-btn.primary {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .mem-act-btn.primary:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .mem-act-btn.primary:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 .enterprise-shell .mem-act-btn:disabled { opacity: 0.5; cursor: default; }
 
 /* Hero */
@@ -1670,9 +1681,9 @@
 }
 .enterprise-shell .lsc-pbtn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .lsc-pbtn.primary {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .lsc-pbtn.primary:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .lsc-pbtn.primary:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 .enterprise-shell .lsc-pbtn:disabled { opacity: 0.5; cursor: default; }
 .enterprise-shell .lsc-scope {
   margin-left: auto;
@@ -1837,7 +1848,7 @@
 }
 .enterprise-shell .lsc-fchip:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .lsc-fchip.active {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
 .enterprise-shell .lsc-board-meta {
   font-size: 11px; color: var(--ink-3); font-family: var(--mono);
@@ -2931,9 +2942,9 @@
 }
 .enterprise-shell .tsk-act-btn:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .tsk-act-btn.dark {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .tsk-act-btn.dark:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .tsk-act-btn.dark:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 
 .enterprise-shell .tsk-draft-body {
   padding: 22px 28px; font-size: 14.5px; color: var(--ink); line-height: 1.65;
@@ -3179,9 +3190,9 @@
 }
 .enterprise-shell .cr-act:hover { background: oklch(0.97 0.005 85); }
 .enterprise-shell .cr-act.dark {
-  background: var(--ink); color: white; border-color: var(--ink);
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
 }
-.enterprise-shell .cr-act.dark:hover { background: oklch(0.24 0.01 270); }
+.enterprise-shell .cr-act.dark:hover { background: color-mix(in oklch, var(--ink), var(--bg) 15%); }
 .enterprise-shell .cr-act.export { margin-left: auto; }
 .enterprise-shell .cr-act:disabled { opacity: 0.5; cursor: default; }
 
