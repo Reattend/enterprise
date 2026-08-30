@@ -271,10 +271,10 @@ const linkingResultSchema = z.object({
 // (the raw_item would otherwise sit at status='new' forever, silently or
 // with only a buried inbox notification - see today.md 2026-08-30), store
 // the raw text as a plain, untitled record immediately. It's always
-// visible in Memories and always searchable (FastEmbed embeddings are
-// local, never gated on an AI key) - just without AI titling/
-// classification/entity extraction until a key is connected. Never lose
-// the capture; degrade gracefully instead.
+// visible in Memories and listable/keyword-searchable - just without AI
+// titling/classification/entity extraction, or semantic (vector) search,
+// until a key is connected. Never lose the capture; degrade gracefully
+// instead.
 async function createUntriagedRecord(rawItemId: string, workspaceId: string, targetProjectId?: string): Promise<TriageResult> {
   const rawItem = await db.query.rawItems.findFirst({ where: eq(schema.rawItems.id, rawItemId) })
   if (!rawItem) throw new Error(`Raw item ${rawItemId} not found`)
@@ -302,13 +302,14 @@ async function createUntriagedRecord(rawItemId: string, workspaceId: string, tar
     await db.insert(schema.projectRecords).values({ projectId: targetProjectId, recordId })
   }
 
-  // Embeddings are local (FastEmbed), never gated on an AI provider key -
-  // this record stays fully searchable even without one.
-  await db.insert(schema.jobQueue).values({
-    workspaceId,
-    type: 'embed',
-    payload: JSON.stringify({ recordId, suggestedLinks: [] }),
-  })
+  // Deliberately NOT queuing an 'embed' job here: runEmbeddingJob calls
+  // llm.embed() through the same resolved provider as triage (found via
+  // live verification 2026-08-30 - "embeddings are local/FastEmbed" was
+  // a wrong assumption in an earlier version of this comment), so it
+  // would just fail with the identical NoAIConfiguredError and generate
+  // a confusing "some memories could not be processed" notification for
+  // a record that actually saved fine. Keyword/FTS search still works;
+  // semantic search is the one thing that waits for a key to be connected.
 
   await db.insert(schema.activityLog).values({
     workspaceId,
