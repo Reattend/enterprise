@@ -22,8 +22,14 @@ import fs from 'fs'
 import path from 'path'
 import { createHash } from 'crypto'
 import { db, schema } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { eq, and, lt, inArray } from 'drizzle-orm'
 import { redactPII } from './redact'
+
+// Shared with ocr/batch/route.ts - both need the exact same path since jobs
+// are looked up by id on disk independent of which process/request resumes
+// them (that's what makes drainPendingOcrJobsForOrg safe to call from a
+// completely different request than the one that created the batch).
+export const OCR_UPLOAD_DIR = path.resolve(process.cwd(), 'data', 'ocr-uploads')
 
 // Tesseract.js lazy import - heavy, don't eagerly load at module init
 type TesseractWorker = any
@@ -213,4 +219,44 @@ export async function drainPendingOcrJobsForOrg(organizationId: string, uploadDi
     }
   }
   return processed
+}
+
+// ─── Stuck-job rescue + periodic drain ──────────────────────────────────
+// batch/route.ts fires OCR processing as a detached background loop after
+// the HTTP response is sent - if the pm2 process restarts mid-batch (a
+// deploy, or tesseract tripping ecosystem.config.js's max_memory_restart on
+// a large batch), every job still 'pending' or caught at 'processing' was
+// stranded forever: no equivalent of jobs/worker.ts's rescueStuckJobs /
+// PERIODIC_RETRY_MS existed for ocr_jobs, and drainPendingOcrJobsForOrg
+// (above) was never actually called from anywhere except the batch route's
+// own in-request loop. Wired into jobs/worker.ts's existing periodic
+// scheduler (2026-08-30) so a stranded scan gets picked back up within 30
+// minutes without depending on anyone re-opening the OCR page.
+const OCR_STUCK_THRESHOLD_MS = 15 * 60 * 1000 // 15 min - generous for a slow tesseract pass, still bounded
+
+export async function rescueStuckOcrJobs(): Promise<void> {
+  const cutoff = new Date(Date.now() - OCR_STUCK_THRESHOLD_MS).toISOString()
+  const stuck = await db.select({ id: schema.ocrJobs.id })
+    .from(schema.ocrJobs)
+    .where(and(eq(schema.ocrJobs.status, 'processing'), lt(schema.ocrJobs.startedAt, cutoff)))
+  if (stuck.length === 0) return
+  await db.update(schema.ocrJobs)
+    .set({ status: 'pending', errorMessage: 'Rescued: stuck in processing for >15 minutes (likely a process restart mid-batch)' })
+    .where(inArray(schema.ocrJobs.id, stuck.map(j => j.id)))
+  console.log(`[OCR] Rescued ${stuck.length} stuck job(s)`)
+}
+
+export async function drainAllPendingOcrJobs(): Promise<void> {
+  await rescueStuckOcrJobs()
+  const orgs = await db.selectDistinct({ organizationId: schema.ocrJobs.organizationId })
+    .from(schema.ocrJobs)
+    .where(eq(schema.ocrJobs.status, 'pending'))
+  for (const { organizationId } of orgs) {
+    try {
+      const processed = await drainPendingOcrJobsForOrg(organizationId, OCR_UPLOAD_DIR)
+      if (processed > 0) console.log(`[OCR] Periodic drain: processed ${processed} stranded job(s) for org ${organizationId}`)
+    } catch (err) {
+      console.error('[OCR] periodic drain failed for org', organizationId, err)
+    }
+  }
 }

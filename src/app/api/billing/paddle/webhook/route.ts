@@ -112,6 +112,15 @@ async function handleSubscriptionEvent(data: any) {
     })
     .where(eq(schema.subscriptions.userId, userId))
 
+  // Cosmetic sync only (Control Room pill / on-prem gate) - not read for AI
+  // access. Best-effort: checkout/route.ts stamps organizationId into
+  // customData for exactly this, but older/manual transactions won't have
+  // it, so skip quietly if it's missing rather than failing the webhook.
+  const organizationId = data?.customData?.organizationId
+  if (organizationId && (mapping.tier === 'professional' || mapping.tier === 'enterprise')) {
+    await db.update(schema.organizations).set({ plan: 'managed' }).where(eq(schema.organizations.id, organizationId))
+  }
+
   console.log(`[paddle webhook] subscription ${data.id} → user ${userId} → ${mapping.tier} ${mapping.billingCycle} x${seatCount} (${ourStatus})`)
 }
 

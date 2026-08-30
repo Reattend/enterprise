@@ -9,6 +9,7 @@ import { QuickCapture } from '@/components/app/quick-capture'
 import { InboxBanner } from '@/components/app/inbox-banner'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
+import { TrialBanner } from '@/components/enterprise/trial-banner'
 import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
 import { SandboxBanner } from '@/components/enterprise/sandbox-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
@@ -175,6 +176,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex flex-col min-h-0 overflow-hidden">
           <AppTopbar />
           <SandboxBanner />
+          <TrialBanner />
           <InboxBanner />
           {/* Withhold orgId until orgsLoaded - see page.tsx's analytics-fetch
               effect for why (2026-08-26 stale-org-id race). */}

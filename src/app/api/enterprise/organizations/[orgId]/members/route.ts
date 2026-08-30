@@ -10,6 +10,7 @@ import {
 } from '@/lib/enterprise'
 import { sendEnterpriseInviteEmail } from '@/lib/email'
 import { findOrCreateUser } from '@/lib/auth'
+import { canOrgAddMember } from '@/lib/billing/gates'
 import crypto from 'crypto'
 
 const INVITE_TOKEN_BYTES = 24
@@ -82,6 +83,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     const { orgId } = await params
     const auth = await requireOrgAuth(req, orgId, 'org.members.manage')
     if (isAuthResponse(auth)) return auth
+
+    // Self-serve Managed caps at 99 seats (tier.ts) - fail fast here so an
+    // admin at the ceiling gets a clear "talk to sales" message instead of
+    // a silently-pending invite that can never be accepted (accept/route.ts
+    // re-checks this too, since seats are only actually consumed on accept).
+    const seatCheck = await canOrgAddMember(orgId)
+    if (!seatCheck.ok) {
+      return NextResponse.json({
+        error: 'seat_limit_reached',
+        message: `This organization is at its self-serve Managed seat limit (${seatCheck.cap}). Talk to sales to raise it.`,
+        cap: seatCheck.cap,
+        current: seatCheck.current,
+      }, { status: 402 })
+    }
 
     const body = await req.json()
     const { email, role, title, departmentId, deptRole } = body as {

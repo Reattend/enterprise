@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
-import { eq, desc, and, inArray, ne } from 'drizzle-orm'
+import { eq, desc, and, or, inArray, ne } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const { workspaceId } = await requireAuth()
+    const { userId, workspaceId } = await requireAuth()
 
     const projects = await db.query.projects.findMany({
       where: eq(schema.projects.workspaceId, workspaceId),
@@ -19,11 +19,14 @@ export async function GET() {
         })
         const recordIds = projectRecordRows.map(r => r.recordId)
         if (recordIds.length === 0) return { ...p, recordCount: 0 }
+        // Same creator exception as records/route.ts:115 - a needs_review
+        // record you created yourself is still yours to see, this count
+        // should match what /api/records?project_id=X actually returns.
         const validRecords = await db.query.records.findMany({
           where: and(
             inArray(schema.records.id, recordIds),
             eq(schema.records.workspaceId, workspaceId),
-            ne(schema.records.triageStatus, 'needs_review'),
+            or(ne(schema.records.triageStatus, 'needs_review'), eq(schema.records.createdBy, userId)),
           ),
           columns: { id: true },
         })

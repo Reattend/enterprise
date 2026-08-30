@@ -2,24 +2,31 @@
 // Read by the gates in `./gates.ts` and by any UI that needs to render
 // "what does the next tier unlock" lists.
 //
-// Pricing (USD), post-2026-08-23 restructure:
+// Pricing (USD), post-2026-08-29 self-serve-trial restructure:
 //   Free ("BYOK")   - $0, bring your own Anthropic/OpenAI/Gemini key, free
 //                     forever. No platform AI cost - see lib/ai/byok.ts,
 //                     which hard-stops free orgs with no key configured
 //                     instead of silently falling back to the platform key.
+//                     Unlimited seats (it's the org's own AI bill, not ours).
 //   Professional
-//   ("Managed")     - $19/seat/mo (or $182.40/yr = 20% off), 1-10 seats,
-//                     runs on the platform's own Claude key. Soft-capped at
-//                     aiQueriesPerMonth (not unlimited - a flat per-seat fee
-//                     funding literally unlimited tokens is its own bleed).
-//                     15-day trial (see TRIAL_DAYS below - currently NOT
-//                     wired to any actual trial-creation code path; verify
-//                     before relying on it, see today.md).
+//   ("Managed")     - $15/seat/mo (or $144/yr = 20% off), self-serve up to
+//                     99 seats, runs on the platform's own Claude key.
+//                     7-day no-card trial (start-trial route) - always
+//                     paired with a "talk to sales" option in the UI, not a
+//                     replacement for it. Soft-capped at aiQueriesPerMonth
+//                     (not unlimited - a flat per-seat fee funding literally
+//                     unlimited tokens is its own bleed). The quota + tier
+//                     are shared org-wide off the org creator's subscription
+//                     row (see resolveLLMForOrg / the ask route's
+//                     billingOwnerId resolution) - one paying seat unlocks
+//                     AI for the whole org, by design.
 //   Enterprise      - $29/seat/mo, 5+ seats, + RBAC + SSO + audit log. Not
 //                     self-serve - talk-to-sales only, manually granted via
-//                     /api/admin/grant-pro. These customers bring their own
-//                     BYOK key too (same as Free), Enterprise pricing is for
-//                     the compliance/RBAC/SSO features, not AI compute.
+//                     /api/admin/grant-pro. Also where 100+-seat orgs land
+//                     (professional's 99-seat self-serve ceiling pushes them
+//                     here). These customers bring their own BYOK key too
+//                     (same as Free), Enterprise pricing is for the
+//                     compliance/RBAC/SSO features, not AI compute.
 
 export type Tier = 'free' | 'professional' | 'enterprise'
 
@@ -27,7 +34,7 @@ export interface TierLimits {
   // Volume gates (numeric. -1 means unlimited.)
   aiQueriesPerMonth: number
   retentionDays: number
-  maxSeats: number       // 1 for Free, 10 for Pro, -1 for Enterprise
+  maxSeats: number       // -1 (unlimited) for Free, 99 for Pro, -1 for Enterprise
   minSeats: number       // 1 for Free/Pro, 5 for Enterprise
   // Feature gates (boolean)
   integrationsAll: boolean    // false on Free (manual + extension only)
@@ -47,7 +54,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
   free: {
     aiQueriesPerMonth: 100,
     retentionDays: 90,
-    maxSeats: 1,
+    maxSeats: -1, // unlimited - Free is BYOK, it's the org's own AI bill
     minSeats: 1,
     integrationsAll: false,
     rbac: false,
@@ -62,12 +69,12 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
   },
   professional: {
     // Soft cap, not unlimited: generous enough that ~no real user notices,
-    // but bounds worst-case Claude spend on a flat $19/seat/mo fee. UI
+    // but bounds worst-case Claude spend on a flat $15/seat/mo fee. UI
     // should nudge ("heavy usage? talk to us about Enterprise") well
     // before this, not just wall at it - see api/ask/route.ts.
     aiQueriesPerMonth: 800,
     retentionDays: -1,
-    maxSeats: 10,
+    maxSeats: 99, // self-serve ceiling - 100+ seats requires talk-to-sales (Enterprise tier)
     minSeats: 1,
     integrationsAll: true,
     rbac: false,
@@ -77,8 +84,8 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     adminCockpit: false,
     chromeExtensionAutoIngest: true,
     displayName: 'Managed',
-    monthlyPrice: 19,
-    annualPriceTotal: 182.4, // $19 × 12 × 0.8 = $182.40
+    monthlyPrice: 15,
+    annualPriceTotal: 144, // $15 × 12 × 0.8 = $144.00
   },
   enterprise: {
     aiQueriesPerMonth: -1,
@@ -127,10 +134,9 @@ export function tierToPriceId(tier: 'professional' | 'enterprise', cycle: 'month
   return null
 }
 
-// NOT currently read by any trial-creation code path (checked 2026-08-23 -
-// zero consumers besides this declaration). The real trial length is
-// whatever's configured on the Paddle price/product itself, or hardcoded
-// elsewhere (metering.ts has an unrelated, older 60-day trial concept tied
-// to the legacy Personal/"smart" tier - do not confuse the two). Update
-// this constant AND wire it up before trusting it to mean anything.
-export const TRIAL_DAYS = 15
+// Read by /api/billing/start-trial to set trialEndsAt. Wired into the UI at
+// /onboarding and /app/admin/onboarding (2026-08-29) - "Start 7-day free
+// trial" always sits next to a "Talk to sales" option, never replaces it.
+// metering.ts has an unrelated, older 60-day trial concept tied to the
+// legacy Personal/"smart" tier - do not confuse the two.
+export const TRIAL_DAYS = 7

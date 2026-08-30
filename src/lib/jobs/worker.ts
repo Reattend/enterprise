@@ -272,9 +272,26 @@ export function ensurePeriodicWorker(): void {
       .catch((err) => console.error('[Worker] initial hot-cache regen:', err))
   }, 30_000)
 
+  // OCR stuck-job rescue + drain (every 30 min, same cadence as the job
+  // queue's periodic retry). batch/route.ts fires OCR processing as a
+  // detached background loop with no equivalent rescue mechanism of its
+  // own - a pm2 restart mid-batch (deploy, or tesseract tripping the
+  // memory limit on a big batch) used to strand jobs at 'pending' or
+  // 'processing' forever. See ocr/worker.ts's rescueStuckOcrJobs /
+  // drainAllPendingOcrJobs for the full writeup. Hooked into this
+  // scheduler (rather than a new one) so it starts the same
+  // proven-reliable way - lazily, on first ordinary traffic - instead of
+  // depending on a separately-configured cron.
+  setInterval(() => {
+    import('@/lib/enterprise/ocr/worker')
+      .then((m) => m.drainAllPendingOcrJobs())
+      .catch((err) => console.error('[Worker] OCR drain:', err))
+  }, PERIODIC_RETRY_MS)
+
   console.log('[Worker] Periodic retry scheduler started (every 30 min)')
   console.log('[Worker] Trial maintenance + email cadence started (hourly)')
   console.log('[Worker] Hot-cache regeneration started (hourly + initial 30s)')
+  console.log('[Worker] OCR stuck-job rescue + drain started (every 30 min)')
 }
 
 // ─── Trial maintenance: downgrades + reminder emails ────────────────────

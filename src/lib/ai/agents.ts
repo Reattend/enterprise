@@ -266,9 +266,83 @@ const linkingResultSchema = z.object({
   })),
 })
 
+// No AI provider configured for this workspace (no BYOK key, not on a
+// Managed/Enterprise subscription) - rather than let the capture vanish
+// (the raw_item would otherwise sit at status='new' forever, silently or
+// with only a buried inbox notification - see today.md 2026-08-30), store
+// the raw text as a plain, untitled record immediately. It's always
+// visible in Memories and always searchable (FastEmbed embeddings are
+// local, never gated on an AI key) - just without AI titling/
+// classification/entity extraction until a key is connected. Never lose
+// the capture; degrade gracefully instead.
+async function createUntriagedRecord(rawItemId: string, workspaceId: string, targetProjectId?: string): Promise<TriageResult> {
+  const rawItem = await db.query.rawItems.findFirst({ where: eq(schema.rawItems.id, rawItemId) })
+  if (!rawItem) throw new Error(`Raw item ${rawItemId} not found`)
+
+  const plainTitle = rawItem.text.length > 80 ? rawItem.text.slice(0, 77) + '...' : rawItem.text
+
+  await db.update(schema.rawItems).set({ status: 'triaged' }).where(eq(schema.rawItems.id, rawItemId))
+
+  const recordId = crypto.randomUUID()
+  await db.insert(schema.records).values({
+    id: recordId,
+    workspaceId,
+    rawItemId,
+    type: 'note',
+    title: plainTitle,
+    summary: plainTitle,
+    content: rawItem.text,
+    confidence: 0,
+    tags: JSON.stringify([]),
+    triageStatus: 'auto_accepted',
+    createdBy: 'agent',
+  })
+
+  if (targetProjectId) {
+    await db.insert(schema.projectRecords).values({ projectId: targetProjectId, recordId })
+  }
+
+  // Embeddings are local (FastEmbed), never gated on an AI provider key -
+  // this record stays fully searchable even without one.
+  await db.insert(schema.jobQueue).values({
+    workspaceId,
+    type: 'embed',
+    payload: JSON.stringify({ recordId, suggestedLinks: [] }),
+  })
+
+  await db.insert(schema.activityLog).values({
+    workspaceId,
+    actor: 'agent',
+    action: 'triaged',
+    objectType: 'raw_item',
+    objectId: rawItemId,
+    meta: JSON.stringify({ recordId, result: 'no_ai_configured_fallback' }),
+  })
+
+  return {
+    should_store: true,
+    record_type: 'note',
+    title: plainTitle,
+    summary: plainTitle,
+    tags: [],
+    entities: [],
+    dates: [],
+    confidence: 0,
+    proposed_projects: [],
+    suggested_links: [],
+    why_kept_or_dropped: 'Saved as plain text - no AI provider configured for this workspace.',
+  }
+}
+
 // ─── Triage Agent ───────────────────────────────────────
 export async function runTriageAgent(rawItemId: string, workspaceId: string, targetProjectId?: string): Promise<TriageResult> {
-  const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
+  let llm
+  try {
+    llm = await resolveLLMForWorkspace(workspaceId, 'simple')
+  } catch (err) {
+    if (err instanceof NoAIConfiguredError) return createUntriagedRecord(rawItemId, workspaceId, targetProjectId)
+    throw err
+  }
 
   // Fetch raw item
   const rawItem = await db.query.rawItems.findFirst({

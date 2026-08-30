@@ -15,13 +15,13 @@ type Plan = 'free' | 'managed' | 'government'
 type Deployment = 'saas' | 'on_prem' | 'air_gapped'
 
 // Plan tiles match organizations.plan in src/lib/db/schema.ts and the
-// public /pricing page. Only Free is self-serve - Reattend never hosts or
-// pays for the AI, so Managed (we provision + govern the org's own key)
-// and Government (on-prem/air-gapped) both require a sales conversation
-// before the org can be created on that plan.
+// public /pricing page. Free and Managed are both self-serve (Managed via
+// a 7-day no-card trial, $15/seat/mo after, up to 99 seats - see
+// tier.ts). Government (on-prem/air-gapped) is the only plan that requires
+// a sales conversation before the org can be created on it.
 const PLANS: { key: Plan; name: string; price: string; desc: string; recommended?: boolean }[] = [
   { key: 'free', name: 'Free', price: '$0', desc: 'Bring your own AI key. Unlimited seats, unlimited questions, free forever.', recommended: true },
-  { key: 'managed', name: 'Managed', price: 'Talk to sales', desc: 'We provision and govern the AI key for your org, with admin-set rate limits. No key for employees to manage.' },
+  { key: 'managed', name: 'Managed', price: '$15/seat/mo', desc: 'We run the AI for your whole org - no key for employees to manage. 7-day free trial, no card. Up to 99 seats self-serve.' },
   { key: 'government', name: 'Government', price: 'Quote', desc: 'On-premise or air-gapped, OCR ingestion, trainer dispatched.' },
 ]
 
@@ -156,6 +156,19 @@ function OrgOnboardingContent() {
         },
       ])
       store.setActiveEnterpriseOrgId(newOrg.id)
+
+      // Managed was picked in step 2 - start the 7-day trial right away so
+      // the org has AI access from the moment it lands in the cockpit,
+      // instead of a separate manual step. Best-effort: a failure here
+      // (e.g. trial already used somehow) shouldn't block org creation,
+      // which already succeeded - the admin can always start it later from
+      // Billing.
+      if (plan === 'managed') {
+        try {
+          await fetch('/api/billing/start-trial', { method: 'POST' })
+        } catch { /* non-fatal - org still created, trial can be started later */ }
+      }
+
       // Skip the /departments waystation - go straight to the cockpit.
       router.replace(`/app/admin/${newOrg.id}`)
     } catch (e) {
@@ -319,11 +332,27 @@ function OrgOnboardingContent() {
               ))}
             </div>
 
-            {plan !== 'free' && (
+            {plan === 'managed' && (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
-                <div className="text-sm font-medium">
-                  {plan === 'managed' ? 'Managed' : 'Government'} requires a sales conversation
-                </div>
+                <div className="text-sm font-medium">Starts with a 7-day free trial</div>
+                <p className="text-xs text-muted-foreground">
+                  No card needed for 7 days. $15/seat/mo after, self-serve up to 99 seats. Need RBAC, SSO, audit log,
+                  on-prem, or more than 99 seats?
+                </p>
+                <a
+                  href="https://calendly.com/pb-reattend/30min"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  → Talk to sales instead
+                </a>
+              </div>
+            )}
+
+            {plan === 'government' && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+                <div className="text-sm font-medium">Government requires a sales conversation</div>
                 <p className="text-xs text-muted-foreground">
                   We&apos;ll scope your rollout and provision the org afterward - it&apos;s not something you can self-serve
                   into right now. Create your org on Free in the meantime; we&apos;ll upgrade it once you&apos;re set up.
@@ -341,7 +370,7 @@ function OrgOnboardingContent() {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={() => setStep(3)} disabled={plan !== 'free'}>
+              <Button onClick={() => setStep(3)} disabled={plan === 'government'}>
                 Continue <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

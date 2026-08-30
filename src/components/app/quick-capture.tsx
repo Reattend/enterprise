@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Send, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/app-store'
+import { emit, SCOPES } from '@/lib/data-bus'
 import { toast } from 'sonner'
 
 export function QuickCapture() {
@@ -48,11 +49,26 @@ export function QuickCapture() {
         body: JSON.stringify({ text: text.trim(), orgId }),
       })
       if (res.ok) {
-        toast.success('Memory saved successfully.')
+        const body = await res.json().catch(() => null)
+        if (body?.aiConfigured === false) {
+          // Never lose the capture just because no AI key is configured -
+          // agents.ts already stored it as a plain-text record (visible,
+          // searchable), this just tells the user why it wasn't titled/
+          // classified and how to fix it going forward.
+          toast.success('Saved as plain text - connect an AI key in Settings for auto-titling & search.', { duration: 6000 })
+        } else {
+          toast.success('Memory saved successfully.')
+        }
         setText('')
         setCommandOpen(false)
+        // Without this, a capture made while already sitting on /app/memories
+        // (no tab switch, no focus event) left the list stale until a manual
+        // reload - looked exactly like "the memory didn't save" even when it
+        // did. brain-dump/page.tsx already does this on its commit path.
+        emit(SCOPES.memories)
       } else {
-        toast.error('Failed to save')
+        const body = await res.json().catch(() => null)
+        toast.error(body?.message || body?.error || 'Failed to save')
       }
     } catch {
       toast.error('Failed to save')

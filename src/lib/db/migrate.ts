@@ -380,6 +380,453 @@ CREATE TABLE IF NOT EXISTS inbox_notifications (
   status TEXT NOT NULL DEFAULT 'unread' CHECK(status IN ('unread', 'read', 'done')),
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Enterprise feature tables (organizations, audit_log, agents, decisions, policies, etc.)
+-- added 2026-08-30: these existed on production Enterprise's DB (set up manually,
+-- one table at a time, as each feature shipped) but were never added to this
+-- bootstrap block - so migrate.ts alone could never actually stand up a fresh
+-- database. Invisible for years because Enterprise's own DB already had them;
+-- exposed the day Personal tried to bootstrap a truly empty one and 30 tables
+-- were silently missing. Extracted verbatim from Enterprise's live schema
+-- (sqlite_master), not hand-reconstructed - this is the exact proven structure.
+CREATE TABLE IF NOT EXISTS admin_users (
+	id text PRIMARY KEY NOT NULL,
+	email text NOT NULL,
+	name text NOT NULL,
+	password_hash text NOT NULL,
+	role text DEFAULT 'viewer' NOT NULL,
+	created_at text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS entity_profiles (
+	id text PRIMARY KEY NOT NULL,
+	workspace_id text NOT NULL,
+	entity_name text NOT NULL,
+	entity_type text DEFAULT 'person' NOT NULL,
+	summary text DEFAULT '' NOT NULL,
+	raw_facts text DEFAULT '[]' NOT NULL,
+	record_ids text DEFAULT '[]' NOT NULL,
+	updated_at text NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS feedback_requests (
+	id text PRIMARY KEY NOT NULL,
+	user_id text,
+	email text NOT NULL,
+	name text,
+	type text NOT NULL,
+	message text NOT NULL,
+	status text DEFAULT 'new' NOT NULL,
+	admin_notes text,
+	created_at text NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE set null
+);
+CREATE TABLE IF NOT EXISTS shared_links (
+	id text PRIMARY KEY NOT NULL,
+	share_token text NOT NULL,
+	title text NOT NULL,
+	summary text,
+	content text,
+	record_type text DEFAULT 'note' NOT NULL,
+	tags text,
+	meta text,
+	entities text,
+	device_id text,
+	user_id text,
+	expires_at text,
+	created_at text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS slack_game_answers (
+	id text PRIMARY KEY NOT NULL,
+	prompt_id text NOT NULL,
+	user_id text NOT NULL,
+	answer text NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (prompt_id) REFERENCES slack_game_prompts(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS slack_game_prompts (
+	id text PRIMARY KEY NOT NULL,
+	team_id text NOT NULL,
+	channel_id text NOT NULL,
+	question text NOT NULL,
+	status text DEFAULT 'active' NOT NULL,
+	message_ts text,
+	created_at text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS slack_game_teams (
+	id text PRIMARY KEY NOT NULL,
+	team_id text NOT NULL,
+	team_name text,
+	bot_token text NOT NULL,
+	installed_at text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS ask_feedback (
+	id text PRIMARY KEY NOT NULL,
+	user_id text NOT NULL,
+	question text NOT NULL,
+	answer_text text NOT NULL,
+	sources text,
+	rating text NOT NULL,
+	created_at text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS audit_log (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	department_id text,
+	user_id text,
+	user_email text NOT NULL,
+	action text NOT NULL,
+	resource_type text,
+	resource_id text,
+	ip_address text,
+	user_agent text,
+	metadata text,
+	created_at text NOT NULL
+, prev_hash TEXT, row_hash TEXT);
+CREATE TABLE IF NOT EXISTS decisions (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	department_id text,
+	workspace_id text NOT NULL,
+	record_id text,
+	title text NOT NULL,
+	context text,
+	rationale text,
+	outcome text,
+	decided_by_user_id text,
+	decided_by_role_id text,
+	decided_at text NOT NULL,
+	status text DEFAULT 'active' NOT NULL,
+	superseded_by_id text,
+	reversed_at text,
+	reversed_by_user_id text,
+	reversed_reason text,
+	tags text,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (record_id) REFERENCES records(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (decided_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (decided_by_role_id) REFERENCES employee_roles(id) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (reversed_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS department_members (
+	id text PRIMARY KEY NOT NULL,
+	department_id text NOT NULL,
+	organization_id text NOT NULL,
+	user_id text NOT NULL,
+	role text DEFAULT 'member' NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS departments (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	parent_id text,
+	kind text DEFAULT 'department' NOT NULL,
+	name text NOT NULL,
+	slug text NOT NULL,
+	head_user_id text,
+	description text,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (head_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS employee_roles (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	department_id text,
+	title text NOT NULL,
+	description text,
+	seniority text,
+	status text DEFAULT 'active' NOT NULL,
+	created_at text NOT NULL,
+	updated_at text NOT NULL, seniority_rank integer,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE set null
+);
+CREATE TABLE IF NOT EXISTS knowledge_health (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	department_id text,
+	total_records integer DEFAULT 0 NOT NULL,
+	stale_count integer DEFAULT 0 NOT NULL,
+	contradictions_count integer DEFAULT 0 NOT NULL,
+	gaps_count integer DEFAULT 0 NOT NULL,
+	orphaned_count integer DEFAULT 0 NOT NULL,
+	health_score real DEFAULT 100 NOT NULL,
+	findings text,
+	computed_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS organization_members (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	user_id text NOT NULL,
+	role text DEFAULT 'member' NOT NULL,
+	status text DEFAULT 'active' NOT NULL,
+	title text,
+	offboarded_at text,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS organizations (
+	id text PRIMARY KEY NOT NULL,
+	name text NOT NULL,
+	slug text NOT NULL,
+	primary_domain text,
+	plan text DEFAULT 'starter' NOT NULL,
+	deployment text DEFAULT 'saas' NOT NULL,
+	on_prem_rabbit_url text,
+	seat_limit integer,
+	status text DEFAULT 'active' NOT NULL,
+	settings text,
+	created_by text NOT NULL,
+	created_at text NOT NULL,
+	updated_at text NOT NULL, company_size TEXT,
+	FOREIGN KEY (created_by) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS record_role_ownership (
+	id text PRIMARY KEY NOT NULL,
+	record_id text NOT NULL,
+	role_id text NOT NULL,
+	organization_id text NOT NULL,
+	assigned_by_user_id text,
+	assigned_at text NOT NULL,
+	FOREIGN KEY (record_id) REFERENCES records(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (role_id) REFERENCES employee_roles(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (assigned_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS role_assignments (
+	id text PRIMARY KEY NOT NULL,
+	role_id text NOT NULL,
+	user_id text NOT NULL,
+	organization_id text NOT NULL,
+	started_at text NOT NULL,
+	ended_at text,
+	transfer_notes text,
+	created_at text NOT NULL,
+	FOREIGN KEY (role_id) REFERENCES employee_roles(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS sso_configs (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	provider text NOT NULL,
+	client_id text,
+	client_secret_encrypted text,
+	tenant_id text,
+	metadata_url text,
+	acs_url text,
+	entity_id text,
+	domain text NOT NULL,
+	enabled integer DEFAULT false NOT NULL,
+	jit_provisioning integer DEFAULT true NOT NULL,
+	default_role text DEFAULT 'member' NOT NULL,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS workspace_org_links (
+	workspace_id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	department_id text,
+	visibility text DEFAULT 'department_only' NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE set null
+);
+CREATE TABLE IF NOT EXISTS enterprise_invites (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	email text NOT NULL,
+	role text DEFAULT 'member' NOT NULL,
+	title text,
+	department_id text,
+	dept_role text,
+	token text NOT NULL,
+	status text DEFAULT 'pending' NOT NULL,
+	invited_by_user_id text NOT NULL,
+	expires_at text NOT NULL,
+	accepted_at text,
+	accepted_by_user_id text,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (invited_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (accepted_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE set null
+);
+CREATE TABLE IF NOT EXISTS organization_taxonomy (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	kind text NOT NULL,
+	label text NOT NULL,
+	rank_order integer DEFAULT 0 NOT NULL,
+	description text,
+	active integer DEFAULT true NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS agents (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	tier text DEFAULT 'org' NOT NULL,
+	department_id text,
+	owner_user_id text,
+	name text NOT NULL,
+	slug text NOT NULL,
+	description text,
+	icon_name text,
+	color text,
+	system_prompt text NOT NULL,
+	scope_config text,
+	deployment_targets text DEFAULT '[]' NOT NULL,
+	usage_count integer DEFAULT 0 NOT NULL,
+	status text DEFAULT 'active' NOT NULL,
+	created_by text NOT NULL,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (owner_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (created_by) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS record_shares (
+	id text PRIMARY KEY NOT NULL,
+	record_id text NOT NULL,
+	workspace_id text NOT NULL,
+	organization_id text,
+	user_id text,
+	department_id text,
+	role_id text,
+	shared_by text NOT NULL,
+	shared_at text NOT NULL,
+	FOREIGN KEY (record_id) REFERENCES records(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (role_id) REFERENCES employee_roles(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (shared_by) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS wiki_summaries (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	page_type text NOT NULL,
+	page_key text NOT NULL,
+	summary text NOT NULL,
+	record_count integer DEFAULT 0 NOT NULL,
+	last_record_at text,
+	dirty integer DEFAULT false NOT NULL,
+	generated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS policies (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	title text NOT NULL,
+	slug text NOT NULL,
+	category text,
+	icon_name text,
+	status text DEFAULT 'draft' NOT NULL,
+	current_version_id text,
+	effective_date text,
+	applicability text DEFAULT '{"allOrg":true,"departments":[],"roles":[],"users":[]}' NOT NULL,
+	created_by text NOT NULL,
+	created_at text NOT NULL,
+	updated_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (created_by) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS policy_acknowledgments (
+	id text PRIMARY KEY NOT NULL,
+	policy_id text NOT NULL,
+	policy_version_id text NOT NULL,
+	organization_id text NOT NULL,
+	user_id text NOT NULL,
+	acknowledged_at text NOT NULL,
+	ip_address text,
+	user_agent text,
+	FOREIGN KEY (policy_id) REFERENCES policies(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (policy_version_id) REFERENCES policy_versions(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS policy_versions (
+	id text PRIMARY KEY NOT NULL,
+	policy_id text NOT NULL,
+	version_number integer NOT NULL,
+	title text NOT NULL,
+	summary text,
+	body text NOT NULL,
+	requires_re_ack integer DEFAULT true NOT NULL,
+	change_note text,
+	supersedes_version_id text,
+	published_at text,
+	published_by_user_id text,
+	created_at text NOT NULL,
+	FOREIGN KEY (policy_id) REFERENCES policies(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (published_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS agent_api_keys (
+	id text PRIMARY KEY NOT NULL,
+	agent_id text NOT NULL,
+	organization_id text NOT NULL,
+	name text NOT NULL,
+	key_hash text NOT NULL,
+	key_prefix text NOT NULL,
+	created_by_user_id text NOT NULL,
+	created_at text NOT NULL,
+	last_used_at text,
+	revoked_at text,
+	FOREIGN KEY (agent_id) REFERENCES agents(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
+CREATE TABLE IF NOT EXISTS agent_queries (
+	id text PRIMARY KEY NOT NULL,
+	agent_id text NOT NULL,
+	organization_id text NOT NULL,
+	user_id text NOT NULL,
+	question text NOT NULL,
+	answer_preview text,
+	source_count integer DEFAULT 0 NOT NULL,
+	latency_ms integer,
+	rating text,
+	created_at text NOT NULL,
+	FOREIGN KEY (agent_id) REFERENCES agents(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE TABLE IF NOT EXISTS transfer_events (
+	id text PRIMARY KEY NOT NULL,
+	organization_id text NOT NULL,
+	from_user_id text NOT NULL,
+	to_user_id text,
+	role_id text,
+	reason text NOT NULL,
+	records_transferred integer DEFAULT 0 NOT NULL,
+	decisions_transferred integer DEFAULT 0 NOT NULL,
+	transfer_notes text,
+	initiated_by_user_id text NOT NULL,
+	created_at text NOT NULL,
+	FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (from_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (to_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (role_id) REFERENCES employee_roles(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (initiated_by_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE no action
+);
 `;
 
 // Execute each statement
@@ -495,6 +942,27 @@ try {
   }
 } catch (e: any) {
   console.error('Records migration note:', e.message)
+}
+
+// ─── Add visibility column to records ───
+// Same bug shape as the migrate.ts table gap fixed 2026-08-30, one layer
+// down: schema.ts has declared records.visibility for a long time and it
+// exists on Enterprise's live DB, but no ALTER statement for it was ever
+// added here - so a freshly-bootstrapped database (Personal) was missing
+// it entirely. Not a dead column: filterToAccessibleRecords()
+// (rbac-records.ts) selects it unconditionally on every record read -
+// /api/records, /api/ask, tray/* all break with "no such column:
+// visibility" on any DB that hit this gap.
+try {
+  const visCols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]
+  const hasVisibility = visCols.some((c: any) => c.name === 'visibility')
+  if (!hasVisibility) {
+    console.log('Adding visibility column to records...')
+    sqlite.exec("ALTER TABLE records ADD COLUMN visibility TEXT NOT NULL DEFAULT 'team';")
+    console.log('Added visibility column to records.')
+  }
+} catch (e: any) {
+  console.error('Records.visibility migration note:', e.message)
 }
 
 // ─── Add state column to boards table ───

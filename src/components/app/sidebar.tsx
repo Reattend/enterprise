@@ -186,6 +186,8 @@ export function AppSidebar() {
 
   const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase()
   const isSuper = enterpriseOrgs.some((o) => o.role === 'super_admin')
+  const activeOrgRole = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)?.role
+  const isActiveOrgAdmin = activeOrgRole === 'admin' || activeOrgRole === 'super_admin'
 
   // Mobile drawer overlay. The `rail-mobile-drawer` class on the <aside>
   // tells dashboard.css to render this rail in EXPANDED mode regardless of
@@ -403,10 +405,13 @@ export function AppSidebar() {
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href="/app/settings"><User className="h-3.5 w-3.5 mr-2" /> Account settings</Link>
               </DropdownMenuItem>
-              {/* Org accounts manage plan/AI-provider exclusively in the Control
-                  Room (admin-only) - same reasoning as ai-provider-section.tsx.
-                  Only legacy no-org accounts see this link. */}
-              {!activeEnterpriseOrgId && (
+              {/* Org accounts manage the AI provider key itself exclusively in
+                  the Control Room (admin-only) - same reasoning as
+                  ai-provider-section.tsx. Managed billing (trial/checkout)
+                  is org-wide too, so this link is admin-only when an org is
+                  active - regular members don't get a self-serve billing
+                  surface, same as Control Room access generally. */}
+              {(!activeEnterpriseOrgId || isActiveOrgAdmin) && (
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/app/settings/billing"><CreditCard className="h-3.5 w-3.5 mr-2" /> Billing & plan</Link>
                 </DropdownMenuItem>

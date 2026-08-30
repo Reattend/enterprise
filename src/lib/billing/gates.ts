@@ -12,7 +12,7 @@
 // routes stay thin.
 
 import { db, schema } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { TIER_LIMITS, type Tier } from './tier'
 
 export type SubscriptionRow = typeof schema.subscriptions.$inferSelect
@@ -71,6 +71,47 @@ export async function getOrCreateSubscription(userId: string): Promise<Subscript
 
 export function tierLimits(tier: Tier) {
   return TIER_LIMITS[tier]
+}
+
+/**
+ * Managed billing is per-user (subscriptions.userId) but the product is
+ * org-wide - "we run AI for your whole team." The org creator's row is the
+ * org's billing record by convention (documented in resolveLLMForOrg /
+ * ask/route.ts): whoever bought or trial-started Managed is the org's
+ * creator in the self-serve flow, so their subscription is what the rest
+ * of the org checks against for tier + shared AI quota + seat cap.
+ */
+export async function getOrgBillingSubscription(organizationId: string): Promise<SubscriptionRow | null> {
+  const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId) })
+  if (!org) return null
+  return getOrCreateSubscription(org.createdBy)
+}
+
+/**
+ * Self-serve seat cap: an org can't grow past its billing tier's maxSeats
+ * via invites/accepts. Free is unlimited (BYOK, their own AI bill).
+ * Professional (Managed) caps at 99 - 100+ needs a sales-negotiated
+ * Enterprise tier, not more self-serve seats. Enterprise is unlimited.
+ *
+ * Counts *active* organization_members rows, not the Paddle-purchased
+ * seatCount - a self-serve org can invite up to the tier ceiling regardless
+ * of how many seats they've actually paid for; billing reconciles on usage,
+ * not the other way around.
+ */
+export async function canOrgAddMember(organizationId: string): Promise<{ ok: boolean; cap: number | null; current: number }> {
+  const sub = await getOrgBillingSubscription(organizationId)
+  const limits = TIER_LIMITS[(sub?.tier as Tier) ?? 'free']
+
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(schema.organizationMembers)
+    .where(and(
+      eq(schema.organizationMembers.organizationId, organizationId),
+      eq(schema.organizationMembers.status, 'active'),
+    ))
+
+  if (limits.maxSeats < 0) return { ok: true, cap: null, current: count }
+  return { ok: count < limits.maxSeats, cap: limits.maxSeats, current: count }
 }
 
 export function hasFeature(

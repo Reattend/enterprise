@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
-import { eq, and, desc, inArray, ne, count, isNotNull, gte } from 'drizzle-orm'
+import { eq, and, or, desc, inArray, ne, count, isNotNull, gte } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 import { enqueueJob, processAllPendingJobs } from '@/lib/jobs/worker'
@@ -101,9 +101,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ records: [], total: 0 })
     }
 
+    // needs_review records are hidden from the list UNLESS the requester is
+    // the one who created it - a low-confidence triage should never make a
+    // user's own capture disappear on them, it should only gate *other*
+    // people's view of it until an admin reviews it on the triage-review
+    // page. Blanket-excluding needs_review here (the old behavior) violated
+    // RBAC rule 2 ("creator always sees their own record") for anyone whose
+    // capture confidence landed under the triage agent's 0.5 auto-accept
+    // threshold - a very common outcome for short/ambiguous quick-capture
+    // notes, and the #1 cause of "I added a memory and it's not there."
     let whereClause = and(
       inArray(schema.records.workspaceId, Array.from(accessibleWsIds)),
-      ne(schema.records.triageStatus, 'needs_review'),
+      or(ne(schema.records.triageStatus, 'needs_review'), eq(schema.records.createdBy, userId)),
       type ? eq(schema.records.type, type as any) : undefined,
       sourceFilter,
       dateFilter,

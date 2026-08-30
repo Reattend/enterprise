@@ -3,6 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { writeAuditAsync, extractRequestMeta, emailMatchesOrgDomain, isPersonalEmail } from '@/lib/enterprise'
+import { canOrgAddMember } from '@/lib/billing/gates'
 
 // POST /api/enterprise/invites/[token]/accept
 // Requires the caller to be signed in. Validates that the signed-in user's
@@ -100,6 +101,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           .where(eq(schema.organizationMembers.id, existingMembership[0].id))
       }
     } else {
+      // Re-check the seat cap here, not just at invite-send time - the org
+      // may have filled up in the days between the invite going out and
+      // this accept (invites live for INVITE_TTL_DAYS). This is the point
+      // that actually creates a new seat.
+      const seatCheck = await canOrgAddMember(invite.organizationId)
+      if (!seatCheck.ok) {
+        return NextResponse.json({
+          error: 'seat_limit_reached',
+          message: `This organization has reached its self-serve Managed seat limit (${seatCheck.cap}). Ask an admin to talk to sales about raising it.`,
+        }, { status: 402 })
+      }
       await db.insert(schema.organizationMembers).values({
         organizationId: invite.organizationId,
         userId,

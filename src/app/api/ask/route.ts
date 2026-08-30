@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { db, schema, sqlite, vecLoaded, searchFTS, ftsReady } from '@/lib/db'
 import { eq, and, desc, or, inArray, like, ne } from 'drizzle-orm'
-import { requireAuth, getUserSubscription } from '@/lib/auth'
-import { recordUsage } from '@/lib/metering'
+import { requireAuth } from '@/lib/auth'
 import { getAskLLM } from '@/lib/ai/llm'
 import { resolveLLM, resolveByokKey, NoAIConfiguredError, RateLimitExceededError } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
@@ -14,11 +13,9 @@ import {
 } from '@/lib/enterprise'
 import { getHotCacheForOrg } from '@/lib/enterprise/hot-cache'
 import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
-import { consumeAiQuery, getOrCreateSubscription } from '@/lib/billing/gates'
+import { consumeAiQuery, getOrCreateSubscription, getOrgBillingSubscription } from '@/lib/billing/gates'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { matchSandboxQuestion, SANDBOX_CHAT, SANDBOX_CHAT_FALLBACK } from '@/lib/sandbox/fixtures'
-
-const AI_QUERY_LIMIT = 20
 
 const STOP_WORDS = new Set([
   'i', 'me', 'my', 'we', 'our', 'you', 'your', 'he', 'she', 'it', 'they',
@@ -435,15 +432,27 @@ export async function POST(req: NextRequest) {
     //     platform silently footing free users' AI bill - no fallback.
     // Sandbox users are exempt from all of this - they hit fixtures, not
     // any real provider.
+    //
+    // Tier + quota are resolved against the org's BILLING OWNER (the org
+    // creator's subscription row), not the requesting user's own row, when
+    // there's an org context. Managed is sold as "AI for your whole org" -
+    // a teammate who never bought anything shouldn't be walled off on their
+    // own personal free-tier quota just because billing is a per-user table.
+    // This mirrors resolveLLMForOrg's existing creator-fallback logic
+    // (used by background jobs) applied consistently to the interactive
+    // path too. See getOrgBillingSubscription in billing/gates.ts.
     let activeContextOrgId: string | null = null
     let userTier: 'free' | 'professional' | 'enterprise' = 'free'
     let usingByok = false
+    let billingOwnerId = userId
     if (!isSandboxEmail(userEmail)) {
-      const [userRow, sub] = await Promise.all([
-        db.select({ activeContextOrgId: schema.users.activeContextOrgId }).from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0]),
-        getOrCreateSubscription(userId),
-      ])
+      const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId }).from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
       activeContextOrgId = userRow?.activeContextOrgId ?? null
+
+      const sub = activeContextOrgId
+        ? (await getOrgBillingSubscription(activeContextOrgId)) ?? (await getOrCreateSubscription(userId))
+        : await getOrCreateSubscription(userId)
+      billingOwnerId = sub.userId
       userTier = sub.tier as 'free' | 'professional' | 'enterprise'
       const byok = await resolveByokKey({ organizationId: activeContextOrgId, userId })
       usingByok = !!byok
@@ -469,7 +478,7 @@ export async function POST(req: NextRequest) {
           )
         }
         if (!usingByok) {
-          const quota = await consumeAiQuery(userId)
+          const quota = await consumeAiQuery(billingOwnerId)
           if (!quota.ok) {
             return new Response(
               JSON.stringify({
@@ -561,23 +570,6 @@ export async function POST(req: NextRequest) {
           console.error('[ask] agent_queries insert failed', e)
         }
       })()
-    }
-
-    // Enforce daily query limit for free users (shared with extension)
-    const sub = await getUserSubscription(userId)
-    if (!sub.isSmartActive) {
-      const today = new Date().toISOString().slice(0, 10)
-      const usage = await db.query.usageDaily.findFirst({
-        where: and(eq(schema.usageDaily.userId, userId), eq(schema.usageDaily.date, today)),
-      })
-      const used = usage?.opsCount ?? 0
-      if (used >= AI_QUERY_LIMIT) {
-        const encoder = new TextEncoder()
-        return new Response(encoder.encode(`You've used all ${AI_QUERY_LIMIT} free queries for today. Upgrade to Pro for unlimited queries, or come back tomorrow.\n\nFollow-up questions:\n- What does Pro include?\n- How do I upgrade?\n- When does my quota reset?\n\nOffers:\n- If you want, I can show you what Pro unlocks\n- Do you want me to help you make the most of your remaining queries?`), {
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        })
-      }
-      await recordUsage(null, userId, 'registered', 'ai_query')
     }
 
     // Guardrails: handle off-topic questions without burning LLM tokens

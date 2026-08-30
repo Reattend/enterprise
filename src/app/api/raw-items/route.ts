@@ -3,6 +3,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and, desc, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { runTriageAgent } from '@/lib/ai/agents'
+import { resolveLLMForWorkspace, NoAIConfiguredError } from '@/lib/ai/byok'
 import { processAllPendingJobs } from '@/lib/jobs/worker'
 import { resolveTargetWorkspace } from '@/lib/enterprise/workspace-resolver'
 
@@ -128,7 +129,19 @@ export async function POST(req: NextRequest) {
       where: eq(schema.rawItems.id, id),
     })
 
-    return NextResponse.json({ item })
+    // Cheap, side-effect-free pre-check (no network call, just a BYOK/tier
+    // lookup) so the client can tell the user their capture was saved as
+    // plain text rather than staying silent about it - runTriageAgent
+    // already handles the actual fallback (createUntriagedRecord in
+    // agents.ts), this is purely for the response message.
+    let aiConfigured = true
+    try {
+      await resolveLLMForWorkspace(workspaceId, 'simple')
+    } catch (e) {
+      if (e instanceof NoAIConfiguredError) aiConfigured = false
+    }
+
+    return NextResponse.json({ item, aiConfigured })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

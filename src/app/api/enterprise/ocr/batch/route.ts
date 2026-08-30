@@ -9,12 +9,10 @@ import {
   auditFromAuth,
   handleEnterpriseError,
 } from '@/lib/enterprise'
-import { processOcrJob } from '@/lib/enterprise/ocr/worker'
+import { processOcrJob, OCR_UPLOAD_DIR as UPLOAD_DIR } from '@/lib/enterprise/ocr/worker'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 min - tesseract on 10+ images per batch
-
-const UPLOAD_DIR = path.resolve(process.cwd(), 'data', 'ocr-uploads')
 
 // Ensure the upload dir exists. Single call at route-module load.
 try { fs.mkdirSync(UPLOAD_DIR, { recursive: true }) } catch { /* exists */ }

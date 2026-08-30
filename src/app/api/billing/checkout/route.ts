@@ -4,7 +4,7 @@ import { paddle } from '@/lib/billing/paddle'
 import { tierToPriceId, TIER_LIMITS } from '@/lib/billing/tier'
 import { getOrCreateSubscription } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 
 // POST /api/billing/checkout
 //   body: { tier: 'professional' | 'enterprise', cycle: 'monthly' | 'annual', seats?: number }
@@ -34,11 +34,25 @@ export async function POST(req: NextRequest) {
   // resolveLLM() would still hard-block AI usage regardless of tier.
   const [callerRow] = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
     .from(schema.users).where(eq(schema.users.id, userId)).limit(1)
-  if (!callerRow?.activeContextOrgId) {
+  const orgId = callerRow?.activeContextOrgId
+  if (!orgId) {
     return NextResponse.json(
       { error: 'org_required', message: 'Managed requires an organization. Personal accounts are BYOK-only - connect a key in Settings instead.' },
       { status: 403 },
     )
+  }
+
+  // Admin/super_admin only - this is org-wide billing, not a personal purchase.
+  const membership = await db.query.organizationMembers.findFirst({
+    where: and(eq(schema.organizationMembers.organizationId, orgId), eq(schema.organizationMembers.userId, userId)),
+  })
+  if (!membership || (membership.role !== 'admin' && membership.role !== 'super_admin')) {
+    return NextResponse.json({ error: 'forbidden', message: 'Only an org admin can manage billing.' }, { status: 403 })
+  }
+
+  const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, orgId) })
+  if (!org) {
+    return NextResponse.json({ error: 'not_found', message: 'Organization not found.' }, { status: 404 })
   }
 
   let body: { tier?: string; cycle?: string; seats?: number }
@@ -61,17 +75,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'price not configured' }, { status: 500 })
   }
 
-  // Reuse the customer's existing Paddle customer ID if we have one (so they
-  // see saved payment methods). Otherwise Paddle creates one on first checkout.
-  const sub = await getOrCreateSubscription(userId)
+  // Billed to the ORG'S BILLING OWNER (org.createdBy), same convention as
+  // start-trial - the webhook writes to this row, and it's what the ask
+  // route / canOrgAddMember resolve org-wide tier and quota against. An
+  // admin who isn't the org's creator can still initiate checkout, but the
+  // resulting subscription lands on the creator's row so the whole org
+  // actually benefits from it.
+  const sub = await getOrCreateSubscription(org.createdBy)
 
   try {
     const txn = await paddle().transactions.create({
       items: [{ priceId, quantity: seats }],
       customerId: sub.paddleCustomerId || undefined,
-      // Stamp the user id into custom data so the webhook can reverse-lookup
-      // which Reattend user this subscription belongs to.
-      customData: { userId, userEmail },
+      // Stamp the ORG'S BILLING OWNER id into custom data so the webhook
+      // updates the same row start-trial (and canOrgAddMember) resolve
+      // against - not necessarily the admin who clicked "Subscribe."
+      // organizationId is along for the ride so the webhook can also sync
+      // the (cosmetic, non-AI-gating) organizations.plan pill.
+      customData: { userId: org.createdBy, userEmail, organizationId: orgId },
       // Where to bounce on success/cancel from the overlay.
       checkout: {
         url: `${process.env.NEXTAUTH_URL || 'https://reattend.com'}/app/settings/billing?success=1`,

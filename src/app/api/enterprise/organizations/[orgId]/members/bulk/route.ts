@@ -10,6 +10,7 @@ import {
   auditFromAuth,
 } from '@/lib/enterprise'
 import { sendEnterpriseInviteEmail } from '@/lib/email'
+import { canOrgAddMember } from '@/lib/billing/gates'
 
 const INVITE_TOKEN_BYTES = 24
 const INVITE_TTL_DAYS = 14
@@ -54,6 +55,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ org
     }
     if (rows.length > 200) {
       return NextResponse.json({ error: 'max 200 rows per call' }, { status: 400 })
+    }
+
+    // Fail fast if the org is already at its self-serve seat ceiling - real
+    // enforcement is at accept time (seats are only consumed on accept),
+    // this just avoids sending a batch of invites that can never land.
+    if (!dryRun) {
+      const seatCheck = await canOrgAddMember(orgId)
+      if (!seatCheck.ok) {
+        return NextResponse.json({
+          error: 'seat_limit_reached',
+          message: `This organization is at its self-serve Managed seat limit (${seatCheck.cap}). Talk to sales to raise it.`,
+          cap: seatCheck.cap,
+          current: seatCheck.current,
+        }, { status: 402 })
+      }
     }
 
     // Pre-fetch org for domain enforcement + email sender context

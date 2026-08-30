@@ -72,6 +72,7 @@ function OnboardingInner() {
   const [byokProvider, setByokProvider] = useState<ByokProvider>('anthropic')
   const [byokKey, setByokKey] = useState('')
   const [connectingByok, setConnectingByok] = useState(false)
+  const [startingTrial, setStartingTrial] = useState(false)
 
   // Auth check via a plain fetch, not the useSession() hook - this app has
   // never wrapped itself in a <SessionProvider> (every other page checks
@@ -161,6 +162,25 @@ function OnboardingInner() {
   }
 
   const recommendTalkToSales = companySize === '201-1000' || companySize === '1000+'
+
+  async function handleStartTrial() {
+    if (startingTrial) return
+    setStartingTrial(true)
+    try {
+      const res = await fetch('/api/billing/start-trial', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.message || data.error || 'Could not start your trial')
+        return
+      }
+      toast.success('7-day Managed trial started - no card needed')
+      goToApp()
+    } catch {
+      toast.error('Network error - try again')
+    } finally {
+      setStartingTrial(false)
+    }
+  }
 
   if (checking) {
     return (
@@ -289,13 +309,20 @@ function OnboardingInner() {
                   <div className="flex items-center gap-2 mb-1">
                     <Phone className="h-4 w-4 text-[#4F46E5]" />
                     <p className="text-[14px] font-semibold text-[#1a1a2e]">Managed</p>
-                    {recommendTalkToSales && (
-                      <span className="ml-auto text-[11px] font-semibold text-[#4F46E5]">Recommended for your size</span>
-                    )}
+                    <span className="ml-auto text-[11px] font-semibold text-emerald-600">7-day free trial</span>
                   </div>
                   <p className="text-[12px] text-gray-500 mb-3">
-                    We provision and govern the AI key for your whole org - RBAC, SSO, audit log, on-prem available. Quoted, not self-serve.
+                    We run the AI for your whole org - no card needed for 7 days. $15/seat/mo after, up to 99 seats.
+                    {recommendTalkToSales ? ' RBAC, SSO, audit log, and on-prem are also available - recommended for your size.' : ' Need RBAC, SSO, audit log, or on-prem? Talk to sales instead.'}
                   </p>
+                  <button
+                    onClick={handleStartTrial}
+                    disabled={startingTrial}
+                    className="w-full h-[40px] bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 mb-2"
+                  >
+                    {startingTrial ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                    Start 7-day free trial
+                  </button>
                   <a
                     href="https://calendly.com/pb-reattend/30min"
                     target="_blank"
