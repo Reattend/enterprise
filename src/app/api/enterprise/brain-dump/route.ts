@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         orgId,
         fallbackWorkspaceId: defaultWorkspaceId,
       })
-      return handleCommit({ workspaceId: resolved.workspaceId, userId, userEmail, items: commitItems || [], projectId, req })
+      return handleCommit({ workspaceId: resolved.workspaceId, userId, userEmail, items: commitItems || [], projectId, req, rawText })
     }
 
     // saveAsOne short-circuit: skip the LLM extraction and return a single
@@ -191,8 +191,9 @@ async function handleCommit(opts: {
   items: DumpItem[]
   projectId?: string
   req: NextRequest
+  rawText?: string
 }) {
-  const { workspaceId, userId, items, projectId, req } = opts
+  const { workspaceId, userId, items, projectId, req, rawText } = opts
   if (items.length === 0) {
     return NextResponse.json({ error: 'items required when commit=true' }, { status: 400 })
   }
@@ -259,6 +260,44 @@ async function handleCommit(opts: {
     created.push({ id: recordId, title: item.title, kind: item.kind })
   }
 
+  // Preserve the original dump as its own record whenever it actually got
+  // split into more than one piece. Splitting into decisions/questions/
+  // actions/facts is genuinely useful for review, but it's lossy by
+  // construction - only the extracted fragments ever got saved, never the
+  // whole. For a single meeting's notes that's someone's actual source
+  // material gone, not just tidied. One item (or saveAsOne) already IS a
+  // faithful whole-text capture, so this only fires when there's real
+  // fragmentation to guard against.
+  let preservedOriginal: { id: string; title: string } | null = null
+  if (items.length > 1 && rawText && rawText.trim().length > 0) {
+    const text = rawText.trim()
+    const title = text.split('\n').find((l) => l.trim().length > 0)?.slice(0, 80) || 'Brain dump'
+    const recordId = crypto.randomUUID()
+    await db.insert(schema.records).values({
+      id: recordId,
+      workspaceId,
+      type: 'note',
+      title,
+      summary: text.slice(0, 200),
+      content: text,
+      confidence: 1,
+      tags: JSON.stringify(['brain-dump', 'full-capture']),
+      triageStatus: 'auto_accepted',
+      createdBy: userId,
+      source: 'brain-dump',
+      meta: JSON.stringify({ brainDump: true, isFullCapture: true, splitInto: created.length }),
+    })
+    if (projectId) {
+      try {
+        await db.insert(schema.projectRecords).values({ projectId, recordId })
+      } catch (e) {
+        console.warn('[brain-dump] project link for original failed', e)
+      }
+    }
+    await enqueueJob(workspaceId, 'ingest', { recordId, content: text })
+    preservedOriginal = { id: recordId, title }
+  }
+
   processAllPendingJobs().catch((e) => console.error('[brain-dump] worker kick failed:', e))
 
   const reqMeta = extractRequestMeta(req)
@@ -266,8 +305,8 @@ async function handleCommit(opts: {
     resourceType: 'brain_dump_batch',
     ipAddress: reqMeta.ipAddress,
     userAgent: reqMeta.userAgent,
-    metadata: { createdCount: created.length, skippedDupes: skippedDupes.length },
+    metadata: { createdCount: created.length, skippedDupes: skippedDupes.length, preservedOriginal: !!preservedOriginal },
   })
 
-  return NextResponse.json({ created, skippedDupes })
+  return NextResponse.json({ created, skippedDupes, preservedOriginal })
 }

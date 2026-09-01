@@ -214,6 +214,11 @@ export default function BrainDumpPage() {
           // Tells the server to default to a team workspace in this org
           // when the user didn't pick a specific scope.
           orgId: activeOrgId || undefined,
+          // Lets the server also preserve the whole dump as its own record
+          // when it got split into multiple pieces - see handleCommit in
+          // the API route. Without this, only the extracted fragments were
+          // ever saved; the original was gone the moment you committed.
+          rawText,
         }),
       })
       if (!res.ok) {
@@ -223,7 +228,11 @@ export default function BrainDumpPage() {
       }
       const data = await res.json()
       setResult(data)
-      toast.success(`Created ${data.created.length} memor${data.created.length === 1 ? 'y' : 'ies'}`)
+      toast.success(
+        data.preservedOriginal
+          ? `Created ${data.created.length} memor${data.created.length === 1 ? 'y' : 'ies'} + kept the full original`
+          : `Created ${data.created.length} memor${data.created.length === 1 ? 'y' : 'ies'}`,
+      )
       // Tell every memories list / home / wiki tab to refetch.
       emit(SCOPES.memories)
     } finally {

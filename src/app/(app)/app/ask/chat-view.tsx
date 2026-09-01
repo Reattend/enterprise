@@ -471,7 +471,7 @@ export function ChatView() {
   // Reusable input bar JSX. Identical in empty + active states so the
   // user perceives it as one persistent surface that just slides down.
   const inputBar = (
-    <div className="relative rounded-3xl border border-border bg-background shadow-sm focus-within:border-foreground/30 focus-within:shadow-md transition-all">
+    <div className="relative rounded-3xl border border-border bg-background shadow-sm focus-within:border-transparent transition-all">
       <textarea
         ref={textareaRef}
         value={input}

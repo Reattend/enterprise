@@ -149,6 +149,12 @@ export async function runIngestJob(
     result = await llm.generateJSON(PROMPTS.triage(truncated), triageResultSchema)
   }
 
+  // Same 'Untitled' sentinel fallback as runTriageAgent above - a snippet
+  // of the actual content beats a generic placeholder.
+  if (!result.title || result.title === 'Untitled') {
+    result.title = content.length > 80 ? content.slice(0, 77) + '...' : content
+  }
+
   await db.update(schema.records).set({
     title: result.title,
     summary: result.summary,
@@ -353,6 +359,16 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
 
   const prompt = PROMPTS.triage(rawItem.text, rawItem.metadata || undefined)
   const result = await llm.generateJSON(prompt, triageResultSchema)
+
+  // normalizeTriageOutput (llm.ts) falls back to the literal string
+  // 'Untitled' when the model returns both an empty title and an empty
+  // summary - rare, but it happened enough to get reported. A snippet of
+  // what was actually captured is always more useful than a placeholder,
+  // and matches the same "never show a generic sentinel" fallback already
+  // used in createUntriagedRecord below.
+  if (!result.title || result.title === 'Untitled') {
+    result.title = rawItem.text.length > 80 ? rawItem.text.slice(0, 77) + '...' : rawItem.text
+  }
 
   // Update raw item with triage result
   await db.update(schema.rawItems)
