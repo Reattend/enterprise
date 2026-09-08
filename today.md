@@ -589,3 +589,27 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 **Note on vendor naming:** the privacy policy names AI vendors as sub-processors. That's a legal-disclosure necessity and deliberate; the "never name vendors in user-facing copy" rule still applies to marketing/product copy.
 
 **EXACT next step:** resubmit 1.0.1 in the Web Store dashboard with privacy URL `https://personal.reattend.com/privacy`; in the reviewer note, point to sections 02 (collect), 03 (extension), 04 (use), 05 (share), 06 (storage), 07 (retention). Still needed from Partha: screenshots + listing icon; GST/CIN/address if the Paddle receipt should become a tax invoice; decide whether to keep the promo demo account.
+
+## 13. Convergence — Personal becomes a tenant of reattend.com (2026-09-08)
+
+**Decision (Partha, 2026-09-08):** one repo, one deployment, one identity, one extension. Personal is a no-org account on reattend.com, not a separate product on a separate droplet. Enterprise is sales-only — a personal account never self-upgrades into an org; orgs are provisioned by us. No workspace switcher. Entry points (`/personal`, `/register`) decide onboarding, not a "personal or enterprise?" question. Pattern is Notion/Atlassian: same login, tenant decides the shape.
+
+**Why:** two SQLite DBs meant two user tables, two admin panels, two extensions, two privacy policies, two support pages, and every Personal fix had to be hand-ported (§12 was that). Personal is a growth channel, not a second product; the fork was costing more than the isolation bought.
+
+**Shipped (Enterprise repo):**
+- `3ceab8b` — ports from Personal: `ProviderAuthError` (401/403 → fail fast, `markKeyInvalid*`, notification instead of silent retries), buffered SSE parsing in `llm.ts` (chunk-boundary bug was dropping words from streamed answers), `resolveLLM` personal-tier fix, `resolveLLMForWorkspace` paid-tier platform-key fallback, mode-aware triage (`personal` keeps reference material, explicit tray captures never vetoed), capture meter (`captures_this_month`/`captures_reset_at`, `consumeCapture`, 429 `capture_quota_exceeded`, professional = 1000/mo — a guess, revisit), memories page silent 15s prepend poll, Inbox nav + rail badge, `byok` in billing status, connected-key state + receipts + `settings/billing/invoice/[id]`.
+- `938b680` — first-run redirect to `/onboarding` gated on `onboarding_completed === false` AND `createdAt >= 2026-09-08` (a `UPDATE users` backfill on prod was rejected; the cutoff makes it unnecessary — 0/33 existing users affected).
+- `cca48b7` — `/onboarding` is now the personal 3-step wizard (what Reattend is → BYOK or 7-day Managed trial → extension), org members skip straight through; topbar switcher replaced by a static context label; personal-home upsell removed; agents/billing CTAs say "Reattend for teams" / "Talk to us about teams"; `personalPriceId()` + `PADDLE_PRICE_PERSONAL_MONTHLY` (set on prod); `/api/billing/checkout` and `/api/billing/start-trial` handle no-org callers on their own user row (webhook keyed on `customData.userId`); `/personal` serves `personal.html` (was 308), `/personal/pricing` serves `personal-pricing.html`; `/app/extension` page ported (allowed with no org), `public/downloads/reattend-extension.zip` = extension 0.4.0.
+
+**Extension repo (`enterprise_extension` `dfea1ba`, v0.4.0, built, not published):** site controls (`siteMode all|whitelist`, `blockedDomains`), selection tooltip "Save to Reattend", toast, `showAmbient` off by default, popup logo + ⌥⇧A hint, `activeTab` dropped, copy de-branded to plain "Reattend". This is THE extension going forward; the Personal listing submission gets withdrawn.
+
+**Not done yet (in order):**
+1. Verify the `cca48b7` deploy (see §13 verification list below) and do one real personal signup → trial on reattend.com.
+2. Publish 0.4.0 to the "Reattend" Web Store listing with privacy URL `reattend.com/privacy`; withdraw the Personal submission. `reattend.com/privacy` still needs a personal-account section (port §12's extension section + BYOK/Managed processors) — one policy, org annex.
+3. Domain claiming (an org claims `@acme.com`; existing personal accounts on that domain get an invite, never auto-merged).
+4. Decommission the Personal droplet: nginx 301 `personal.reattend.com/*` → `reattend.com/personal`, export the ~5 Personal users by hand (invite them; don't copy rows across DBs), single `/support`.
+5. Parked: Enterprise extension token → 401 on `reattend.com/api/tray/me` (likely base-URL/token host mismatch in the old 0.3 build; retest with 0.4.0 before debugging).
+
+**Verification list for the deploy:** `/personal` 200 (not 308), `/personal/pricing` 200, `/onboarding` HTML contains the wizard, no "Switch context" string in the client bundle, `/app/extension` present in `prerender-manifest`/routes, `pm2 describe enterprise` online, then signup → `/onboarding` → Managed trial → `/api/billing/status` shows `professional`/`trialing`.
+
+**Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
