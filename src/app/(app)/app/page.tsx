@@ -11,7 +11,6 @@
 //   /api/enterprise/meeting-prep           next meeting block
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Plus, MessageSquare, Calendar as CalendarIcon, ChevronRight,
@@ -81,7 +80,6 @@ function greeting(name: string | null) {
 }
 
 export default function HomePage() {
-  const router = useRouter()
   const activeOrgId = useAppStore((s) => s.activeEnterpriseOrgId)
   const enterpriseOrgs = useAppStore((s) => s.enterpriseOrgs)
   const enterpriseOrgsLoaded = useAppStore((s) => s.enterpriseOrgsLoaded)
@@ -139,33 +137,22 @@ export default function HomePage() {
       useAppStore.getState().setActiveEnterpriseOrgId(enterpriseOrgs[0].orgId)
       return
     }
-    if (!user) return
-    if (!user.personalLegacyGrandfathered) {
-      router.replace('/onboarding')
-    }
-  }, [enterpriseOrgsLoaded, activeOrgId, enterpriseOrgs, user, router])
+  }, [enterpriseOrgsLoaded, activeOrgId, enterpriseOrgs])
 
-  // Personal is gone from the main flow (2026-08-25) - activeOrgId===null
-  // now means one of three things, handled differently:
-  //   1. User HAS orgs but activeOrgId is stale-null (old switcher state
-  //      from before Personal was hidden from the switcher) -> fall back
-  //      to their first org rather than showing Personal at all.
-  //   2. Zero orgs, but grandfathered (existed before the 2026-08-25 cutoff,
-  //      see users.personalLegacyGrandfathered) -> PersonalHomePage, same
-  //      as always, their data lives there.
-  //   3. Zero orgs, NOT grandfathered -> this account fell through a gap
-  //      (Google OAuth used to be one; there may be others we haven't
-  //      found yet) - send it to /onboarding instead of ever rendering
-  //      Personal. See today.md.
+  // activeOrgId===null means one of two things (2026-09-08, Personal is a
+  // tenant of this deployment again):
+  //   1. User HAS orgs but activeOrgId is stale-null -> the effect above
+  //      picks their first org; render nothing for that tick.
+  //   2. Zero orgs -> a personal account. PersonalHomePage, regardless of
+  //      when the account was created. First-run onboarding is the app
+  //      layout's job (onboarding_completed + createdAt cutoff), never
+  //      this page's - a redirect from here used to loop against the
+  //      wizard's own "already set up, go to /app" short-circuit.
   //
   // Gate on enterpriseOrgsLoaded: without it, real org users briefly see
-  // this branch during the ~100ms before /api/enterprise/organizations
-  // resolves and the auto-pick sets the active org. While orgs are still
-  // loading, render nothing - the layout already shows the topbar/sidebar
-  // shell, so the screen isn't blank. Also wait for `user` to load before
-  // deciding case 2 vs 3 - grandfathered status lives on that response.
-  const showPersonalFallback = enterpriseOrgsLoaded && !activeOrgId && enterpriseOrgs.length === 0
-    && !!user && user.personalLegacyGrandfathered
+  // the personal home during the ~100ms before /api/enterprise/organizations
+  // resolves and the auto-pick sets the active org.
+  const showPersonalFallback = enterpriseOrgsLoaded && !activeOrgId && enterpriseOrgs.length === 0 && !!user
 
   if (!enterpriseOrgsLoaded) return null
   if (!activeOrgId) {
