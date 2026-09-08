@@ -383,12 +383,38 @@ export async function resolveLLMForRequest(opts: {
 // before we encrypt and store it. Settings UI calls this on save so a typo
 // or an expired key fails immediately, not on the user's next real query.
 export async function testProviderKey(provider: ByokProviderName, apiKey: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  // Authenticated list-models call, not a generation. A generation can fail
+  // for reasons unrelated to the key (rate limit on a fresh key, an empty
+  // completion, a model hiccup) and used to surface as a 422 with no log.
+  // 401/403 is the only "your key is wrong" signal; 429 means the key is
+  // real but throttled, which is a pass for our purposes.
+  const label = provider === 'anthropic' ? 'Anthropic' : provider === 'openai' ? 'OpenAI' : 'Google'
+  let url: string
+  let headers: Record<string, string> = {}
+  switch (provider) {
+    case 'anthropic':
+      url = 'https://api.anthropic.com/v1/models?limit=1'
+      headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' }
+      break
+    case 'openai':
+      url = 'https://api.openai.com/v1/models'
+      headers = { Authorization: `Bearer ${apiKey}` }
+      break
+    case 'gemini':
+      url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key=${encodeURIComponent(apiKey)}`
+      break
+  }
   try {
-    const llm = buildProvider({ provider, apiKey }, 'simple')
-    const text = await llm.generateText('Reply with exactly: OK', 5)
-    if (!text || !text.trim()) throw new Error('empty response')
-    return { ok: true }
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) })
+    if (res.ok || res.status === 429) return { ok: true }
+    const body = (await res.text().catch(() => '')).slice(0, 200)
+    console.warn(`[byok] key check failed provider=${provider} status=${res.status} body=${JSON.stringify(body)}`)
+    if (res.status === 401 || res.status === 403 || (provider === 'gemini' && res.status === 400)) {
+      return { ok: false, error: `${label} rejected that key. Check it was copied in full and is still active.` }
+    }
+    return { ok: false, error: `${label} returned an unexpected ${res.status} while checking the key. Try again in a moment.` }
   } catch (err: any) {
-    return { ok: false, error: err?.message || 'Key validation failed' }
+    console.warn(`[byok] key check errored provider=${provider}`, err?.message)
+    return { ok: false, error: `Could not reach ${label} to check the key. Try again in a moment.` }
   }
 }

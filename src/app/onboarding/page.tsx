@@ -103,6 +103,18 @@ function OnboardingInner() {
           window.location.href = redirectTo
           return
         }
+        // Already set up (a connected key, or a paid/trialing tier) means the
+        // wizard has nothing left to ask. Without this, anyone who lands here
+        // a second time is told to paste their key again.
+        const billingRes = await fetch('/api/billing/me')
+        if (billingRes.ok) {
+          const b = await billingRes.json()
+          if (b?.byok || (b?.tier && b.tier !== 'free')) {
+            await fetch('/api/user/onboarding', { method: 'POST' }).catch(() => {})
+            window.location.href = redirectTo
+            return
+          }
+        }
       } catch { /* fall through to onboarding on any error */ }
       setChecking(false)
     })()
