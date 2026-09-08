@@ -37,6 +37,10 @@ const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memo
 // Two-list shape because of the matching semantics (pathname === p ||
 // pathname.startsWith(p + '/')): /app as a prefix would also match
 // /app/anything, so the home gets its own exact-match list.
+// Accounts created before this instant are never redirected to onboarding.
+// Set to the deploy date of the first-run redirect.
+const FIRST_RUN_CUTOFF = Date.parse('2026-09-08T00:00:00Z')
+
 const NO_ORG_ALLOWED_EXACT = ['/app']  // home page (renders PersonalHomePage)
 const NO_ORG_ALLOWED_PREFIXES = [
   '/app/memories',            // personal memories
@@ -149,8 +153,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // rather than middleware.ts because the flag is a DB column and middleware
   // runs on the edge runtime, where better-sqlite3 isn't available. Catching
   // it at the app shell covers every sign-in door at once (OTP, Google, SSO,
-  // invite). Existing accounts are backfilled to onboarding_completed=1 at
-  // deploy time, so this only fires for genuinely new signups.
+  // invite).
+  //
+  // "First run" means an account created after this shipped. Gating on
+  // createdAt rather than backfilling onboarding_completed for existing rows
+  // means no production data migration and no chance of marching long-time
+  // users through a wizard they never needed.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -159,7 +167,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         if (!res.ok) return
         const data = await res.json()
         if (cancelled) return
-        if (data?.user && data.user.onboardingCompleted === false) router.replace('/onboarding')
+        const u = data?.user
+        if (!u || u.onboardingCompleted !== false) return
+        const createdAt = u.createdAt ? new Date(u.createdAt).getTime() : 0
+        if (createdAt >= FIRST_RUN_CUTOFF) router.replace('/onboarding')
       } catch { /* never block the app on this check */ }
     })()
     return () => { cancelled = true }
