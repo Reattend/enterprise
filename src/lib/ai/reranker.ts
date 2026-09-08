@@ -72,6 +72,9 @@ One object per candidate, in order. Integer scores 0-10.`
         'content-type': 'application/json',
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
+        ...(process.env.ANTHROPIC_WORKSPACE_ID
+          ? { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }
+          : {}),
       },
       body: JSON.stringify({
         model: MODEL,

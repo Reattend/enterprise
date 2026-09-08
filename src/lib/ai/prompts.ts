@@ -3,7 +3,7 @@
 
 export const PROMPTS = {
   // v6.0 - Production triage agent (screen + writing capture aware, noise-hardened)
-  triage: (text: string, metadata?: string) => `You are a memory triage agent for a "Passive Second Brain." You decide what's worth remembering from a user's digital life.
+  triage: (text: string, metadata?: string, mode: 'personal' | 'org' = 'org') => `You are a memory triage agent for a "Passive Second Brain." You decide what's worth remembering from a user's digital life.
 
 ${metadata && metadata.includes('"capture_type":"writing"') ? `CONTEXT: This text was captured from the user's OWN WRITING - text they were actively typing in an app. User-authored content is generally MORE valuable because it represents their thoughts, ideas, and communications. Be more lenient with KEEP decisions for writing captures, but still DROP if the text is too short or fragmented to be meaningful.
 
@@ -17,7 +17,11 @@ ${metadata && metadata.includes('"capture_type":"writing"') ? `CONTEXT: This tex
 - A meaningful INSIGHT, idea, or learning
 - DATES with context (deadlines, launches, follow-ups)
 - PROJECT UPDATES or status information
-- PERSONAL WRITING - emails, messages, documents the user is composing
+- PERSONAL WRITING - emails, messages, documents the user is composing${mode === 'personal' ? `
+- REFERENCE MATERIAL the user chose to keep - a fact, definition, excerpt,
+  quote, recipe, or passage worth looking up again later. This is a personal
+  second brain, not a work log: someone studying or researching is building
+  knowledge, and a fact they deliberately saved is a legitimate memory.` : ''}
 
 DROP if:
 - It's just casual chat, small talk, or greetings
@@ -31,7 +35,9 @@ DROP if:
 - It's REPETITIVE DATA ROWS (tables, spreadsheets, grids of similar items)
 - It's SOCIAL MEDIA FEEDS or news headlines without substance
 
-When in doubt, DROP. Quality over quantity - only store memories the user would thank you for remembering.
+${mode === 'personal'
+  ? `When in doubt, KEEP. This is one person's own memory, storage is cheap, and a wrongly-dropped memory is invisible to them while a wrongly-kept one is merely tidied away later. Reserve DROP for genuine noise - the categories listed above - not for material that is simply not work-related.`
+  : `When in doubt, DROP. Quality over quantity - only store memories the user would thank you for remembering.`}
 
 INPUT:
 Text: ${text}

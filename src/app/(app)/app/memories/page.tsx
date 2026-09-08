@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { emit, useRevalidate, SCOPES } from '@/lib/data-bus'
+import { emit, useRevalidate, usePollWhileVisible, SCOPES } from '@/lib/data-bus'
 import { useAppStore } from '@/stores/app-store'
 
 type MemoryRecord = {
@@ -237,6 +237,30 @@ export default function MemoriesPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeFilter, sourceFilter, dateRange, activeOrgId])
+
+  // Background refresh. Deliberately NOT fetchRecords(): that flips `loading`
+  // (spinner flash) and resets `offset` (throwing away the user's load-more
+  // progress). This only prepends records we don't already have, so a memory
+  // finishing triage in the background simply appears at the top.
+  const checkForNewRecords = useCallback(async () => {
+    try {
+      const res = await fetch(buildUrl(0))
+      if (!res.ok) return
+      const data = await res.json()
+      if (!Array.isArray(data.records)) return
+      setRecords((prev) => {
+        const seen = new Set(prev.map((r) => r.id))
+        const fresh = data.records.filter((r: MemoryRecord) => !seen.has(r.id))
+        if (fresh.length === 0) return prev
+        return [...fresh, ...prev]
+      })
+      if (data.total !== undefined) setTotal(data.total)
+      if (data.typeCounts) setTypeCounts(data.typeCounts)
+    } catch { /* background refresh - never surface an error */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typeFilter, sourceFilter, dateRange, activeOrgId])
+
+  usePollWhileVisible(15000, checkForNewRecords)
 
   // After a new memory is created, the background AI enrichment takes
   // ~30-60s to fill in title/summary/tags. Poll until enriched then swap.

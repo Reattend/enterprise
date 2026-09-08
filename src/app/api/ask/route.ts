@@ -1170,7 +1170,8 @@ RULES:
 - Use ONLY the memories below. Never invent facts. Cite sources inline as [1], [2], [3].
 - Be specific: quote exact names, dates, numbers as written in the memories.
 - Write in clear, natural prose. No markdown headers.
-- If something isn't in the memories, say "I don't have this saved yet."
+- If the memories only partly cover the question, say what you DO have before noting what's missing - never claim nothing is saved when related context was retrieved.
+- Only say "I don't have this saved yet" when nothing relevant was retrieved at all.
 - When asked to draft/create something (email, brief, presentation), use the memories as source material and produce a polished output.
 - For follow-up questions, give a complete standalone answer - never a fragment.${wsInstruction}
 ${hotCacheBlock}

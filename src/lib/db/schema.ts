@@ -328,6 +328,10 @@ export const subscriptions = sqliteTable('subscriptions', {
   // Free-tier monthly AI quota tracking. Worker resets these on the 1st of each month.
   aiQueriesThisMonth: integer('ai_queries_this_month').notNull().default(0),
   aiQueriesResetAt: text('ai_queries_reset_at'),
+  // Human captures run triage on the platform key for Managed users, so they
+  // cost us money too. Metered separately from questions.
+  capturesThisMonth: integer('captures_this_month').notNull().default(0),
+  capturesResetAt: text('captures_reset_at'),
   meta: text('meta'), // JSON
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
   updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),

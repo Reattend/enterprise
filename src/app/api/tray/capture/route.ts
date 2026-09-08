@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { consumeCapture } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
 import { eq, and, desc, gt } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
@@ -135,6 +136,18 @@ export async function POST(req: NextRequest) {
 
     const gateRes = await requireExtensionAccess(auth.userId)
     if (gateRes) return gateRes
+
+    // Human captures run triage on our key for personal Managed users, so
+    // they are metered. BYOK and org-context users short-circuit inside.
+    const capQuota = await consumeCapture(auth.userId)
+    if (!capQuota.ok) {
+      return NextResponse.json({
+        error: 'capture_quota_exceeded',
+        message: "You have hit this month's capture limit on Managed. Connect your own AI provider key in Settings for unlimited captures, or wait for the monthly reset.",
+        resetAt: capQuota.resetAt,
+        settingsUrl: 'https://reattend.com/app/settings',
+      }, { status: 429 })
+    }
 
     const body = await req.json()
     const parsed = captureSchema.safeParse(body)

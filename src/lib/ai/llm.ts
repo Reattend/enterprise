@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+// The provider rejected our credentials (401/403). Distinct from
+// NoAIConfiguredError: a key IS configured, it just doesn't work - which is
+// exactly the state that used to fail silently and look like "the extension
+// is broken".
+export class ProviderAuthError extends Error {
+  constructor(public provider: string, public status: number, message?: string) {
+    super(message || `${provider} rejected the API key (HTTP ${status})`)
+    this.name = 'ProviderAuthError'
+  }
+}
+
 // Provider-agnostic LLM interface.
 // Reattend is Rabbit-only. There are no fallbacks.
 // If Rabbit is down, requests fail loudly with RabbitNotConfiguredError or
@@ -438,6 +449,11 @@ export class ClaudeProvider implements LLMProvider {
         'Content-Type': 'application/json',
         'x-api-key': this.apiKey,
         'anthropic-version': '2023-06-01',
+        // Identity-linked keys are rejected without a workspace id. Optional:
+        // omitted entirely for ordinary keys, which don't accept the header.
+        ...(process.env.ANTHROPIC_WORKSPACE_ID
+          ? { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }
+          : {}),
       },
       body: JSON.stringify({
         model: this.model,
@@ -447,6 +463,9 @@ export class ClaudeProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('Claude', res.status, `Claude rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`Claude API error ${res.status}: ${err.slice(0, 200)}`)
     }
     const data = await res.json()
@@ -460,6 +479,11 @@ export class ClaudeProvider implements LLMProvider {
         'Content-Type': 'application/json',
         'x-api-key': this.apiKey,
         'anthropic-version': '2023-06-01',
+        // Identity-linked keys are rejected without a workspace id. Optional:
+        // omitted entirely for ordinary keys, which don't accept the header.
+        ...(process.env.ANTHROPIC_WORKSPACE_ID
+          ? { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }
+          : {}),
       },
       body: JSON.stringify({
         model: this.model,
@@ -470,10 +494,16 @@ export class ClaudeProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('Claude', res.status, `Claude rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`Claude API error ${res.status}: ${err.slice(0, 200)}`)
     }
 
     const decoder = new TextDecoder()
+    // Carries an incomplete trailing SSE line across reads - without this a
+    // delta split over two network chunks is silently dropped.
+    let sseBuffer = ''
     const encoder = new TextEncoder()
     const reader = res.body!.getReader()
 
@@ -483,8 +513,12 @@ export class ClaudeProvider implements LLMProvider {
           const { done, value } = await reader.read()
           if (done) { controller.close(); return }
 
-          const chunk = decoder.decode(value, { stream: true })
-          for (const line of chunk.split('\n')) {
+          sseBuffer += decoder.decode(value, { stream: true })
+          const lines = sseBuffer.split('\n')
+          // Last element is whatever came after the final newline - hold it
+          // back until the rest of it arrives.
+          sseBuffer = lines.pop() ?? ''
+          for (const line of lines) {
             if (!line.startsWith('data: ')) continue
             const data = line.slice(6).trim()
             if (data === '[DONE]') continue
@@ -493,7 +527,11 @@ export class ClaudeProvider implements LLMProvider {
               if (event.type === 'content_block_delta' && event.delta?.text) {
                 controller.enqueue(encoder.encode(event.delta.text))
               }
-            } catch { /* skip malformed lines */ }
+            } catch {
+              // A complete line that still won't parse is a real anomaly now
+              // that partials are buffered - log it rather than lose text mutely.
+              console.warn('[llm] unparseable SSE line', data.slice(0, 120))
+            }
           }
         }
       },
@@ -555,6 +593,9 @@ class GroqProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('Groq', res.status, `Groq rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`Groq API error ${res.status}: ${err.slice(0, 200)}`)
     }
     const data = await res.json()
@@ -624,6 +665,9 @@ export class OpenAIProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('OpenAI', res.status, `OpenAI rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`OpenAI API error ${res.status}: ${err.slice(0, 200)}`)
     }
     const data = await res.json()
@@ -646,10 +690,16 @@ export class OpenAIProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('OpenAI', res.status, `OpenAI rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`OpenAI API error ${res.status}: ${err.slice(0, 200)}`)
     }
 
     const decoder = new TextDecoder()
+    // Carries an incomplete trailing SSE line across reads - without this a
+    // delta split over two network chunks is silently dropped.
+    let sseBuffer = ''
     const encoder = new TextEncoder()
     const reader = res.body!.getReader()
 
@@ -659,8 +709,12 @@ export class OpenAIProvider implements LLMProvider {
           const { done, value } = await reader.read()
           if (done) { controller.close(); return }
 
-          const chunk = decoder.decode(value, { stream: true })
-          for (const line of chunk.split('\n')) {
+          sseBuffer += decoder.decode(value, { stream: true })
+          const lines = sseBuffer.split('\n')
+          // Last element is whatever came after the final newline - hold it
+          // back until the rest of it arrives.
+          sseBuffer = lines.pop() ?? ''
+          for (const line of lines) {
             if (!line.startsWith('data: ')) continue
             const data = line.slice(6).trim()
             if (data === '[DONE]') continue
@@ -668,7 +722,11 @@ export class OpenAIProvider implements LLMProvider {
               const event = JSON.parse(data)
               const delta = event.choices?.[0]?.delta?.content
               if (delta) controller.enqueue(encoder.encode(delta))
-            } catch { /* skip malformed lines */ }
+            } catch {
+              // A complete line that still won't parse is a real anomaly now
+              // that partials are buffered - log it rather than lose text mutely.
+              console.warn('[llm] unparseable SSE line', data.slice(0, 120))
+            }
           }
         }
       },
@@ -729,6 +787,9 @@ export class GeminiProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('Gemini', res.status, `Gemini rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`Gemini API error ${res.status}: ${err.slice(0, 200)}`)
     }
     const data = await res.json()
@@ -751,10 +812,16 @@ export class GeminiProvider implements LLMProvider {
     })
     if (!res.ok) {
       const err = await res.text().catch(() => '')
+      if (res.status === 401 || res.status === 403) {
+        throw new ProviderAuthError('Gemini', res.status, `Gemini rejected the API key (HTTP ${res.status}). ${err.slice(0, 160)}`)
+      }
       throw new Error(`Gemini API error ${res.status}: ${err.slice(0, 200)}`)
     }
 
     const decoder = new TextDecoder()
+    // Carries an incomplete trailing SSE line across reads - without this a
+    // delta split over two network chunks is silently dropped.
+    let sseBuffer = ''
     const encoder = new TextEncoder()
     const reader = res.body!.getReader()
 
@@ -764,8 +831,12 @@ export class GeminiProvider implements LLMProvider {
           const { done, value } = await reader.read()
           if (done) { controller.close(); return }
 
-          const chunk = decoder.decode(value, { stream: true })
-          for (const line of chunk.split('\n')) {
+          sseBuffer += decoder.decode(value, { stream: true })
+          const lines = sseBuffer.split('\n')
+          // Last element is whatever came after the final newline - hold it
+          // back until the rest of it arrives.
+          sseBuffer = lines.pop() ?? ''
+          for (const line of lines) {
             if (!line.startsWith('data: ')) continue
             const data = line.slice(6).trim()
             if (data === '[DONE]') continue
@@ -773,7 +844,11 @@ export class GeminiProvider implements LLMProvider {
               const event = JSON.parse(data)
               const delta = event.choices?.[0]?.delta?.content
               if (delta) controller.enqueue(encoder.encode(delta))
-            } catch { /* skip malformed lines */ }
+            } catch {
+              // A complete line that still won't parse is a real anomaly now
+              // that partials are buffered - log it rather than lose text mutely.
+              console.warn('[llm] unparseable SSE line', data.slice(0, 120))
+            }
           }
         }
       },

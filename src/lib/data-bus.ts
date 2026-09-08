@@ -60,6 +60,33 @@ export function useRevalidate(scopes: Scope | Scope[], refetch: () => void) {
   }, [scopes, refetch]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
+/**
+ * Calls `tick` on an interval, but ONLY while the tab is visible - a hidden
+ * tab polls nothing. Pairs with useRevalidate: that covers "user came back",
+ * this covers "user is sitting here and something landed elsewhere".
+ *
+ * Needed because captures are asynchronous: the extension creates a raw item,
+ * a queued job triages it, and the record appears seconds later. Refetching
+ * on focus alone fires too early to see it.
+ */
+export function usePollWhileVisible(intervalMs: number, tick: () => void) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    let id: ReturnType<typeof setInterval> | null = null
+    const start = () => {
+      if (id !== null) return
+      id = setInterval(() => {
+        if (document.visibilityState === 'visible') tick()
+      }, intervalMs)
+    }
+    const stop = () => { if (id !== null) { clearInterval(id); id = null } }
+    const onVis = () => (document.visibilityState === 'visible' ? start() : stop())
+    if (document.visibilityState === 'visible') start()
+    document.addEventListener('visibilitychange', onVis)
+    return () => { stop(); document.removeEventListener('visibilitychange', onVis) }
+  }, [intervalMs, tick])
+}
+
 // Convenience: fixed list of well-known scopes. Components can use
 // any string but these centralize the names so we don't typo them.
 export const SCOPES = {

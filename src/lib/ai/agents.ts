@@ -146,7 +146,7 @@ export async function runIngestJob(
   }
   if (!result) {
     const llm = await resolveLLMForWorkspace(workspaceId, 'simple')
-    result = await llm.generateJSON(PROMPTS.triage(truncated), triageResultSchema)
+    result = await llm.generateJSON(PROMPTS.triage(truncated, undefined, await triageModeFor(workspaceId)), triageResultSchema)
   }
 
   // Same 'Untitled' sentinel fallback as runTriageAgent above - a snippet
@@ -342,6 +342,15 @@ async function createUntriagedRecord(rawItemId: string, workspaceId: string, tar
 }
 
 // ─── Triage Agent ───────────────────────────────────────
+// Personal workspaces (no org link) get the lenient second-brain triage;
+// org workspaces keep the strict "quality over quantity" rules.
+async function triageModeFor(workspaceId: string): Promise<'personal' | 'org'> {
+  try {
+    const link = await db.query.workspaceOrgLinks.findFirst({ where: eq(schema.workspaceOrgLinks.workspaceId, workspaceId) })
+    return link ? 'org' : 'personal'
+  } catch { return 'org' }
+}
+
 export async function runTriageAgent(rawItemId: string, workspaceId: string, targetProjectId?: string): Promise<TriageResult> {
   let llm
   try {
@@ -357,7 +366,7 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
   })
   if (!rawItem) throw new Error(`Raw item ${rawItemId} not found`)
 
-  const prompt = PROMPTS.triage(rawItem.text, rawItem.metadata || undefined)
+  const prompt = PROMPTS.triage(rawItem.text, rawItem.metadata || undefined, await triageModeFor(workspaceId))
   const result = await llm.generateJSON(prompt, triageResultSchema)
 
   // normalizeTriageOutput (llm.ts) falls back to the literal string
@@ -368,6 +377,20 @@ export async function runTriageAgent(rawItemId: string, workspaceId: string, tar
   // used in createUntriagedRecord below.
   if (!result.title || result.title === 'Untitled') {
     result.title = rawItem.text.length > 80 ? rawItem.text.slice(0, 77) + '...' : rawItem.text
+  }
+
+  // Did the user explicitly ask for this? (extension right-click / pin /
+  // paste set capturedBy:'tray'.) Integrations keep the model's judgement -
+  // Slack/Gmail volume needs it - but a human's deliberate save is an
+  // instruction, not a suggestion: the model still enriches it, it doesn't
+  // get a veto.
+  const explicitCapture = rawItem.metadata
+    ? (() => { try { return JSON.parse(rawItem.metadata)?.capturedBy === 'tray' } catch { return false } })()
+    : false
+  if (explicitCapture && !result.should_store) {
+    console.log(`[Triage] Overriding drop for explicit capture ${rawItemId} (model said: ${result.why_kept_or_dropped || 'n/a'})`)
+    result.should_store = true
+    if (result.confidence < 0.5) result.confidence = 0.5
   }
 
   // Update raw item with triage result

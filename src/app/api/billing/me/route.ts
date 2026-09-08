@@ -20,7 +20,11 @@ export async function GET() {
   const sub = await getOrCreateSubscription(session.user.id)
   const limits = TIER_LIMITS[sub.tier as Tier]
 
+  const { getKeyStatus } = await import('@/lib/ai/byok')
+  const key = await getKeyStatus(null, session.user.id).catch(() => null)
+
   return NextResponse.json({
+    byok: key ? { provider: key.provider, keyLast4: key.keyLast4, status: key.status } : null,
     tier: sub.tier,
     status: sub.status,
     seatCount: sub.seatCount,

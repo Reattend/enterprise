@@ -30,6 +30,7 @@ declare global {
 }
 
 interface BillingStatus {
+  byok?: { provider: 'anthropic' | 'openai' | 'gemini'; keyLast4: string | null; status: string } | null
   hasOrg: boolean
   isAdmin: boolean
   tier: 'free' | 'professional' | 'enterprise'
@@ -39,8 +40,14 @@ interface BillingStatus {
   price: number
 }
 
+const PROVIDER_LABEL: Record<string, string> = { anthropic: 'Anthropic', openai: 'OpenAI', gemini: 'Gemini' }
+
 export default function BillingPage() {
   const [data, setData] = useState<BillingStatus | null>(null)
+  const [txns, setTxns] = useState<Array<{ id: string; status: string; createdAt: string; billedAt: string | null; total: string | null; currency: string | null }>>([])
+  useEffect(() => {
+    fetch('/api/billing/transactions').then((r) => r.json()).then((d) => setTxns(d.transactions || [])).catch(() => { /* no receipts is normal */ })
+  }, [])
   const [loading, setLoading] = useState(true)
   const [startingTrial, setStartingTrial] = useState(false)
   const [checkingOut, setCheckingOut] = useState(false)
@@ -128,10 +135,28 @@ export default function BillingPage() {
           unlimited retention, no seat cost, nothing billed by Reattend. Your own vendor bill is the only cost.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button asChild>
-          <Link href="/app/settings">Manage your AI key</Link>
-        </Button>
+      <CardContent className="space-y-3">
+        {data?.byok ? (
+          <>
+            <div className="flex items-center gap-2 text-sm">
+              <span className={`inline-block h-2 w-2 rounded-full ${data.byok.status === 'valid' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              <span className="font-medium">{PROVIDER_LABEL[data.byok.provider] || data.byok.provider}</span>
+              {data.byok.keyLast4 && <span className="text-muted-foreground font-mono text-xs">····{data.byok.keyLast4}</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {data.byok.status === 'valid'
+                ? 'Connected. Questions and captures run on this key at no cost from Reattend.'
+                : 'This key was rejected by the provider the last time it was used. Update it to keep AI features working.'}
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/app/settings">{data.byok.status === 'valid' ? 'Manage key' : 'Fix key'}</Link>
+            </Button>
+          </>
+        ) : (
+          <Button asChild>
+            <Link href="/app/settings">Connect your AI key</Link>
+          </Button>
+        )}
       </CardContent>
     </Card>
   )
@@ -284,6 +309,28 @@ export default function BillingPage() {
 
           {byokCard}
         </>
+      )}
+
+      {txns.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Receipts</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {txns.map((t) => (
+              <div key={t.id} className="flex items-center justify-between gap-4 border-b last:border-0 py-2.5 text-sm">
+                <div className="min-w-0">
+                  <div>{new Date(t.billedAt || t.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                  <div className="text-xs text-muted-foreground capitalize">{t.status}</div>
+                </div>
+                <div className="tabular-nums">{t.total ? `${t.currency || 'USD'} ${(Number(t.total) / 100).toFixed(2)}` : '\u2014'}</div>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/app/settings/billing/invoice/${t.id}`}>Receipt</Link>
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       )}
     </div>
   )

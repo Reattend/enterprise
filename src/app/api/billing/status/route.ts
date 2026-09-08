@@ -21,14 +21,22 @@ export async function GET() {
     const orgId = userRow?.activeContextOrgId ?? null
 
     if (!orgId) {
+      // Personal accounts have a real subscription row of their own - the old
+      // hardcoded 'free' rendered a paying personal Managed user as Free.
+      const { getKeyStatus } = await import('@/lib/ai/byok')
+      const [personalSub, personalKey] = await Promise.all([
+        getOrCreateSubscription(userId),
+        getKeyStatus(null, userId).catch(() => null),
+      ])
       return NextResponse.json({
         hasOrg: false,
         isAdmin: false,
-        tier: 'free',
-        status: 'active',
-        trialEndsAt: null,
-        seats: { current: 0, cap: null },
+        tier: personalSub.tier,
+        status: personalSub.status,
+        trialEndsAt: personalSub.trialEndsAt,
+        seats: { current: 1, cap: null },
         price: TIER_LIMITS.professional.monthlyPrice,
+        byok: personalKey ? { provider: personalKey.provider, keyLast4: personalKey.keyLast4, status: personalKey.status } : null,
       })
     }
 
@@ -43,7 +51,10 @@ export async function GET() {
     const isAdmin = membership?.role === 'admin' || membership?.role === 'super_admin'
     const resolvedSub = sub ?? await getOrCreateSubscription(userId)
 
+    const { getKeyStatus: getOrgKeyStatus } = await import('@/lib/ai/byok')
+    const orgKey = await getOrgKeyStatus(orgId, null).catch(() => null)
     return NextResponse.json({
+      byok: orgKey ? { provider: orgKey.provider, keyLast4: orgKey.keyLast4, status: orgKey.status } : null,
       hasOrg: true,
       isAdmin,
       tier: resolvedSub.tier,

@@ -24,8 +24,12 @@ import {
   ClaudeProvider,
   OpenAIProvider,
   GeminiProvider,
+  ProviderAuthError,
   type LLMProvider,
 } from './llm'
+
+// Re-exported so callers keep importing AI errors from one place.
+export { ProviderAuthError }
 
 export type ByokProviderName = 'anthropic' | 'openai' | 'gemini'
 
@@ -37,6 +41,36 @@ export class NoAIConfiguredError extends Error {
         : 'No AI provider configured. Connect an API key in Settings before AI features work.'
     )
     this.name = 'NoAIConfiguredError'
+  }
+}
+
+// Flip a stored key to 'invalid' so the UI shows a real state instead of
+// implying the user is set up. Best-effort - never throw from an error path.
+export async function markKeyInvalid(userId: string): Promise<void> {
+  try {
+    await db.update(schema.aiProviderKeys)
+      .set({ status: 'invalid', updatedAt: new Date().toISOString() })
+      .where(and(eq(schema.aiProviderKeys.userId, userId), isNull(schema.aiProviderKeys.organizationId)))
+  } catch (e) {
+    console.error('[byok] could not mark key invalid', e)
+  }
+}
+
+// Background jobs only know a workspaceId. Org-linked workspaces run on the
+// org's key; personal ones on the owner's. Flag whichever one actually failed.
+export async function markKeyInvalidForWorkspace(workspaceId: string): Promise<void> {
+  try {
+    const link = await db.query.workspaceOrgLinks.findFirst({ where: eq(schema.workspaceOrgLinks.workspaceId, workspaceId) })
+    if (link) {
+      await db.update(schema.aiProviderKeys)
+        .set({ status: 'invalid', updatedAt: new Date().toISOString() })
+        .where(eq(schema.aiProviderKeys.organizationId, link.organizationId))
+      return
+    }
+    const ws = await db.query.workspaces.findFirst({ where: eq(schema.workspaces.id, workspaceId) })
+    if (ws?.createdBy) await markKeyInvalid(ws.createdBy)
+  } catch (e) {
+    console.error('[byok] could not mark workspace key invalid', e)
   }
 }
 
@@ -239,7 +273,19 @@ export async function resolveLLM(opts: {
   if (byok) return buildProvider(byok, intent)
 
   if (isPersonal) {
-    // Personal is BYOK-only by design - no platform-key fallback, ever.
+    // This branch predates the paid Managed tier for personal accounts and
+    // threw unconditionally - a paying subscriber was metered by the caller
+    // and then told "no AI provider configured". Look the tier up here rather
+    // than trusting callers to pass it. Free + no key still hard-stops.
+    let effectiveTier = tier
+    if (effectiveTier === 'free' && userId) {
+      const sub = await db.query.subscriptions.findFirst({ where: eq(schema.subscriptions.userId, userId) })
+      if (sub) effectiveTier = sub.tier as typeof tier
+    }
+    if (effectiveTier === 'professional' || effectiveTier === 'enterprise') {
+      const { getAskLLM } = await import('./llm')
+      return getAskLLM(undefined, intent)
+    }
     throw new NoAIConfiguredError('personal')
   }
 
@@ -273,6 +319,17 @@ export async function resolveLLMForWorkspace(workspaceId: string, intent: 'reaso
     if (!ws) throw new NoAIConfiguredError('personal')
     const byok = await resolveByokKey({ organizationId: null, userId: ws.createdBy })
     if (byok) return buildProvider(byok, intent)
+
+    // Personal workspaces on a paid tier run background jobs on the platform
+    // key, mirroring the org branch below. Without this a paying personal
+    // subscriber could ask questions but every capture failed triage.
+    const sub = await db.query.subscriptions.findFirst({
+      where: eq(schema.subscriptions.userId, ws.createdBy),
+    })
+    if (sub && (sub.tier === 'professional' || sub.tier === 'enterprise')) {
+      const { getAskLLM } = await import('./llm')
+      return getAskLLM(undefined, intent)
+    }
     throw new NoAIConfiguredError('personal')
   }
 

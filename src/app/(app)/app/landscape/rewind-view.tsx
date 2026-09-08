@@ -18,7 +18,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   Loader2, Calendar, Gavel, FileText, Sparkles, RotateCcw, Play, Pause,
-  ChevronRight, History,
+  ChevronRight,
 } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
@@ -171,12 +171,9 @@ export function RewindView() {
   const fillPct = (index / (ticks.length - 1)) * 100
 
   if (!hasHydratedStore) return null
-  if (!activeEnterpriseOrgId) return (
-    <div style={{ padding: '80px 0', textAlign: 'center' }}>
-      <History size={32} style={{ color: 'var(--ink-3)', margin: '0 auto 12px' }} />
-      <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Select an organization to scrub the timeline.</p>
-    </div>
-  )
+  // No org gate: the timeline endpoint scopes personal accounts to their own
+  // workspace (records only - decisions/policies are org concepts). The old
+  // "Select an organization" dead end made Rewind unusable for them.
 
   function delta(curr: number | undefined, prev: number | undefined) {
     if (curr == null || prev == null) return null
@@ -191,9 +188,11 @@ export function RewindView() {
         <RotateCcw size={9} strokeWidth={2} /> Rewind
       </span>
       <div className="lsc-head">
-        <h1>Scrub the org through <em>time</em>.</h1>
+        <h1>{activeEnterpriseOrgId ? <>Scrub the org through <em>time</em>.</> : <>Scrub your memory through <em>time</em>.</>}</h1>
         <p className="sub">
-          Drag the slider or press play. See what the organization looked like on any past month - which decisions were active, what memories existed, how knowledge has grown. Every number on this page is a real point-in-time query against the org&apos;s state.
+          {activeEnterpriseOrgId
+            ? 'Drag the slider or press play. See what the organization looked like on any past month - which decisions were active, what memories existed, how knowledge has grown. Every number on this page is a real point-in-time query against the org\u2019s state.'
+            : 'Drag the slider or press play. See what you knew on any past month - which memories existed, what you\u2019d decided, how it all accumulated. Every number here is a real point-in-time query against your own memory.'}
         </p>
       </div>
 
@@ -247,10 +246,10 @@ export function RewindView() {
             onChange={(e) => setAnchor(e.target.value as typeof anchor)}
             title="Filter scope"
           >
-            <option value="all">All org</option>
+            <option value="all">{activeEnterpriseOrgId ? 'All org' : 'Everything'}</option>
             <option value="topic">Topic / tag</option>
             <option value="person">Person</option>
-            <option value="dept">Department</option>
+            {activeEnterpriseOrgId && <option value="dept">Department</option>}
           </select>
           {anchor !== 'all' && (
             <input

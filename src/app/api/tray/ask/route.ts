@@ -181,7 +181,8 @@ RULES:
 - Use ONLY the memories below. Never invent facts. Cite sources as [1], [2], [3].
 - Be specific: quote exact names, dates, numbers.
 - Write clear, natural prose. No markdown headers.
-- If something isn't in the memories, say "I don't have this saved yet."
+- If the memories only partly cover the question, say what you DO have before noting what's missing - never claim nothing is saved when related context was retrieved.
+- Only say "I don't have this saved yet" when nothing relevant was retrieved at all.
 - Surface contradictions or risks if you notice them.
 - You can draft emails, briefs, summaries, and presentations from the memories.
 

@@ -144,18 +144,10 @@ export async function requireExtensionAccess(userId: string): Promise<Response |
     .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
   const activeContextOrgId = userRow?.activeContextOrgId ?? null
 
-  // Personal (no active org) is BYOK-only for AI answering, but never gets
-  // the extension at all - even with a personal key configured.
-  if (!activeContextOrgId) {
-    return Response.json(
-      {
-        error: 'extension_not_available_for_personal',
-        message: 'The Reattend extension is available for organization accounts, not Personal.',
-      },
-      { status: 402 },
-    )
-  }
-
+  // Personal accounts (no active org) get the extension too: with a null
+  // organizationId resolveByokKey falls through to the user's own key, and
+  // the tier check below covers paid personal plans. The old flat 402 here
+  // predates personal accounts being a first-class tenant.
   const byok = await resolveByokKey({ organizationId: activeContextOrgId, userId })
   if (byok) return null
 
@@ -184,6 +176,43 @@ export async function requireExtensionAccess(userId: string): Promise<Response |
  * a separate reset cron - calendar-aware so a user's quota doesn't carry stale
  * counts across a month boundary).
  */
+// Metering for human captures (extension / paste). Only bites when the work
+// runs on OUR key: BYOK users pay their own provider and are never counted,
+// and org-context users are governed by org billing, so this never blocks
+// org ingestion.
+export async function consumeCapture(userId: string): Promise<
+  | { ok: true; remaining: number | 'unlimited' }
+  | { ok: false; remaining: 0; resetAt: string }
+> {
+  const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
+    .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
+  if (userRow?.activeContextOrgId) return { ok: true, remaining: 'unlimited' }
+
+  const { resolveByokKey } = await import('@/lib/ai/byok')
+  const byok = await resolveByokKey({ organizationId: null, userId })
+  if (byok) return { ok: true, remaining: 'unlimited' }
+
+  const sub = await getOrCreateSubscription(userId)
+  const limits = TIER_LIMITS[sub.tier as Tier]
+  if (limits.capturesPerMonth < 0) return { ok: true, remaining: 'unlimited' }
+
+  const now = new Date()
+  const monthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+  const lastReset = sub.capturesResetAt ? sub.capturesResetAt.slice(0, 7) : ''
+  let used = sub.capturesThisMonth
+  if (lastReset !== monthKey) used = 0
+
+  if (used >= limits.capturesPerMonth) {
+    const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0))
+    return { ok: false, remaining: 0, resetAt: nextMonth.toISOString() }
+  }
+
+  await db.update(schema.subscriptions)
+    .set({ capturesThisMonth: used + 1, capturesResetAt: now.toISOString(), updatedAt: now.toISOString() })
+    .where(eq(schema.subscriptions.id, sub.id))
+  return { ok: true, remaining: limits.capturesPerMonth - (used + 1) }
+}
+
 export async function consumeAiQuery(userId: string): Promise<
   | { ok: true; remaining: number | 'unlimited' }
   | { ok: false; remaining: 0; resetAt: string }

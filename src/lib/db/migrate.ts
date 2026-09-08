@@ -928,6 +928,18 @@ try {
   console.error('integrations_connections migration note:', e.message)
 }
 
+// ─── Add capture metering columns to subscriptions ───
+try {
+  const subCols = sqlite.prepare("PRAGMA table_info(subscriptions)").all() as any[]
+  if (!subCols.some((c: any) => c.name === 'captures_this_month')) {
+    console.log('Adding captures_this_month, captures_reset_at to subscriptions...')
+    sqlite.exec('ALTER TABLE subscriptions ADD COLUMN captures_this_month INTEGER NOT NULL DEFAULT 0;')
+    sqlite.exec('ALTER TABLE subscriptions ADD COLUMN captures_reset_at TEXT;')
+  }
+} catch (e: any) {
+  console.error('Subscriptions capture-metering migration note:', e.message)
+}
+
 // ─── Add source/sourceId/occurredAt/meta columns to records ───
 try {
   const recCols = sqlite.prepare("PRAGMA table_info(records)").all() as any[]

@@ -233,6 +233,18 @@
 .enterprise-shell .rail-recent .recent-q:hover { background: color-mix(in oklch, var(--panel), var(--ink) 6%); color: var(--ink); }
 .enterprise-shell .rail-recent .recent-q.active-q { background: color-mix(in oklch, var(--panel), var(--ink) 6%); color: var(--ink); }
 
+/* Unread pill on a rail nav item (inbox). Red so a pending review reads as
+ * something needing attention rather than decoration. */
+.enterprise-shell .rail-badge {
+  margin-left: auto;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px;
+  background: var(--mem-rose); color: white;
+  font-size: 10.5px; font-weight: 700; line-height: 18px;
+  text-align: center; flex-shrink: 0;
+}
+.enterprise-shell.sidebar-collapsed .rail .rail-badge { display: none; }
+
 .enterprise-shell .rail-foot { margin-top: auto; }
 .enterprise-shell .rail-user {
   width: 100%; box-sizing: border-box;

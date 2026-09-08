@@ -144,6 +144,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // the sidebar without a manual refresh.
   useRevalidate([SCOPES.orgs, SCOPES.user], fetchOrgs)
 
+  // ── First-run redirect ──────────────────────────────────────────────
+  // Bounce users who've never completed onboarding to /onboarding. Lives here
+  // rather than middleware.ts because the flag is a DB column and middleware
+  // runs on the edge runtime, where better-sqlite3 isn't available. Catching
+  // it at the app shell covers every sign-in door at once (OTP, Google, SSO,
+  // invite). Existing accounts are backfilled to onboarding_completed=1 at
+  // deploy time, so this only fires for genuinely new signups.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/user')
+        if (!res.ok) return
+        const data = await res.json()
+        if (cancelled) return
+        if (data?.user && data.user.onboardingCompleted === false) router.replace('/onboarding')
+      } catch { /* never block the app on this check */ }
+    })()
+    return () => { cancelled = true }
+  }, [router])
+
   useEffect(() => {
     if (!orgsLoaded) return
     if (enterpriseOrgs.length > 0) return

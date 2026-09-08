@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
-  PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2,
+  PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2, Inbox,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -32,6 +32,8 @@ interface NavItem {
   href: string
   icon: any
   label: string
+  /** Renders the unread-count pill (currently only the inbox count). */
+  badge?: 'inbox'
   exact?: boolean
   /** When true, only show this nav item if the user is in at least one
    *  org. Pages flagged orgOnly assume an `activeEnterpriseOrgId` and
@@ -48,6 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/app/hierarchy', icon: Network,        label: 'Hierarchy', orgOnly: true },
   { href: '/app/policies', icon: Columns4,        label: 'Policies', orgOnly: true },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
+  { href: '/app/inbox',    icon: Inbox,           label: 'Inbox', badge: 'inbox' },
 ]
 
 export function AppSidebar() {
@@ -59,7 +62,7 @@ export function AppSidebar() {
     setWorkspaceInfo, setAllWorkspaces,
     setCurrentWorkspaceId,
     recentChats, setRecentChats,
-    setInboxUnread,
+    inboxUnread, setInboxUnread,
     setOnboardingCompleted,
     enterpriseOrgs, setEnterpriseOrgs,
     activeEnterpriseOrgId, setActiveEnterpriseOrgId,
@@ -274,6 +277,11 @@ export function AppSidebar() {
               >
                 <Icon className="ico" />
                 <span>{item.label}</span>
+                {item.badge === 'inbox' && inboxUnread > 0 && (
+                  <span className="rail-badge" title={`${inboxUnread} awaiting review`}>
+                    {inboxUnread > 99 ? '99+' : inboxUnread}
+                  </span>
+                )}
               </Link>
             )
           })}

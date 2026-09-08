@@ -33,6 +33,7 @@ export type Tier = 'free' | 'professional' | 'enterprise'
 export interface TierLimits {
   // Volume gates (numeric. -1 means unlimited.)
   aiQueriesPerMonth: number
+  capturesPerMonth: number   // -1 = unlimited; BYOK and org users are never metered
   retentionDays: number
   maxSeats: number       // -1 (unlimited) for Free, 99 for Pro, -1 for Enterprise
   minSeats: number       // 1 for Free/Pro, 5 for Enterprise
@@ -53,6 +54,7 @@ export interface TierLimits {
 export const TIER_LIMITS: Record<Tier, TierLimits> = {
   free: {
     aiQueriesPerMonth: 100,
+    capturesPerMonth: -1,
     retentionDays: 90,
     maxSeats: -1, // unlimited - Free is BYOK, it's the org's own AI bill
     minSeats: 1,
@@ -73,6 +75,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     // should nudge ("heavy usage? talk to us about Enterprise") well
     // before this, not just wall at it - see api/ask/route.ts.
     aiQueriesPerMonth: 800,
+    capturesPerMonth: 1000,
     retentionDays: -1,
     maxSeats: 99, // self-serve ceiling - 100+ seats requires talk-to-sales (Enterprise tier)
     minSeats: 1,
@@ -89,6 +92,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
   },
   enterprise: {
     aiQueriesPerMonth: -1,
+    capturesPerMonth: -1,
     retentionDays: -1,
     maxSeats: -1,
     minSeats: 5,

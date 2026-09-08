@@ -574,3 +574,18 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 - Decision-from-pinned-thread workflow (needs UI in /app/decisions)
 - MS Teams full coverage (Nango supports OAuth; sync scripts are still custom-needed)
 - Real-time sync status card on Home (status API exists; just no Home tile yet — drop into Sprint Q)
+
+## 12. Personal — Web Store rejection, privacy rewrite, paid-tier ask fix (2026-09-07)
+
+**Context:** Chrome Web Store rejected Reattend Personal 1.0.0 ("Purple Nickel": privacy policy missing collection/handling/storage/sharing). Root cause: `personal.reattend.com/privacy` was still Enterprise's policy (employer-as-controller, AWS, Stripe, SCIM, a fictional DPO) and never mentioned the extension.
+
+**Done:**
+- `/privacy` rewritten from verified facts: DigitalOcean nyc1 hosting, Paddle, Resend, Google sign-in + GA4 (website/app only, not extension), AI processors named per plan (BYOK: Anthropic/OpenAI/Google under the user's key; Managed: Anthropic under ours), AES-256-GCM provider keys, SHA-256 API tokens, 10-min OTP, self-serve export/erase. Dedicated "The Chrome extension" section: what `chrome.storage.sync` holds, exactly when data is sent, permission-by-permission. Deployed (force-static → rebuild).
+- Made two retention claims true rather than aspirational: installed `pm2-logrotate` (retain 30, 50M, compress) on the droplet; daily cron prunes `/root/reattend-personal-backup-*.db` older than 30 days.
+- Extension 1.0.1: related-memories card (`showAmbient`) now **off by default** — with the pin on every site it was sending page URL/title on load (background browsing data, contradicting the listing). Options toggle relabelled (was mislabelled "Show the capture pin"; it never controlled the pin). Zip + `STORE_LISTING.md`/`STORE_SUBMISSION.md` updated.
+- **Production bug fixed (paid tier):** `resolveLLM` in `byok.ts` threw `NoAIConfiguredError('personal')` before the tier check, so every Managed user on Personal was metered by `consumeAiQuery` and then told "No AI provider configured" on every question. Found via the promo demo account. Fix looks the tier up itself; verified live with a real answer.
+- Promo video: `~/Desktop/reattend-personal-promo.mp4` (29.4s, 1080p). Pipeline in scratch `promo/` (Playwright recorder + ffmpeg assembler); demo account `promo-demo@reattend.ai` (Sam Carter, 22 seeded memories) still exists; its API token is revoked.
+
+**Note on vendor naming:** the privacy policy names AI vendors as sub-processors. That's a legal-disclosure necessity and deliberate; the "never name vendors in user-facing copy" rule still applies to marketing/product copy.
+
+**EXACT next step:** resubmit 1.0.1 in the Web Store dashboard with privacy URL `https://personal.reattend.com/privacy`; in the reviewer note, point to sections 02 (collect), 03 (extension), 04 (use), 05 (share), 06 (storage), 07 (retention). Still needed from Partha: screenshots + listing icon; GST/CIN/address if the Paddle receipt should become a tax invoice; decide whether to keep the promo demo account.

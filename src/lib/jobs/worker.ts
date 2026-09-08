@@ -1,7 +1,7 @@
 import { db, schema, sqlite } from '../db'
 import { eq, and, lt, inArray } from 'drizzle-orm'
 import { runTriageAgent, runEmbeddingJob, runLinkingAgent, runIngestJob } from '../ai/agents'
-import { NoAIConfiguredError } from '../ai/byok'
+import { NoAIConfiguredError, ProviderAuthError, markKeyInvalidForWorkspace } from '../ai/byok'
 
 type JobHandler = (payload: any, workspaceId: string) => Promise<string | undefined>
 
@@ -108,7 +108,7 @@ async function rescueStuckJobs(): Promise<void> {
 }
 
 // ─── Notify workspace on permanent failure ───────────────
-async function notifyJobFailed(job: typeof schema.jobQueue.$inferSelect): Promise<void> {
+async function notifyJobFailed(job: typeof schema.jobQueue.$inferSelect, reason: 'auth' | 'generic' = 'generic'): Promise<void> {
   try {
     const members = await db.query.workspaceMembers.findMany({
       where: eq(schema.workspaceMembers.workspaceId, job.workspaceId),
@@ -118,8 +118,12 @@ async function notifyJobFailed(job: typeof schema.jobQueue.$inferSelect): Promis
         workspaceId: job.workspaceId,
         userId: member.userId,
         type: 'system',
-        title: 'Some memories could not be processed',
-        body: `A ${job.type} job failed after ${MAX_ATTEMPTS} attempts. Go to Settings → Agent Logs and click "Run Triage" to retry.`,
+        title: reason === 'auth'
+          ? 'Your AI provider key was rejected'
+          : 'Some memories could not be processed',
+        body: reason === 'auth'
+          ? 'Your saved captures are safe, but they could not be processed because the AI provider rejected the API key. Update it in Settings → AI Provider (or the org Control Room) and they will be retried.'
+          : `A ${job.type} job failed after ${MAX_ATTEMPTS} attempts. Go to Settings → Agent Logs and click "Run Triage" to retry.`,
         objectType: 'job',
         objectId: job.id,
       })
@@ -167,6 +171,18 @@ export async function processNextJob(): Promise<boolean> {
         .set({ status: 'failed', error: error.message })
         .where(eq(schema.jobQueue.id, job.id))
       await notifyJobFailed(job)
+      return true
+    }
+
+    // An invalid key won't become valid on retry. Fail immediately, flag the
+    // key, and notify - the whole point is that this stops being silent.
+    if (error instanceof ProviderAuthError) {
+      console.warn(`[Worker] Job ${job.id} (${job.type}) failed - provider rejected the API key`)
+      await db.update(schema.jobQueue)
+        .set({ status: 'failed', error: error.message })
+        .where(eq(schema.jobQueue.id, job.id))
+      await markKeyInvalidForWorkspace(job.workspaceId)
+      await notifyJobFailed(job, 'auth')
       return true
     }
 
