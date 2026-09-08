@@ -38,10 +38,23 @@ export async function POST() {
       .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
     const orgId = userRow?.activeContextOrgId
     if (!orgId) {
-      return NextResponse.json(
-        { error: 'org_required', message: 'Managed requires an organization. Personal accounts are BYOK-only - connect a key in Settings instead.' },
-        { status: 403 },
-      )
+      // Personal account: the trial lives on the caller's own subscription row.
+      // Same one-time rule as the org flow below.
+      const sub = await getOrCreateSubscription(userId)
+      if (sub.tier !== 'free' || sub.trialEndsAt) {
+        return NextResponse.json(
+          { error: 'trial_unavailable', message: sub.tier !== 'free' ? 'Already on a paid plan.' : "You've already used your Managed trial." },
+          { status: 409 },
+        )
+      }
+      const trialEnd = new Date(Date.now() + TRIAL_DAYS * 86_400_000)
+      await db.update(schema.subscriptions).set({
+        tier: 'professional',
+        status: 'trialing',
+        trialEndsAt: trialEnd.toISOString(),
+        updatedAt: new Date().toISOString(),
+      }).where(eq(schema.subscriptions.id, sub.id))
+      return NextResponse.json({ ok: true, tier: 'professional', trialEndsAt: trialEnd.toISOString() })
     }
 
     // Admin/super_admin only - starting a trial changes AI access and

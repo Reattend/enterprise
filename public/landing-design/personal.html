@@ -6,9 +6,9 @@
   <title>Reattend for individuals - your second brain that actually remembers</title>
   <meta name="description" content="Reattend captures your meetings, notes, decisions, and half-formed ideas - and lets you ask AI anything across all of them. Free for one person, forever." />
 
-  <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
-  <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
-  <link rel="apple-touch-icon" href="/icon-128.png" />
+  <link rel="icon" type="image/png" href="/personal_logo.png" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/personal-icon-128.png" />
+  <link rel="apple-touch-icon" href="/personal_logo.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,14 +27,12 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/">
-        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <img class="brand-logo" src="/personal_logo.png" alt="Reattend Personal" width="28" height="28" />
         <span class="brand-word">Reattend</span>
       </a>
       <nav class="nav">
-        <a class="nav-item" href="/">For teams</a>
-        <a class="nav-item" href="/personal" aria-current="page" style="background: var(--bg-2); color: var(--ink);">For you</a>
-        <a class="nav-item" href="/pricing">Pricing</a>
-        <a class="nav-item" href="/integrations">Integrations</a>
+        <a class="nav-item" href="/" aria-current="page" style="background: var(--bg-2); color: var(--ink);">Home</a>
+        <a class="nav-item" href="#pricing">Pricing</a>
       </nav>
       <div style="display:flex; gap:8px;">
         <a class="btn btn-ghost" href="/login">Sign in</a>
@@ -52,7 +50,7 @@
         <p class="hv2-lede reveal">Capture meetings, notes, decisions, and half-formed ideas. Ask the AI anything across all of them. Free for one person, forever - no card, no team required.</p>
         <div class="hv2-cta reveal">
           <a class="btn btn-primary btn-fill" href="/register">Start free</a>
-          <a class="btn btn-outline" href="/sandbox">Try it without signing up</a>
+          <a class="btn btn-outline" href="/login">Sign in</a>
         </div>
         <div class="hv2-pilot reveal">
           <span>No credit card</span>
@@ -186,21 +184,21 @@
   </section>
 
   <!-- ============== PRICING TEASE ============== -->
-  <section class="thesis-v2">
+  <section class="thesis-v2" id="pricing">
     <div class="wrap" style="max-width: var(--maxw); margin: 0 auto;">
       <div class="sec-eye reveal" style="margin-bottom: 40px;">Pricing</div>
       <div class="thesis-v2-grid">
-        <h2 class="thesis-v2-h2 reveal">Free for one person, <em>forever.</em> <span class="strong">No credit card. No trial timer. 100 AI questions per month, every month - and it only takes a minute to start.</span></h2>
+        <h2 class="thesis-v2-h2 reveal">Free on your own key. <em>Managed when you'd rather not think about it.</em></h2>
         <div class="thesis-stats">
           <div class="thesis-stat reveal">
             <div class="thesis-stat-num">$0<em>/mo</em></div>
-            <div class="thesis-stat-key">Solo Free</div>
-            <p class="thesis-stat-body">One person. 100 AI questions per month. All your captures, forever yours.</p>
+            <div class="thesis-stat-key">Bring your own key</div>
+            <p class="thesis-stat-body">Connect your own Anthropic, OpenAI, or Gemini key. Unlimited questions, free forever - nothing billed by Reattend.</p>
           </div>
           <div class="thesis-stat reveal">
-            <div class="thesis-stat-num">$19<em>/mo</em></div>
-            <div class="thesis-stat-key">Working with a team?</div>
-            <p class="thesis-stat-body">Same memory layer, plus integrations, the Chrome extension, and shared org workspaces. <a href="/pricing" style="color: var(--accent); text-decoration: underline;">See team pricing</a>.</p>
+            <div class="thesis-stat-num">$9<em>/mo</em></div>
+            <div class="thesis-stat-key">Managed</div>
+            <p class="thesis-stat-body">No key to manage - Reattend runs the AI for you. 300 questions/month, 15-day trial, no card required.</p>
           </div>
         </div>
       </div>
@@ -213,7 +211,7 @@
     <p>Sign up in 60 seconds. No credit card. Your memory grows from day one.</p>
     <div class="actions">
       <a class="btn btn-primary btn-fill" href="/register">Start free</a>
-      <a class="btn btn-outline" href="/sandbox">Try the sandbox first</a>
+      <a class="btn btn-outline" href="#pricing">See pricing</a>
     </div>
   </section>
 
@@ -222,46 +220,22 @@
   <div class="footer-grid">
     <div class="footer-col footer-brand">
       <a class="brand" href="/">
-        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <img class="brand-logo" src="/personal_logo.png" alt="Reattend Personal" width="28" height="28" />
         <span class="brand-word">Reattend</span>
       </a>
-      <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
-      <p style="margin-top: 12px; font-size: 12px;">Researching the problem? Read our essays at <a href="https://organizationalamnesia.com" target="_blank" rel="noreferrer" style="color: var(--accent); text-decoration: underline;">organizationalamnesia.com</a>.</p>
+      <p>Your memory, for as long as you keep thinking. Built by Reattend Technologies Private Limited.</p>
     </div>
     <div class="footer-col">
       <h5>Product</h5>
-      <a href="/product">Product</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/compliance">Compliance</a>
+      <a href="#pricing">Pricing</a>
       <a href="/login">Sign in</a>
-      <a href="/integrations">Integrations</a>
-    </div>
-    <div class="footer-col">
-      <h5>Capabilities</h5>
-      <a href="/product#capture">Capture</a>
-      <a href="/product#connect">Connect</a>
-      <a href="/product#recall">Recall</a>
-      <a href="/product#run">Run</a>
-      <a href="/product#govern">Govern</a>
-      <a href="/product#deploy">Deploy</a>
+      <a href="/register">Start free</a>
     </div>
     <div class="footer-col">
       <h5>Company</h5>
-      <a href="/about">About</a>
-      <a href="/coming-soon">Careers</a>
-      <a href="/coming-soon">Press</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
-    </div>
-    <div class="footer-col">
-      <h5>Resources</h5>
-      <a href="/blog">Blog</a>
-      <a href="/glossary">Glossary</a>
-      <a href="/help">Help center</a>
-      <a href="/tool">Free tools</a>
-      <a href="/game">Free games</a>
-      <a href="/compliance">Trust</a>
-      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+      <a href="/support">Support</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -269,11 +243,28 @@
     <span style="display:flex; gap:24px;">
       <a href="/privacy" style="color:inherit;">Privacy</a>
       <a href="/terms" style="color:inherit;">Terms</a>
-      <a href="/compliance" style="color:inherit;">Compliance</a>
       <a href="/support" style="color:inherit;">Support</a>
     </span>
   </div>
 </footer>
 
+<script>
+  // Reveal on scroll - every .reveal element starts at opacity:0 (see
+  // styles.css) and needs this to ever become visible. This file never
+  // had it, unlike landing.html - it just never showed up as a bug while
+  // /personal was a dead redirect stub with nobody actually looking at it.
+  (function reveal() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => io.observe(el));
+  })();
+</script>
 </body>
 </html>

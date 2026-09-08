@@ -120,12 +120,19 @@ export function priceIdToTier(priceId: string | null | undefined): PriceMapping 
   if (!priceId) return null
   const map: Record<string, PriceMapping> = {
     [process.env.PADDLE_PRICE_PROFESSIONAL_MONTHLY || '']: { tier: 'professional', billingCycle: 'monthly' },
+    // Personal accounts buy Managed at a flat single-seat price; same tier.
+    [process.env.PADDLE_PRICE_PERSONAL_MONTHLY || '']: { tier: 'professional', billingCycle: 'monthly' },
     [process.env.PADDLE_PRICE_PROFESSIONAL_YEARLY || '']: { tier: 'professional', billingCycle: 'annual' },
     [process.env.PADDLE_PRICE_ENTERPRISE_MONTHLY || '']: { tier: 'enterprise', billingCycle: 'monthly' },
     [process.env.PADDLE_PRICE_ENTERPRISE_YEARLY || '']: { tier: 'enterprise', billingCycle: 'annual' },
   }
   delete map[''] // drop the empty-key fallback if any env var was missing
   return map[priceId] || null
+}
+
+// Personal (no-org) Managed: one seat, monthly only, its own Paddle price.
+export function personalPriceId(): string | null {
+  return process.env.PADDLE_PRICE_PERSONAL_MONTHLY || null
 }
 
 // Reverse lookup - used by the checkout endpoint to translate

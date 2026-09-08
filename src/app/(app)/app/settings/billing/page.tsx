@@ -42,6 +42,8 @@ interface BillingStatus {
 
 const PROVIDER_LABEL: Record<string, string> = { anthropic: 'Anthropic', openai: 'OpenAI', gemini: 'Gemini' }
 
+const TRIAL_DAYS_LABEL = 7
+
 export default function BillingPage() {
   const [data, setData] = useState<BillingStatus | null>(null)
   const [txns, setTxns] = useState<Array<{ id: string; status: string; createdAt: string; billedAt: string | null; total: string | null; currency: string | null }>>([])
@@ -179,17 +181,47 @@ export default function BillingPage() {
       ) : !data?.hasOrg ? (
         <>
           {byokCard}
+          <Card className="border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">Managed</CardTitle>
+              <CardDescription>
+                No key to manage - Reattend runs the AI for you. {TRIAL_DAYS_LABEL}-day free trial, no card, then $9/month. 800 AI questions a month; bring your own key any time to go unlimited for free.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {data?.tier === 'professional' || data?.tier === 'enterprise' ? (
+                <>
+                  <div className="text-sm">
+                    <span className="font-medium">Managed is active</span>
+                    {data.status === 'trialing' && data.trialEndsAt && (
+                      <span className="text-muted-foreground"> · trial ends {new Date(data.trialEndsAt).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                  {data.status === 'trialing' ? (
+                    <Button onClick={handleCheckout}>Subscribe - $9/mo</Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Manage your subscription from the receipt email.</span>
+                  )}
+                </>
+              ) : data?.trialEndsAt ? (
+                <Button onClick={handleCheckout}>Subscribe - $9/mo</Button>
+              ) : (
+                <Button onClick={handleStartTrial}>Start {TRIAL_DAYS_LABEL}-day free trial</Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">No card required to start · cancel anytime</p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Want Reattend to run the AI for you?</CardTitle>
+              <CardTitle>Using Reattend with a team?</CardTitle>
               <CardDescription>
-                Managed is for organizations - we provision and govern the key centrally, with admin-set rate limits.
-                It&apos;s scoped per org. Create an organization to get started.
+                Organization plans add shared memory, decision logs, roles and admin controls, and are set up with us
+                rather than self-serve. Your personal memory stays yours either way.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild>
-                <Link href="/app/admin/onboarding">Create an organization</Link>
+                <Link href="/pricing">Talk to us about teams</Link>
               </Button>
             </CardContent>
           </Card>

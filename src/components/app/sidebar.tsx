@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
-  PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2, Inbox,
+  PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2, Inbox, Puzzle,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -51,6 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/app/policies', icon: Columns4,        label: 'Policies', orgOnly: true },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
   { href: '/app/inbox',    icon: Inbox,           label: 'Inbox', badge: 'inbox' },
+  { href: '/app/extension', icon: Puzzle,         label: 'Extension' },
 ]
 
 export function AppSidebar() {

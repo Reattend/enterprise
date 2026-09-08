@@ -92,7 +92,7 @@ export default function AgentsPage() {
           </p>
           <div className="flex items-center justify-center gap-2">
             <Button asChild>
-              <Link href="/app/admin/onboarding">Start a team plan</Link>
+              <Link href="/pricing">Reattend for teams</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/pricing">See pricing</Link>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { paddle } from '@/lib/billing/paddle'
-import { tierToPriceId, TIER_LIMITS } from '@/lib/billing/tier'
+import { tierToPriceId, personalPriceId, TIER_LIMITS } from '@/lib/billing/tier'
 import { getOrCreateSubscription } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
@@ -36,10 +36,23 @@ export async function POST(req: NextRequest) {
     .from(schema.users).where(eq(schema.users.id, userId)).limit(1)
   const orgId = callerRow?.activeContextOrgId
   if (!orgId) {
-    return NextResponse.json(
-      { error: 'org_required', message: 'Managed requires an organization. Personal accounts are BYOK-only - connect a key in Settings instead.' },
-      { status: 403 },
-    )
+    // Personal account: a single-seat Managed subscription on the personal
+    // price. The webhook keys off customData.userId, so no organizationId.
+    const priceId = personalPriceId()
+    if (!priceId) return NextResponse.json({ error: 'price not configured' }, { status: 500 })
+    const sub = await getOrCreateSubscription(userId)
+    try {
+      const txn = await paddle().transactions.create({
+        items: [{ priceId, quantity: 1 }],
+        customerId: sub.paddleCustomerId || undefined,
+        customData: { userId, userEmail },
+        checkout: { url: `${process.env.NEXTAUTH_URL || 'https://reattend.com'}/app/settings/billing?success=1` },
+      })
+      return NextResponse.json({ transactionId: txn.id })
+    } catch (err: any) {
+      console.error('[billing/checkout] personal transaction failed:', err?.message || err)
+      return NextResponse.json({ error: 'checkout_failed', message: 'Could not start checkout. Try again in a moment.' }, { status: 502 })
+    }
   }
 
   // Admin/super_admin only - this is org-wide billing, not a personal purchase.

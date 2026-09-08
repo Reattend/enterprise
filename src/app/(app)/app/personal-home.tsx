@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   Plus, MessageSquare, Database, Sparkles, Zap,
-  ArrowUpRight, FileText, Users, Layers,
+  FileText, Layers,
 } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 
@@ -187,34 +187,6 @@ export default function PersonalHomePage({ user }: Props) {
             </div>
           </Link>
         ))}
-      </section>
-
-      {/* Bottom: upgrade-to-team prompt - soft, single line */}
-      <section style={{
-        marginTop: 24,
-        padding: '18px 22px',
-        border: '1px dashed var(--line)',
-        borderRadius: 14,
-        background: 'var(--bg)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-      }}>
-        <Users className="h-4 w-4" style={{ color: 'var(--brand-ink)', flexShrink: 0 }} />
-        <div style={{ flex: 1, fontSize: 13.5, color: 'var(--ink-2)' }}>
-          Want to use Reattend with your team? Create an organization - adds shared workspaces, decision logs, exit interviews, and the Chrome extension.
-        </div>
-        <Link
-          href="/app/admin/onboarding"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px',
-            borderRadius: 8, fontSize: 13, fontWeight: 550,
-            border: '1px solid var(--brand)', background: 'transparent', color: 'var(--brand-ink)', textDecoration: 'none',
-            flexShrink: 0,
-          }}
-        >
-          Start a team plan <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
       </section>
     </div>
   )

@@ -58,6 +58,7 @@ const NO_ORG_ALLOWED_PREFIXES = [
   '/app/agents',              // agent catalog (personal agents possible)
   '/app/settings',            // profile, billing, integrations, API keys
   '/app/admin/onboarding',    // org-creation wizard (the "upgrade to team" path)
+  '/app/extension',           // Chrome extension install + API key management
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
