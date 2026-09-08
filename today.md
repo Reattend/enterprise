@@ -604,7 +604,7 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 **Extension repo (`enterprise_extension` `dfea1ba`, v0.4.0, built, not published):** site controls (`siteMode all|whitelist`, `blockedDomains`), selection tooltip "Save to Reattend", toast, `showAmbient` off by default, popup logo + ⌥⇧A hint, `activeTab` dropped, copy de-branded to plain "Reattend". This is THE extension going forward; the Personal listing submission gets withdrawn.
 
 **Not done yet (in order):**
-1. Verify the `cca48b7` deploy (see §13 verification list below) and do one real personal signup → trial on reattend.com.
+1. ~~Verify the `cca48b7` deploy~~ **Done 2026-09-08 15:48 UTC:** all static checks green; real signup `tenant-test-0908@reattend.ai` → `/api/user` shows `onboardingCompleted:false` + post-cutoff `createdAt` (client gate fires) → start-trial → `professional`/`trialing` to 2026-09-15 → `/api/ask` 200 with no key. Two test rows left on prod (`tenant-test-0908@`, `tenant-test-0908b@reattend.ai`); delete from admin when convenient. Note the first-run redirect is client-side (`useEffect` in app layout) — curl on `/app` returns 200, that's expected.
 2. Publish 0.4.0 to the "Reattend" Web Store listing with privacy URL `reattend.com/privacy`; withdraw the Personal submission. `reattend.com/privacy` still needs a personal-account section (port §12's extension section + BYOK/Managed processors) — one policy, org annex.
 3. Domain claiming (an org claims `@acme.com`; existing personal accounts on that domain get an invite, never auto-merged).
 4. Decommission the Personal droplet: nginx 301 `personal.reattend.com/*` → `reattend.com/personal`, export the ~5 Personal users by hand (invite them; don't copy rows across DBs), single `/support`.
