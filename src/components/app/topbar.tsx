@@ -293,10 +293,12 @@ export function AppTopbar() {
             <Plug className="h-4 w-4" />
           </Link>
 
-          {/* Legend */}
+          {/* Legend: the Enterprise feature catalog - org accounts only */}
+          {activeEnterpriseOrgId && (
           <Link href="/app/legend" className="icon-btn" title="Legend">
             <MapIcon className="h-4 w-4" />
           </Link>
+          )}
 
           {/* Who Should I Ask? (⌘⇧K) */}
           <button

@@ -82,8 +82,9 @@ export default function EmployeeDecisionsPage() {
           </div>
           <h1 className="font-display text-4xl tracking-tight mb-1">What we decided</h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Every formal decision in your organization, with who decided, why, and whether it was reversed.
-            You can log your own team&apos;s decisions here. Reversing and editing requires admin access.
+            {activeOrgId
+              ? <>Every formal decision in your organization, with who decided, why, and whether it was reversed. You can log your own team&apos;s decisions here. Reversing and editing requires admin access.</>
+              : <>Every decision you&apos;ve made, with why you made it and whether you later reversed it.</>}
           </p>
         </div>
         <Button onClick={() => setShowCreate((v) => !v)} disabled={teams.length === 0}>

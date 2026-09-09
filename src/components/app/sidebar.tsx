@@ -312,7 +312,10 @@ export function AppSidebar() {
           <div style={{ flex: 1 }} />
         )}
 
-        {/* Bottom: Agents only - Settings lives in the user dropdown below. */}
+        {/* Bottom: Agents - org accounts only (Enterprise is sales-only, so a
+            personal account has nothing to do here). Settings lives in the
+            user dropdown below. */}
+        {activeEnterpriseOrgId && (
         <div style={{ borderTop: '1px solid var(--line)', paddingTop: 10, marginTop: 10 }}>
           <nav className="rail-nav">
             <Link href="/app/agents" className={isActive('/app/agents') ? 'active' : ''} onClick={onNavigate}>
@@ -321,6 +324,7 @@ export function AppSidebar() {
             </Link>
           </nav>
         </div>
+        )}
 
         {/* User card + dropdown */}
         <div className="rail-foot" style={{ borderTop: '1px solid var(--line)', marginTop: 10, paddingTop: 10 }}>

@@ -219,7 +219,9 @@ export default function IntegrationsPage() {
             </span>
             <h1>Pull memory in automatically</h1>
             <p className="sub">
-              Reattend auto-captures from the tools your org lives in. OAuth once per user; the AI triages every record before it becomes memory; department RBAC always respected.
+              {activeOrgId
+                ? <>Reattend auto-captures from the tools your org lives in. OAuth once per user; the AI triages every record before it becomes memory; department RBAC always respected.</>
+                : <>Reattend pulls memory in from the tools you already use. Connect once; the AI triages every record before it becomes memory.</>}
             </p>
           </div>
           {isAdmin && activeOrgId && (

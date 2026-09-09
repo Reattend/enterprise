@@ -51,13 +51,10 @@ const NO_ORG_ALLOWED_PREFIXES = [
   '/app/landscape',           // personal memory graph
   '/app/inbox',               // notifications
   '/app/search',              // search across personal memory
-  '/app/legend',              // feature catalog (informational)
   '/app/transcripts',         // voice transcripts
   '/app/tasks',               // personal tasks
   '/app/compose',             // draft emails / broadcasts
-  '/app/agents',              // agent catalog (personal agents possible)
   '/app/settings',            // profile, billing, integrations, API keys
-  '/app/admin/onboarding',    // org-creation wizard (the "upgrade to team" path)
   '/app/extension',           // Chrome extension install + API key management
 ]
 

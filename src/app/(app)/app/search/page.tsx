@@ -1,5 +1,7 @@
 'use client'
 
+import { useAppStore } from '@/stores/app-store'
+
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -38,6 +40,7 @@ const TYPE_META: Record<SearchResult['type'], { label: string; icon: typeof File
 }
 
 export default function SearchPage() {
+  const activeOrgId = useAppStore((st) => st.activeEnterpriseOrgId)
   const [q, setQ] = useState('')
   const [results, setResults] = useState<SearchResult[] | null>(null)
   const [loading, setLoading] = useState(false)
@@ -100,7 +103,7 @@ export default function SearchPage() {
       <div className="mb-6">
         <h1 className="font-display text-4xl tracking-tight mb-1">Search</h1>
         <p className="text-sm text-muted-foreground">
-          Every memory, decision, policy, and transcript your organization has ever captured - searchable in real time.
+          {activeOrgId ? 'Every memory, decision, policy, and transcript your organization has ever captured - searchable in real time.' : 'Everything you have ever captured - searchable in real time.'}
         </p>
       </div>
 
