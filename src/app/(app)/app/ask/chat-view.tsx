@@ -110,6 +110,10 @@ export function ChatView() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { upsertRecentChat } = useAppStore()
   const searchParams = useSearchParams()
+  const promptParam = searchParams.get('q')
+  useEffect(() => {
+    if (promptParam) setInput(promptParam)
+  }, [promptParam])
   const chatIdParam = searchParams.get('chat')
   const agentIdParam = searchParams.get('agent')
   const [agent, setAgent] = useState<{ id: string; name: string; description: string | null; systemPrompt: string; iconName: string | null; color: string | null } | null>(null)
@@ -471,7 +475,7 @@ export function ChatView() {
   // Reusable input bar JSX. Identical in empty + active states so the
   // user perceives it as one persistent surface that just slides down.
   const inputBar = (
-    <div className="relative rounded-3xl border border-border bg-background shadow-sm focus-within:border-transparent transition-all">
+    <div className="ask-composer relative rounded-3xl border border-border bg-background shadow-sm focus-within:border-transparent transition-all">
       <textarea
         ref={textareaRef}
         value={input}
@@ -543,17 +547,17 @@ export function ChatView() {
   )
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-background">
+    <div className="ask-chat-core flex flex-col h-full min-h-0 bg-background">
       {/* Scroll region - empty-state hero + suggestions when no messages,
           chat thread when there are. The chatbox below is glued to the
           bottom in both states (image 3 spec). */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div className="ask-chat-scroll flex-1 overflow-y-auto min-h-0">
         {!isChat ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="min-h-full flex items-center justify-center px-6 py-10"
+            className="ask-chat-empty min-h-full flex items-center justify-center px-6 py-10"
           >
             <div className="w-full max-w-2xl space-y-8">
               <h1 className="text-center text-3xl md:text-4xl font-bold tracking-tight text-foreground">
@@ -590,7 +594,7 @@ export function ChatView() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="max-w-4xl mx-auto px-6 py-6 space-y-6 pb-6"
+            className="ask-message-stream max-w-4xl mx-auto px-6 py-6 space-y-6 pb-6"
           >
               {messages.map((msg, idx) => (
                 <motion.div
@@ -608,12 +612,12 @@ export function ChatView() {
                       >
                         {copiedId === msg.id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                       </button>
-                      <div className="max-w-[82%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed">
+                      <div className="ask-user-bubble max-w-[82%] bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed">
                         {msg.content}
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="ask-ai-answer space-y-3">
                       {/* Answer */}
                       <div className="flex gap-3">
                         <div className="h-7 w-7 shrink-0 mt-0.5 flex items-center justify-center">
@@ -797,7 +801,7 @@ export function ChatView() {
       {/* Sticky chatbox - always glued to the bottom of the chat surface,
           in both empty and active states. The user can ask, scroll the
           answer, then keep typing without losing the input bar. */}
-      <div className="shrink-0 border-t border-border bg-background">
+      <div className="ask-composer-dock shrink-0 border-t border-border bg-background">
         <div className="max-w-4xl mx-auto px-4 py-3 space-y-2">
           {isChat && (
             <div className="flex justify-center">
@@ -835,4 +839,3 @@ function renderDossierMarkdown(d: { situation: string; evidence: string; risks: 
     .map(([heading, body]) => `## ${heading}\n\n${body.trim()}`)
     .join('\n\n')
 }
-

@@ -7,6 +7,8 @@ import {
   Home, LogOut, User, ListFilterPlus, Database, Proportions,
   BookOpen, Columns4, BookmarkCheck, HatGlasses, MessageSquare, Building2,
   PanelLeft, Loader2, Check, Network, CreditCard, UserCircle2, Inbox, Puzzle,
+  Sparkles,
+  Gavel, AudioLines, Plug, Download, Map, MoreHorizontal,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
@@ -42,7 +44,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/app',          icon: Home,            label: 'Home', exact: true },
+  { href: '/app',          icon: Home,            label: 'Overview', exact: true },
   { href: '/app/brain-dump', icon: ListFilterPlus, label: 'Capture' },
   { href: '/app/memories', icon: Database,        label: 'Memories' },
   { href: '/app/landscape', icon: Proportions,    label: 'Landscape' },
@@ -192,6 +194,8 @@ export function AppSidebar() {
   const isSuper = enterpriseOrgs.some((o) => o.role === 'super_admin')
   const activeOrgRole = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)?.role
   const isActiveOrgAdmin = activeOrgRole === 'admin' || activeOrgRole === 'super_admin'
+  const moreActive = ['/app/decisions', '/app/transcripts', '/app/integrations', '/app/downloads', '/app/legend']
+    .some((href) => isActive(href))
 
   // Mobile drawer overlay. The `rail-mobile-drawer` class on the <aside>
   // tells dashboard.css to render this rail in EXPANDED mode regardless of
@@ -256,8 +260,14 @@ export function AppSidebar() {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <span>Chat</span>
+          <span>Ask your brain</span>
         </Link>
+
+        <div className="rail-ai-status" title="Reattend AI is ready">
+          <span className="rail-ai-orb"><Sparkles className="h-3 w-3" /></span>
+          <span className="rail-ai-copy"><b>Memory AI</b><small>Ready to connect the dots</small></span>
+          <span className="rail-ai-live" aria-hidden="true" />
+        </div>
 
         {/* Primary nav. Solo (and hybrid users in Personal context) see a
             trimmed list - Wiki, Hierarchy, and Policies are org-only
@@ -287,6 +297,23 @@ export function AppSidebar() {
             )
           })}
         </nav>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className={cn('rail-more-trigger', moreActive && 'active')} type="button">
+              <MoreHorizontal className="ico" />
+              <span className="rail-more-label">More</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" align="start" className="w-56">
+            <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">More in Reattend</DropdownMenuLabel>
+            <DropdownMenuItem asChild><Link href="/app/decisions" onClick={onNavigate}><Gavel className="h-3.5 w-3.5 mr-2" /> Decisions</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild><Link href="/app/transcripts" onClick={onNavigate}><AudioLines className="h-3.5 w-3.5 mr-2" /> Transcripts</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild><Link href="/app/integrations" onClick={onNavigate}><Plug className="h-3.5 w-3.5 mr-2" /> Integrations</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild><Link href="/app/downloads" onClick={onNavigate}><Download className="h-3.5 w-3.5 mr-2" /> Downloads</Link></DropdownMenuItem>
+            {activeEnterpriseOrgId && <DropdownMenuItem asChild><Link href="/app/legend" onClick={onNavigate}><Map className="h-3.5 w-3.5 mr-2" /> Enterprise legend</Link></DropdownMenuItem>}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Recent chats - capped at 10, only this section scrolls within
             the rail. Takes all remaining vertical space so it adapts to the

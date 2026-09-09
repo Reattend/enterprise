@@ -1,0 +1,366 @@
+/* Complete dashboard dark edition. next-themes adds `.dark` to <html>. */
+
+.dark .reattend-workspace {
+  color-scheme: dark;
+  --paper: #11150f;
+  --paper-2: #151a13;
+  --panel: #1b2018;
+  --panel-2: #20261d;
+  --ink: #f0f4ea;
+  --ink-2: #c8d0c0;
+  --ink-3: #929d8a;
+  --ink-4: #697365;
+  --line: #30372c;
+  --line-2: #272e24;
+  --brand: #b8db68;
+  --brand-hover: #c8e982;
+  --brand-soft: #29351f;
+  --brand-ink: #d4ed99;
+  --lime: #b8db68;
+  --lime-soft: #26321e;
+  --lilac: #302b39;
+  --peach: #3b2e26;
+  --sky: #26313b;
+  --background: 102 16% 7%;
+  --foreground: 78 25% 94%;
+  --card: 101 13% 11%;
+  --card-foreground: 78 25% 94%;
+  --popover: 101 13% 11%;
+  --popover-foreground: 78 25% 94%;
+  --primary: 78 57% 64%;
+  --primary-foreground: 100 21% 9%;
+  --secondary: 100 11% 16%;
+  --secondary-foreground: 78 20% 91%;
+  --muted: 100 10% 16%;
+  --muted-foreground: 92 10% 64%;
+  --accent: 82 25% 20%;
+  --accent-foreground: 79 56% 76%;
+  --border: 98 11% 21%;
+  --input: 98 11% 21%;
+  --ring: 78 57% 64%;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.dark .reattend-workspace .app-grid > main {
+  background:
+    radial-gradient(circle at 9% 1%, rgba(184,219,104,.07), transparent 25rem),
+    radial-gradient(circle at 90% 7%, rgba(142,112,174,.08), transparent 30rem),
+    var(--paper);
+}
+
+.dark .reattend-workspace .app-grid > main::before { opacity: .25; }
+
+.dark .reattend-workspace .rail,
+.dark .reattend-workspace .topbar-v2,
+.dark .reattend-workspace .cr-rail {
+  border-color: var(--line);
+  background: rgba(20, 25, 18, .94);
+  box-shadow: none;
+}
+
+.dark .reattend-workspace .rail::after,
+.dark .reattend-workspace .cr-rail::before {
+  background: linear-gradient(180deg, rgba(184,219,104,.2), transparent 30%, rgba(149,116,178,.12));
+}
+
+.dark .reattend-workspace .rail .brand-img { filter: invert(1) brightness(1.2); }
+.dark .reattend-workspace .rail .brand-img.dark { display: block; }
+.dark .reattend-workspace .rail .brand-img.light { display: none; }
+
+.dark .reattend-workspace :is(.rail-collapse, .icon-btn, .ws-switch, .top-search, .rail-more-trigger) {
+  border-color: var(--line);
+  background: rgba(27,32,24,.84);
+  color: var(--ink-2);
+}
+
+.dark .reattend-workspace :is(.rail-collapse, .icon-btn, .ws-switch, .top-search, .rail-more-trigger):hover,
+.dark .reattend-workspace .icon-btn.active {
+  border-color: #46513e;
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+.dark .reattend-workspace .theme-toggle {
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+}
+
+.dark .reattend-workspace .rail-nav a:hover,
+.dark .reattend-workspace .rail-nav a.active,
+.dark .reattend-workspace .cr-nav-item:hover,
+.dark .reattend-workspace .cr-nav-item.active,
+.dark .reattend-workspace .rail-recent .recent-q:hover,
+.dark .reattend-workspace .rail-user:hover {
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+.dark .reattend-workspace .rail-nav a.active,
+.dark .reattend-workspace .cr-nav-item.active { box-shadow: inset 3px 0 var(--brand); }
+
+.dark .reattend-workspace .rail-cta {
+  border-color: #40502f;
+  background: linear-gradient(135deg, #29351f, #1f291a);
+  color: var(--brand-ink);
+}
+
+.dark .reattend-workspace .rail-cta-2 {
+  border-color: #41394b;
+  background: linear-gradient(135deg, #302a39, #25232c);
+  color: #d9c7ed;
+}
+
+.dark .reattend-workspace .rail-ai-status,
+.dark .reattend-workspace .ai-ready {
+  border-color: #37452a;
+  background: rgba(41,53,31,.8);
+}
+
+.dark .reattend-workspace :is(.workspace-focus, .memory-pulse, .workspace-perspective) {
+  border-color: var(--line);
+  box-shadow: 0 30px 70px -52px rgba(0,0,0,.9);
+}
+
+.dark .reattend-workspace .workspace-focus {
+  background:
+    radial-gradient(circle at 80% 10%, rgba(184,219,104,.11), transparent 32%),
+    linear-gradient(135deg, #1d2518, #182018);
+}
+
+.dark .reattend-workspace .memory-pulse {
+  background: linear-gradient(110deg, #20291a, #1c2418 52%, #292632);
+}
+
+.dark .reattend-workspace .workspace-perspective {
+  background: linear-gradient(165deg, #2f2937, #211f26 54%, #20281d);
+}
+
+.dark .reattend-workspace .focus-search > div,
+.dark .reattend-workspace .memory-pulse-signals,
+.dark .reattend-workspace .perspective-section {
+  border-color: var(--line);
+  background: rgba(16,20,14,.45);
+}
+
+.dark .reattend-workspace .focus-search input { background: transparent; }
+
+.dark .reattend-workspace .modern-home > section,
+.dark .reattend-workspace .modern-home > section > div,
+.dark .reattend-workspace .modern-home > div > section,
+.dark .reattend-workspace .bg-card,
+.dark .reattend-workspace [class*="bg-background/60"],
+.dark .reattend-workspace [class*="bg-background/80"] {
+  border-color: var(--line) !important;
+  background-color: rgba(27,32,24,.9) !important;
+  color: var(--ink);
+}
+
+.dark .reattend-workspace :is(.mem-card, .mem-grid-card, .int-card, .tsk-card, .wiki-tree, .wiki-article, .lsc-board, .cap-card, .cr-panel, .cr-live, .cr-cov, .cr-led, .cr-amb, .cr-kpi, .cr-checklist) {
+  border-color: var(--line);
+  background-color: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 24px 60px -50px rgba(0,0,0,.95);
+}
+
+.dark .reattend-workspace .cr-actions {
+  border-color: var(--line);
+  background: rgba(27,32,24,.9);
+}
+
+.dark .reattend-workspace .cr-act { color: var(--ink-2); }
+.dark .reattend-workspace .cr-act:hover { border-color: var(--line); background: var(--panel-2); color: var(--ink); }
+.dark .reattend-workspace .cr-act.dark { border-color: #9fbd5e; background: var(--lime); color: #2b3a1d; }
+
+.dark .reattend-workspace .cr-onboard {
+  border-color: var(--line);
+  background:
+    radial-gradient(circle at 100% 0, rgba(184,219,104,.12), transparent 17rem),
+    linear-gradient(135deg, #20271d, #1b2018);
+  color: var(--ink);
+  box-shadow: 0 24px 60px -48px rgba(0,0,0,.95);
+}
+
+.dark .reattend-workspace .cr-onboard .cr-checklist { background: transparent !important; box-shadow: none; }
+.dark .reattend-workspace .cr-check-row { border-color: var(--line-2); }
+.dark .reattend-workspace .cr-head::after { border-color: #41394b; background: #302b39; color: #d8c7ea; }
+.dark .reattend-workspace .cr-live {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(155,121,183,.18), transparent 20rem),
+    radial-gradient(circle at 58% 120%, rgba(184,219,104,.13), transparent 21rem),
+    var(--panel);
+}
+
+.dark .reattend-workspace :is(.stat-card, .demo-panel, .demo-btn, .signal-box) {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+
+.dark .reattend-workspace .demo-btn.primary { background: var(--lime) !important; color: #2d3d1e !important; }
+.dark .reattend-workspace .health-ring::after { background: var(--panel); }
+
+.dark .reattend-workspace :is(.cap-page, .mem-page, .lsc-page-wrap, .wiki-page, .int-page, .tsk-page),
+.dark .reattend-workspace .cr-page-wrap { background: transparent; color: var(--ink); }
+
+.dark .reattend-workspace :is(input, textarea, select) {
+  border-color: var(--line);
+  background: #171b15;
+  color: var(--ink);
+}
+
+.dark .reattend-workspace :is(input, textarea)::placeholder { color: var(--ink-4); }
+
+.dark .reattend-workspace :is([role="dialog"], [role="menu"], [data-radix-popper-content-wrapper] > *) {
+  border-color: var(--line);
+  background: #1b2018;
+  color: var(--ink);
+  box-shadow: 0 28px 70px -35px rgba(0,0,0,.96);
+}
+
+.dark .reattend-workspace table,
+.dark .reattend-workspace thead,
+.dark .reattend-workspace tbody tr { border-color: var(--line); background-color: transparent; }
+.dark .reattend-workspace thead { background: #20261d; }
+.dark .reattend-workspace tbody tr:hover { background: rgba(184,219,104,.04); }
+
+.dark .reattend-workspace .inner-overview {
+  border-color: var(--line);
+  background:
+    radial-gradient(circle at 13% 15%, rgba(184,219,104,.1), transparent 30%),
+    linear-gradient(135deg, #1b2118, #202731);
+  box-shadow: 0 30px 70px -52px rgba(0,0,0,.95);
+}
+
+.dark .reattend-workspace .workflow-node,
+.dark .reattend-workspace .wiki-map-node {
+  border-color: var(--line);
+  background: rgba(27,32,24,.88);
+}
+
+.dark .reattend-workspace .wiki-intelligence {
+  border-color: var(--line);
+  background: linear-gradient(135deg, #302b39, #26313b);
+}
+
+.dark .reattend-workspace .wiki-map-node.active {
+  border-color: #52623b;
+  background: #20271d;
+}
+
+.dark .reattend-workspace .wiki-map-dot { border-color: var(--panel); }
+.dark .reattend-workspace .hierarchy-coverage { border-color: var(--line); background: linear-gradient(135deg, #26321e, #1b2018); }
+.dark .reattend-workspace .hierarchy-canvas,
+.dark .reattend-workspace .control-hierarchy-map,
+.dark .reattend-workspace .control-hierarchy-insight { border-color: var(--line); background: var(--panel); }
+.dark .reattend-workspace .control-hierarchy-insight { background: linear-gradient(160deg, #302b39, #1b2018 42%); }
+
+.dark .reattend-workspace .react-flow__node > div { border-color: var(--line); background: #20261d; color: var(--ink); }
+.dark .reattend-workspace .react-flow__controls { border-color: var(--line); box-shadow: none; }
+.dark .reattend-workspace .react-flow__controls-button { border-color: var(--line); background: #20261d; color: var(--ink); fill: var(--ink); }
+.dark .reattend-workspace .react-flow__minimap { border: 1px solid var(--line); background: #181d16 !important; }
+.dark .reattend-workspace .lsc-rf-node { border-color: var(--line); background: #20261d; color: var(--ink); }
+
+.dark .reattend-workspace .cr-shell { background: transparent; }
+.dark .reattend-workspace .cr-org { border-color: var(--line); background: linear-gradient(160deg, #20271d, #1a2017); }
+.dark .reattend-workspace .cr-org-pill { border-color: #40502f; background: #29351f; color: var(--brand-ink); }
+.dark .reattend-workspace .cr-live::after { background: radial-gradient(circle, rgba(184,219,104,.11), transparent 67%); }
+.dark .reattend-workspace .cr-head::after { background: linear-gradient(90deg, var(--brand), transparent); opacity: .35; }
+
+.dark .reattend-workspace .prose { color: var(--ink-2); }
+.dark .reattend-workspace .prose :is(h1,h2,h3,strong) { color: var(--ink); }
+.dark .reattend-workspace .prose blockquote { border-color: var(--brand); background: var(--brand-soft); }
+
+.dark .reattend-workspace .ask-product-shell {
+  background:
+    radial-gradient(circle at 53% 12%, rgba(184,219,104,.07), transparent 27rem),
+    var(--paper);
+}
+
+.dark .reattend-workspace :is(.ask-history-pane, .ask-context-pane, .ask-local-header) {
+  border-color: var(--line);
+  background: rgba(23,28,21,.9);
+}
+
+.dark .reattend-workspace .ask-context-pane { background: linear-gradient(180deg, rgba(48,43,57,.68), rgba(23,28,21,.92) 42%); }
+.dark .reattend-workspace :is(.ask-history-search, .ask-history-foot, .ask-history-list > a:hover, .ask-history-list > a.active, .ask-scope-card, .ask-context-node, .ask-ai-answer) {
+  border-color: var(--line);
+  background: rgba(27,32,24,.9);
+  color: var(--ink);
+}
+
+.dark .reattend-workspace .ask-history-list > a.active { background: linear-gradient(135deg, #29351f, #20261d); }
+.dark .reattend-workspace .ask-history-row:hover,
+.dark .reattend-workspace .ask-history-row.active { border-color: var(--line); background: linear-gradient(135deg, #29351f, #20261d); }
+.dark .reattend-workspace .ask-history-glyph { background: #302b39; color: #d8c7ea; }
+.dark .reattend-workspace .ask-history-list > a:nth-child(3n + 2) .ask-history-glyph { background: #26313b; color: #b8cee0; }
+.dark .reattend-workspace .ask-history-list > a:nth-child(3n) .ask-history-glyph { background: #3b2e26; color: #efb889; }
+.dark .reattend-workspace .ask-chat-scroll { background: radial-gradient(circle at 50% 28%, rgba(184,219,104,.07), transparent 23rem); }
+.dark .reattend-workspace .ask-chat-empty [class*="flex-wrap"] button { border-color: var(--line); background: rgba(27,32,24,.86); color: var(--ink-2); }
+.dark .reattend-workspace .ask-chat-empty [class*="flex-wrap"] button:nth-child(2n) { background: #302b39; }
+.dark .reattend-workspace .ask-chat-empty [class*="flex-wrap"] button:nth-child(3n) { background: #26313b; }
+.dark .reattend-workspace .ask-ai-answer { box-shadow: 0 18px 42px -32px rgba(0,0,0,.9); }
+.dark .reattend-workspace .ask-composer-dock { border-color: var(--line); background: linear-gradient(180deg, rgba(17,21,15,.48), rgba(17,21,15,.97) 28%); }
+.dark .reattend-workspace .ask-composer { border-color: #3f4938; background: rgba(27,32,24,.96); box-shadow: 0 24px 60px -36px rgba(0,0,0,.95); }
+.dark .reattend-workspace .ask-composer:focus-within { border-color: #718b4c; box-shadow: 0 0 0 3px rgba(184,219,104,.1), 0 24px 60px -36px rgba(0,0,0,.95); }
+.dark .reattend-workspace .ask-context-map::before,
+.dark .reattend-workspace .ask-context-map::after { border-color: rgba(216,199,234,.18); }
+.dark .reattend-workspace .ask-context-core { border-color: #465738; background: #29351f; }
+.dark .reattend-workspace .ask-scope-card > i { border-color: var(--panel); }
+.dark .reattend-workspace .ask-history-popover { border-color: var(--line); background: var(--panel); box-shadow: 0 24px 70px -32px rgba(0,0,0,.9); }
+
+.dark .reattend-workspace * { scrollbar-color: #414a3b transparent; }
+.dark .reattend-workspace *::-webkit-scrollbar-thumb { background: #414a3b; }
+
+/* ── Dark edition gaps found in review (2026-09-09) ─────────────────────
+   The light stat tiles, the perspective panel's button and heading pill,
+   the rail user card and the Ask toolbar pills kept their light paint in
+   the dark edition. Same tones, dark surfaces. */
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div,
+.dark .reattend-workspace .modern-home > section[style*="repeat(2"] > div {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div:nth-child(1) { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(112,88,140,.28)) !important; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div:nth-child(2) { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(184,219,104,.18)) !important; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div:nth-child(3) { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(96,168,128,.22)) !important; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div:nth-child(4) { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(214,140,96,.22)) !important; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div [style*="color"] { color: inherit; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div > div:nth-child(2) { color: var(--ink) !important; }
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div span,
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div > div:last-child { color: var(--ink-3) !important; }
+
+.dark .reattend-workspace .rail-user,
+.dark .enterprise-shell .rail-user {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 8px 24px -22px rgba(0,0,0,.9);
+}
+.dark .reattend-workspace .rail-user:hover { background: var(--panel-2); border-color: var(--line-2); }
+
+.dark .reattend-workspace .perspective-heading {
+  border-color: #41394b;
+  background: rgba(48,43,57,.75);
+  color: #d8c7ea;
+}
+.dark .reattend-workspace .perspective-link {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--lime);
+}
+.dark .reattend-workspace .perspective-link:hover { border-color: #9fbd5e; background: var(--panel-2); }
+
+.dark .reattend-workspace .pill-btn:not(.dark) {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--ink);
+}
+.dark .reattend-workspace .pill-btn:not(.dark):hover { background: var(--panel-2); }
+
+/* Stat-tile icon chips: the neutral tone resolves to a near-white square. */
+.dark .reattend-workspace .modern-home > section[style*="repeat(4"] > div > div:first-child > div:first-child,
+.dark .reattend-workspace .modern-home > section[style*="repeat(2"] > div > div:first-child > div:first-child {
+  background: rgba(255,255,255,.09) !important;
+  color: var(--ink-2) !important;
+}

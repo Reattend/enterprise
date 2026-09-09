@@ -1,0 +1,456 @@
+/* Reattend Enterprise / Control Room
+ * The global rail + this scoped control rail + page form the wide-screen
+ * three-pane experience. All admin routes inherit these rules. */
+
+.reattend-workspace .cr-shell {
+  display: grid;
+  grid-template-columns: 226px minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+  gap: 14px;
+  padding: 14px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.reattend-workspace .cr-rail {
+  position: relative;
+  display: flex;
+  width: auto;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  padding: 16px 10px 10px;
+  overflow-y: auto;
+  border: 1px solid #dce3d2;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 15% 0, rgba(238, 228, 251, .68), transparent 13rem),
+    linear-gradient(180deg, rgba(255, 255, 255, .85), rgba(246, 248, 239, .9));
+  box-shadow: 0 18px 50px -42px rgba(63, 78, 45, .55);
+}
+
+.reattend-workspace .cr-rail::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  right: 14px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 0 5px rgba(217, 244, 138, .16);
+}
+
+.reattend-workspace .cr-org {
+  margin: 0 4px 11px;
+  padding: 5px 5px 15px;
+  border-bottom: 1px solid var(--line);
+  background: none;
+}
+
+.reattend-workspace .cr-org .crumb {
+  margin-bottom: 8px;
+  color: #745f89;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+
+.reattend-workspace .cr-org-name {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reattend-workspace .cr-org-pills {
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.reattend-workspace .cr-org-pill {
+  padding: 3px 7px;
+  border: 1px solid #ded6e9;
+  border-radius: 999px;
+  background: rgba(238, 228, 251, .65);
+  color: #6f5a84;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.reattend-workspace .cr-org-meta {
+  margin-top: 7px;
+  color: var(--ink-3);
+  font-size: 9px;
+}
+
+.reattend-workspace .cr-org-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  color: var(--ink-3);
+  font-size: 8.5px;
+  font-weight: 550;
+}
+
+.reattend-workspace .cr-org-status span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #79a34b;
+  box-shadow: 0 0 0 4px rgba(121, 163, 75, .1);
+  animation: reattend-pulse 2.6s ease-in-out infinite;
+}
+
+.reattend-workspace .cr-nav {
+  gap: 2px;
+}
+
+.reattend-workspace .cr-nav-item {
+  min-height: 34px;
+  margin: 0;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 520;
+}
+
+.reattend-workspace .cr-nav-item:hover {
+  border-color: rgba(224, 229, 215, .8);
+  background: rgba(255, 255, 255, .66);
+  color: var(--ink);
+}
+
+.reattend-workspace .cr-nav-item.active {
+  border-color: #d8e2c6;
+  background: linear-gradient(135deg, var(--lime-soft), rgba(255, 255, 255, .82));
+  color: var(--brand-ink);
+  box-shadow: inset 3px 0 var(--lime);
+}
+
+.reattend-workspace .cr-nav-item .ico {
+  width: 14px;
+  height: 14px;
+}
+
+.reattend-workspace .cr-nav-children {
+  gap: 2px;
+  margin: 3px 0 5px 15px;
+  padding-left: 8px;
+  border-left-color: #dfe5d7;
+}
+
+.reattend-workspace .cr-rail-footer {
+  margin-top: auto;
+  padding: 11px 4px 2px;
+  border-top: 1px solid var(--line);
+}
+
+.reattend-workspace .cr-rail-footer a {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 9px;
+  color: var(--ink-3);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.reattend-workspace .cr-rail-footer a:hover {
+  background: rgba(255, 255, 255, .7);
+  color: var(--ink);
+}
+
+.reattend-workspace .cr-page-wrap {
+  min-width: 0;
+  border: 1px solid rgba(224, 229, 215, .82);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 96% 0, rgba(233, 241, 255, .42), transparent 23rem),
+    rgba(255, 255, 255, .5);
+  box-shadow: 0 22px 62px -50px rgba(63, 78, 45, .55), inset 0 1px rgba(255, 255, 255, .85);
+}
+
+.reattend-workspace .cr-page {
+  max-width: 1420px;
+  padding: clamp(22px, 2.6vw, 38px) clamp(20px, 3vw, 42px) 72px;
+  animation: enterprise-page-in .35s ease-out both;
+}
+
+.reattend-workspace .cr-page :is(h1, h2).font-display,
+.reattend-workspace .cr-head h1 {
+  color: var(--ink);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 550 !important;
+  line-height: 1.08;
+  letter-spacing: -.055em;
+}
+
+.reattend-workspace .cr-page .text-3xl {
+  font-size: clamp(25px, 2.5vw, 34px);
+  line-height: 1.1;
+}
+
+.reattend-workspace .cr-head {
+  position: relative;
+  padding-right: 80px;
+}
+
+.reattend-workspace .cr-head::after {
+  content: "AI control plane";
+  position: absolute;
+  top: 6px;
+  right: 0;
+  padding: 5px 8px;
+  border: 1px solid #e0d8ed;
+  border-radius: 999px;
+  background: rgba(238, 228, 251, .58);
+  color: #715d84;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .cr-head .sub {
+  max-width: 75ch;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.reattend-workspace .cr-actions {
+  gap: 7px;
+  margin: 16px 0 20px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .68);
+}
+
+.reattend-workspace .cr-act {
+  min-height: 34px;
+  padding: 7px 11px;
+  border-color: transparent;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.reattend-workspace .cr-act:hover {
+  border-color: var(--line);
+  background: #fff;
+}
+
+.reattend-workspace .cr-act.dark {
+  border-color: #d0e274;
+  background: var(--lime);
+  color: #344721;
+}
+
+.reattend-workspace .cr-act.dark:hover {
+  background: #cdea75;
+}
+
+.reattend-workspace .cr-page .bg-card,
+.reattend-workspace .cr-onboard,
+.reattend-workspace .cr-live,
+.reattend-workspace .cr-panel,
+.reattend-workspace .cr-cov,
+.reattend-workspace .cr-led,
+.reattend-workspace .cr-amb,
+.reattend-workspace .cr-checklist {
+  border-color: var(--line);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 16px 48px -40px rgba(63, 78, 45, .58);
+}
+
+.reattend-workspace .cr-page .bg-card:hover {
+  border-color: #cfd9c1;
+}
+
+.reattend-workspace .cr-onboard {
+  padding: 20px 22px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(217, 244, 138, .36), transparent 16rem),
+    linear-gradient(135deg, rgba(255, 255, 255, .96), rgba(246, 248, 239, .9));
+}
+
+.reattend-workspace .cr-onboard-eyebrow {
+  color: var(--brand-ink);
+  font-size: 8px;
+}
+
+.reattend-workspace .cr-onboard-title {
+  font-size: 23px;
+  font-weight: 560;
+  letter-spacing: -.04em;
+}
+
+.reattend-workspace .cr-onboard-pct {
+  color: var(--brand-ink);
+  font-size: 34px;
+  font-weight: 580;
+  letter-spacing: -.05em;
+}
+
+.reattend-workspace .cr-check-row.done .cr-check-mark {
+  border-color: #759f47;
+  background: #759f47;
+}
+
+.reattend-workspace .cr-live {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 90% 8%, rgba(238, 228, 251, .65), transparent 19rem),
+    radial-gradient(circle at 58% 120%, rgba(217, 244, 138, .36), transparent 20rem),
+    #fff;
+}
+
+.reattend-workspace .cr-live::after {
+  content: "";
+  position: absolute;
+  top: -70px;
+  right: -30px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(98, 137, 56, .11);
+  border-radius: 50%;
+  box-shadow: 0 0 0 34px rgba(98, 137, 56, .025);
+  pointer-events: none;
+}
+
+.reattend-workspace .cr-live-head .pulse {
+  background: #77a348;
+  box-shadow: 0 0 0 5px rgba(119, 163, 72, .11);
+  animation: reattend-pulse 2.6s ease-in-out infinite;
+}
+
+.reattend-workspace .cr-twin,
+.reattend-workspace .cr-pair {
+  gap: 14px;
+}
+
+.reattend-workspace .cr-cov-cell {
+  border-radius: 6px;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.reattend-workspace .cr-cov-cell:hover {
+  box-shadow: 0 8px 18px -12px rgba(40, 51, 38, .5);
+}
+
+.reattend-workspace .cr-led-tabs,
+.reattend-workspace .cr-cov-toggle {
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+
+.reattend-workspace :is(.cr-led-tabs, .cr-cov-toggle) button {
+  border-radius: 7px;
+}
+
+.reattend-workspace :is(.cr-led-tabs, .cr-cov-toggle) button.active {
+  background: #fff;
+  color: var(--brand-ink);
+  box-shadow: 0 3px 10px -7px rgba(40, 51, 38, .45);
+}
+
+.reattend-workspace .cr-amb-card {
+  border-color: var(--line);
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(246, 248, 239, .72));
+}
+
+.reattend-workspace .cr-amb-card:nth-child(2n) {
+  background: linear-gradient(135deg, rgba(238, 228, 251, .4), rgba(255, 255, 255, .92));
+}
+
+.reattend-workspace .cr-page table {
+  width: 100%;
+}
+
+.reattend-workspace .cr-page thead {
+  background: rgba(246, 248, 239, .88);
+}
+
+.reattend-workspace .cr-page tbody tr:hover {
+  background: rgba(243, 247, 223, .5);
+}
+
+.reattend-workspace .cr-page :is(input, textarea, select) {
+  border-color: #dce3d2;
+  background: rgba(255, 255, 255, .9);
+}
+
+.reattend-workspace .cr-mobile-select {
+  padding: 0;
+}
+
+.reattend-workspace .cr-mobile-select select {
+  height: 44px;
+  border-color: #d8e0cd;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 10px 30px -26px rgba(63, 78, 45, .5);
+}
+
+@keyframes enterprise-page-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1050px) {
+  .reattend-workspace .cr-shell {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .reattend-workspace .cr-rail { display: none; }
+  .reattend-workspace .cr-mobile-select { display: block; }
+  .reattend-workspace .cr-page-wrap { overflow: visible; }
+}
+
+@media (max-width: 767px) {
+  .reattend-workspace .cr-shell {
+    gap: 10px;
+    padding: 10px;
+  }
+  .reattend-workspace .cr-page-wrap {
+    border-radius: 16px;
+  }
+  .reattend-workspace .cr-page {
+    padding: 20px 14px 54px;
+  }
+  .reattend-workspace .cr-head {
+    padding-right: 0;
+  }
+  .reattend-workspace .cr-head::after {
+    position: static;
+    display: inline-block;
+    margin-bottom: 9px;
+    order: -1;
+  }
+  .reattend-workspace .cr-actions {
+    padding: 6px;
+  }
+  .reattend-workspace .cr-act.export {
+    margin-left: 0;
+  }
+}

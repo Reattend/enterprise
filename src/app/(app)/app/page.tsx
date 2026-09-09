@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
 import {
   Plus, MessageSquare, Calendar as CalendarIcon, ChevronRight,
   Eye, Clock, Flame, FileText, CheckCircle2, AlertTriangle,
@@ -165,7 +166,7 @@ export default function HomePage() {
   const orgName = activeOrg?.orgName || 'your organization'
 
   return (
-    <div style={{ padding: '26px 32px 64px', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
+    <div className="modern-home" style={{ padding: '26px 32px 64px', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
       {/* Greeting + actions */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, marginBottom: 22 }}>
         <div>
@@ -196,10 +197,21 @@ export default function HomePage() {
               border: '1px solid var(--line)', background: 'var(--panel)', color: 'var(--ink)', textDecoration: 'none',
             }}
           >
-            <MessageSquare className="h-3.5 w-3.5" /> Ask Lattice
+            <MessageSquare className="h-3.5 w-3.5" /> Ask Reattend
           </Link>
         </div>
       </div>
+
+      <WorkspaceFocus />
+
+      <MemoryPulse
+        scope="team"
+        totalMemories={totals?.memories ?? 0}
+        recentCount={totals?.recentMemories ?? 0}
+        needsReview={totals?.staleMemories ?? 0}
+        connectedSources={sync.filter((provider) => provider.status === 'connected' && !provider.syncError).length}
+        totalSources={sync.length}
+      />
 
       {/* Stat row */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 16 }}>
@@ -251,7 +263,7 @@ export default function HomePage() {
               <>
                 <h4 style={{ margin: '0 0 2px', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>No meetings on deck in the next 8 hours</h4>
                 <p style={{ margin: 0, color: 'var(--ink-3)', fontSize: 13 }}>
-                  When you have one, Lattice will brief you 15 minutes ahead with context from memory.
+                  When you have one, Reattend will brief you 15 minutes ahead with context from memory.
                 </p>
               </>
             )}
@@ -352,7 +364,7 @@ export default function HomePage() {
               <QuickAction icon={<ArrowLeftRight className="h-3.5 w-3.5" />} label="Knowledge transfer" href={activeOrgId ? `/app/admin/${activeOrgId}/handoff` : '#'} />
               <QuickAction icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Self-healing scan" href={activeOrgId ? `/app/admin/${activeOrgId}/health` : '#'} />
               <QuickAction icon={<Download className="h-3.5 w-3.5" />} label="Download briefing" href={activeOrgId ? `/api/enterprise/organizations/${activeOrgId}/decisions/briefing?format=markdown` : '#'} external />
-              <QuickAction icon={<MessageSquare className="h-3.5 w-3.5" />} label="Ask Lattice" href="/app/ask" />
+              <QuickAction icon={<MessageSquare className="h-3.5 w-3.5" />} label="Ask Reattend" href="/app/ask" />
             </div>
           </div>
 

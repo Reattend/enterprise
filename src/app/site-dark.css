@@ -1,0 +1,108 @@
+/* Dark edition for public, authentication, tool and utility surfaces. Light remains the default. */
+
+.dark {
+  color-scheme: dark;
+  --background: 102 16% 7%;
+  --foreground: 78 25% 94%;
+  --card: 101 13% 11%;
+  --card-foreground: 78 25% 94%;
+  --popover: 101 13% 11%;
+  --popover-foreground: 78 25% 94%;
+  --primary: 78 57% 64%;
+  --primary-foreground: 100 21% 9%;
+  --secondary: 100 11% 16%;
+  --secondary-foreground: 78 20% 91%;
+  --muted: 100 10% 16%;
+  --muted-foreground: 92 10% 64%;
+  --accent: 82 25% 20%;
+  --accent-foreground: 79 56% 76%;
+  --border: 98 11% 21%;
+  --input: 98 11% 21%;
+  --ring: 78 57% 64%;
+}
+
+html.dark,
+html.dark body {
+  color-scheme: dark;
+  background: #11150f;
+  color: #f0f4ea;
+}
+
+.edition-toggle {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #dfe5da;
+  border-radius: 11px;
+  background: rgba(255,255,255,.72);
+  color: #4f5c49;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.edition-toggle:hover { transform: translateY(-1px); border-color: #bdc8b5; background: white; }
+.dark .edition-toggle { border-color: #36402f; background: #20261d; color: #d4ed99; }
+.dark .edition-toggle:hover { border-color: #536343; background: #293120; }
+
+.dark body {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(183, 219, 104, .08), transparent 24rem),
+    radial-gradient(circle at 92% 8%, rgba(148, 119, 179, .08), transparent 28rem),
+    #11150f;
+}
+
+.dark body img[src*="black_logo"] { filter: invert(1) brightness(1.25); }
+
+.dark body [class*="bg-white"],
+.dark body [class*="bg-[#FAFAFA]"],
+.dark body [class*="bg-gray-50"] { background-color: #1a1f17 !important; }
+
+.dark body [class*="text-[#1a1a2e]"],
+.dark body [class*="text-gray-900"],
+.dark body [class*="text-slate-900"] { color: #f0f4ea !important; }
+
+.dark body [class*="border-gray-"],
+.dark body [class*="border-slate-"],
+.dark body [class*="border-[#"] { border-color: #30372c !important; }
+
+.dark .reattend-marketing {
+  background:
+    radial-gradient(circle at 20% -10%, rgba(184, 220, 104, .11), transparent 34rem),
+    #11150f !important;
+  color: #eef3e8 !important;
+}
+
+.dark .reattend-marketing > header,
+.dark .reattend-marketing footer {
+  border-color: #2c3328 !important;
+  background: rgba(17, 21, 15, .88) !important;
+}
+
+.dark .reattend-marketing > header a { color: #dfe7d7 !important; }
+.dark .reattend-marketing > header nav a:hover { background: #242a20 !important; color: #f0f4ea !important; }
+
+.dark .reattend-marketing main :is(.bg-white, [class*="bg-white/"]).border,
+.dark .reattend-marketing main :is(.rounded-xl, .rounded-2xl).border {
+  border-color: #30372c !important;
+  background: rgba(27, 32, 24, .92) !important;
+  box-shadow: 0 24px 60px -44px rgba(0,0,0,.9) !important;
+}
+
+.dark body input,
+.dark body textarea,
+.dark body select {
+  border-color: #30372c;
+  background: #171b15;
+  color: #eef3e8;
+}
+
+.dark body input::placeholder,
+.dark body textarea::placeholder { color: #788274; }
+
+.dark body [role="dialog"],
+.dark body [role="menu"] {
+  border-color: #30372c;
+  background: #1a1f17;
+  color: #eef3e8;
+}

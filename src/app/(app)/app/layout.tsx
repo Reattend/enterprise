@@ -5,6 +5,13 @@ import { usePathname, useRouter } from 'next/navigation'
 import { AppSidebar } from '@/components/app/sidebar'
 import { AppTopbar } from '@/components/app/topbar'
 import './dashboard.css'
+import './modern-workspace.css'
+import './product-refresh.css'
+import './enterprise-refresh.css'
+import './inner-pages-refresh.css'
+import './chat-refresh.css'
+import './dark-refresh.css'
+import { WorkspacePerspective } from '@/components/app/workspace-focus'
 import { InboxBanner } from '@/components/app/inbox-banner'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
@@ -194,7 +201,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // overflow-y-auto (set when not full-bleed). Pages that pin a footer
     // surface (e.g. the Ask chatbox) rely on this lock to keep `shrink-0`
     // children glued to the bottom of the visible area.
-    <div className={cn('enterprise-shell h-screen overflow-hidden', sidebarCollapsed && 'sidebar-collapsed')}>
+    <div
+      className={cn('enterprise-shell reattend-workspace h-screen overflow-hidden', sidebarCollapsed && 'sidebar-collapsed')}
+      data-route={pathname}
+    >
       <StoreHydrator />
       <KeyboardShortcuts />
       <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
@@ -211,10 +221,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AnnouncementBanner orgId={orgsLoaded ? activeEnterpriseOrgId : null} />
           <PolicyPendingBanner />
           <div className={cn(
-            'flex-1 overflow-hidden flex flex-col',
-            !isFullBleed && 'p-4 sm:p-6 overflow-y-auto'
+            'workspace-content flex-1 overflow-hidden flex flex-col',
+            !isFullBleed && pathname !== '/app' && 'p-4 sm:p-6 overflow-y-auto'
           )}>
-            {children}
+            {pathname === '/app' ? (
+              <div className="workspace-with-perspective">
+                <div className="workspace-page-scroll">{children}</div>
+                <WorkspacePerspective />
+              </div>
+            ) : children}
           </div>
         </main>
       </div>

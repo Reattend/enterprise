@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { ThemeEditionToggle } from '@/components/theme-edition-toggle'
 
 // Single shared top nav for every public marketing surface (landing,
 // sandbox, pricing, compliance, privacy, terms, support). Keeps the
@@ -30,6 +31,7 @@ export function SiteNav() {
         >
           Sign in
         </Link>
+        <ThemeEditionToggle />
         <Link
           href="/sandbox"
           className="inline-flex items-center px-3.5 h-8 border border-[#1a1a2e]/15 text-[#1a1a2e] text-[12px] font-semibold rounded-full hover:bg-neutral-50 transition-colors"

@@ -18,6 +18,7 @@ import {
   Briefcase, Layers, Shield, ArrowRightLeft, ShieldCheck, UserPlus,
   GraduationCap, Megaphone, LineChart, FileScan, Chrome, ChevronRight,
   Stethoscope,
+  ArrowLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -59,6 +60,7 @@ const NAV: NavItem[] = [
     label: 'Organogram',
     icon: Network,
     children: [
+      { type: 'leaf', key: 'hierarchy',   label: 'Hierarchy',   icon: Network,    path: '/hierarchy' },
       { type: 'leaf', key: 'departments', label: 'Departments', icon: Network,    path: '/departments' },
       { type: 'leaf', key: 'members',     label: 'Members',     icon: Users,      path: '/members' },
       { type: 'leaf', key: 'taxonomy',    label: 'Taxonomy',    icon: Layers,     path: '/taxonomy' },
@@ -175,6 +177,7 @@ export default function AdminOrgLayout({
               @{org.primaryDomain}
             </div>
           )}
+          <div className="cr-org-status"><span /> Memory control plane online</div>
         </div>
 
         <nav className="cr-nav">
@@ -194,6 +197,10 @@ export default function AdminOrgLayout({
             )
           })}
         </nav>
+
+        <div className="cr-rail-footer">
+          <Link href="/app"><ArrowLeft size={13} /> Back to workspace</Link>
+        </div>
       </aside>
 
       {/* Mobile select fallback (shown <900px) */}

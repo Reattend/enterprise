@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bell,
   Command,
-  Moon,
-  Sun,
   X,
   Menu,
   CheckCircle2,
@@ -33,10 +31,12 @@ import {
   Plug,            // Integrations icon (now in topbar)
   Map as MapIcon,  // Legend icon (now in topbar)
   Chrome,          // Install Chrome extension
+  Moon,
+  Sun,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,7 +65,7 @@ interface Notification {
 
 export function AppTopbar() {
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
   // Only consider the user's pick - never silently fall back to the first
   // org when activeEnterpriseOrgId is null. The null state IS the "Personal"
@@ -83,6 +83,9 @@ export function AppTopbar() {
 
   // Docs
   const [docsOpen, setDocsOpen] = useState(false)
+  const [themeReady, setThemeReady] = useState(false)
+
+  useEffect(() => setThemeReady(true), [])
 
   // Feedback
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -277,8 +280,25 @@ export function AppTopbar() {
           <kbd className="top-kbd hidden sm:inline">⌘ K</kbd>
         </button>
 
+        <div className="ai-ready hidden xl:flex" title="Reattend AI is ready">
+          <span className="ai-ready-spark"><Sparkles className="h-3 w-3" /></span>
+          <span>AI ready</span>
+        </div>
+
         {/* Right: action icons (every existing button preserved) */}
         <div className="top-actions">
+          <button
+            type="button"
+            className="icon-btn theme-toggle"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            title={resolvedTheme === 'dark' ? 'Use light edition' : 'Use dark edition'}
+            aria-label={resolvedTheme === 'dark' ? 'Use light edition' : 'Use dark edition'}
+          >
+            {themeReady && resolvedTheme === 'dark'
+              ? <Sun className="h-4 w-4" />
+              : <Moon className="h-4 w-4" />}
+          </button>
+
           {/* Chrome extension install */}
           <Link
             href="/app/downloads"
@@ -360,15 +380,7 @@ export function AppTopbar() {
             <BookOpen className="h-4 w-4" />
           </button>
 
-          {/* Theme toggle */}
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="icon-btn"
-            title="Toggle theme"
-          >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          </button>
+
         </div>
       </header>
 
@@ -1053,4 +1065,3 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
     </ScrollArea>
   )
 }
-

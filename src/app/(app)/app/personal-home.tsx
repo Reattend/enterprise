@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
 import {
   Plus, MessageSquare, Database, Sparkles, Zap,
   FileText, Layers,
@@ -62,7 +63,7 @@ export default function PersonalHomePage({ user }: Props) {
   const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })
 
   return (
-    <div style={{ padding: '26px 32px 64px', maxWidth: 1100, margin: '0 auto', width: '100%' }}>
+    <div className="modern-home" style={{ padding: '26px 32px 64px', maxWidth: 1100, margin: '0 auto', width: '100%' }}>
       {/* Greeting */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, marginBottom: 22 }}>
         <div>
@@ -99,6 +100,14 @@ export default function PersonalHomePage({ user }: Props) {
           </Link>
         </div>
       </div>
+
+      <WorkspaceFocus />
+
+      <MemoryPulse
+        scope="personal"
+        totalMemories={memoryCount ?? 0}
+        recentCount={recent.length}
+      />
 
       {/* Empty-state helper for brand-new accounts */}
       {!recentLoading && recent.length === 0 && (

@@ -1,47 +1,17 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Inter, JetBrains_Mono, Instrument_Serif, Roboto, Roboto_Serif } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import { TestEnvBanner } from '@/components/test-env-banner'
 import { JSON_LD_GRAPH } from '@/lib/seo/json-ld'
 import './globals.css'
+import './site-refresh.css'
+import './site-dark.css'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-})
-
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-})
-
-// Enterprise display font - used for page titles in the admin cockpit and
-// marketing hero moments. Gives the Notion/Bloomberg editorial feel.
-const displaySerif = Instrument_Serif({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-display',
-  style: ['normal', 'italic'],
-})
-
-// Dashboard visual-language match (2026-08-28): the marketing site's
-// "Landing v2" redesign uses Roboto / Roboto Serif. These two are scoped
-// to .enterprise-shell in dashboard.css/globals.css so the dashboard's
-// headings/body match the new brand look without touching --font-display
-// or --font-inter, which other surfaces still depend on.
-const roboto = Roboto({
-  weight: ['400', '500', '700'],
-  subsets: ['latin'],
-  variable: '--font-roboto',
-})
-
-const robotoSerif = Roboto_Serif({
-  weight: ['400', '500'],
-  subsets: ['latin'],
-  variable: '--font-roboto-serif',
-  style: ['normal', 'italic'],
 })
 
 export const metadata: Metadata = {
@@ -147,11 +117,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.variable} ${mono.variable} ${displaySerif.variable} ${roboto.variable} ${robotoSerif.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <TestEnvBanner />

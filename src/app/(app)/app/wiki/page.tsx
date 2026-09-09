@@ -16,7 +16,7 @@
 
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Loader2, Search, Building2, Hash, Users, BookOpen } from 'lucide-react'
+import { Loader2, Search, Building2, Hash, Users, BookOpen, Sparkles, ArrowRight } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/utils'
 import { HierarchyTab } from './_components/hierarchy-tab'
@@ -117,7 +117,7 @@ function WikiContent() {
 
         <div className="wiki-head">
           <div>
-            <h1>The living map of <em>{activeOrgName}</em>.</h1>
+            <h1>The living map of <span className="accent">{activeOrgName}</span>.</h1>
             <p className="sub">
               Every department, topic, and person - auto-summarized from the memories the AI has captured. Nothing here is hand-written; everything stays in sync as the org changes.
             </p>
@@ -133,6 +133,26 @@ function WikiContent() {
             </div>
           </div>
         </div>
+
+        <section className="wiki-intelligence" aria-label="Wiki intelligence map">
+          <div className="wiki-intelligence-copy">
+            <span><Sparkles size={12} /> Continuously synthesized</span>
+            <b>One corpus. Three ways to understand it.</b>
+            <small>The map updates as new meetings, decisions, and notes enter organizational memory.</small>
+          </div>
+          <div className="wiki-map-mini" aria-hidden="true">
+            {TABS.map((item, index) => {
+              const Icon = item.icon
+              return (
+                <div key={item.key} className={cn('wiki-map-node', tab === item.key && 'active')}>
+                  <Icon size={14} />
+                  <span>{item.label}<small>{counts[item.key] == null ? 'live index' : `${counts[item.key]} indexed`}</small></span>
+                  {index < TABS.length - 1 && <ArrowRight size={11} className="wiki-map-arrow" />}
+                </div>
+              )
+            })}
+          </div>
+        </section>
 
         <div className="wiki-tabs" role="tablist">
           {TABS.map((t) => {
@@ -210,7 +230,14 @@ function EmptyDetail({ tab }: { tab: TabKey }) {
   }[tab]
   return (
     <div className="wiki-empty">
-      <span className="glyph">~</span>
+      <div className="wiki-empty-map" aria-hidden="true">
+        <span className="wiki-orbit orbit-one" />
+        <span className="wiki-orbit orbit-two" />
+        <span className="wiki-map-core"><Sparkles size={18} /></span>
+        <span className="wiki-map-dot dot-one" />
+        <span className="wiki-map-dot dot-two" />
+        <span className="wiki-map-dot dot-three" />
+      </div>
       <p>{copy}</p>
     </div>
   )

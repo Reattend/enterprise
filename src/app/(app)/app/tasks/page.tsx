@@ -13,7 +13,7 @@ import { useAppStore } from '@/stores/app-store'
 import Link from 'next/link'
 import {
   Sparkles, Mail, Calendar, FileText, LayoutDashboard,
-  ChevronRight, ShieldCheck, ArrowRight,
+  ChevronRight, ShieldCheck, ArrowRight, Database, Quote, WandSparkles,
 } from 'lucide-react'
 import { TASK_MODES } from '@/lib/ai/task-modes'
 import { cn } from '@/lib/utils'
@@ -30,6 +30,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export default function TasksPage() {
   const activeOrgId = useAppStore((st) => st.activeEnterpriseOrgId)
+  const totalFields = TASK_MODES.reduce((sum, mode) => sum + mode.fields.length, 0)
   const byCategory = TASK_MODES.reduce((acc, m) => {
     ;(acc[m.category] = acc[m.category] || []).push(m)
     return acc
@@ -42,13 +43,35 @@ export default function TasksPage() {
           <Sparkles size={9} strokeWidth={2} /> Tasks
         </span>
         <div className="tsk-head">
-          <h1>Write from <em>memory</em>, not a blank page.</h1>
+          <h1>Write from <span className="accent">memory</span>, not a blank page.</h1>
           <p className="sub">
             {activeOrgId
               ? <>Pick a workflow. Fill in a couple of fields. The AI drafts it from your org&apos;s actual decisions, meetings, and threads - citing each fact inline. Stays inside your tenant.</>
               : <>Pick a workflow. Fill in a couple of fields. The AI drafts it from your own memory - citing each fact inline.</>}
           </p>
         </div>
+
+        <section className="inner-overview task-overview" aria-label="How memory-grounded tasks work">
+          <div className="inner-overview-copy">
+            <span className="inner-kicker"><WandSparkles size={12} /> Memory workflow engine</span>
+            <h2>Your context moves with the work.</h2>
+            <p>Each workflow retrieves the most relevant memories, drafts against them, and keeps every claim traceable.</p>
+            <div className="inner-metrics">
+              <span><b>{TASK_MODES.length}</b><small>ready workflows</small></span>
+              <span><b>{CATEGORY_ORDER.length}</b><small>workflow families</small></span>
+              <span><b>{totalFields}</b><small>guided inputs</small></span>
+            </div>
+          </div>
+          <div className="workflow-map" aria-label="Retrieve, compose, verify, cite">
+            <div className="workflow-node"><Database size={15} /><span>Retrieve<small>your memory</small></span></div>
+            <i />
+            <div className="workflow-node"><Sparkles size={15} /><span>Compose<small>with context</small></span></div>
+            <i />
+            <div className="workflow-node"><ShieldCheck size={15} /><span>Verify<small>each claim</small></span></div>
+            <i />
+            <div className="workflow-node"><Quote size={15} /><span>Cite<small>the source</small></span></div>
+          </div>
+        </section>
 
         {CATEGORY_ORDER.map((cat) => {
           const list = byCategory[cat] || []

@@ -1,0 +1,260 @@
+/* Rich inner-product views: grounded workflows, living wiki and org graphs. */
+
+.reattend-workspace :is(.tsk-head, .wiki-head) h1 .accent {
+  position: relative;
+  color: var(--brand-ink);
+  white-space: nowrap;
+}
+
+.reattend-workspace :is(.tsk-head, .wiki-head) h1 .accent::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lime) 70%, transparent);
+  opacity: .5;
+  z-index: -1;
+}
+
+.reattend-workspace .inner-overview {
+  display: grid;
+  grid-template-columns: minmax(270px, .72fr) minmax(420px, 1.28fr);
+  gap: 24px;
+  align-items: center;
+  margin: 24px 0 34px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 13% 15%, color-mix(in srgb, var(--lime) 35%, transparent), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,.96), color-mix(in srgb, var(--sky) 48%, white));
+  box-shadow: 0 24px 60px -48px rgba(49, 65, 40, .5);
+}
+
+.reattend-workspace .inner-overview-copy h2 {
+  margin: 8px 0 6px;
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: -.04em;
+}
+
+.reattend-workspace .inner-overview-copy > p {
+  max-width: 520px;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.reattend-workspace .inner-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--brand-ink);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .inner-metrics {
+  display: flex;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.reattend-workspace .inner-metrics span {
+  display: flex;
+  flex-direction: column;
+  min-width: 74px;
+}
+
+.reattend-workspace .inner-metrics b {
+  color: var(--ink);
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.reattend-workspace .inner-metrics small {
+  margin-top: 5px;
+  color: var(--ink-3);
+  font-size: 9px;
+}
+
+.reattend-workspace .workflow-map {
+  display: grid;
+  grid-template-columns: repeat(7, auto);
+  align-items: center;
+  justify-content: end;
+  min-width: 0;
+}
+
+.reattend-workspace .workflow-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 118px;
+  padding: 14px 13px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 12px 32px -26px rgba(33,43,30,.7);
+}
+
+.reattend-workspace .workflow-node svg { color: var(--brand); }
+.reattend-workspace .workflow-node span { font-size: 11px; font-weight: 700; }
+.reattend-workspace .workflow-node small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 8px; font-weight: 500; }
+.reattend-workspace .workflow-map > i { width: 22px; height: 1px; background: var(--line); }
+
+.reattend-workspace .tsk-card {
+  min-height: 148px;
+  border-radius: 20px;
+}
+
+.reattend-workspace .tsk-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 16px 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s ease;
+}
+
+.reattend-workspace .tsk-card:hover::after { transform: scaleX(1); }
+
+.reattend-workspace .wiki-intelligence {
+  display: grid;
+  grid-template-columns: minmax(260px, .75fr) minmax(500px, 1.25fr);
+  gap: 22px;
+  align-items: center;
+  margin: 18px 0 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--lilac) 72%, white), color-mix(in srgb, var(--sky) 54%, white));
+}
+
+.reattend-workspace .wiki-intelligence-copy { display: flex; flex-direction: column; gap: 5px; }
+.reattend-workspace .wiki-intelligence-copy > span { display: flex; align-items: center; gap: 6px; color: var(--brand-ink); font-size: 9px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; }
+.reattend-workspace .wiki-intelligence-copy > b { font-size: 15px; letter-spacing: -.02em; }
+.reattend-workspace .wiki-intelligence-copy > small { color: var(--ink-3); font-size: 10px; line-height: 1.55; }
+.reattend-workspace .wiki-map-mini { display: flex; align-items: stretch; justify-content: flex-end; }
+.reattend-workspace .wiki-map-node { position: relative; display: flex; align-items: center; gap: 8px; min-width: 142px; padding: 12px; border: 1px solid color-mix(in srgb, var(--line) 85%, transparent); border-radius: 14px; background: rgba(255,255,255,.68); color: var(--ink-3); }
+.reattend-workspace .wiki-map-node.active { border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); background: rgba(255,255,255,.96); color: var(--brand-ink); box-shadow: 0 14px 30px -26px var(--brand); }
+.reattend-workspace .wiki-map-node > span { font-size: 10px; font-weight: 700; }
+.reattend-workspace .wiki-map-node small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 8px; font-weight: 500; }
+.reattend-workspace .wiki-map-arrow { position: absolute; right: -17px; top: 50%; z-index: 3; transform: translateY(-50%); color: var(--ink-4); }
+.reattend-workspace .wiki-map-node + .wiki-map-node { margin-left: 20px; }
+
+.reattend-workspace .wiki-empty-map {
+  position: relative;
+  width: 170px;
+  height: 126px;
+  margin: 0 auto 18px;
+}
+
+.reattend-workspace .wiki-map-core { position: absolute; left: 67px; top: 45px; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--lime-soft); color: var(--brand-ink); }
+.reattend-workspace .wiki-orbit { position: absolute; inset: 26px 6px; border: 1px solid var(--line); border-radius: 50%; transform: rotate(-18deg); }
+.reattend-workspace .wiki-orbit.orbit-two { inset: 11px 34px; transform: rotate(54deg); }
+.reattend-workspace .wiki-map-dot { position: absolute; width: 11px; height: 11px; border: 2px solid var(--panel); border-radius: 50%; background: var(--brand); }
+.reattend-workspace .wiki-map-dot.dot-one { left: 18px; top: 50px; }
+.reattend-workspace .wiki-map-dot.dot-two { right: 22px; top: 72px; background: #9a76bb; }
+.reattend-workspace .wiki-map-dot.dot-three { left: 84px; top: 5px; background: #e29a63; }
+
+.reattend-workspace .hierarchy-intelligence {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.1fr) minmax(300px, .9fr);
+  gap: 16px;
+  margin: 20px 0 16px;
+}
+
+.reattend-workspace .hierarchy-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.reattend-workspace .hierarchy-metrics span { display: flex; flex-direction: column; justify-content: center; min-height: 94px; padding: 16px; }
+.reattend-workspace .hierarchy-metrics span + span { border-left: 1px solid var(--line); }
+.reattend-workspace .hierarchy-metrics b { font-size: 24px; letter-spacing: -.05em; }
+.reattend-workspace .hierarchy-metrics small { margin-top: 6px; color: var(--ink-3); font-size: 9px; }
+
+.reattend-workspace .hierarchy-coverage { padding: 14px 16px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(135deg, var(--lime-soft), var(--panel)); }
+.reattend-workspace .hierarchy-coverage-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.reattend-workspace .hierarchy-coverage-head span { font-size: 11px; font-weight: 700; }
+.reattend-workspace .hierarchy-coverage-head small, .reattend-workspace .hierarchy-coverage > p { color: var(--ink-3); font-size: 9px; }
+.reattend-workspace .hierarchy-coverage-row { display: grid; grid-template-columns: minmax(80px, 1fr) 1.4fr 24px; gap: 8px; align-items: center; margin-top: 7px; font-size: 9px; }
+.reattend-workspace .hierarchy-coverage-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reattend-workspace .hierarchy-coverage-row i { height: 5px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--line) 60%, transparent); }
+.reattend-workspace .hierarchy-coverage-row i b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--brand), #b9d36a); }
+.reattend-workspace .hierarchy-coverage-row > small { color: var(--ink-3); text-align: right; }
+
+.reattend-workspace .hierarchy-canvas,
+.reattend-workspace .control-hierarchy-map {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  box-shadow: 0 28px 70px -58px rgba(35, 48, 29, .7);
+}
+
+.reattend-workspace .control-hierarchy-page { display: flex; flex-direction: column; gap: 18px; }
+.reattend-workspace .control-hierarchy-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 6px 0 20px; border-bottom: 1px solid var(--line); }
+.reattend-workspace .control-hierarchy-head h1 { max-width: 720px; margin: 8px 0 7px; font-size: clamp(27px, 3vw, 40px); line-height: 1.06; letter-spacing: -.05em; }
+.reattend-workspace .control-hierarchy-head p { max-width: 680px; color: var(--ink-3); font-size: 12px; line-height: 1.6; }
+.reattend-workspace .control-kicker { display: inline-flex; align-items: center; gap: 6px; color: var(--brand-ink); font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.reattend-workspace .control-hierarchy-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.reattend-workspace .control-hierarchy-stats > div { display: flex; flex-direction: column; gap: 10px; min-height: 110px; padding: 16px; border-radius: 17px; }
+.reattend-workspace .control-hierarchy-stats span { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.reattend-workspace .control-hierarchy-stats b { font-size: 28px; letter-spacing: -.05em; }
+.reattend-workspace .control-hierarchy-state { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 320px; color: var(--ink-3); }
+.reattend-workspace .control-hierarchy-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 14px; align-items: start; }
+.reattend-workspace .control-panel-head { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+.reattend-workspace .control-panel-head > span { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; }
+.reattend-workspace .control-panel-head small { color: var(--ink-3); font-size: 9px; }
+.reattend-workspace .control-hierarchy-map > div:last-child { height: min(640px, calc(100vh - 318px)); min-height: 500px; border: 0; border-radius: 0; }
+.reattend-workspace .control-hierarchy-insight { overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(160deg, var(--lilac), var(--panel) 42%); }
+.reattend-workspace .control-hierarchy-insight > p { padding: 14px 16px 2px; color: var(--ink-3); font-size: 10px; line-height: 1.55; }
+.reattend-workspace .control-memory-bars { padding: 8px 16px 18px; }
+.reattend-workspace .control-memory-bars > a { display: grid; grid-template-columns: minmax(0, 1fr) 64px 24px; gap: 8px; align-items: center; padding: 9px 0; color: var(--ink); text-decoration: none; }
+.reattend-workspace .control-memory-bars span { min-width: 0; }
+.reattend-workspace .control-memory-bars span b { display: block; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.reattend-workspace .control-memory-bars span small { color: var(--ink-3); font-size: 8px; }
+.reattend-workspace .control-memory-bars i { height: 5px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--line) 70%, transparent); }
+.reattend-workspace .control-memory-bars i b { display: block; height: 100%; border-radius: inherit; background: var(--brand); }
+.reattend-workspace .control-memory-bars strong { color: var(--ink-3); font-size: 9px; text-align: right; }
+.reattend-workspace .control-view-wiki { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid var(--line); color: var(--brand-ink); font-size: 10px; font-weight: 700; text-decoration: none; }
+
+.reattend-workspace .lsc-board { border-radius: 22px; box-shadow: 0 28px 70px -60px rgba(50, 41, 74, .8); }
+.reattend-workspace .lsc-modes { box-shadow: 0 12px 30px -26px rgba(79, 63, 110, .9); }
+
+@media (max-width: 1100px) {
+  .reattend-workspace .inner-overview,
+  .reattend-workspace .wiki-intelligence,
+  .reattend-workspace .hierarchy-intelligence,
+  .reattend-workspace .control-hierarchy-grid { grid-template-columns: 1fr; }
+  .reattend-workspace .workflow-map { justify-content: start; overflow-x: auto; padding-bottom: 4px; }
+  .reattend-workspace .wiki-map-mini { justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; }
+  .reattend-workspace .control-hierarchy-insight { display: none; }
+}
+
+@media (max-width: 720px) {
+  .reattend-workspace .inner-overview { padding: 18px; }
+  .reattend-workspace .inner-metrics { gap: 12px; }
+  .reattend-workspace .workflow-map > i { width: 12px; }
+  .reattend-workspace .workflow-node { min-width: 108px; }
+  .reattend-workspace .hierarchy-metrics,
+  .reattend-workspace .control-hierarchy-stats { grid-template-columns: repeat(2, 1fr); }
+  .reattend-workspace .hierarchy-metrics span:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+  .reattend-workspace .hierarchy-metrics span:nth-child(4) { border-top: 1px solid var(--line); }
+  .reattend-workspace .control-hierarchy-head { flex-direction: column; }
+}

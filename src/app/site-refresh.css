@@ -1,0 +1,167 @@
+/* Shared light visual language for every Next.js surface outside the
+ * workspace shell: auth, onboarding, tools, games and marketing pages. */
+
+:root {
+  color-scheme: light;
+  --background: 60 40% 98%;
+  --foreground: 108 15% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 108 15% 17%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 108 15% 17%;
+  --primary: 88 42% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 75 44% 91%;
+  --secondary-foreground: 88 31% 27%;
+  --muted: 76 25% 95%;
+  --muted-foreground: 96 7% 46%;
+  --accent: 74 54% 91%;
+  --accent-foreground: 88 31% 27%;
+  --border: 76 20% 87%;
+  --input: 76 20% 84%;
+  --ring: 88 42% 38%;
+  --radius: .75rem;
+  --site-bg: #fcfcf8;
+  --site-bg-2: #f6f8ef;
+  --site-panel: #fff;
+  --site-ink: #283326;
+  --site-muted: #636c5c;
+  --site-line: #e0e5d7;
+  --site-green: #628938;
+  --site-green-ink: #46612b;
+  --site-lime: #d9f48a;
+  --site-lilac: #eee4fb;
+  --site-peach: #ffead8;
+  --site-sky: #e9f1ff;
+}
+
+html,
+body {
+  color-scheme: light;
+  background: var(--site-bg);
+  color: var(--site-ink);
+}
+
+body {
+  background:
+    radial-gradient(circle at 7% 5%, rgba(217, 244, 138, .24), transparent 26rem),
+    radial-gradient(circle at 94% 4%, rgba(238, 228, 251, .32), transparent 29rem),
+    var(--site-bg);
+}
+
+body :is(h1, h2, h3, .font-display) {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: -.045em;
+}
+
+body :is(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid var(--site-green);
+  outline-offset: 3px;
+}
+
+/* Map legacy indigo/blue accents to the landing palette while preserving
+ * status colors such as red, amber and emerald. These selectors catch the
+ * old Tailwind arbitrary-color utilities used by the interactive tools. */
+body [class*="text-[#4F46E5]"],
+body [class*="text-[#4338CA]"],
+body [class*="text-[#2563EB]"],
+body [class*="text-indigo-"],
+body [class*="text-violet-"] {
+  color: var(--site-green) !important;
+}
+
+body [class~="bg-[#4F46E5]"],
+body [class~="bg-[#4338CA]"],
+body [class~="bg-[#2563EB]"],
+body [class~="bg-indigo-500"],
+body [class~="bg-indigo-600"],
+body [class~="bg-violet-500"],
+body [class~="bg-violet-600"] {
+  background-color: var(--site-green) !important;
+}
+
+body [class*="bg-[#4F46E5]/"],
+body [class*="bg-[#2563EB]/"],
+body [class*="bg-indigo-500/"],
+body [class*="bg-violet-500/"],
+body [class*="bg-violet-600/"] {
+  background-color: #edf4d7 !important;
+}
+
+body [class*="border-[#4F46E5]"],
+body [class*="border-[#2563EB]"],
+body [class*="border-indigo-"],
+body [class*="border-violet-"] {
+  border-color: #cbd8b7 !important;
+}
+
+body [class*="from-indigo-500"][class*="to-violet-500"],
+body [class*="from-indigo-500"][class*="to-violet-600"],
+body [class*="from-violet-600"][class*="to-fuchsia-600"],
+body [class*="from-[#4F46E5]"][class*="to-[#7C3AED]"] {
+  background-color: var(--site-green) !important;
+  background-image: linear-gradient(135deg, #6f9542, #52772f) !important;
+}
+
+body [class*="bg-[#FAFAFA]"],
+body [class*="bg-gray-50"] {
+  background-color: var(--site-bg) !important;
+}
+
+body [class*="text-[#1a1a2e]"] {
+  color: var(--site-ink) !important;
+}
+
+body [class*="shadow-[0_8px_32px_rgba(37,99,235"] {
+  box-shadow: 0 24px 70px -44px rgba(63, 78, 45, .42) !important;
+}
+
+/* Canonical marketing shell. */
+.reattend-marketing {
+  background:
+    radial-gradient(circle at 8% 4%, rgba(217, 244, 138, .26), transparent 28rem),
+    radial-gradient(circle at 94% 3%, rgba(238, 228, 251, .35), transparent 30rem),
+    var(--site-bg) !important;
+  color: var(--site-ink) !important;
+}
+
+.reattend-marketing > header {
+  border-bottom-color: rgba(224, 229, 215, .82) !important;
+  background: rgba(252, 252, 248, .84) !important;
+  box-shadow: 0 1px rgba(255, 255, 255, .75);
+  backdrop-filter: blur(18px) saturate(1.15) !important;
+}
+
+.reattend-marketing main :is(.bg-white, [class*="bg-white/"]).border,
+.reattend-marketing main :is(.rounded-xl, .rounded-2xl).border {
+  border-color: var(--site-line);
+  box-shadow: 0 18px 52px -42px rgba(63, 78, 45, .48);
+}
+
+.reattend-marketing main :is(.rounded-xl, .rounded-2xl) {
+  border-radius: 18px;
+}
+
+.reattend-marketing footer {
+  border-color: var(--site-line) !important;
+  background: rgba(255, 255, 255, .72) !important;
+}
+
+/* Auth and onboarding cards do not use MarketingShell. */
+body [class*="min-h-screen"][class*="items-center"][class*="justify-center"] > [class*="max-w-"] > [class*="bg-white"] {
+  border: 1px solid var(--site-line) !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, .86) !important;
+  box-shadow: 0 28px 80px -48px rgba(63, 78, 45, .48) !important;
+  backdrop-filter: blur(18px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body *,
+  body *::before,
+  body *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}

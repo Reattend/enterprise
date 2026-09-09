@@ -84,6 +84,13 @@ export default function HierarchyPage() {
     return { depts: list.length, teams, members, records }
   }, [depts])
 
+  const memoryLeaders = useMemo(() => {
+    return [...(depts ?? [])]
+      .filter((dept) => dept.recordCount > 0)
+      .sort((a, b) => b.recordCount - a.recordCount)
+      .slice(0, 4)
+  }, [depts])
+
   if (!hasHydratedStore) {
     return (
       <div className="mem-page-wrap">
@@ -132,6 +139,30 @@ export default function HierarchyPage() {
             </Link>
           )}
         </div>
+
+        {!loading && !err && depts && depts.length > 0 && (
+          <section className="hierarchy-intelligence" aria-label="Hierarchy overview">
+            <div className="hierarchy-metrics">
+              <span><b>{totals.depts}</b><small>departments</small></span>
+              <span><b>{totals.teams}</b><small>memory teams</small></span>
+              <span><b>{totals.members}</b><small>members mapped</small></span>
+              <span><b>{totals.records}</b><small>memories connected</small></span>
+            </div>
+            <div className="hierarchy-coverage">
+              <div className="hierarchy-coverage-head"><span>Memory-rich teams</span><small>by connected records</small></div>
+              {memoryLeaders.length > 0 ? memoryLeaders.map((dept) => {
+                const max = memoryLeaders[0]?.recordCount || 1
+                return (
+                  <div className="hierarchy-coverage-row" key={dept.id}>
+                    <span>{dept.name}</span>
+                    <i><b style={{ width: `${Math.max(8, Math.round((dept.recordCount / max) * 100))}%` }} /></i>
+                    <small>{dept.recordCount}</small>
+                  </div>
+                )
+              }) : <p>No team memory has been indexed yet.</p>}
+            </div>
+          </section>
+        )}
 
         {loading ? (
           <div className="mem-empty"><Loader2 size={20} className="inline animate-spin" /></div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Download } from 'lucide-react'
+import { ThemeEditionToggle } from '@/components/theme-edition-toggle'
 
 export function PublicNav() {
   const [scrolled, setScrolled] = useState(false)
@@ -33,6 +34,7 @@ export function PublicNav() {
           <span className="text-[18px] font-bold text-[#1a1a2e] tracking-tight">Reattend</span>
         </Link>
         <div className="flex items-center gap-3">
+          <ThemeEditionToggle />
           <a
             href={isWindows ? '/download/Reattend_x64-setup.exe' : '/download/Reattend.dmg'}
             className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-white bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.97] transition-all px-5 py-2.5 rounded-full shadow-[0_4px_14px_rgba(79,70,229,0.3)]"

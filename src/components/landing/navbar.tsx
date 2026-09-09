@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { ThemeEditionToggle } from '@/components/theme-edition-toggle'
 
 const navLinks = [
   { label: 'Features', href: '/features' },
@@ -65,6 +66,7 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
+          <ThemeEditionToggle />
           <Link
             href="/login"
             className="text-[13.5px] font-medium text-gray-600 hover:text-[#4F46E5] transition-colors px-3 py-2"
