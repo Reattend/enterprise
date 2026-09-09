@@ -18,13 +18,17 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const orgId = req.nextUrl.searchParams.get('orgId')
-    if (!orgId) return NextResponse.json({ error: 'orgId required' }, { status: 400 })
     const days = Math.min(parseInt(req.nextUrl.searchParams.get('days') || '7'), 90)
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '5'), 50)
 
     const { userId } = await requireAuth()
-    const ctx = await getOrgContext(userId, orgId)
-    if (!ctx) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    // orgId → must be a member of that org. No orgId → a personal account;
+    // filterToAccessibleRecords below is the gate (rule 8 keeps a personal
+    // caller to their own workspace records), so no org context is needed.
+    if (orgId) {
+      const ctx = await getOrgContext(userId, orgId)
+      if (!ctx) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    }
 
     const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString()
 

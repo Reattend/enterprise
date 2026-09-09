@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
+import { MemorySignals } from '@/components/app/memory-signals'
 import {
   Plus, MessageSquare, Calendar as CalendarIcon, ChevronRight,
   Eye, Clock, Flame, FileText, CheckCircle2, AlertTriangle,
@@ -212,6 +213,8 @@ export default function HomePage() {
         connectedSources={sync.filter((provider) => provider.status === 'connected' && !provider.syncError).length}
         totalSources={sync.length}
       />
+
+      <MemorySignals orgId={activeOrgId} />
 
       {/* Stat row */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 16 }}>

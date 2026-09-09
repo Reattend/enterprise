@@ -24,12 +24,22 @@ export async function GET(req: NextRequest) {
   try {
     const { userId } = await requireAuth()
     const orgId = req.nextUrl.searchParams.get('orgId')
-    if (!orgId) return NextResponse.json({ error: 'orgId required' }, { status: 400 })
 
-    const wsLinkRows = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
-      .from(schema.workspaceOrgLinks)
-      .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
-    const allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
+    // Scope, same rule the graph API uses: orgId → that org's workspaces;
+    // no orgId → a personal account, so its own workspaces. RBAC still runs
+    // over the result either way.
+    let allWs: string[]
+    if (orgId) {
+      const wsLinkRows = await db.select({ workspaceId: schema.workspaceOrgLinks.workspaceId })
+        .from(schema.workspaceOrgLinks)
+        .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
+      allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
+    } else {
+      const memberRows = await db.select({ workspaceId: schema.workspaceMembers.workspaceId })
+        .from(schema.workspaceMembers)
+        .where(eq(schema.workspaceMembers.userId, userId))
+      allWs = Array.from(new Set(memberRows.map((m) => m.workspaceId)))
+    }
     const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
     if (accessibleWs.length === 0) return NextResponse.json({ groups: [] })
 

@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
+import { MemorySignals } from '@/components/app/memory-signals'
 import {
   Plus, MessageSquare, Database, Sparkles, Zap,
   FileText, Layers,
@@ -108,6 +109,9 @@ export default function PersonalHomePage({ user }: Props) {
         totalMemories={memoryCount ?? 0}
         recentCount={recent.length}
       />
+
+
+      <MemorySignals />
 
       {/* Empty-state helper for brand-new accounts */}
       {!recentLoading && recent.length === 0 && (

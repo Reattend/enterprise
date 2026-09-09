@@ -1401,3 +1401,97 @@
     transition-duration: .001ms !important;
   }
 }
+
+/* ── Signals from your brain (Home) ─────────────────────────────────────
+   Three tinted cards, each one a real finding from the memory graph, the
+   on-this-day cohort, or the week's view counts. Renders nothing when
+   there is nothing to say. */
+.reattend-workspace .memory-signals {
+  margin-bottom: 16px;
+}
+
+.reattend-workspace .memory-signals-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--ink-3);
+}
+
+.reattend-workspace .memory-signals-head b {
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.reattend-workspace .memory-signals-head small { font-size: 11.5px; }
+
+.reattend-workspace .memory-signals-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.reattend-workspace .memory-signal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 34px 15px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.reattend-workspace .memory-signal:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-2);
+  box-shadow: 0 16px 34px -28px rgba(48, 64, 35, .5);
+}
+
+.reattend-workspace .memory-signal.tone-lilac { background: linear-gradient(145deg, #fff, var(--lilac)); }
+.reattend-workspace .memory-signal.tone-lime  { background: linear-gradient(145deg, #fff, var(--lime-soft)); }
+.reattend-workspace .memory-signal.tone-peach { background: linear-gradient(145deg, #fff, var(--peach)); }
+
+.reattend-workspace .memory-signal-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-3);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .memory-signal b {
+  font-size: 13.5px;
+  font-weight: 620;
+  line-height: 1.32;
+  letter-spacing: -0.012em;
+}
+
+.reattend-workspace .memory-signal small {
+  color: var(--ink-2);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.reattend-workspace .memory-signal-go {
+  position: absolute;
+  top: 13px;
+  right: 12px;
+  color: var(--ink-4);
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+
+.reattend-workspace .memory-signal:hover .memory-signal-go { opacity: 1; }
+
+@media (max-width: 900px) {
+  .reattend-workspace .memory-signals-list { grid-template-columns: minmax(0, 1fr); }
+  .reattend-workspace .memory-signals-head small { display: none; }
+}

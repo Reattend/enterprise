@@ -364,3 +364,13 @@
   background: rgba(255,255,255,.09) !important;
   color: var(--ink-2) !important;
 }
+
+/* Signals from your brain */
+.dark .reattend-workspace .memory-signal {
+  border-color: var(--line);
+  color: var(--ink);
+}
+.dark .reattend-workspace .memory-signal.tone-lilac { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(112,88,140,.28)); }
+.dark .reattend-workspace .memory-signal.tone-lime  { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(184,219,104,.18)); }
+.dark .reattend-workspace .memory-signal.tone-peach { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(214,140,96,.22)); }
+.dark .reattend-workspace .memory-signal:hover { border-color: var(--line-2); box-shadow: 0 16px 34px -28px rgba(0,0,0,.9); }
