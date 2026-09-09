@@ -37,6 +37,12 @@ export function AiKeyBanner() {
 
     ;(async () => {
       try {
+        // The Enterprise demo runs with the AI deliberately off and its
+        // visitor cannot connect anything, so never nag there.
+        const meRes = await fetch('/api/user', { cache: 'no-store' })
+        const meEmail: string = meRes.ok ? ((await meRes.json())?.user?.email || '') : ''
+        if (meEmail.toLowerCase().endsWith('@sandbox.reattend.local')) return
+
         const res = await fetch('/api/billing/me')
         if (!res.ok) return
         const me = (await res.json()) as BillingMe

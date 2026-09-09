@@ -404,3 +404,18 @@
 .dark .reattend-workspace .agents-sec-head::after { background: var(--line); }
 .dark .reattend-workspace .agents-grid > * { border-color: var(--line) !important; background-color: var(--panel) !important; }
 .dark .reattend-workspace .agents-grid > *:hover { border-color: #9fbd5e !important; box-shadow: 0 18px 38px -30px rgba(0,0,0,.9); }
+
+/* Enterprise demo banner + Try Enterprise pill */
+.dark .reattend-workspace .demo-banner {
+  border-bottom-color: rgba(112,88,140,.4);
+  background: linear-gradient(90deg, rgba(112,88,140,.28), transparent 72%);
+}
+.dark .reattend-workspace .demo-banner-tag { background: rgba(48,43,57,.8); color: #d8c7ea; }
+.dark .reattend-workspace .demo-banner-book { background: var(--lime); color: #2b3a1d; }
+.dark .reattend-workspace .demo-banner-exit { border-color: var(--line); background: var(--panel-2); color: var(--ink-2); }
+.dark .reattend-workspace .demo-banner-exit:hover:not(:disabled) { background: var(--panel); color: var(--ink); }
+.dark .reattend-workspace .try-ent {
+  border-color: rgba(112,88,140,.5);
+  background: linear-gradient(120deg, rgba(112,88,140,.32), rgba(27,32,24,.6));
+  color: #d8c7ea;
+}

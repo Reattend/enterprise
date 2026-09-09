@@ -1,19 +1,26 @@
 'use client'
 
-// Sandbox banner - surfaces at the top of the app shell whenever the session
-// belongs to a sandbox user. Reminds the visitor (a) nothing they do persists,
-// (b) AI is in scripted-demo mode, and (c) how to sign up for a real account.
+// Demo banner - shown at the top of the app shell whenever the session
+// belongs to a demo (sandbox) user. It states plainly that this is
+// pre-filled data with no live AI, keeps a booking link one click away,
+// and offers the way out.
+//
+// "Exit demo" asks /api/sandbox/exit. If the visitor started the demo while
+// signed in, that returns a one-time ticket which puts them straight back
+// into their own account. If they arrived anonymously from marketing there
+// is nothing to return to, so they land on the marketing site instead.
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { ArrowRight, Sparkles, X } from 'lucide-react'
+import { CalendarCheck, Sparkles, LogOut, Loader2 } from 'lucide-react'
+
+const CALENDLY = 'https://calendly.com/pb-reattend/30min'
 
 export function SandboxBanner() {
   const [isSandbox, setIsSandbox] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
+  const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
-    // Detect sandbox via the /api/user endpoint - email suffix is the marker
+    // Detect the demo via /api/user - the email suffix is the marker.
     let cancelled = false
     ;(async () => {
       try {
@@ -29,29 +36,54 @@ export function SandboxBanner() {
     return () => { cancelled = true }
   }, [])
 
-  if (!isSandbox || dismissed) return null
+  async function exitDemo() {
+    if (leaving) return
+    setLeaving(true)
+    try {
+      const res = await fetch('/api/sandbox/exit', { method: 'POST' })
+      const data = res.ok ? await res.json() : null
+
+      if (data?.returned && data.ticket) {
+        // Same trade the sandbox launch does, in reverse: swap the ticket
+        // for this visitor's own session.
+        const csrfRes = await fetch('/api/auth/csrf')
+        const { csrfToken } = await csrfRes.json()
+        const params = new URLSearchParams()
+        params.set('csrfToken', csrfToken)
+        params.set('ticket', data.ticket)
+        params.set('callbackUrl', '/app')
+        params.set('json', 'true')
+        await fetch('/api/auth/callback/sso-ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+          credentials: 'same-origin',
+        })
+        window.location.href = '/app'
+        return
+      }
+
+      // Anonymous visitor: no account to go back to.
+      window.location.href = '/'
+    } catch {
+      setLeaving(false)
+    }
+  }
+
+  if (!isSandbox) return null
 
   return (
-    <div className="relative z-10 flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-violet-500/10 via-indigo-500/10 to-cyan-500/10 border-b border-violet-500/20 text-[12px]">
-      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-300 font-semibold text-[10px] uppercase tracking-wider shrink-0">
-        <Sparkles className="h-3 w-3" /> Sandbox
-      </div>
-      <span className="text-muted-foreground leading-tight flex-1 min-w-0">
-        You&apos;re in a demo org. Nothing persists, AI answers are scripted.
-        <span className="hidden sm:inline"> Your real deployment runs the live AI on your own memory.</span>
+    <div className="demo-banner">
+      <span className="demo-banner-tag"><Sparkles size={11} /> Enterprise demo</span>
+      <span className="demo-banner-copy">
+        Pre-filled sample organization. Nothing you do here is saved, and the AI is not running.
       </span>
-      <Link
-        href="/pricing"
-        className="shrink-0 inline-flex items-center gap-1 font-semibold text-violet-700 dark:text-violet-300 hover:text-violet-900 dark:hover:text-violet-100 transition-colors"
-      >
-        See pricing <ArrowRight className="h-3 w-3" />
-      </Link>
-      <button
-        onClick={() => setDismissed(true)}
-        className="shrink-0 p-1 rounded-md hover:bg-muted/50 text-muted-foreground/60 hover:text-foreground transition-colors"
-        title="Dismiss (still in sandbox)"
-      >
-        <X className="h-3 w-3" />
+      <a className="demo-banner-book" href={CALENDLY} target="_blank" rel="noreferrer">
+        <CalendarCheck size={13} /> Schedule a meeting
+      </a>
+      <button className="demo-banner-exit" onClick={exitDemo} disabled={leaving} type="button">
+        {leaving ? <Loader2 size={13} className="animate-spin" /> : <LogOut size={13} />}
+        {leaving ? 'Leaving…' : 'Exit demo'}
       </button>
     </div>
   )

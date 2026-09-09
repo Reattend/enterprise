@@ -1688,3 +1688,94 @@
 /* Keep the bar and the filter strip pinned above the canvas. */
 .reattend-workspace .lsc-board-card.fullscreen .lsc-board-bar,
 .reattend-workspace .lsc-board-card.fullscreen .lsc-filter-row { flex: none; }
+
+/* ── Enterprise demo banner ─────────────────────────────────────────────
+   Shown for the whole demo session: what this is, how to talk to us, and
+   the way back to your own account. */
+.reattend-workspace .demo-banner {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 18px;
+  border-bottom: 1px solid color-mix(in oklch, var(--lilac, #eee4fb) 60%, var(--line));
+  background: linear-gradient(90deg, var(--lilac, #eee4fb), transparent 72%);
+  font-size: 13px;
+}
+
+.reattend-workspace .demo-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .7);
+  color: #6f5c84;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .demo-banner-copy {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reattend-workspace .demo-banner-book,
+.reattend-workspace .demo-banner-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 620;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+}
+
+.reattend-workspace .demo-banner-book {
+  border: 0;
+  background: var(--ink);
+  color: #fff;
+}
+.reattend-workspace .demo-banner-book:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -14px rgba(40,51,38,.6); }
+
+.reattend-workspace .demo-banner-exit {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .75);
+  color: var(--ink-2);
+}
+.reattend-workspace .demo-banner-exit:hover:not(:disabled) { background: #fff; color: var(--ink); }
+.reattend-workspace .demo-banner-exit:disabled { opacity: .6; cursor: default; }
+
+@media (max-width: 900px) {
+  .reattend-workspace .demo-banner-copy { display: none; }
+}
+
+/* ── "Try Enterprise" pill (topbar, personal accounts) ──────────────── */
+.reattend-workspace .try-ent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in oklch, var(--lilac, #eee4fb) 70%, var(--line));
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--lilac, #eee4fb), rgba(255,255,255,.6));
+  color: #5d4b74;
+  font-size: 12.5px;
+  font-weight: 620;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.reattend-workspace .try-ent:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -16px rgba(93,75,116,.7); }

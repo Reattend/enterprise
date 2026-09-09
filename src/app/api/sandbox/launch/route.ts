@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { SignJWT } from 'jose'
+import { auth } from '@/lib/auth'
 import { db, schema } from '@/lib/db'
 import { eq, and, inArray, sql } from 'drizzle-orm'
 import { issueSsoTicket } from '@/lib/sso/oidc'
@@ -40,6 +42,8 @@ const ROLE_LABELS: Record<string, { name: string; title: string }> = {
   member:      { name: 'Sofia Martinez',  title: 'Deputy Director, Cross-Border Tax' },
   guest:       { name: 'Daniel Schwartz', title: 'External Legal Advisor (Guest)' },
 }
+
+const SANDBOX_EMAIL_SUFFIX = '@sandbox.reattend.local'
 
 const VALID_ROLES = new Set(['super_admin', 'admin', 'dept_head', 'member', 'guest'])
 
@@ -147,13 +151,41 @@ export async function POST(req: NextRequest) {
       secret,
     })
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ticket,
       sandboxOrgId: newOrgId,
       personaName: persona.name,
       personaTitle: persona.title,
       role,
     }, { status: 201 })
+
+    // If a real, signed-in user is trying the demo, remember who they are so
+    // "Exit demo" can hand them their own account back. Written server-side
+    // from the verified session, httpOnly, so it cannot be forged into a
+    // login for someone else. Anonymous visitors get no cookie and no exit.
+    try {
+      const session = await auth()
+      const realUserId = session?.user?.id
+      const realEmail = session?.user?.email
+      if (realUserId && realEmail && !realEmail.toLowerCase().endsWith(SANDBOX_EMAIL_SUFFIX)) {
+        const returnToken = await new SignJWT({ email: realEmail })
+          .setProtectedHeader({ alg: 'HS256' })
+          .setSubject(realUserId)
+          .setIssuedAt()
+          .setExpirationTime('12h')
+          .setIssuer('reattend-demo-return')
+          .sign(new TextEncoder().encode(secret))
+        res.cookies.set('demo_return', returnToken, {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+          maxAge: 12 * 60 * 60,
+        })
+      }
+    } catch { /* the demo still works, it just will not have an exit */ }
+
+    return res
   } catch (err) {
     console.error('[sandbox launch]', err)
     return handleEnterpriseError(err)

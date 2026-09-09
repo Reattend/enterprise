@@ -49,6 +49,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAppStore } from '@/stores/app-store'
+import { TryEnterprise } from '@/components/app/try-enterprise'
 import { toast } from 'sonner'
 
 interface Notification {
@@ -282,6 +283,8 @@ export function AppTopbar() {
 
         {/* Right: action icons (every existing button preserved) */}
         <div className="top-actions">
+          <TryEnterprise />
+
           <button
             type="button"
             className="icon-btn theme-toggle"
