@@ -280,11 +280,6 @@ export function AppTopbar() {
           <kbd className="top-kbd hidden sm:inline">⌘ K</kbd>
         </button>
 
-        <div className="ai-ready hidden xl:flex" title="Reattend AI is ready">
-          <span className="ai-ready-spark"><Sparkles className="h-3 w-3" /></span>
-          <span>AI ready</span>
-        </div>
-
         {/* Right: action icons (every existing button preserved) */}
         <div className="top-actions">
           <button
@@ -350,7 +345,7 @@ export function AppTopbar() {
           >
             <Bell className="h-4 w-4" />
             {globalUnreadCount > 0 && (
-              <span className="badge-dot">{globalUnreadCount > 9 ? '9+' : globalUnreadCount}</span>
+              <span className="badge-dot">{globalUnreadCount > 99 ? '99+' : globalUnreadCount}</span>
             )}
           </button>
 

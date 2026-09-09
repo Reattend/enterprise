@@ -258,3 +258,204 @@
   .reattend-workspace .hierarchy-metrics span:nth-child(4) { border-top: 1px solid var(--line); }
   .reattend-workspace .control-hierarchy-head { flex-direction: column; }
 }
+
+/* ── Tasks, retuned (2026-09-09) ────────────────────────────────────────
+   The page was three 2-column grids, one per family. With families of one
+   and two, most of the viewport was empty. Now: a compact process strip and
+   a single dense auto-fit grid where the family is a tag on the card. */
+.reattend-workspace .tsk-flow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 4px 0 22px;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: linear-gradient(120deg, var(--lime-soft, #f3f7df), transparent 62%);
+}
+
+.reattend-workspace .tsk-flow-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.reattend-workspace .tsk-flow-steps { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.reattend-workspace .tsk-flow-steps span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.reattend-workspace .tsk-flow-steps i { width: 12px; height: 1px; background: var(--ink-4); flex: none; }
+.reattend-workspace .tsk-flow-count { margin-left: auto; color: var(--ink-3); font-size: 11.5px; white-space: nowrap; }
+
+/* Dense card grid - three up on a normal workspace, never one lonely card
+   stranded on its own row. */
+.reattend-workspace .tsk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.reattend-workspace .tsk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: inherit;
+  text-decoration: none;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.reattend-workspace .tsk-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-4);
+  box-shadow: 0 18px 38px -30px rgba(48, 64, 35, .55);
+}
+
+.reattend-workspace .tsk-card-top { display: flex; align-items: center; gap: 9px; margin-bottom: 3px; }
+
+.reattend-workspace .tsk-card-ico {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 10px;
+  color: #fff;
+}
+.reattend-workspace .tsk-card-ico.write { background: linear-gradient(140deg, #4f7cd6, #3a5fae); }
+.reattend-workspace .tsk-card-ico.prep  { background: linear-gradient(140deg, #8b6fd0, #6a4fb0); }
+.reattend-workspace .tsk-card-ico.plan  { background: linear-gradient(140deg, #d98a4a, #b96b30); }
+
+.reattend-workspace .tsk-card-cat {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--ink-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .tsk-card-arrow { margin-left: auto; color: var(--ink-4); flex: none; }
+.reattend-workspace .tsk-card:hover .tsk-card-arrow { color: var(--ink-2); }
+
+.reattend-workspace .tsk-card-title { font-size: 15px; font-weight: 620; letter-spacing: -0.015em; color: var(--ink); }
+.reattend-workspace .tsk-card-tagline { font-size: 12.5px; line-height: 1.45; color: var(--ink-2); flex: 1; }
+
+.reattend-workspace .tsk-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.reattend-workspace .tsk-card-meta .pill {
+  padding: 2.5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--ink-3);
+  font-size: 10.5px;
+  font-weight: 550;
+}
+
+/* ── Agents, modernised (2026-09-09) ────────────────────────────────────
+   Was a narrow max-w-5xl column of stock Tailwind cards. Now it uses the
+   same page shape as Tasks and Wiki, a denser auto-fit grid, and the
+   product's own card treatment. Card internals are untouched - only the
+   page frame and the surfaces they sit on. */
+.reattend-workspace .agents-page {
+  padding: 22px 32px 64px;
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.reattend-workspace .agents-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--lilac, #eee4fb);
+  color: #6f5c84;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.reattend-workspace .agents-head { margin: 14px 0 22px; }
+.reattend-workspace .agents-head h1 {
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.reattend-workspace .agents-head h1 .accent { color: var(--accent, #628938); }
+.reattend-workspace .agents-head .sub {
+  max-width: 68ch;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.reattend-workspace .agents-tabs { margin-bottom: 20px; }
+
+.reattend-workspace .agents-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 26px 0 12px;
+  color: var(--ink-3);
+}
+.reattend-workspace .agents-sec-head h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.reattend-workspace .agents-sec-head span { font-size: 12px; color: var(--ink-3); }
+.reattend-workspace .agents-sec-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.reattend-workspace .agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+/* Give every card in here the product's surface, whatever Tailwind classes
+   it carries internally. */
+.reattend-workspace .agents-grid > * {
+  border-radius: 14px !important;
+  border-color: var(--line) !important;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.reattend-workspace .agents-grid > *:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-4) !important;
+  box-shadow: 0 18px 38px -30px rgba(48, 64, 35, .55);
+}

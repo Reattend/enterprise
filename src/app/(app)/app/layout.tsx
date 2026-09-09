@@ -13,6 +13,7 @@ import './chat-refresh.css'
 import './dark-refresh.css'
 import { WorkspacePerspective } from '@/components/app/workspace-focus'
 import { InboxBanner } from '@/components/app/inbox-banner'
+import { AiKeyBanner } from '@/components/app/ai-key-banner'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
 import { TrialBanner } from '@/components/enterprise/trial-banner'
@@ -215,6 +216,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppTopbar />
           <SandboxBanner />
           <TrialBanner />
+          <AiKeyBanner />
           <InboxBanner />
           {/* Withhold orgId until orgsLoaded - see page.tsx's analytics-fetch
               effect for why (2026-08-26 stale-org-id race). */}

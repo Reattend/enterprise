@@ -374,3 +374,33 @@
 .dark .reattend-workspace .memory-signal.tone-lime  { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(184,219,104,.18)); }
 .dark .reattend-workspace .memory-signal.tone-peach { background: linear-gradient(145deg, rgba(27,32,24,.96), rgba(214,140,96,.22)); }
 .dark .reattend-workspace .memory-signal:hover { border-color: var(--line-2); box-shadow: 0 16px 34px -28px rgba(0,0,0,.9); }
+
+/* No-AI-key banner */
+.dark .reattend-workspace .ai-key-banner {
+  border-bottom-color: rgba(214,140,96,.28);
+  background: linear-gradient(90deg, rgba(214,140,96,.16), transparent 70%);
+}
+.dark .reattend-workspace .ai-key-banner-icon { background: rgba(214,140,96,.2); color: #e8b57e; }
+.dark .reattend-workspace .ai-key-banner-cta { background: var(--lime); color: #2b3a1d; }
+
+/* Sync status panel */
+.dark .reattend-workspace .sync-panel { border-color: var(--line); background: var(--panel); }
+.dark .reattend-workspace .sync-panel-head { border-bottom-color: var(--line); }
+.dark .reattend-workspace .sync-panel-count { background: var(--panel-2); color: var(--ink-2); }
+.dark .reattend-workspace .sync-row { border-top-color: var(--line); }
+.dark .reattend-workspace .sync-action { border-color: var(--line); background: var(--panel-2); color: var(--lime); }
+.dark .reattend-workspace .sync-action:hover { border-color: #9fbd5e; }
+
+/* Tasks */
+.dark .reattend-workspace .tsk-flow { border-color: var(--line); background: linear-gradient(120deg, rgba(184,219,104,.12), transparent 62%); }
+.dark .reattend-workspace .tsk-flow-steps span { border-color: var(--line); background: var(--panel); color: var(--ink-2); }
+.dark .reattend-workspace .tsk-card { border-color: var(--line); background: var(--panel); }
+.dark .reattend-workspace .tsk-card:hover { border-color: #9fbd5e; box-shadow: 0 18px 38px -30px rgba(0,0,0,.9); }
+.dark .reattend-workspace .tsk-card-cat { background: var(--panel-2); color: var(--ink-3); }
+.dark .reattend-workspace .tsk-card-meta .pill { border-color: var(--line); background: var(--panel-2); color: var(--ink-3); }
+
+/* Agents */
+.dark .reattend-workspace .agents-crumb { background: rgba(48,43,57,.75); color: #d8c7ea; }
+.dark .reattend-workspace .agents-sec-head::after { background: var(--line); }
+.dark .reattend-workspace .agents-grid > * { border-color: var(--line) !important; background-color: var(--panel) !important; }
+.dark .reattend-workspace .agents-grid > *:hover { border-color: #9fbd5e !important; box-shadow: 0 18px 38px -30px rgba(0,0,0,.9); }

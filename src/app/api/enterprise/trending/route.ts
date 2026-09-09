@@ -21,10 +21,10 @@ export async function GET(req: NextRequest) {
     const days = Math.min(parseInt(req.nextUrl.searchParams.get('days') || '7'), 90)
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '5'), 50)
 
-    const { userId } = await requireAuth()
-    // orgId → must be a member of that org. No orgId → a personal account;
-    // filterToAccessibleRecords below is the gate (rule 8 keeps a personal
-    // caller to their own workspace records), so no org context is needed.
+    const { userId, workspaceId } = await requireAuth()
+    // orgId → must be a member of that org, and trending spans the org.
+    // No orgId → personal scope: the caller's ACTIVE workspace only, so an
+    // org member on their personal screen never sees org memory here.
     if (orgId) {
       const ctx = await getOrgContext(userId, orgId)
       if (!ctx) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
@@ -33,12 +33,24 @@ export async function GET(req: NextRequest) {
     const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString()
 
     // Group by record_id, count views, order by count desc
+    let personalRecordIds: string[] | null = null
+    if (!orgId) {
+      const own = await db.select({ id: schema.records.id })
+        .from(schema.records)
+        .where(eq(schema.records.workspaceId, workspaceId))
+      personalRecordIds = own.map((r) => r.id)
+      if (personalRecordIds.length === 0) return NextResponse.json({ items: [] })
+    }
+
     const topViews = await db.select({
       recordId: schema.recordViews.recordId,
       viewCount: sql<number>`cast(count(*) as integer)`,
     })
       .from(schema.recordViews)
-      .where(gte(schema.recordViews.viewedAt, since))
+      .where(and(
+        gte(schema.recordViews.viewedAt, since),
+        ...(personalRecordIds ? [inArray(schema.recordViews.recordId, personalRecordIds)] : []),
+      ))
       .groupBy(schema.recordViews.recordId)
       .orderBy(sql`count(*) desc`)
       .limit(limit * 4)  // overshoot to survive RBAC filtering

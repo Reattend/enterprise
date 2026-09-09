@@ -36,6 +36,8 @@ interface NavItem {
   label: string
   /** Renders the unread-count pill (currently only the inbox count). */
   badge?: 'inbox'
+  /** Inverse of orgOnly: hide this item once the user is in an org. */
+  personalOnly?: boolean
   exact?: boolean
   /** When true, only show this nav item if the user is in at least one
    *  org. Pages flagged orgOnly assume an `activeEnterpriseOrgId` and
@@ -52,8 +54,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/app/hierarchy', icon: Network,        label: 'Hierarchy', orgOnly: true },
   { href: '/app/policies', icon: Columns4,        label: 'Policies', orgOnly: true },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
-  { href: '/app/inbox',    icon: Inbox,           label: 'Inbox', badge: 'inbox' },
-  { href: '/app/extension', icon: Puzzle,         label: 'Extension' },
+  // Inbox lives in the topbar (bell) - one place for notifications.
+  // Extension is personal-only: org accounts reach it from the topbar's
+  // Apps menu, where the desktop builds live too.
+  { href: '/app/extension', icon: Puzzle,         label: 'Extension', personalOnly: true },
 ]
 
 export function AppSidebar() {
@@ -276,7 +280,9 @@ export function AppSidebar() {
             enterpriseOrgs.length, so a hybrid user picking "Personal" in
             the topbar gets the trimmed nav too. */}
         <nav className="rail-nav" style={{ marginTop: 14 }}>
-          {NAV_ITEMS.filter((item) => !item.orgOnly || activeEnterpriseOrgId).map((item) => {
+          {NAV_ITEMS
+            .filter((item) => (!item.orgOnly || activeEnterpriseOrgId) && !(item.personalOnly && activeEnterpriseOrgId))
+            .map((item) => {
             const Icon = item.icon
             const active = isActive(item.href, item.exact)
             return (

@@ -51,67 +51,48 @@ export default function TasksPage() {
           </p>
         </div>
 
-        <section className="inner-overview task-overview" aria-label="How memory-grounded tasks work">
-          <div className="inner-overview-copy">
-            <span className="inner-kicker"><WandSparkles size={12} /> Memory workflow engine</span>
-            <h2>Your context moves with the work.</h2>
-            <p>Each workflow retrieves the most relevant memories, drafts against them, and keeps every claim traceable.</p>
-            <div className="inner-metrics">
-              <span><b>{TASK_MODES.length}</b><small>ready workflows</small></span>
-              <span><b>{CATEGORY_ORDER.length}</b><small>workflow families</small></span>
-              <span><b>{totalFields}</b><small>guided inputs</small></span>
-            </div>
+        {/* Compact process strip - the old block panel spent a third of the
+            viewport restating four words. */}
+        <div className="tsk-flow" aria-label="Retrieve, compose, verify, cite">
+          <span className="tsk-flow-kicker"><WandSparkles size={12} /> How it works</span>
+          <div className="tsk-flow-steps">
+            <span><Database size={13} /> Retrieve</span>
+            <i />
+            <span><Sparkles size={13} /> Compose</span>
+            <i />
+            <span><ShieldCheck size={13} /> Verify</span>
+            <i />
+            <span><Quote size={13} /> Cite</span>
           </div>
-          <div className="workflow-map" aria-label="Retrieve, compose, verify, cite">
-            <div className="workflow-node"><Database size={15} /><span>Retrieve<small>your memory</small></span></div>
-            <i />
-            <div className="workflow-node"><Sparkles size={15} /><span>Compose<small>with context</small></span></div>
-            <i />
-            <div className="workflow-node"><ShieldCheck size={15} /><span>Verify<small>each claim</small></span></div>
-            <i />
-            <div className="workflow-node"><Quote size={15} /><span>Cite<small>the source</small></span></div>
-          </div>
-        </section>
+          <span className="tsk-flow-count">{TASK_MODES.length} workflows · {totalFields} guided inputs</span>
+        </div>
 
-        {CATEGORY_ORDER.map((cat) => {
-          const list = byCategory[cat] || []
-          if (list.length === 0) return null
-          return (
-            <section key={cat}>
-              <div className="tsk-sec-head">
-                {CATEGORY_LABEL[cat]}
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--mono)', letterSpacing: 0, textTransform: 'none', fontWeight: 400 }}>
-                  {list.length} workflow{list.length === 1 ? '' : 's'}
-                </span>
-              </div>
-              <div className="tsk-grid">
-                {list.map((m) => {
-                  const Icon = ICONS[m.iconName] || Sparkles
-                  return (
-                    <Link key={m.id} href={`/app/tasks/${m.id}`} className="tsk-card">
-                      <div className={cn('tsk-card-ico', m.category)}>
-                        <Icon size={22} strokeWidth={1.8} />
-                      </div>
-                      <div className="tsk-card-body">
-                        <div className="tsk-card-title-row">
-                          <span className="tsk-card-title">{m.label}</span>
-                        </div>
-                        <div className="tsk-card-tagline">{m.tagline}</div>
-                        <div className="tsk-card-meta">
-                          <span className="pill">{m.fields.length} fields</span>
-                          {m.retrievalHint?.types && (
-                            <span className="pill">→ {m.retrievalHint.types.slice(0, 3).join(', ')}</span>
-                          )}
-                        </div>
-                      </div>
-                      <ChevronRight size={20} strokeWidth={1.8} className="tsk-card-arrow" />
-                    </Link>
-                  )
-                })}
-              </div>
-            </section>
-          )
-        })}
+        {/* One dense grid, not one sparse grid per family. The family is a
+            tag on the card, so a family of one no longer leaves a hole. */}
+        <div className="tsk-grid">
+          {CATEGORY_ORDER.flatMap((cat) => byCategory[cat] || []).map((m) => {
+            const Icon = ICONS[m.iconName] || Sparkles
+            return (
+              <Link key={m.id} href={`/app/tasks/${m.id}`} className="tsk-card">
+                <div className="tsk-card-top">
+                  <div className={cn('tsk-card-ico', m.category)}>
+                    <Icon size={17} strokeWidth={1.9} />
+                  </div>
+                  <span className={cn('tsk-card-cat', m.category)}>{CATEGORY_LABEL[m.category]}</span>
+                  <ChevronRight size={16} strokeWidth={2} className="tsk-card-arrow" />
+                </div>
+                <span className="tsk-card-title">{m.label}</span>
+                <span className="tsk-card-tagline">{m.tagline}</span>
+                <div className="tsk-card-meta">
+                  <span className="pill">{m.fields.length} fields</span>
+                  {m.retrievalHint?.types && (
+                    <span className="pill">{m.retrievalHint.types.slice(0, 3).join(' · ')}</span>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
 
         <div className="tsk-rs-strip">
           <ShieldCheck size={16} strokeWidth={1.8} />

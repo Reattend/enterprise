@@ -1,5 +1,7 @@
 'use client'
 
+import { useAppStore } from '@/stores/app-store'
+
 import { useEffect, useState } from 'react'
 import Script from 'next/script'
 import Link from 'next/link'
@@ -125,6 +127,14 @@ export default function BillingPage() {
     }
   }
 
+  const activeOrgId = useAppStore((st) => st.activeEnterpriseOrgId)
+
+  // Org keys are admin-only and live in the Control Room; personal keys live
+  // in the user's own Settings. One card, two destinations.
+  const keyHref = data?.hasOrg && activeOrgId
+    ? `/app/admin/${activeOrgId}/settings`
+    : '/app/settings'
+
   const byokCard = (
     <Card>
       <CardHeader>
@@ -151,12 +161,12 @@ export default function BillingPage() {
                 : 'This key was rejected by the provider the last time it was used. Update it to keep AI features working.'}
             </p>
             <Button asChild variant="outline">
-              <Link href="/app/settings">{data.byok.status === 'valid' ? 'Manage key' : 'Fix key'}</Link>
+              <Link href={keyHref}>{data.byok.status === 'valid' ? 'Manage key' : 'Fix key'}</Link>
             </Button>
           </>
         ) : (
           <Button asChild>
-            <Link href="/app/settings">Connect your AI key</Link>
+            <Link href={keyHref}>Connect your AI key</Link>
           </Button>
         )}
       </CardContent>

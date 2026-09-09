@@ -63,7 +63,6 @@ export function MarketingNavbar() {
   ) : (
     <>
       <Link className="btn btn-ghost" href="/login">Sign in</Link>
-      <Link className="btn btn-outline" href="/sandbox">Sandbox</Link>
       <a className="btn btn-primary btn-fill" href={DEMO_URL} target="_blank" rel="noreferrer">Book a demo</a>
     </>
   )
@@ -135,7 +134,6 @@ export function MarketingNavbar() {
           ) : (
             <>
               <Link className="mm-ghost" href="/login" onClick={() => setOpen(false)}>Sign in</Link>
-              <Link className="mm-ghost" href="/sandbox" onClick={() => setOpen(false)}>Sandbox</Link>
               <a className="mm-primary" href={DEMO_URL} target="_blank" rel="noreferrer">Book a demo</a>
             </>
           )}

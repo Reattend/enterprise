@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
 import { MemorySignals } from '@/components/app/memory-signals'
+import { cn } from '@/lib/utils'
 import {
   Plus, MessageSquare, Calendar as CalendarIcon, ChevronRight,
   Eye, Clock, Flame, FileText, CheckCircle2, AlertTriangle,
@@ -372,42 +373,41 @@ export default function HomePage() {
           </div>
 
           {/* Sync status */}
-          <div style={{ border: '1px solid var(--line)', borderRadius: 14, background: 'var(--panel)', marginTop: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
-              <span style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Sync status</span>
-              <Link href="/app/integrations" style={{ marginLeft: 'auto', color: 'var(--brand-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>
-                Manage →
-              </Link>
+          <div className="sync-panel">
+            <div className="sync-panel-head">
+              <span>Sync status</span>
+              <span className="sync-panel-count">
+                {sync.filter((p) => p.status === 'connected' && !p.syncError).length}/{sync.length} connected
+              </span>
+              <Link href="/app/integrations" className="sync-panel-manage">Manage →</Link>
             </div>
             {sync.length === 0 && !loading && (
-              <div style={{ padding: '24px 18px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
-                No connectors yet. <Link href="/app/integrations" style={{ color: 'var(--brand-ink)', textDecoration: 'none' }}>Connect one →</Link>
+              <div className="sync-panel-empty">
+                No connectors yet. <Link href="/app/integrations">Connect one →</Link>
               </div>
             )}
-            {sync.map((p, i) => {
-              const dotClass = p.status === 'connected' && !p.syncError ? 'ok'
-                : p.syncError ? 'warn' : 'idle'
-              return (
-                <div key={p.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', borderBottom: i < sync.length - 1 ? '1px solid var(--line-2)' : 'none', fontSize: 13 }}>
-                  <span style={{
-                    width: 8, height: 8, borderRadius: '50%', flex: 'none',
-                    background: dotClass === 'ok' ? 'var(--green)' : dotClass === 'warn' ? 'var(--amber)' : 'var(--ink-4)',
-                    boxShadow: dotClass === 'ok' ? '0 0 0 3px oklch(0.62 0.13 155 / 0.18)'
-                      : dotClass === 'warn' ? '0 0 0 3px oklch(0.78 0.13 75 / 0.18)' : 'none',
-                  }} />
-                  <span style={{ fontWeight: 500, color: p.status === 'connected' ? 'var(--ink)' : 'var(--ink-3)' }}>
-                    {PROVIDER_LABEL[p.key] || p.name}
-                    {p.syncError && <span style={{ color: 'var(--amber-ink)', fontSize: 11, marginLeft: 6 }}>· error</span>}
-                    {p.status !== 'connected' && <span style={{ fontSize: 11, marginLeft: 6 }}>· not connected</span>}
-                  </span>
-                  <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12 }}>
-                    {p.lastSyncedAt ? timeAgo(p.lastSyncedAt) + ' ago'
-                      : <Link href="/app/integrations" style={{ color: 'var(--brand-ink)', fontSize: 12.5, fontWeight: 600, textDecoration: 'none' }}>Connect</Link>}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
+            <div className="sync-panel-grid">
+              {sync.map((p) => {
+                const state = p.syncError ? 'warn' : p.status === 'connected' ? 'ok' : 'idle'
+                return (
+                  <div key={p.key} className={cn('sync-row', state)}>
+                    <span className="sync-dot" />
+                    <span className="sync-name">{PROVIDER_LABEL[p.key] || p.name}</span>
+                    <span className="sync-meta">
+                      {p.syncError ? 'sync error'
+                        : p.lastSyncedAt ? timeAgo(p.lastSyncedAt) + ' ago'
+                        : 'not connected'}
+                    </span>
+                    {p.status !== 'connected' || p.syncError ? (
+                      <Link href="/app/integrations" className="sync-action">
+                        {p.syncError ? 'Fix' : 'Connect'}
+                      </Link>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </div>
+                  </div>
         </div>
       </section>
 

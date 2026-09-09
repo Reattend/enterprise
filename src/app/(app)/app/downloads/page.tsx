@@ -55,10 +55,16 @@ export default function DownloadsPage() {
             { icon: <Sparkles className="w-3.5 h-3.5" />, label: '⌘⇧A · Ask spotlight (Normal + Deep)' },
             { icon: <Mic className="w-3.5 h-3.5" />, label: 'Smart clipboard auto-capture' },
           ]}
-          primary={{ label: `Download · ${LATEST_VERSION}`, href: MAC_HREF, external: false }}
+          primary={{
+            label: 'Coming soon',
+            href: MAC_HREF,
+            external: false,
+            disabled: true,
+            disabledLabel: 'Mac build · coming soon',
+          }}
           secondary={{
             label: 'Apple silicon · macOS 13+',
-            note: 'Unzip, drag Reattend.app to Applications.',
+            note: 'We will email you the moment it ships.',
           }}
           highlight
         />

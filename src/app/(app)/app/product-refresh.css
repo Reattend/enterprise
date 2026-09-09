@@ -1495,3 +1495,196 @@
   .reattend-workspace .memory-signals-list { grid-template-columns: minmax(0, 1fr); }
   .reattend-workspace .memory-signals-head small { display: none; }
 }
+
+
+/* The rail is overflow-hidden, so every child is a flex-shrink candidate.
+   The AI chip has a fixed two-line body - let it keep its height instead of
+   compressing to a sliver on short viewports (org rails carry 3 more nav
+   items, so they hit this first). */
+.reattend-workspace .rail-ai-status {
+  flex: none;
+  min-height: 46px;
+}
+
+/* If the rail still cannot fit everything, scroll the nav rather than
+   crushing it. */
+.reattend-workspace .rail { overflow-y: auto; scrollbar-width: thin; }
+.reattend-workspace .rail::-webkit-scrollbar { width: 6px; }
+.reattend-workspace .rail::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+/* ── "No AI key connected" shell banner ─────────────────────────────────
+   Quiet amber: an unfinished setup step, not an error. */
+.reattend-workspace .ai-key-banner {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 18px;
+  border-bottom: 1px solid color-mix(in oklch, var(--amber, #d8a13a) 30%, transparent);
+  background: linear-gradient(90deg, color-mix(in oklch, var(--peach, #ffead8) 70%, white), transparent 70%);
+  font-size: 13px;
+}
+
+.reattend-workspace .ai-key-banner-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--peach, #ffead8) 80%, white);
+  color: #9a6b25;
+}
+
+.reattend-workspace .ai-key-banner-copy { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.reattend-workspace .ai-key-banner-copy b { color: var(--ink); font-weight: 620; }
+.reattend-workspace .ai-key-banner-copy small {
+  color: var(--ink-2);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reattend-workspace .ai-key-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  flex: none;
+  padding: 6px 12px;
+  border-radius: 9px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.reattend-workspace .ai-key-banner-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -14px rgba(40,51,38,.6); }
+
+@media (max-width: 860px) {
+  .reattend-workspace .ai-key-banner-copy small { display: none; }
+}
+
+/* ── Sync status panel (Home) ───────────────────────────────────────────
+   Was an inline-styled list whose provider name, status and action all
+   competed for one narrow line and wrapped badly. Now a fixed grid:
+   dot, name, status, action - each with its own column. */
+.reattend-workspace .sync-panel {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.reattend-workspace .sync-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.reattend-workspace .sync-panel-head > span:first-child {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.reattend-workspace .sync-panel-count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.reattend-workspace .sync-panel-manage {
+  margin-left: auto;
+  color: var(--brand-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.reattend-workspace .sync-panel-empty { padding: 22px 16px; text-align: center; color: var(--ink-3); font-size: 13px; }
+.reattend-workspace .sync-panel-empty a { color: var(--brand-ink); text-decoration: none; font-weight: 600; }
+
+.reattend-workspace .sync-panel-grid { display: flex; flex-direction: column; }
+
+.reattend-workspace .sync-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--line-2, var(--line));
+}
+.reattend-workspace .sync-row:first-child { border-top: 0; }
+
+.reattend-workspace .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); }
+.reattend-workspace .sync-row.ok   .sync-dot { background: #5f9c46; box-shadow: 0 0 0 3px rgba(95,156,70,.16); }
+.reattend-workspace .sync-row.warn .sync-dot { background: #d8a13a; box-shadow: 0 0 0 3px rgba(216,161,58,.18); }
+
+.reattend-workspace .sync-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reattend-workspace .sync-row.ok .sync-name { color: var(--ink); }
+
+.reattend-workspace .sync-meta { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
+.reattend-workspace .sync-row.warn .sync-meta { color: #9a6b25; }
+
+.reattend-workspace .sync-action {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--brand-ink);
+  font-size: 11.5px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.reattend-workspace .sync-action:hover { border-color: var(--ink-4); background: var(--panel-2, var(--bg-2)); }
+
+/* ── Landscape: full-bleed board ────────────────────────────────────────
+   The board fills the workspace content area rather than covering the
+   whole viewport, so the topbar and rail stay usable and the board's own
+   control bar is never painted over. */
+.reattend-workspace .lsc-page-wrap:has(.lsc-board-card.fullscreen) {
+  overflow: hidden;
+  display: flex;
+}
+
+.reattend-workspace .lsc-page-wrap:has(.lsc-board-card.fullscreen) .lsc-page {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-width: none;
+  height: 100%;
+  min-height: 0;
+}
+
+/* The mode pill is redundant in full-bleed - the bar carries Rewind + Exit. */
+.reattend-workspace .lsc-page-wrap:has(.lsc-board-card.fullscreen) .lsc-modes { display: none; }
+
+.reattend-workspace .lsc-board-card.fullscreen {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Keep the bar and the filter strip pinned above the canvas. */
+.reattend-workspace .lsc-board-card.fullscreen .lsc-board-bar,
+.reattend-workspace .lsc-board-card.fullscreen .lsc-filter-row { flex: none; }

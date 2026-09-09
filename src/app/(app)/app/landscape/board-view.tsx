@@ -347,9 +347,12 @@ export function BoardView() {
         </div>
       )}
 
-      <div className={cn('lsc-board-card', fullscreen && 'fullscreen')} style={fullscreen ? {
-        position: 'fixed', inset: 0, zIndex: 50, borderRadius: 0, border: 0,
-      } : undefined}>
+      {/* Full-bleed, not position:fixed. Fixed put the canvas underneath the
+          app topbar and sidebar, which paint above it - so the board's own
+          bar (legend, search, zoom, Exit) was hidden and the page looked
+          like it had no controls at all. /app/landscape is already a
+          full-bleed route, so the board just fills that area instead. */}
+      <div className={cn('lsc-board-card', fullscreen && 'fullscreen')}>
         <div className="lsc-board-bar">
           <div className="lsc-legend">
             {(['meeting', 'decision', 'tasklike', 'insight', 'idea', 'note'] as RecordType[]).map((t) => {

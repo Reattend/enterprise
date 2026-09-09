@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic'
 // the org is too young.
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, workspaceId } = await requireAuth()
     const orgId = req.nextUrl.searchParams.get('orgId')
 
     // Scope, same rule the graph API uses: orgId → that org's workspaces;
@@ -35,10 +35,11 @@ export async function GET(req: NextRequest) {
         .where(eq(schema.workspaceOrgLinks.organizationId, orgId))
       allWs = Array.from(new Set(wsLinkRows.map((l) => l.workspaceId)))
     } else {
-      const memberRows = await db.select({ workspaceId: schema.workspaceMembers.workspaceId })
-        .from(schema.workspaceMembers)
-        .where(eq(schema.workspaceMembers.userId, userId))
-      allWs = Array.from(new Set(memberRows.map((m) => m.workspaceId)))
+      // Personal scope is the caller's ACTIVE workspace only - never every
+      // membership. An org member also belongs to org-linked workspaces, and
+      // pulling those in here would surface org memory on a personal screen.
+      // Same rule /api/enterprise/graph uses.
+      allWs = [workspaceId]
     }
     const accessibleWs = await filterToAccessibleWorkspaces(userId, allWs)
     if (accessibleWs.length === 0) return NextResponse.json({ groups: [] })

@@ -104,23 +104,20 @@ export default function AgentsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-1">
-          <Bot className="h-3.5 w-3.5" />
-          Agents
-        </div>
-        <h1 className="font-display text-4xl tracking-tight mb-1">AI agents for your org</h1>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Each agent is Chat with a specific knowledge scope and persona.
-          Policy Helper answers only from policies. Decision Lookup finds past decisions.
-          HR Onboarding talks like a friendly buddy. Deploy to Slack, Teams, or the web.
+    <div className="agents-page">
+      {/* Header - same shape as Tasks / Wiki so the product reads as one app */}
+      <span className="agents-crumb"><Bot size={10} strokeWidth={2} /> Agents</span>
+      <div className="agents-head">
+        <h1>An expert for every <span className="accent">corner of your memory</span>.</h1>
+        <p className="sub">
+          Each agent is a chat with its own knowledge scope and persona. Policy Helper answers only
+          from policies. Decision Lookup finds past decisions. HR Onboarding talks like a friendly
+          buddy. Deploy any of them to Slack, Teams, or the web.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-0.5 border-b border-border">
+      <div className="agents-tabs flex items-center gap-0.5 border-b border-border">
         <TabButton active={tab === 'agents'} onClick={() => setTab('agents')} label="Agents" count={agents?.length} />
         <TabButton active={tab === 'activity'} onClick={() => setTab('activity')} label="Activity" icon={Activity} />
       </div>
@@ -174,12 +171,12 @@ export default function AgentsPage() {
                 if (ags.length === 0) return null
                 return (
                   <section key={tier}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Icon className="h-4 w-4 text-muted-foreground" />
-                      <h2 className="font-display text-xl">{meta.label}</h2>
-                      <span className="text-xs text-muted-foreground">· {meta.desc}</span>
+                    <div className="agents-sec-head">
+                      <Icon className="h-3.5 w-3.5" />
+                      <h2>{meta.label}</h2>
+                      <span>{meta.desc}</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="agents-grid">
                       {ags.map((a) => (
                         <AgentCard key={a.id} agent={a} onOpen={() => setOpenAgentId(a.id)} canAuthor={canAuthor} orgId={activeOrgId} />
                       ))}
@@ -206,12 +203,12 @@ export default function AgentsPage() {
                   live action agents + 6 coming-soon; real send-integrations
                   land with Nango in Sprint P. */}
               <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="font-display text-xl">Action agents</h2>
-                  <span className="text-xs text-muted-foreground">· agents that DO things, not just answer</span>
+                <div className="agents-sec-head">
+                  <Zap className="h-3.5 w-3.5" />
+                  <h2>Action agents</h2>
+                  <span>they do things, not just answer</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="agents-grid">
                   <ActionAgentCard
                     icon={Mail}
                     title="Draft email reply"
