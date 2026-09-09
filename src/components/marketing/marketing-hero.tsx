@@ -1,43 +1,38 @@
-import React from 'react'
+'use client'
+
+import React, { useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { resourceMetaFor } from './resource-meta'
 
 /**
- * MarketingHero - the eyebrow + serif H1 + lede + CTA cluster pattern from
- * the landing.html hero, reusable for every tool/game/free-utility page.
+ * MarketingHero - the marketing design's "detail hero" for every free
+ * tool / game / utility page: back link, eyebrow, split-colour H1, lede,
+ * chips, actions on the left; a tinted "stage" card on the right whose
+ * button scrolls to the live tool that follows the hero.
  *
- * Visual rules (mirrored from /public/landing-design/styles.css):
- * - Eyebrow: mono, uppercase, 11px, with an animated violet pulse dot on the left
- * - H1: Instrument Serif, 56-72px, tight tracking, optional italic emphasis word
- * - Lede: Geist, 18-20px, ink-2 (medium gray), max ~52ch for read width
- * - CTAs: pill buttons, primary filled (dark) + outline secondary
- *
- * The italic-emphasis word is a key landing pattern - `<em>preserved</em>`
- * in the landing's "Your organization's memory, preserved." Keep using it
- * to land the new positioning in 1-2 words per hero.
+ * The props API is unchanged from the previous hero so no page needed
+ * editing. Per-route copy (category, glyph, action, tint) comes from the
+ * design's own resources map via resource-meta.ts; pages that aren't in
+ * that map (e.g. /subprocessors) get a single-column centred hero.
  */
 export interface MarketingHeroProps {
-  /** Mono uppercase label that sits above the title. e.g. "Free tool" / "Free team game" */
   eyebrow: string
-  /** Plain (non-emphasized) text that opens the title. */
   title: string
-  /** Optional italic-serif emphasis word that closes the title. Set both for "Foo bar - emphasized." */
   emphasis?: string
-  /** Punctuation between title and emphasis. Defaults to a comma; some use " - " or just space. */
   emphasisJoiner?: string
-  /** Subhead paragraph. ~1-2 sentences, max ~52ch read width. */
   lede: string
-  /** Optional primary CTA. Pass null/undefined when the hero is followed by a
-   *  page-specific action button (e.g., "Start assessment" that needs onClick). */
+  /** Explicit primary link. `null`/undefined = the design's scroll-to-tool action button. */
   primaryCta?: { label: string; href: string } | null
-  /** Optional secondary CTA. */
   secondaryCta?: { label: string; href: string }
-  /** Optional small social-proof / capability strip below the CTAs (e.g., compliance badges). */
   trustChips?: string[]
-  /** Center-align (default) or left-align the hero. Center for tool index pages, left for individual tools where a tool/form sits to the right. */
   align?: 'center' | 'left'
-  /** Children render below the lede + CTAs but inside the hero section - useful for inline form or screenshot. */
   children?: React.ReactNode
+}
+
+function splitLastWord(title: string): [string, string] {
+  const m = title.trim().match(/^(.*)\s+(\S+)$/)
+  return m ? [m[1] + ' ', m[2]] : ['', title]
 }
 
 export function MarketingHero({
@@ -46,142 +41,70 @@ export function MarketingHero({
   emphasis,
   emphasisJoiner = ' ',
   lede,
-  primaryCta = { label: 'Try Reattend Enterprise free', href: '/sandbox' },
+  primaryCta,
   secondaryCta,
   trustChips,
   align = 'center',
   children,
 }: MarketingHeroProps) {
-  const alignClass = align === 'center' ? 'text-center mx-auto' : 'text-left'
-  const inlineAlign = align === 'center' ? 'mx-auto' : ''
+  const pathname = usePathname()
+  const meta = resourceMetaFor(pathname)
+  const ref = useRef<HTMLElement>(null)
+
+  const scrollToTool = () => {
+    const next = ref.current?.nextElementSibling as HTMLElement | null
+    if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    else window.scrollBy({ top: (ref.current?.offsetHeight ?? 600) - 80, behavior: 'smooth' })
+  }
+
+  const chips = trustChips && trustChips.length > 0
+    ? trustChips
+    : ['No signup', 'Works in your browser', meta?.game ? 'Made for teams' : 'Free forever']
+  const [head, tail] = emphasis ? [title + emphasisJoiner, emphasis] : splitLastWord(title)
+  const single = !meta && align === 'center'
+
   return (
-    <section
-      className="relative px-5 sm:px-8"
-      style={{ paddingTop: 'clamp(60px, 8vw, 110px)', paddingBottom: 'clamp(40px, 6vw, 80px)' }}
-    >
-      <div className={`max-w-3xl ${alignClass}`}>
-        {/* Eyebrow: mono uppercase + pulsing dot */}
-        <div
-          className={`inline-flex items-center gap-2 ${inlineAlign}`}
-          style={{
-            fontFamily: 'var(--font-mono), ui-monospace, monospace',
-            fontSize: '11px',
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'oklch(0.52 0.012 270)',
-            fontWeight: 500,
-            marginBottom: '20px',
-          }}
-        >
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full"
-            style={{
-              background: 'oklch(0.45 0.18 155)',
-              boxShadow: '0 0 0 3px oklch(0.45 0.18 155 / 0.15)',
-              animation: 'mh-pulse 2.4s ease-in-out infinite',
-            }}
-          />
-          {eyebrow}
+    <section className="detail-hero" ref={ref}>
+      <div className="detail-hero-grid" style={single ? { gridTemplateColumns: 'minmax(0, 1fr)', justifyItems: 'center', textAlign: 'center' } : undefined}>
+        <div className="detail-copy is-visible" data-reveal style={single ? { maxWidth: 760 } : undefined}>
+          {meta && (
+            <Link className="detail-back" href={meta.game ? '/game' : '/tool'}>← Back to {meta.game ? 'free games' : 'free tools'}</Link>
+          )}
+          <div className="detail-eyebrow">{meta ? `${meta.category} · Free to use` : eyebrow}</div>
+          <h1>{head}<span>{tail}</span></h1>
+          <p className="detail-lede">{lede}</p>
+          <div className="detail-chips" style={single ? { justifyContent: 'center' } : undefined}>
+            {chips.map((c) => <span key={c} className="detail-chip">{c}</span>)}
+          </div>
+          <div className="detail-actions" style={single ? { justifyContent: 'center' } : undefined}>
+            {primaryCta ? (
+              <Link className="detail-button primary" href={primaryCta.href}>{primaryCta.label} ↘</Link>
+            ) : meta ? (
+              <button type="button" className="detail-button primary" onClick={scrollToTool}>{meta.action} ↘</button>
+            ) : null}
+            <Link className="detail-button" href={secondaryCta?.href ?? '/product'}>{secondaryCta?.label ?? 'See how Reattend works'}</Link>
+          </div>
+          {children && <div style={{ marginTop: 28 }}>{children}</div>}
         </div>
 
-        {/* H1: Instrument Serif, tight tracking, optional italic emphasis */}
-        <h1
-          style={{
-            fontFamily: 'var(--font-display), "Times New Roman", serif',
-            fontWeight: 400,
-            fontSize: 'clamp(40px, 6vw, 72px)',
-            lineHeight: 1.04,
-            letterSpacing: '-0.015em',
-            color: 'oklch(0.18 0.012 270)',
-            marginBottom: '20px',
-          }}
-        >
-          {title}
-          {emphasis && (
-            <>
-              {emphasisJoiner}
-              <em style={{ fontStyle: 'italic', color: 'oklch(0.45 0.18 155)' }}>{emphasis}</em>
-            </>
-          )}
-        </h1>
-
-        {/* Lede */}
-        <p
-          className={inlineAlign}
-          style={{
-            fontSize: 'clamp(16px, 1.4vw, 19px)',
-            lineHeight: 1.55,
-            color: 'oklch(0.32 0.012 270)',
-            maxWidth: '52ch',
-            marginBottom: '28px',
-          }}
-        >
-          {lede}
-        </p>
-
-        {/* CTA cluster - both CTAs are optional. Pages with custom action
-            buttons (e.g., a phase-changing onClick) pass primaryCta={null}
-            and render their own button below the hero. */}
-        {(primaryCta || secondaryCta) && (
-          <div className={`flex flex-wrap items-center gap-3 ${align === 'center' ? 'justify-center' : ''}`}>
-            {primaryCta && (
-              <Link
-                href={primaryCta.href}
-                className="inline-flex items-center gap-1.5 rounded-full px-7 py-3 text-[15px] font-medium transition-colors"
-                style={{ background: 'oklch(0.18 0.012 270)', color: 'white' }}
-              >
-                {primaryCta.label}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            )}
-            {secondaryCta && (
-              <Link
-                href={secondaryCta.href}
-                className="inline-flex items-center gap-1.5 rounded-full px-7 py-3 text-[15px] font-medium transition-colors border"
-                style={{
-                  borderColor: 'oklch(0.88 0.008 270)',
-                  background: 'oklch(0.992 0.004 80)',
-                  color: 'oklch(0.18 0.012 270)',
-                }}
-              >
-                {secondaryCta.label}
-              </Link>
-            )}
+        {meta && (
+          <div className="detail-stage is-visible" data-reveal style={{ ['--delay' as string]: '120ms' }}>
+            <div className="detail-stage-window">
+              <div className="detail-stage-bar"><span>Live tool</span><span className="detail-stage-dots"><i /><i /><i /></span></div>
+              <div className="detail-stage-body">
+                <div className="detail-stage-icon">{meta.glyph}</div>
+                <h2>{meta.action}</h2>
+                <p className="detail-stage-copy">
+                  {meta.game
+                    ? 'Runs entirely in the browser. Create a room, share the code, play together.'
+                    : 'Runs entirely in your browser. Nothing you type here is stored on our servers.'}
+                </p>
+                <button type="button" className="detail-submit" onClick={scrollToTool}>{meta.action} →</button>
+              </div>
+            </div>
           </div>
         )}
-
-        {/* Trust chips (compliance, etc) */}
-        {trustChips && trustChips.length > 0 && (
-          <div
-            className={`flex flex-wrap items-center gap-x-4 gap-y-2 mt-6 ${align === 'center' ? 'justify-center' : ''}`}
-            style={{
-              fontFamily: 'var(--font-mono), ui-monospace, monospace',
-              fontSize: '11px',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'oklch(0.52 0.012 270)',
-            }}
-          >
-            {trustChips.map((chip, i) => (
-              <React.Fragment key={chip}>
-                <span>{chip}</span>
-                {i < trustChips.length - 1 && (
-                  <span style={{ color: 'oklch(0.72 0.008 270)' }}>·</span>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        )}
-
-        {children && <div className="mt-10">{children}</div>}
       </div>
-
-      <style>{`
-        @keyframes mh-pulse {
-          0%, 100% { box-shadow: 0 0 0 3px oklch(0.45 0.18 155 / 0.15); }
-          50%      { box-shadow: 0 0 0 6px oklch(0.45 0.18 155 / 0.05); }
-        }
-      `}</style>
     </section>
   )
 }

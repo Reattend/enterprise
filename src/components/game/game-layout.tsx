@@ -1,9 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { type CSSProperties } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
+import { ResourceExtras } from '@/components/marketing/marketing-shell'
+import { resourceMetaFor } from '@/components/marketing/resource-meta'
+import '@/components/marketing/resource-shell.css'
 
 interface GameLayoutProps {
   children: React.ReactNode
@@ -26,8 +31,13 @@ export function GameLayout({
   roomBar,
   bgBlobs,
 }: GameLayoutProps) {
+  // Same chrome as MarketingShell (marketing design's detail page): tint,
+  // topbar, back link, trailing sections, footer. The game body, results
+  // pane, room bar and blobs are untouched.
+  const pathname = usePathname()
+  const meta = resourceMetaFor(pathname)
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#111] overflow-x-hidden">
+    <div className="rshell detail-page min-h-screen overflow-x-hidden" style={{ ['--detail-tint' as string]: meta?.tint ?? '#ffe4ee' } as CSSProperties}>
       <MarketingNavbar />
 
       {/* Background gradient blobs */}
@@ -36,9 +46,14 @@ export function GameLayout({
       {/* Room info bar */}
       {roomBar}
 
-      {/* Hero */}
-      <section className="relative z-10 pt-16 md:pt-20 pb-12 px-5 text-center">
-        {heroContent}
+      {/* Hero - the design's tinted detail-hero, single centred column */}
+      <section className="detail-hero relative z-10">
+        <div className="detail-hero-grid" style={{ gridTemplateColumns: 'minmax(0, 1fr)', justifyItems: 'center' }}>
+          <div className="detail-copy is-visible text-center" data-reveal style={{ maxWidth: 820 }}>
+            <Link className="detail-back" href="/game">← Back to free games</Link>
+            {heroContent}
+          </div>
+        </div>
       </section>
 
       {/* Game + Results area */}
@@ -103,6 +118,8 @@ export function GameLayout({
 
       {/* CTA */}
       {ctaSection}
+
+      {meta && <ResourceExtras meta={meta} />}
 
       <MarketingFooter />
     </div>

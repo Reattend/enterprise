@@ -2,240 +2,144 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
 
 /**
- * MarketingNavbar - pixel-mirror of the static landing's topbar
- * (/public/landing-design/landing.html lines 36-56). Used by every page
- * wrapped in <MarketingShell>.
+ * MarketingNavbar - the marketing design's topbar, as React.
  *
- * Visual rules lifted from /public/landing-design/styles.css `.topbar`:
- * - Sticky, backdrop-blur(14px) + saturate(1.2)
- * - Background: oklch(1 0 0 / 0.78) - white at 78% opacity
- * - Border bottom: var(--rule-2) - subtle border
- * - Brand: sans-serif "Reattend" wordmark, no "Enterprise" tag
- * - Nav items: 14px, ink-2 color, hover lifts to ink + bg-2
- * - 3 CTA pattern: ghost "Sign in" / outline "Sandbox" / filled "Book a demo"
- *
- * The existing React Navbar (@/components/landing/navbar) stays untouched
- * so any non-marketing surface that imports it doesn't change.
+ * Markup and class names mirror public/landing-design (topbar / brand /
+ * nav / btn, plus the mobile drawer that mobile-menu.js injects on the
+ * static pages) so the extracted, .rshell-scoped stylesheet in
+ * resource-shell.css styles both the static HTML and these React pages
+ * identically. Behaviour ported from the static scripts:
+ *   - site-refresh.js: `has-scrolled` on the topbar past 12px
+ *   - mobile-menu.js: right-edge drawer + backdrop, Escape closes
+ *   - auth-cta.js: signed-in visitors see one "Go to dashboard" button
  */
+const NAV = [
+  { label: 'Home', href: '/' },
+  { label: 'Product', href: '/product' },
+  { label: 'Integrations', href: '/integrations' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Compliance', href: '/compliance' },
+]
+const DEMO_URL = 'https://calendly.com/pb-reattend/30min'
+
 export function MarketingNavbar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [mobileOpen])
+    const sync = () => setScrolled(window.scrollY > 12)
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    return () => window.removeEventListener('scroll', sync)
+  }, [])
 
-  const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Product', href: '/product' },
-    { label: 'Integrations', href: '/integrations' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'Compliance', href: '/compliance' },
-  ]
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+  }, [open])
 
-  // Active state - match by exact path or top-level segment
-  const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : (pathname?.startsWith(href) ?? false)
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/auth/session', { credentials: 'same-origin', cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d?.user) setSignedIn(true) })
+      .catch(() => { /* silent, same as auth-cta.js */ })
+    return () => { cancelled = true }
+  }, [])
+
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : (pathname?.startsWith(href) ?? false))
+
+  const ctas = signedIn ? (
+    <Link className="btn btn-primary btn-fill" href="/app" style={{ textDecoration: 'none' }}>Go to dashboard</Link>
+  ) : (
+    <>
+      <Link className="btn btn-ghost" href="/login">Sign in</Link>
+      <Link className="btn btn-outline" href="/sandbox">Sandbox</Link>
+      <a className="btn btn-primary btn-fill" href={DEMO_URL} target="_blank" rel="noreferrer">Book a demo</a>
+    </>
+  )
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{
-        backdropFilter: 'blur(14px) saturate(1.2)',
-        WebkitBackdropFilter: 'blur(14px) saturate(1.2)',
-        background: 'oklch(1 0 0 / 0.78)',
-        borderBottom: '1px solid oklch(0.93 0.006 270)',
-      }}
-    >
-      <div
-        className="mx-auto flex items-center justify-between gap-6"
-        style={{
-          maxWidth: '1280px',
-          padding: '14px clamp(20px, 4vw, 48px)',
-        }}
-      >
-        {/* Brand */}
-        {/* Brand wordmark - no "Enterprise" tag. Cofounder feedback (2026-05-05):
-            an Enterprise pill scares away the 200-person startup ICP. The
-            product is just "Reattend." Compliance/scale language lives on
-            /compliance + /security where it's appropriate. */}
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 shrink-0"
-          aria-label="Reattend home"
-          style={{
-            fontFamily: 'var(--font-inter), -apple-system, system-ui, sans-serif',
-            fontSize: '22px',
-            letterSpacing: '-0.02em',
-            color: 'oklch(0.18 0.012 270)',
-          }}
-        >
-          <Image src="/black_logo.svg" alt="Reattend" width={28} height={28} priority style={{ height: '24px', width: 'auto' }} />
-          <span>Reattend</span>
-        </Link>
-
-        {/* Desktop nav - hidden on mobile */}
-        <nav className="hidden md:flex items-center gap-1.5">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                padding: '8px 14px',
-                fontSize: '14px',
-                color: isActive(item.href) ? 'oklch(0.18 0.012 270)' : 'oklch(0.32 0.012 270)',
-                background: isActive(item.href) ? 'oklch(0.98 0 0)' : 'transparent',
-                borderRadius: '8px',
-                transition: 'background 0.18s, color 0.18s',
-              }}
-              className="hover:bg-[oklch(0.98_0_0)] hover:text-[oklch(0.18_0.012_270)]"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA cluster - desktop */}
-        <div className="hidden md:flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hover:bg-[oklch(0.98_0_0)] transition-colors"
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: 500,
-              borderRadius: '8px',
-              color: 'oklch(0.32 0.012 270)',
-            }}
-          >
-            Sign in
+    <>
+      <a className="skip" href="#main">Skip to content</a>
+      <header className={`topbar${scrolled ? ' has-scrolled' : ''}`}>
+        <div className="topbar-inner">
+          <Link className="brand" href="/" aria-label="Reattend home">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="brand-logo" src="/landing-design/black_logo.svg" alt="" width={30} height={30} />
+            <span className="brand-word">Reattend</span>
           </Link>
-          <Link
-            href="/sandbox"
-            className="hover:border-[oklch(0.18_0.012_270)] transition-all"
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: 500,
-              borderRadius: '8px',
-              border: '1.5px solid oklch(0.18 0.012 270)',
-              color: 'oklch(0.18 0.012 270)',
-              background: 'oklch(0.995 0 0)',
-            }}
-          >
-            Sandbox
-          </Link>
-          <a
-            href="https://calendly.com/pb-reattend/30min"
-            target="_blank"
-            rel="noreferrer"
-            className="transition-all hover:-translate-y-px"
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: 500,
-              borderRadius: '8px',
-              background: 'oklch(0.18 0.012 270)',
-              color: 'oklch(1 0 0)',
-              boxShadow: '0 1px 0 oklch(0.18 0.012 270 / 0.08), 0 4px 14px oklch(0.18 0.012 270 / 0.18)',
-            }}
-          >
-            Book a demo
-          </a>
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          className="md:hidden p-2 rounded-lg"
-          style={{ color: 'oklch(0.18 0.012 270)' }}
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {/* Mobile menu drawer */}
-      {mobileOpen && (
-        <div
-          className="md:hidden border-t"
-          style={{
-            background: 'oklch(1 0 0)',
-            borderColor: 'oklch(0.93 0.006 270)',
-          }}
-        >
-          <nav className="flex flex-col px-5 py-4 gap-1">
-            {navItems.map((item) => (
+          <nav className="nav" aria-label="Main navigation">
+            {NAV.map((item) => (
               <Link
                 key={item.href}
+                className={`nav-item${isActive(item.href) ? ' active' : ''}`}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
-                style={{
-                  padding: '10px 12px',
-                  fontSize: '15px',
-                  color: 'oklch(0.18 0.012 270)',
-                  borderRadius: '8px',
-                }}
+                aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="border-t mt-2 pt-3 flex flex-col gap-2" style={{ borderColor: 'oklch(0.93 0.006 270)' }}>
-              <Link
-                href="/login"
-                onClick={() => setMobileOpen(false)}
-                style={{
-                  padding: '10px 12px',
-                  fontSize: '15px',
-                  color: 'oklch(0.32 0.012 270)',
-                }}
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/sandbox"
-                onClick={() => setMobileOpen(false)}
-                className="text-center"
-                style={{
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  borderRadius: '8px',
-                  border: '1.5px solid oklch(0.18 0.012 270)',
-                  color: 'oklch(0.18 0.012 270)',
-                  background: 'oklch(0.995 0 0)',
-                }}
-              >
-                Sandbox
-              </Link>
-              <a
-                href="https://calendly.com/pb-reattend/30min"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setMobileOpen(false)}
-                className="text-center"
-                style={{
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  borderRadius: '8px',
-                  background: 'oklch(0.18 0.012 270)',
-                  color: 'oklch(1 0 0)',
-                }}
-              >
-                Book a demo
-              </a>
-            </div>
           </nav>
+          <div style={{ display: 'flex', gap: 8 }}>{ctas}</div>
+          <button
+            type="button"
+            className="mobile-menu-trigger"
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
         </div>
-      )}
-    </header>
+      </header>
+
+      {/* Mobile drawer - same DOM mobile-menu.js builds on the static pages */}
+      <div className={`mobile-menu-backdrop${open ? ' open' : ''}`} aria-hidden="true" onClick={() => setOpen(false)} />
+      <aside className={`mobile-menu-drawer${open ? ' open' : ''}`} aria-hidden={!open} role="dialog" aria-label="Site navigation">
+        <div className="mm-head">
+          <Link className="mm-brand" href="/" onClick={() => setOpen(false)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/landing-design/black_logo.svg" alt="" width={30} height={30} />
+            <span className="brand-word">Reattend</span>
+          </Link>
+          <button type="button" className="mm-close" aria-label="Close menu" onClick={() => setOpen(false)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="mm-section-label">Browse</div>
+        <nav className="mm-nav">
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.label}</Link>
+          ))}
+          <Link href="/tool" onClick={() => setOpen(false)}>Free tools</Link>
+          <Link href="/game" onClick={() => setOpen(false)}>Free games</Link>
+        </nav>
+        <div className="mm-section-label">Get started</div>
+        <div className="mm-cta">
+          {signedIn ? (
+            <Link className="mm-primary" href="/app" onClick={() => setOpen(false)}>Go to dashboard</Link>
+          ) : (
+            <>
+              <Link className="mm-ghost" href="/login" onClick={() => setOpen(false)}>Sign in</Link>
+              <Link className="mm-ghost" href="/sandbox" onClick={() => setOpen(false)}>Sandbox</Link>
+              <a className="mm-primary" href={DEMO_URL} target="_blank" rel="noreferrer">Book a demo</a>
+            </>
+          )}
+        </div>
+      </aside>
+    </>
   )
 }
