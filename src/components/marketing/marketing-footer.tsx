@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import './resource-shell.css'
 
 /**
  * MarketingFooter - the marketing design's footer, as React. Column
@@ -10,7 +11,7 @@ import Link from 'next/link'
  */
 export function MarketingFooter() {
   return (
-    <footer role="contentinfo">
+    <footer className="rshell" role="contentinfo">
       <div className="footer-grid">
         <div className="footer-col footer-brand">
           <Link className="brand" href="/">

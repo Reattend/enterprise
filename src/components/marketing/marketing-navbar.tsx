@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import './resource-shell.css'
 
 /**
  * MarketingNavbar - the marketing design's topbar, as React.
@@ -69,8 +70,8 @@ export function MarketingNavbar() {
 
   return (
     <>
-      <a className="skip" href="#main">Skip to content</a>
-      <header className={`topbar${scrolled ? ' has-scrolled' : ''}`}>
+      <a className="rshell skip" href="#main">Skip to content</a>
+      <header className={`rshell topbar${scrolled ? ' has-scrolled' : ''}`}>
         <div className="topbar-inner">
           <Link className="brand" href="/" aria-label="Reattend home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -105,8 +106,8 @@ export function MarketingNavbar() {
       </header>
 
       {/* Mobile drawer - same DOM mobile-menu.js builds on the static pages */}
-      <div className={`mobile-menu-backdrop${open ? ' open' : ''}`} aria-hidden="true" onClick={() => setOpen(false)} />
-      <aside className={`mobile-menu-drawer${open ? ' open' : ''}`} aria-hidden={!open} role="dialog" aria-label="Site navigation">
+      <div className={`rshell mobile-menu-backdrop${open ? ' open' : ''}`} aria-hidden="true" onClick={() => setOpen(false)} />
+      <aside className={`rshell mobile-menu-drawer${open ? ' open' : ''}`} aria-hidden={!open} role="dialog" aria-label="Site navigation">
         <div className="mm-head">
           <Link className="mm-brand" href="/" onClick={() => setOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
