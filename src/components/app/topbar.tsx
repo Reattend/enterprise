@@ -311,7 +311,7 @@ export function AppTopbar() {
 
           {/* Quick Capture */}
           <button
-            onClick={() => useAppStore.getState().setCommandOpen(true)}
+            onClick={() => useAppStore.getState().setCaptureOpen(true)}
             className="icon-btn"
             title="Quick capture"
           >

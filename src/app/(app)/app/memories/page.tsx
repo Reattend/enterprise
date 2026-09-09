@@ -192,15 +192,6 @@ export default function MemoriesPage() {
   const [sendingEmail, setSendingEmail] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
 
-  // Create memory state
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [newContent, setNewContent] = useState('')
-  const [selectedProjectId, setSelectedProjectId] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [createMode, setCreateMode] = useState<'text' | 'file'>('text')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   // Bulk import state
   const [showImportDialog, setShowImportDialog] = useState(false)
   const [importFiles, setImportFiles] = useState<File[]>([])
@@ -379,55 +370,6 @@ export default function MemoriesPage() {
     finally { setSendingEmail(false) }
   }
 
-  const handleCreateMemory = async () => {
-    if (createMode === 'file') {
-      if (!selectedFile) return
-      setCreating(true)
-      try {
-        const formData = new FormData()
-        formData.append('file', selectedFile)
-        if (selectedProjectId) formData.append('project_id', selectedProjectId)
-        if (activeOrgId) formData.append('org_id', activeOrgId)
-        const res = await fetch('/api/upload', { method: 'POST', body: formData })
-        const data = await res.json()
-        if (!res.ok) { toast.error(data.error || 'Failed to upload'); return }
-        if (data.record) {
-          setRecords((prev) => [data.record, ...prev])
-          pollUntilEnriched(data.record.id)
-        }
-        toast.success('Memory saved successfully.')
-      emit(SCOPES.memories)
-        setShowCreateDialog(false); setNewContent(''); setSelectedFile(null); setSelectedProjectId(''); setCreateMode('text')
-      } catch { toast.error('Failed to upload file') }
-      finally { setCreating(false) }
-      return
-    }
-
-    if (!newContent.trim()) return
-    setCreating(true)
-    try {
-      const res = await fetch('/api/records', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: newContent.trim(),
-          project_id: selectedProjectId || undefined,
-          orgId: activeOrgId || undefined,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) { toast.error(data.error || 'Failed to create memory'); return }
-      if (data.record) {
-        setRecords((prev) => [data.record, ...prev])
-        pollUntilEnriched(data.record.id)
-      }
-      toast.success('Memory saved successfully.')
-      emit(SCOPES.memories)
-      setShowCreateDialog(false); setNewContent(''); setSelectedProjectId('')
-    } catch { toast.error('Failed to create memory') }
-    finally { setCreating(false) }
-  }
-
   const handleBulkImport = async () => {
     if (importFiles.length === 0) return
     setImporting(true)
@@ -497,7 +439,7 @@ export default function MemoriesPage() {
               <Upload size={13} strokeWidth={1.8} />
               Import
             </button>
-            <button className="mem-btn primary" onClick={() => setShowCreateDialog(true)}>
+            <button className="mem-btn primary" onClick={() => router.push('/app/brain-dump')}>
               <Plus size={13} strokeWidth={2} />
               New memory
             </button>
@@ -618,7 +560,7 @@ export default function MemoriesPage() {
               {records.length === 0 ? 'No memories yet. Capture your first one!' : 'No memories match your filters.'}
             </p>
             {records.length === 0 ? (
-              <button className="mem-btn primary" style={{ marginTop: 16 }} onClick={() => setShowCreateDialog(true)}>
+              <button className="mem-btn primary" style={{ marginTop: 16 }} onClick={() => router.push('/app/brain-dump')}>
                 <Plus size={13} /> New memory
               </button>
             ) : (
@@ -830,103 +772,6 @@ export default function MemoriesPage() {
             </div>
             <div className="foot">
               <button className="mem-btn" onClick={() => setShareDialogOpen(false)}>Done</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create memory dialog */}
-      {showCreateDialog && (
-        <div className="mem-modal-overlay" onClick={() => setShowCreateDialog(false)}>
-          <div className="mem-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>New memory</h3>
-            <div className="desc">Add text or upload a document. The AI enriches it in the background.</div>
-            <div className="body">
-              <div className="mem-tabs" style={{ marginBottom: 12 }}>
-                <button
-                  className={cn('mem-tab-btn', createMode === 'text' && 'active')}
-                  onClick={() => setCreateMode('text')}
-                >
-                  <FileText size={13} /> Text
-                </button>
-                <button
-                  className={cn('mem-tab-btn', createMode === 'file' && 'active')}
-                  onClick={() => setCreateMode('file')}
-                >
-                  <Upload size={13} /> Upload file
-                </button>
-              </div>
-
-              {projects.length > 0 && (
-                <>
-                  <label>Project</label>
-                  <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)}>
-                    <option value="">Select a project (optional)</option>
-                    {projects.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name}{p.isDefault ? ' (default)' : ''}</option>
-                    ))}
-                  </select>
-                </>
-              )}
-
-              {createMode === 'text' ? (
-                <>
-                  <label>Content</label>
-                  <textarea
-                    value={newContent}
-                    onChange={(e) => setNewContent(e.target.value)}
-                    placeholder="e.g., Decided to use React Flow for the memory graph. It supports interactive nodes, edges, and canvas interactions…"
-                    autoFocus
-                  />
-                </>
-              ) : (
-                <>
-                  <label>Document</label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.doc,.docx,.txt,.md,.csv,image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                  />
-                  {selectedFile ? (
-                    <div className="mem-attach-card">
-                      <div className="mem-attach-icon"><Paperclip size={14} /></div>
-                      <div className="mem-attach-meta">
-                        <div className="mem-attach-name">{selectedFile.name}</div>
-                        <div className="mem-attach-size">{(selectedFile.size / 1024).toFixed(0)} KB · {selectedFile.type || 'unknown'}</div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
-                        style={{ background: 'transparent', border: 0, color: 'var(--ink-3)', cursor: 'pointer', padding: 4 }}
-                        aria-label="Clear file"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="file-zone" onClick={() => fileInputRef.current?.click()}>
-                      <Upload size={28} style={{ display: 'block', margin: '0 auto 10px', color: 'var(--ink-3)' }} />
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Click to upload a file</div>
-                      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 4 }}>
-                        PDF · Word · text · images (max 20MB)
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            <div className="foot">
-              <button className="mem-btn" onClick={() => setShowCreateDialog(false)}>Cancel</button>
-              <button
-                className="mem-btn primary"
-                onClick={handleCreateMemory}
-                disabled={(createMode === 'text' ? !newContent.trim() : !selectedFile) || creating}
-              >
-                {creating ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
-                {creating ? (createMode === 'file' ? 'Uploading…' : 'Saving…') : (createMode === 'file' ? 'Upload' : 'Submit')}
-              </button>
             </div>
           </div>
         </div>

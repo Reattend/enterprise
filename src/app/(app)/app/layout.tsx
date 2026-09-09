@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { AppSidebar } from '@/components/app/sidebar'
 import { AppTopbar } from '@/components/app/topbar'
 import './dashboard.css'
-import { QuickCapture } from '@/components/app/quick-capture'
 import { InboxBanner } from '@/components/app/inbox-banner'
 import { CaptureDrawer } from '@/components/enterprise/capture-drawer'
 import { PolicyPendingBanner } from '@/components/enterprise/policy-pending-banner'
@@ -199,7 +198,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <StoreHydrator />
       <KeyboardShortcuts />
       <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
-      <QuickCapture />
       <CaptureDrawer />
       <div className="app-grid">
         <AppSidebar />

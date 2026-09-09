@@ -51,8 +51,6 @@ interface AppState {
   setInboxPanelOpen: (open: boolean) => void
 
   // Command palette
-  commandOpen: boolean
-  setCommandOpen: (open: boolean) => void
 
   // Create team modal (shared between topbar and onboarding)
   createTeamOpen: boolean
@@ -148,8 +146,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   inboxPanelOpen: false,
   setInboxPanelOpen: (open) => set({ inboxPanelOpen: open }),
 
-  commandOpen: false,
-  setCommandOpen: (open) => set({ commandOpen: open }),
 
   createTeamOpen: false,
   setCreateTeamOpen: (open) => set({ createTeamOpen: open }),

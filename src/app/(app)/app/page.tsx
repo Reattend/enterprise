@@ -179,7 +179,7 @@ export default function HomePage() {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', paddingTop: 4 }}>
           <button
             type="button"
-            onClick={() => useAppStore.getState().setCommandOpen(true)}
+            onClick={() => useAppStore.getState().setCaptureOpen(true)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px',
               borderRadius: 9, fontSize: 13, fontWeight: 550, fontFamily: 'inherit',
@@ -256,7 +256,7 @@ export default function HomePage() {
               </>
             )}
           </div>
-          <button type="button" onClick={() => useAppStore.getState().setCommandOpen(true)} style={{
+          <button type="button" onClick={() => useAppStore.getState().setCaptureOpen(true)} style={{
             display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px',
             borderRadius: 9, fontSize: 13, fontWeight: 550, fontFamily: 'inherit',
             border: '1px solid var(--line)', background: 'var(--panel)', color: 'var(--ink)', cursor: 'pointer',
