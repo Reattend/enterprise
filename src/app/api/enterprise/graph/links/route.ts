@@ -4,6 +4,9 @@ import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { handleEnterpriseError, buildAccessContext, canManageRecordAccess } from '@/lib/enterprise'
 
+const LINK_KINDS = new Set(['same_topic', 'depends_on', 'contradicts', 'continuation_of', 'same_people', 'causes', 'temporal', 'related_to', 'leads_to', 'supports', 'part_of', 'blocks'])
+type LinkKind = 'same_topic' | 'depends_on' | 'contradicts' | 'continuation_of' | 'same_people' | 'causes' | 'temporal' | 'related_to' | 'leads_to' | 'supports' | 'part_of' | 'blocks'
+
 // POST /api/enterprise/graph/links
 // Creates a manual record_link (user-drawn on the graph).
 // Body: { fromRecordId, toRecordId, kind?, explanation? }
@@ -24,8 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'self-link not allowed' }, { status: 400 })
     }
 
-    const valid = new Set(['same_topic', 'depends_on', 'contradicts', 'continuation_of', 'same_people', 'causes', 'temporal', 'related_to', 'leads_to', 'supports', 'part_of', 'blocks'])
-    const finalKind = (kind && valid.has(kind)) ? kind : 'related_to'
+    const finalKind = (kind && LINK_KINDS.has(kind)) ? kind : 'related_to'
 
     // Validate both records exist and belong to a workspace the user is a member of
     const fromRec = await db.select().from(schema.records).where(eq(schema.records.id, fromRecordId)).limit(1)
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
       workspaceId: fromRec[0].workspaceId,
       fromRecordId,
       toRecordId,
-      kind: finalKind as 'same_topic' | 'depends_on' | 'contradicts' | 'continuation_of' | 'same_people' | 'causes' | 'temporal' | 'related_to' | 'leads_to' | 'supports' | 'part_of' | 'blocks',
+      kind: finalKind as LinkKind,
       weight: 0.7,
       explanation: explanation ?? null,
       createdBy: userId,
@@ -84,6 +86,43 @@ export async function DELETE(req: NextRequest) {
 
     await db.delete(schema.recordLinks).where(eq(schema.recordLinks.id, id))
     return NextResponse.json({ ok: true })
+  } catch (err) {
+    if ((err as Error).message === 'Unauthorized') {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+    return handleEnterpriseError(err)
+  }
+}
+
+// PATCH /api/enterprise/graph/links
+// Changes the relation kind (and optionally the explanation) of an existing
+// link. Same gate as DELETE: must be able to manage the from-record.
+// Body: { id, kind?, explanation? }
+export async function PATCH(req: NextRequest) {
+  try {
+    const { userId } = await requireAuth()
+    const body = await req.json() as { id?: string; kind?: string; explanation?: string | null }
+    if (!body.id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+    if (body.kind !== undefined && !LINK_KINDS.has(body.kind)) {
+      return NextResponse.json({ error: 'invalid kind' }, { status: 400 })
+    }
+
+    const rows = await db.select().from(schema.recordLinks).where(eq(schema.recordLinks.id, body.id)).limit(1)
+    const link = rows[0]
+    if (!link) return NextResponse.json({ error: 'not found' }, { status: 404 })
+
+    const ctx = await buildAccessContext(userId)
+    if (!(await canManageRecordAccess(ctx, link.fromRecordId))) {
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    }
+
+    const patch: Partial<typeof schema.recordLinks.$inferInsert> = {}
+    if (body.kind !== undefined) patch.kind = body.kind as LinkKind
+    if (body.explanation !== undefined) patch.explanation = body.explanation
+    if (Object.keys(patch).length > 0) {
+      await db.update(schema.recordLinks).set(patch).where(eq(schema.recordLinks.id, body.id))
+    }
+    return NextResponse.json({ ok: true, id: body.id, kind: patch.kind ?? link.kind })
   } catch (err) {
     if ((err as Error).message === 'Unauthorized') {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })

@@ -8,9 +8,11 @@
 // dot + title + monospace sub-text). All wiring preserved verbatim:
 //
 //   - GET /api/enterprise/graph (with optional ?type=)
-//   - POST /api/enterprise/graph/links on connect-drag
+//   - POST /api/enterprise/graph/links on connect-drag, then the new link is
+//     selected so the kind picker opens (PATCH changes the kind later)
 //   - DELETE /api/enterprise/graph/links?id=… on Del / Backspace
-//   - ⌘F fullscreen, / focus search, Esc exits fullscreen
+//   - Full-bleed by default (Miro-style), remembered per browser; ⌘F toggles,
+//     Esc exits, / focuses search
 //   - Type filter chips, free-text search dimming, type-grouped circular layout
 //   - Selected-edge "Delete" pop, selected-node detail card with Open Memory link
 
@@ -26,7 +28,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import {
   Loader2, AlertCircle, Maximize2, Minimize2, Trash2, Search, X,
-  GitBranch, ChevronRight, Plus, Minus, Maximize,
+  GitBranch, ChevronRight, Plus, Minus, Maximize, RotateCcw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app-store'
@@ -112,7 +114,26 @@ function layout(nodes: GraphNode[]): Map<string, { x: number; y: number }> {
   return positions
 }
 
+// Relation kinds a person can pick. Order = how often they come up.
+// 'temporal' is inferred-only, so it isn't offered here.
+const RELATION_KINDS: Array<{ kind: string; label: string }> = [
+  { kind: 'related_to',      label: 'related to' },
+  { kind: 'supports',        label: 'supports' },
+  { kind: 'contradicts',     label: 'contradicts' },
+  { kind: 'depends_on',      label: 'depends on' },
+  { kind: 'causes',          label: 'causes' },
+  { kind: 'leads_to',        label: 'leads to' },
+  { kind: 'blocks',          label: 'blocks' },
+  { kind: 'part_of',         label: 'part of' },
+  { kind: 'continuation_of', label: 'continues' },
+  { kind: 'same_topic',      label: 'same topic' },
+  { kind: 'same_people',     label: 'same people' },
+]
+const FULLSCREEN_KEY = 'lsc.board.fullscreen'
+
 function edgeStyle(kind: string) {
+  if (kind === 'supports') return { stroke: 'oklch(0.6 0.14 150)', strokeWidth: 1.5, animated: false }
+  if (kind === 'depends_on' || kind === 'causes' || kind === 'part_of') return { stroke: 'oklch(0.52 0.18 275)', strokeWidth: 1.5, animated: false }
   if (kind === 'contradicts') return { stroke: 'oklch(0.62 0.16 25)', strokeWidth: 1.5, animated: true }
   if (kind === 'continuation_of' || kind === 'leads_to') return { stroke: 'oklch(0.52 0.18 275)', strokeWidth: 1.5, animated: false }
   if (kind === 'blocks') return { stroke: 'oklch(0.62 0.18 30)', strokeWidth: 1.5, animated: false }
@@ -126,7 +147,15 @@ export function BoardView() {
   const [err, setErr] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<RecordType | ''>('')
   const [query, setQuery] = useState('')
-  const [fullscreen, setFullscreen] = useState(false)
+  // Full-bleed by default. Read the remembered choice after mount (not in
+  // the initializer) so server and first client render agree.
+  const [fullscreen, setFullscreen] = useState(true)
+  useEffect(() => {
+    try { if (localStorage.getItem(FULLSCREEN_KEY) === '0') setFullscreen(false) } catch { /* private mode */ }
+  }, [])
+  useEffect(() => {
+    try { localStorage.setItem(FULLSCREEN_KEY, fullscreen ? '1' : '0') } catch { /* private mode */ }
+  }, [fullscreen])
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
@@ -211,10 +240,34 @@ export function BoardView() {
         }),
       })
       if (!res.ok) throw new Error('create failed')
+      const created = await res.json().catch(() => null) as { id?: string } | null
       await reload()
+      // Open the kind picker on the link that was just drawn.
+      if (created?.id) { setSelectedEdgeId(created.id); setSelectedNodeId(null) }
     } catch {
       setStateEdges((eds) => eds.filter((e) => e.id !== tempId))
     }
+  }, [setStateEdges]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Change the relation kind of the selected link - optimistic label swap,
+  // then PATCH and resync.
+  const setEdgeKind = useCallback(async (edgeId: string, kind: string) => {
+    const meta = RELATION_KINDS.find((k) => k.kind === kind)
+    const st = edgeStyle(kind)
+    setStateEdges((eds) => eds.map((e) => e.id === edgeId ? {
+      ...e,
+      label: kind === 'contradicts' ? '⚠ contradicts' : (meta?.label ?? kind.replace('_', ' ')),
+      style: { stroke: st.stroke, strokeWidth: st.strokeWidth },
+      animated: st.animated,
+      markerEnd: { type: MarkerType.ArrowClosed, color: st.stroke },
+    } : e))
+    setEdges((prev) => prev.map((e) => e.id === edgeId ? { ...e, kind } : e))
+    const res = await fetch('/api/enterprise/graph/links', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: edgeId, kind }),
+    })
+    if (!res.ok) await reload()
   }, [setStateEdges]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard shortcuts - preserved from the old implementation.
@@ -311,6 +364,11 @@ export function BoardView() {
             })}
           </div>
           <div className="right">
+            {fullscreen && (
+              <Link href="/app/landscape?mode=rewind" className="lsc-ibtn" title="Rewind - watch the map grow over time" style={{ width: 'auto', padding: '0 8px', gap: 5 }}>
+                <RotateCcw size={12} /> <span style={{ fontSize: 11.5 }}>Rewind</span>
+              </Link>
+            )}
             <BoardSearchAndZoom
               query={query}
               onQuery={setQuery}
@@ -398,13 +456,30 @@ export function BoardView() {
                   maskColor="oklch(0.985 0.005 85 / 0.6)"
                 />
 
-                {/* Selected edge popover */}
+                {/* Selected edge popover: pick the relation, or delete */}
                 {selectedEdgeId && (
                   <Panel position="bottom-center" className="m-6">
                     <div className="lsc-edge-pop">
-                      <span>Link selected</span>
+                      <span>This link</span>
+                      <div className="kinds">
+                        {RELATION_KINDS.map((k) => {
+                          const current = edges.find((e) => e.id === selectedEdgeId)?.kind
+                          return (
+                            <button
+                              key={k.kind}
+                              type="button"
+                              className={cn('kind', current === k.kind && 'active')}
+                              onClick={() => setEdgeKind(selectedEdgeId, k.kind)}
+                            >
+                              {k.label}
+                            </button>
+                          )
+                        })}
+                      </div>
                       <button
                         type="button"
+                        className="danger"
+                        title="Delete link (Del)"
                         onClick={async () => {
                           setStateEdges((eds) => eds.filter((e) => e.id !== selectedEdgeId))
                           await fetch(`/api/enterprise/graph/links?id=${selectedEdgeId}`, { method: 'DELETE' })
@@ -523,11 +598,13 @@ function BoardSearchAndZoom({
       <button
         type="button"
         className="lsc-ibtn"
+        style={fullscreen ? { width: 'auto', padding: '0 8px' } : undefined}
         onClick={onToggleFullscreen}
         title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (⌘F)'}
         aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
       >
         {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+        {fullscreen && <span style={{ fontSize: 11.5, marginLeft: 5 }}>Exit</span>}
       </button>
     </>
   )

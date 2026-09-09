@@ -1990,6 +1990,19 @@
   cursor: pointer;
 }
 .enterprise-shell .lsc-edge-pop button:hover { filter: brightness(1.05); }
+/* Relation-kind chips inside the pop: neutral, active = violet. The rose
+   style above is now reserved for .danger (Delete). */
+.enterprise-shell .lsc-edge-pop { flex-wrap: wrap; max-width: min(720px, 92vw); }
+.enterprise-shell .lsc-edge-pop .kinds { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.enterprise-shell .lsc-edge-pop button.kind {
+  background: var(--bg); color: var(--ink-2); border: 1px solid var(--line);
+  font-weight: 500;
+}
+.enterprise-shell .lsc-edge-pop button.kind:hover { background: var(--panel-2, var(--bg)); filter: none; }
+.enterprise-shell .lsc-edge-pop button.kind.active {
+  background: oklch(0.52 0.18 275); color: white; border-color: transparent;
+}
+.enterprise-shell .lsc-edge-pop button.danger { margin-left: 4px; }
 
 /* React Flow defaults - soften the controls/minimap so they blend */
 .enterprise-shell .react-flow__controls {
