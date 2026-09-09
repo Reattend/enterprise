@@ -612,4 +612,9 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 
 **Verification list for the deploy:** `/personal` 200 (not 308), `/personal/pricing` 200, `/onboarding` HTML contains the wizard, no "Switch context" string in the client bundle, `/app/extension` present in `prerender-manifest`/routes, `pm2 describe enterprise` online, then signup → `/onboarding` → Managed trial → `/api/billing/status` shows `professional`/`trialing`.
 
+**Post-deploy bugs found by Partha's first real signup (fixed 2026-09-08/09):**
+- `73f0377` — `testProviderKey` ran a 5-token generation and logged nothing, so a valid OpenAI key could 422 with no trace. Now an authenticated list-models call per provider (429 = valid, 401/403 → clear message, failures logged `[byok] key check failed`). Wizard short-circuits when `/api/billing/me` shows a key or non-free tier.
+- `94df105` — `/app` ↔ `/onboarding` white-screen loop. `(app)/app/page.tsx` still had the 2026-08-25 rule "zero orgs + not grandfathered → /onboarding" (when /onboarding meant create-org). Removed; no-org = PersonalHomePage, always. First-run redirect lives ONLY in the app layout gate. Verified in a headless browser: set-up account stays on /app, fresh account reaches the wizard once. `personalLegacyGrandfathered` is now unused by any gate.
+- Known but not fixed: the first-run redirect fires ~6-8s after `/app` paints for a fresh account (waits on `/api/user`). Cosmetic; make it server-side or move the check earlier if it annoys anyone.
+
 **Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
