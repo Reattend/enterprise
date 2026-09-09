@@ -1,5 +1,7 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+
 // /onboarding - first-run wizard for personal accounts.
 //
 // Three steps: what Reattend is → how AI runs → you're set. Self-serve signup
@@ -297,16 +299,25 @@ function OnboardingInner() {
                   <p className="text-[12px] text-gray-500 mb-3">
                     Your own Anthropic, OpenAI, or Gemini key - unlimited questions, nothing billed by Reattend.
                   </p>
+                  {/* Segmented control, not a native <select>: the select
+                      inherited a near-invisible text colour on this card and
+                      looks broken on every OS anyway. */}
+                  <div className="flex gap-1 mb-2 p-1 rounded-lg bg-white/70 border border-white/80">
+                    {(Object.keys(PROVIDER_LABELS) as ByokProvider[]).map(p => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setByokProvider(p)}
+                        className={cn(
+                          'flex-1 h-[32px] rounded-md text-[12.5px] font-medium transition-colors',
+                          byokProvider === p ? 'bg-[#1a1a2e] text-white shadow-sm' : 'text-gray-600 hover:bg-white',
+                        )}
+                      >
+                        {PROVIDER_LABELS[p]}
+                      </button>
+                    ))}
+                  </div>
                   <div className="flex gap-2">
-                    <select
-                      value={byokProvider}
-                      onChange={e => setByokProvider(e.target.value as ByokProvider)}
-                      className="h-[40px] px-2.5 text-[13px] bg-white/70 border border-white/80 rounded-lg outline-none shrink-0"
-                    >
-                      {(Object.keys(PROVIDER_LABELS) as ByokProvider[]).map(p => (
-                        <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>
-                      ))}
-                    </select>
                     <input
                       type="password"
                       value={byokKey}
