@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reattend - Terms of Service</title>
   <meta name="description" content="The contract between Reattend and the people and companies that use our product." />
-  <link rel="icon" type="image/svg+xml" href="/black_logo.svg" />
-  <link rel="icon" type="image/png" sizes="128x128" href="/icon-128.png" />
-  <link rel="apple-touch-icon" href="/icon-128.png" />
+  <link rel="icon" type="image/svg+xml" href="/landing-design/black_logo.svg" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/landing-design/black_logo.png" />
+  <link rel="apple-touch-icon" href="/landing-design/black_logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/landing-design/styles.css?v=18" />
   <link rel="stylesheet" href="/landing-design/page.css?v=1" />
 
@@ -25,12 +25,14 @@
 
   <script src="/landing-design/auth-cta.js" defer></script>
   <script src="/landing-design/mobile-menu.js" defer></script>
+  <link rel="apple-touch-icon" href="/landing-design/black_logo.png" sizes="180x180">
+  <link rel="stylesheet" href="/landing-design/site-refresh.css">
 </head>
 <body data-screen-label="Terms">
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="/">
-      <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+      <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
       <span class="brand-word">Reattend</span>
     </a>
     <nav class="nav">
@@ -90,7 +92,7 @@
     <section id="agreement" class="pfade">
       <h2><span class="num">01</span> The agreement</h2>
       <p>By creating an account, clicking "I agree," or using Reattend in any way, you ("<b>you</b>" or "<b>Customer</b>") enter into a binding agreement with Reattend Technologies Private Limited ("<b>Reattend</b>," "<b>we</b>," "<b>us</b>"). If you accept on behalf of a company, you confirm you have authority to bind that company.</p>
-      <p>The agreement is made up of these terms, the <a href="/privacy">privacy policy</a>, the <a href="Compliance.html#dpa">data processing addendum</a>, any order form you've signed, and the documentation linked from inside the product. If two of those conflict, the order form wins, then these terms, then everything else.</p>
+      <p>The agreement is made up of these terms, the <a href="/privacy">privacy policy</a>, the <a href="/compliance#dpa">data processing addendum</a>, any order form you've signed, and the documentation linked from inside the product. If two of those conflict, the order form wins, then these terms, then everything else.</p>
       <div class="callout">If you're an end user inside an enterprise account, your employer's contract with us governs your use of Reattend at work - these consumer‑facing terms still apply to your personal use of our website and free tier.</div>
     </section>
 
@@ -107,7 +109,7 @@
         <li>Use Reattend to build a directly competing product</li>
         <li>Upload content you don't have the right to upload, or that infringes someone else's IP, privacy, or dignity</li>
         <li>Process special categories of personal data (health, biometric, etc.) without first signing the relevant addendum</li>
-        <li>Probe, scan, or attempt to penetrate the service outside of our published <a href="Compliance.html#bug-bounty">bug bounty program</a></li>
+        <li>Probe, scan, or attempt to penetrate the service outside of our published <a href="/compliance#bug-bounty">bug bounty program</a></li>
         <li>Use the service to generate spam, malware, or content designed to deceive at scale</li>
       </ul>
       <p>We don't pre‑screen the content you put into Reattend, but we will remove specific items if a court tells us to, or if they clearly violate this section.</p>
@@ -189,7 +191,7 @@
   <div class="footer-grid">
     <div class="footer-col footer-brand">
       <a class="brand" href="/">
-        <img class="brand-logo" src="/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
         <span class="brand-word">Reattend</span>
       </a>
       <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
@@ -260,5 +262,6 @@ const so = new IntersectionObserver((entries) => {
 }, { rootMargin: '-20% 0px -70% 0px' });
 sections.forEach(s => so.observe(s));
 </script>
+  <script src="/landing-design/site-refresh.js" defer></script>
 </body>
 </html>
