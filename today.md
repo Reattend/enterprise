@@ -860,3 +860,59 @@ the Mac holds the only copy. It needs a decision, since its users now
 authenticate against a database that no longer exists.
 
 CLAUDE.md's stale `Final Reattend` paths corrected in the same pass.
+
+---
+
+## Personal crumbs swept, and a trial promise that did not match Paddle (2026-09-10)
+
+Partha removed the Reattend Personal extension from his Mac and asked for the
+remaining crumbs to go.
+
+**Extension crumbs: almost none.** No second store id anywhere, no reference to
+a personal extension, and `personal.reattend.com` appears in no source file in
+either repo. One stale item: the downloads page linked the store item by its
+old slug, `/detail/reattend-enterprise/`. Google now canonicalises that item to
+`/detail/reattend/` (verified: the old slug 301s to the new one), and the word
+"enterprise" in a URL a personal user hovers is exactly the mixing we avoid.
+Pointed at the canonical URL.
+
+**The real find, while sweeping: the personal trial was oversold.**
+
+`PADDLE_PRICE_PERSONAL_MONTHLY` maps to `tier: 'professional'` (tier.ts:135),
+so a $9 personal subscriber actually gets the professional limits. Truth is
+**800 questions/month and a 7-day trial**, the 7 matching the Paddle price's
+`trial_period` that Partha set. The personal marketing pages said:
+
+  - `personal.html`      300 questions/month, **15-day** trial
+  - `personal-pricing.html`  300 AI questions, **15-day** free trial (x2)
+
+Under-selling the quota is harmless. Promising 15 days and delivering 7 is a
+billing promise we would have broken on every single personal signup. Both
+pages now say 800 and 7. Swept every marketing page for trial and quota claims
+afterwards: personal reads 7/800, `pricing.html` reads 15 for orgs, and both
+now match Paddle and `TRIAL_DAYS_BY_TIER`.
+
+Also: the in-app billing card fell back to **15** days if `/api/billing/status`
+failed, on the card personal users see. Now 7.
+
+**A correction to yesterday's commit.** It claimed all four professional tier
+flags were set true. Only three were: the replace I used matched a block where
+`exitInterviewAgent` was already true, which is the enterprise row, so
+`professional.adminCockpit` and `professional.exitInterviewAgent` stayed false.
+Both are true now. No functional effect either way since nothing reads them,
+but the commit message was wrong and this is the correction.
+
+**Decommission archive trimmed.** `/root/personal-decom-20260910` was 426 MB.
+Deleted the folder tarball (dead application code; the enterprise repo is the
+living fork of it and is in git) and `env.local.bak` (stale secrets are better
+off disk). Kept the 5.7 MB database as `/root/personal-archive-DATA-ONLY`,
+because it holds the only copy of 13 records on Partha's old personal account
+that were **never migrated** - his main account has 4 records and none of the
+old titles appear there. They all date from 2026-08-30, the day that account
+was created, in one batch, two of them "Untitled", so they read like test
+content rather than accumulated work. His call, not mine, so they stay until
+he says otherwise.
+
+Desktop verified clean: no personal folders, no local copy of the app or its
+database. `personal.reattend.com` survives only in this journal and CLAUDE.md,
+where it is deliberate.

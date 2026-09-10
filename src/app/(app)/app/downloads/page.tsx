@@ -24,7 +24,7 @@ const LATEST_VERSION = '0.1.13'
 const MAC_HREF = `/downloads/Reattend_${LATEST_VERSION}_aarch64.app.zip`
 const WIN_HREF = `/downloads/Reattend_${LATEST_VERSION}_x64-setup.exe`
 const CHROME_STORE_HREF =
-  'https://chromewebstore.google.com/detail/reattend-enterprise/nndcdadidlnohfebdkdehfeokgplcnkl'
+  'https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl'
 
 export default function DownloadsPage() {
   return (

@@ -46,7 +46,9 @@ interface BillingStatus {
 const PROVIDER_LABEL: Record<string, string> = { anthropic: 'Anthropic', openai: 'OpenAI', gemini: 'Gemini' }
 
 // Comes from /api/billing/status so it always matches the Paddle price.
-const TRIAL_DAYS_FALLBACK = 15
+// Personal card fallback only, used if /api/billing/status fails. Personal
+// is 7 to match the Paddle price's trial_period; orgs get 15 from the API.
+const TRIAL_DAYS_FALLBACK = 7
 
 export default function BillingPage() {
   const [data, setData] = useState<BillingStatus | null>(null)
