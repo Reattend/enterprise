@@ -271,6 +271,26 @@ body::before { opacity: 0.22; }
   background: linear-gradient(160deg, #f3f8e6, #fff) !important;
 }
 
+/* The featured tier used to be a dark card, so pricing.html still paints its
+   name, price and every feature line #fff. This refresh made the card light
+   and only overrode the background - which left the whole Managed feature
+   list white on near-white. Put the text back on the light palette. */
+.pr-tier.featured,
+.pr-tier.featured .pr-tier-name,
+.pr-tier.featured .pr-tier-price-num,
+.pr-tier.featured .pr-tier-feat { color: var(--ink) !important; }
+.pr-tier.featured .pr-tier-tag,
+.pr-tier.featured .pr-tier-price-unit,
+.pr-tier.featured .pr-tier-blurb,
+.pr-tier.featured .pr-tier-trial-note { color: var(--ink-3) !important; }
+.pr-tier.featured .pr-tier-price { border-color: var(--line) !important; }
+.pr-tier.featured .pr-tier-feat::before { background: var(--accent) !important; }
+/* Its CTA carries an inline white background from the dark-card era. */
+.pr-tier.featured .pr-tier-cta.primary {
+  background: var(--ink) !important;
+  color: #fff !important;
+}
+
 .pr-tier:nth-child(3n + 2),
 .sup-card:nth-child(3n + 2),
 .feat-card:nth-child(4n + 2) { background: linear-gradient(150deg, #f7f1ff, #fff) !important; }

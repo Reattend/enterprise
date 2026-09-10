@@ -196,6 +196,12 @@
     }
     .pr-tier-cta.ghost:hover { background: var(--bg-paper); transform: translateY(-1px); }
     .pr-tier-cta:disabled { opacity: 0.6; cursor: progress; }
+    .pr-tier-demo {
+      display: block; margin-top: 10px; text-align: center;
+      font-size: 12.5px; font-weight: 600; color: inherit;
+      opacity: .82; text-decoration: underline; text-underline-offset: 3px;
+    }
+    .pr-tier-demo:hover { opacity: 1; }
 
     .pr-tier-trial-note {
       font-family: var(--mono);
@@ -310,8 +316,7 @@
 <a class="nav-item" href="/compliance">Compliance</a>
 </nav>
 <div style="display:flex; gap:8px;">
-<a class="btn btn-ghost" href="/login">Sign in</a>
-<a class="btn btn-outline" href="/sandbox">Talk to sales</a><a class="btn btn-primary btn-fill" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
+<a class="btn btn-ghost" href="/login">Sign in</a><a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a><a class="btn btn-primary btn-fill" href="/register">Start free</a>
 </div>
 </div>
 </header>
@@ -366,6 +371,7 @@
     </ul>
     <a class="pr-tier-cta primary" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer" style="background: #fff; color: oklch(0.18 0.02 270);">Talk to sales</a>
     <div class="pr-tier-trial-note">Scoped to your team size and rollout</div>
+    <a class="pr-tier-demo" href="/sandbox">Explore a live demo workspace &rarr;</a>
   </article>
 
   <article class="pr-tier pfade">
@@ -423,7 +429,7 @@
   <h2>Ready to start <em>remembering?</em></h2>
   <p>Free forever on your own key, any team size. Talk to sales when you're ready for a managed rollout.</p>
   <div style="display:inline-flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-    <a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Book a demo</a>
+    <a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a>
   </div>
 </section>
 
