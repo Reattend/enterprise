@@ -62,7 +62,6 @@ export function MarketingNavbar() {
     <Link className="btn btn-primary btn-fill" href="/app" style={{ textDecoration: 'none' }}>Go to dashboard</Link>
   ) : (
     <>
-      <Link className="btn btn-ghost" href="/login">Sign in</Link>
       <a className="btn btn-outline" href={DEMO_URL} target="_blank" rel="noreferrer">Talk to sales</a>
       <Link className="btn btn-primary btn-fill" href="/register">Start free</Link>
     </>
@@ -134,7 +133,6 @@ export function MarketingNavbar() {
             <Link className="mm-primary" href="/app" onClick={() => setOpen(false)}>Go to dashboard</Link>
           ) : (
             <>
-              <Link className="mm-ghost" href="/login" onClick={() => setOpen(false)}>Sign in</Link>
               <a className="mm-ghost" href={DEMO_URL} target="_blank" rel="noreferrer">Talk to sales</a>
               <Link className="mm-primary" href="/register" onClick={() => setOpen(false)}>Start free</Link>
             </>

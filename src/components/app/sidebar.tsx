@@ -55,8 +55,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/app/policies', icon: Columns4,        label: 'Policies', orgOnly: true },
   { href: '/app/tasks',    icon: BookmarkCheck,   label: 'Tasks' },
   // Inbox lives in the topbar (bell) - one place for notifications.
-  // Extension is personal-only: org accounts reach it from the topbar's
-  // Apps menu, where the desktop builds live too.
+  // The next three are top-level for personal accounts instead of buried
+  // under "More": with Decisions gone (org-only) and Downloads folded into
+  // Extension (for one person it lists only the Chrome build), there is
+  // nothing left worth hiding.
+  { href: '/app/transcripts', icon: AudioLines,   label: 'Transcripts', personalOnly: true },
+  { href: '/app/integrations', icon: Plug,        label: 'Integrations', personalOnly: true },
   { href: '/app/extension', icon: Puzzle,         label: 'Extension', personalOnly: true },
 ]
 
@@ -304,6 +308,7 @@ export function AppSidebar() {
           })}
         </nav>
 
+        {activeEnterpriseOrgId && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={cn('rail-more-trigger', moreActive && 'active')} type="button">
@@ -320,6 +325,7 @@ export function AppSidebar() {
             {activeEnterpriseOrgId && <DropdownMenuItem asChild><Link href="/app/legend" onClick={onNavigate}><Map className="h-3.5 w-3.5 mr-2" /> Enterprise legend</Link></DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
+        )}
 
         {/* Recent chats - capped at 10, only this section scrolls within
             the rail. Takes all remaining vertical space so it adapts to the

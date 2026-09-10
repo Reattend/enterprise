@@ -24,10 +24,12 @@ import { Loader2, KeyRound, Check, Sparkles, Brain, MessageSquareText, Network, 
 import { toast } from 'sonner'
 
 type ByokProvider = 'anthropic' | 'openai' | 'gemini'
+// Short labels - the full vendor names ("Claude (Anthropic)") overflowed
+// the segmented control and clipped onto a second line.
 const PROVIDER_LABELS: Record<ByokProvider, string> = {
-  anthropic: 'Claude (Anthropic)',
+  anthropic: 'Claude',
   openai: 'OpenAI',
-  gemini: 'Gemini (Google)',
+  gemini: 'Gemini',
 }
 
 // Kept in sync with TRIAL_DAYS in src/lib/billing/tier.ts. Duplicated as a
@@ -96,6 +98,14 @@ function OnboardingInner() {
           router.replace(`/login?callbackUrl=${encodeURIComponent('/onboarding')}`)
           return
         }
+        // Already finished it once? "Start free" is the only auth button now,
+        // so returning users land here too - send them straight in.
+        const userRes = await fetch('/api/user')
+        if (userRes.ok) {
+          const u = (await userRes.json())?.user
+          if (u?.onboardingCompleted) { window.location.href = redirectTo; return }
+        }
+
         // Org members never see the personal wizard - their onboarding is the
         // org's. Mark complete so the app shell stops redirecting here.
         const orgRes = await fetch('/api/enterprise/organizations')
@@ -309,7 +319,7 @@ function OnboardingInner() {
                         type="button"
                         onClick={() => setByokProvider(p)}
                         className={cn(
-                          'flex-1 h-[32px] rounded-md text-[12.5px] font-medium transition-colors',
+                          'flex-1 min-w-0 h-[34px] px-2 rounded-md text-[12.5px] font-medium leading-none whitespace-nowrap overflow-hidden text-ellipsis transition-colors',
                           byokProvider === p ? 'bg-[#1a1a2e] text-white shadow-sm' : 'text-gray-600 hover:bg-white',
                         )}
                       >

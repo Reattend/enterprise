@@ -298,6 +298,7 @@ export function AppTopbar() {
           </button>
 
           {/* Chrome extension install */}
+          {activeEnterpriseOrgId && (
           <Link
             href="/app/downloads"
             className="icon-btn"
@@ -305,11 +306,14 @@ export function AppTopbar() {
           >
             <Chrome className="h-4 w-4" />
           </Link>
+          )}
 
           {/* Integrations */}
+          {activeEnterpriseOrgId && (
           <Link href="/app/integrations" className="icon-btn" title="Integrations">
             <Plug className="h-4 w-4" />
           </Link>
+          )}
 
           {/* Legend: the Enterprise feature catalog - org accounts only */}
           {activeEnterpriseOrgId && (

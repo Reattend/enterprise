@@ -132,8 +132,8 @@ export default function BillingPage() {
   // Org keys are admin-only and live in the Control Room; personal keys live
   // in the user's own Settings. One card, two destinations.
   const keyHref = data?.hasOrg && activeOrgId
-    ? `/app/admin/${activeOrgId}/settings`
-    : '/app/settings'
+    ? `/app/admin/${activeOrgId}/settings#ai-provider`
+    : '/app/settings?tab=ai-provider'
 
   const byokCard = (
     <Card>

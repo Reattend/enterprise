@@ -413,7 +413,9 @@ function SettingsPageInner({ params }: { params: { orgId: string } }) {
         title="AI Provider"
         desc="Every member uses this key automatically - free forever, only your own vendor bill. Not visible anywhere in member Settings."
       >
-        <AiProviderAdminSection orgId={orgId} canEdit={canEdit} />
+        <div id="ai-provider" className="scroll-mt-24">
+          <AiProviderAdminSection orgId={orgId} canEdit={canEdit} />
+        </div>
       </Section>
 
       {/* ── Data sovereignty (informational) ──────────────────────────── */}

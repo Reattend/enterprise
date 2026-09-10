@@ -129,7 +129,6 @@ const RELATION_KINDS: Array<{ kind: string; label: string }> = [
   { kind: 'same_topic',      label: 'same topic' },
   { kind: 'same_people',     label: 'same people' },
 ]
-const FULLSCREEN_KEY = 'lsc.board.fullscreen'
 
 function edgeStyle(kind: string) {
   if (kind === 'supports') return { stroke: 'oklch(0.6 0.14 150)', strokeWidth: 1.5, animated: false }
@@ -147,15 +146,20 @@ export function BoardView() {
   const [err, setErr] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<RecordType | ''>('')
   const [query, setQuery] = useState('')
-  // Full-bleed by default. Read the remembered choice after mount (not in
-  // the initializer) so server and first client render agree.
-  const [fullscreen, setFullscreen] = useState(true)
+  // The board is always full-bleed - there is no windowed mode to fall back
+  // to. A graph canvas wants the whole surface, the way Miro does, and a
+  // half-size version was never the useful one. Kept as a constant rather
+  // than deleted so the existing className/effect wiring stays readable.
+  const fullscreen = true
+
+  // Collapse the rail for the duration of the board so the canvas gets the
+  // whole surface, then hand the user's own preference back on the way out.
+  const setSidebarCollapsed = useAppStore((st) => st.setSidebarCollapsed)
   useEffect(() => {
-    try { if (localStorage.getItem(FULLSCREEN_KEY) === '0') setFullscreen(false) } catch { /* private mode */ }
-  }, [])
-  useEffect(() => {
-    try { localStorage.setItem(FULLSCREEN_KEY, fullscreen ? '1' : '0') } catch { /* private mode */ }
-  }, [fullscreen])
+    const previous = useAppStore.getState().sidebarCollapsed
+    setSidebarCollapsed(true)
+    return () => setSidebarCollapsed(previous)
+  }, [setSidebarCollapsed])
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
@@ -282,14 +286,9 @@ export function BoardView() {
           await reload()
         }
       }
-      if (ev.key === 'Escape' && fullscreen) setFullscreen(false)
       if (ev.key === '/' && !(ev.target as HTMLElement).closest('input, textarea')) {
         ev.preventDefault()
         document.getElementById('lsc-board-search-input')?.focus()
-      }
-      if (ev.key === 'f' && (ev.metaKey || ev.ctrlKey)) {
-        ev.preventDefault()
-        setFullscreen((f) => !f)
       }
     }
     window.addEventListener('keydown', handler)
@@ -375,8 +374,6 @@ export function BoardView() {
             <BoardSearchAndZoom
               query={query}
               onQuery={setQuery}
-              fullscreen={fullscreen}
-              onToggleFullscreen={() => setFullscreen((f) => !f)}
               zoomPct={zoomPct}
             />
           </div>
@@ -550,12 +547,10 @@ export function BoardView() {
 // window CustomEvent that ZoomBridge inside the canvas translates into
 // real ReactFlow zoomIn / zoomOut / fitView calls.
 function BoardSearchAndZoom({
-  query, onQuery, fullscreen, onToggleFullscreen, zoomPct,
+  query, onQuery, zoomPct,
 }: {
   query: string
   onQuery: (v: string) => void
-  fullscreen: boolean
-  onToggleFullscreen: () => void
   zoomPct: number
 }) {
   return (
@@ -598,17 +593,7 @@ function BoardSearchAndZoom({
           <Maximize size={12} />
         </button>
       </div>
-      <button
-        type="button"
-        className="lsc-ibtn"
-        style={fullscreen ? { width: 'auto', padding: '0 8px' } : undefined}
-        onClick={onToggleFullscreen}
-        title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (⌘F)'}
-        aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-      >
-        {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-        {fullscreen && <span style={{ fontSize: 11.5, marginLeft: 5 }}>Exit</span>}
-      </button>
+
     </>
   )
 }

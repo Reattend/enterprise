@@ -52,7 +52,6 @@ const NO_ORG_ALLOWED_EXACT = ['/app']  // home page (renders PersonalHomePage)
 const NO_ORG_ALLOWED_PREFIXES = [
   '/app/memories',            // personal memories
   '/app/ask',                 // chat with AI across personal memory
-  '/app/decisions',           // personal decisions
   '/app/integrations',        // connect personal Gmail / Notion / etc.
   '/app/brain-dump',          // capture
   '/app/landscape',           // personal memory graph

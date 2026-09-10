@@ -102,6 +102,15 @@ interface AgentLog {
 }
 
 export default function SettingsPage() {
+  // Deep-linkable tabs: /app/settings?tab=ai-provider opens the key form
+  // directly. The no-AI-key banner and the billing card both link there -
+  // landing on Profile and hunting for it was the old behaviour.
+  const [tab, setTab] = useState('profile')
+  useEffect(() => {
+    const want = new URLSearchParams(window.location.search).get('tab')
+    if (want) setTab(want)
+  }, [])
+
   const { setWorkspaceInfo, workspaceType } = useAppStore()
   // AI Provider tab only exists for legacy zero-org (pre-2026-08-25
   // Personal) accounts - org accounts manage their key in the Control
@@ -551,7 +560,7 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground mt-1">Manage your account and workspace.</p>
       </div>
 
-      <Tabs defaultValue="profile">
+      <Tabs value={tab} onValueChange={setTab}>
         {/* Enterprise Settings = personal account + per-user integrations.
             API keys are per-user (the same user can mint a key for their
             tray, their Chrome extension, etc.), so they live here. Org-level

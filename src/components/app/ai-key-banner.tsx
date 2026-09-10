@@ -59,13 +59,13 @@ export function AiKeyBanner() {
           if (cancelled) return
           if (key && key.status !== 'invalid') return
           setInvalid(!!key)
-          setHref(`/app/admin/${activeEnterpriseOrgId}/settings`)
+          setHref(`/app/admin/${activeEnterpriseOrgId}/settings#ai-provider`)
           return
         }
 
         if (me.byok && me.byok.status !== 'invalid') return
         setInvalid(!!me.byok)
-        setHref('/app/settings')
+        setHref('/app/settings?tab=ai-provider')
       } catch { /* non-fatal: a missing banner is better than a broken shell */ }
     })()
 

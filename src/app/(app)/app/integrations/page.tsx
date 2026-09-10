@@ -259,9 +259,11 @@ export default function IntegrationsPage() {
         ) : !data?.configured ? (
           <div className="int-empty-card">
             <span className="glyph"><Plug size={18} /></span>
-            <h3>Connectors are being enabled for your tenant</h3>
+            <h3>{activeOrgId ? 'Connectors are being enabled for your tenant' : 'Connectors are coming soon'}</h3>
             <p>
-              Gmail, Drive, Slack, Notion, and Confluence connectors will appear here as soon as your tenant is provisioned. No action required from your team. Need this turned on now? Email <a href="mailto:support@reattend.com" style={{ color: 'var(--brand-ink)' }}>support@reattend.com</a>.
+              {activeOrgId
+                ? <>Gmail, Drive, Slack, Notion, and Confluence connectors will appear here as soon as your tenant is provisioned. No action required from your team. Need this turned on now? Email <a href="mailto:support@reattend.com" style={{ color: 'var(--brand-ink)' }}>support@reattend.com</a>.</>
+                : <>Gmail, Drive, Slack and Notion will connect straight into your own memory. They are not switched on yet - until then, the Chrome extension and Capture are the fastest ways in.</>}
             </p>
           </div>
         ) : (
