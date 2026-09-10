@@ -729,4 +729,17 @@ The env already pointed at the correct Professional IDs - only the **code** was 
 - Sign-out went to `/login`, now `/register`. Login vs register copy was already distinct ("Welcome back / Sign in" vs "Create your workspace") and cross-linked both ways.
 - **SSO verified end to end** against Google's real OIDC discovery document (10/10): admin configures it, secret stored encrypted and never returned, SP metadata serves, `/api/sso/initiate` builds a valid authorize URL with client_id + redirect_uri + state + scope, and an unconfigured domain returns `ssoAvailable:false` so sign-in falls back to OTP. **Gotcha for future probes: the config route is `PUT`, not POST.**
 
+**Extension v0.5.0 - live in-page suggestions (2026-09-10, ext `c8ab2b7`).**
+
+Grammarly-shaped: Reattend underlines passages worth remembering and offers to save them. Two rules drove the design and should not be relaxed without thought:
+
+1. **OFF unless the user lists the site.** `suggestSites` starts empty and the scanner runs nowhere else. An always-on scanner across every page a person visits is a privacy story we would have to defend to Google *and* the fastest route to an uninstall.
+2. **Silence beats a wrong guess.** Grammarly can afford a bad suggestion because the stakes are a comma; here a bad one is noise on someone's screen. So a passage must clear several independent signals (decision language, figures/dates, proper nouns, a complete thought of 25-90 words), boilerplate is penalised **-5**, and a page is capped at **3 marks**.
+
+Scoring is **entirely local** - no page text leaves the browser unless the user accepts, which keeps the store listing's privacy claim literally true. Dismissals remembered per domain for 30 days. Verified against a realistic page via the compiled module: all three decision passages marked (scores 6/5/5), cookie boilerplate **-3**, lorem and filler **1** - nothing generic crossed the threshold.
+
+Also in this build (`8bb0ce9`, v0.4.1): the floating pin is **draggable**, remembered as viewport fractions in `chrome.storage.sync`, clamped on drop and on resize; a 4px threshold keeps a non-moving press a one-tap capture.
+
+**`reattend-extension-v0.5.0.zip` is built and ready. The Web Store still has the OLD approved build - everything above is unpublished until Partha uploads it.**
+
 **Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
