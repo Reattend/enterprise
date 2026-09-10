@@ -32,7 +32,9 @@ const PROVIDER_LABELS: Record<ByokProvider, string> = {
   gemini: 'Gemini',
 }
 
-// Kept in sync with TRIAL_DAYS in src/lib/billing/tier.ts. Duplicated as a
+// Personal accounts get the 7-day trial that matches the Paddle Personal
+// price; orgs get 15. This wizard is the personal path, so 7.
+// Kept in sync with TRIAL_DAYS_BY_TIER in src/lib/billing/tier.ts. Duplicated as a
 // literal because that module pulls in the DB layer and can't be imported
 // into a client component.
 const TRIAL_DAYS = 7

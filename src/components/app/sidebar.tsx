@@ -192,7 +192,7 @@ export function AppSidebar() {
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: '/login' })
+      await signOut({ callbackUrl: '/register' })
     } catch {
       toast.error('Sign out failed')
     }

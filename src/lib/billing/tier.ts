@@ -9,7 +9,7 @@
 //                     instead of silently falling back to the platform key.
 //                     Unlimited seats (it's the org's own AI bill, not ours).
 //   Professional
-//   ("Managed")     - $15/seat/mo (or $144/yr = 20% off), self-serve up to
+//   ("Managed")     - $19/seat/mo (or $182.40/yr = 20% off), self-serve up to
 //                     99 seats, runs on the platform's own Claude key.
 //                     7-day no-card trial (start-trial route) - always
 //                     paired with a "talk to sales" option in the UI, not a
@@ -71,7 +71,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
   },
   professional: {
     // Soft cap, not unlimited: generous enough that ~no real user notices,
-    // but bounds worst-case Claude spend on a flat $15/seat/mo fee. UI
+    // but bounds worst-case Claude spend on a flat $19/seat/mo fee. UI
     // should nudge ("heavy usage? talk to us about Enterprise") well
     // before this, not just wall at it - see api/ask/route.ts.
     aiQueriesPerMonth: 800,
@@ -87,8 +87,8 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     adminCockpit: false,
     chromeExtensionAutoIngest: true,
     displayName: 'Managed',
-    monthlyPrice: 15,
-    annualPriceTotal: 144, // $15 × 12 × 0.8 = $144.00
+    monthlyPrice: 19,
+    annualPriceTotal: 182.40, // $19 × 12 × 0.8 = $182.40
   },
   enterprise: {
     aiQueriesPerMonth: -1,
@@ -150,4 +150,20 @@ export function tierToPriceId(tier: 'professional' | 'enterprise', cycle: 'month
 // trial" always sits next to a "Talk to sales" option, never replaces it.
 // metering.ts has an unrelated, older 60-day trial concept tied to the
 // legacy Personal/"smart" tier - do not confuse the two.
-export const TRIAL_DAYS = 7
+export const TRIAL_DAYS = 15
+
+// Trial length per tier, kept equal to the trial_period on the matching
+// Paddle price so the no-card trial and a card checkout never promise
+// different things. Verified against Paddle 2026-09-10:
+//   Reattend Personal      $9/mo         trial 7 days
+//   Reattend Professional  $19/mo        trial 15 days
+//   Reattend Professional  $182.40/yr    trial 15 days
+export const TRIAL_DAYS_BY_TIER: Record<'personal' | 'professional', number> = {
+  personal: 7,
+  professional: 15,
+}
+
+/** Days of trial for a caller: personal accounts get 7, orgs get 15. */
+export function trialDaysFor(hasOrg: boolean): number {
+  return hasOrg ? TRIAL_DAYS_BY_TIER.professional : TRIAL_DAYS_BY_TIER.personal
+}

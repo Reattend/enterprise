@@ -33,6 +33,7 @@ declare global {
 
 interface BillingStatus {
   byok?: { provider: 'anthropic' | 'openai' | 'gemini'; keyLast4: string | null; status: string } | null
+  trialDays?: number
   hasOrg: boolean
   isAdmin: boolean
   tier: 'free' | 'professional' | 'enterprise'
@@ -44,7 +45,8 @@ interface BillingStatus {
 
 const PROVIDER_LABEL: Record<string, string> = { anthropic: 'Anthropic', openai: 'OpenAI', gemini: 'Gemini' }
 
-const TRIAL_DAYS_LABEL = 7
+// Comes from /api/billing/status so it always matches the Paddle price.
+const TRIAL_DAYS_FALLBACK = 15
 
 export default function BillingPage() {
   const [data, setData] = useState<BillingStatus | null>(null)
@@ -195,7 +197,7 @@ export default function BillingPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">Managed</CardTitle>
               <CardDescription>
-                No key to manage - Reattend runs the AI for you. {TRIAL_DAYS_LABEL}-day free trial, no card, then $9/month. 800 AI questions a month; bring your own key any time to go unlimited for free.
+                No key to manage - Reattend runs the AI for you. {data?.trialDays ?? TRIAL_DAYS_FALLBACK}-day free trial, no card, then $9/month. 800 AI questions a month; bring your own key any time to go unlimited for free.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -216,7 +218,7 @@ export default function BillingPage() {
               ) : data?.trialEndsAt ? (
                 <Button onClick={handleCheckout}>Subscribe - $9/mo</Button>
               ) : (
-                <Button onClick={handleStartTrial}>Start {TRIAL_DAYS_LABEL}-day free trial</Button>
+                <Button onClick={handleStartTrial}>Start {data?.trialDays ?? TRIAL_DAYS_FALLBACK}-day free trial</Button>
               )}
               <p className="text-[11px] text-muted-foreground">No card required to start · cancel anytime</p>
             </CardContent>

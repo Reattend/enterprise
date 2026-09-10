@@ -5,6 +5,7 @@ import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 import { eq, and } from 'drizzle-orm'
 import { getOrgBillingSubscription, getOrCreateSubscription, canOrgAddMember } from '@/lib/billing/gates'
 import { TIER_LIMITS } from '@/lib/billing/tier'
+import { trialDaysFor } from '@/lib/billing/tier'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,7 @@ export async function GET() {
       ])
       return NextResponse.json({
         hasOrg: false,
+        trialDays: trialDaysFor(false),
         isAdmin: false,
         tier: personalSub.tier,
         status: personalSub.status,
@@ -55,6 +57,7 @@ export async function GET() {
     return NextResponse.json({
       byok: orgKey ? { provider: orgKey.provider, keyLast4: orgKey.keyLast4, status: orgKey.status } : null,
       hasOrg: true,
+      trialDays: trialDaysFor(true),
       isAdmin,
       tier: resolvedSub.tier,
       status: resolvedSub.status,
