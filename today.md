@@ -991,7 +991,7 @@ user costs up to $32 against $9. Org $19 nets ~$17.55, break-even ~440, cap
 
 ## Where everything stands
 
-**Production is healthy and shipping.** `reattend.com` at commit `677988b`, one
+**Production is healthy and shipping.** `reattend.com` at commit `48efac3`, one
 process, one folder, one domain. 23 public routes 200, zero server errors
 across the API sweep, sandbox launches, all six enterprise suites pass. Paddle
 returns 200 and its three active prices reconcile exactly with `.env.local` and
@@ -1021,6 +1021,13 @@ deleted, process removed, folder archived then dropped.
 Caught the personal trial being sold as 15 days when Paddle says 7. **Shipped
 the fix, then found the first sweep had missed three more phrasings** and the
 false promise had briefly gone live. Fixed and verified.
+
+## Shipped after the pause block was first written
+
+**The SSO domain bypass is closed** (`48efac3`, deployed and verified). An org
+admin can no longer claim a domain they are not signed in at, cannot claim a
+public mailbox provider, and cannot take a domain another org already holds.
+See the security section below for the full write-up and what is still owed.
 
 ## Three things waiting on you
 
@@ -1084,6 +1091,13 @@ the "Connectors are coming soon" empty state for the no-org branch at line
 
 If Partha would rather not touch Gmail yet, do guardrail #1 above instead: cap
 trial questions in `gates.ts`.
+
+**Security remainder, not urgent but owed:** DNS TXT verification before an SSO
+config may be enabled, and a real unique constraint on `sso_configs.domain`
+instead of the application-level check shipped in `48efac3`. The app check
+holds today because every write goes through one handler and production has
+zero SSO configs. It stops being sufficient the moment a real customer
+configures SSO, so do it before the first enterprise SSO onboarding.
 
 ## Standing rules learned or reinforced today
 
