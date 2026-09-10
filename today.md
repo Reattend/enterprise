@@ -708,4 +708,25 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 - Extension **v0.4.1** built and zipped (`reattend-extension-v0.4.1.zip`), loadable unpacked from `dist/`. Web Store still has the OLD approved build.
 - **Blocked on Partha:** new Paddle price IDs for Managed $19/mo + $182.40/yr (grandfathering the two live $15 subscriptions), confirmation that the Enterprise $29 price IDs are real, the Web Store upload, and a decision on whether to verify SSO end-to-end before shipping self-serve Enterprise.
 
+**Pricing settled + SSO verified (2026-09-10, `820565e`).**
+
+**Ground truth pulled from Paddle before changing anything** (do this first, always):
+
+| env var | price | trial | status | product |
+|---|---|---|---|---|
+| `PADDLE_PRICE_PERSONAL_MONTHLY` | $9/mo | 7 day | active | Reattend Personal |
+| `PADDLE_PRICE_PROFESSIONAL_MONTHLY` | **$19/mo** | 15 day | active | Reattend Professional |
+| `PADDLE_PRICE_PROFESSIONAL_YEARLY` | **$182.40/yr** | 15 day | active | Reattend Professional |
+| `PADDLE_PRICE_ENTERPRISE_MONTHLY` | $29/mo | 45 day | **ARCHIVED** | Reattend Enterprise |
+| `PADDLE_PRICE_ENTERPRISE_YEARLY` | $278.40/yr | 45 day | **ARCHIVED** | Reattend Enterprise |
+
+The env already pointed at the correct Professional IDs - only the **code** was stale. **Enterprise prices are archived, so an Enterprise checkout would fail; Enterprise stays talk-to-sales** (matches the two active products in Partha's dashboard). Self-serve for orgs = Professional $19/seat.
+
+- `tier.ts`: professional $15→**$19**, $144→**$182.40**.
+- **Trial length is per tier and mirrors the Paddle `trial_period`** so the no-card trial and a card checkout never disagree: personal **7**, org **15**. `trialDaysFor(hasOrg)` + `TRIAL_DAYS_BY_TIER`; the number now comes from `/api/billing/status` rather than being hardcoded per page.
+- Pricing page showed "Talk to sales" for Managed; it now shows **$19/seat** with a 15-day no-card trial and the annual saving.
+- **Lapsed trial surfaced nothing** - the plan quietly reverted. Now the trial banner offers Partha's free path ("connect your own key, keep Reattend free forever") with subscribe as the alternative; personal accounts and org admins only, since members cannot set an org key.
+- Sign-out went to `/login`, now `/register`. Login vs register copy was already distinct ("Welcome back / Sign in" vs "Create your workspace") and cross-linked both ways.
+- **SSO verified end to end** against Google's real OIDC discovery document (10/10): admin configures it, secret stored encrypted and never returned, SP metadata serves, `/api/sso/initiate` builds a valid authorize URL with client_id + redirect_uri + state + scope, and an unconfigured domain returns `ssoAvailable:false` so sign-in falls back to OTP. **Gotcha for future probes: the config route is `PUT`, not POST.**
+
 **Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
