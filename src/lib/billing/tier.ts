@@ -11,7 +11,9 @@
 //   Professional
 //   ("Managed")     - $19/seat/mo (or $182.40/yr = 20% off), self-serve up to
 //                     99 seats, runs on the platform's own Claude key.
-//                     7-day no-card trial (start-trial route) - always
+//                     15-day no-card trial for orgs, 7 for personal - see
+//                     TRIAL_DAYS_BY_TIER, which mirrors the Paddle price
+//                     trial_period exactly. Always
 //                     paired with a "talk to sales" option in the UI, not a
 //                     replacement for it. Soft-capped at aiQueriesPerMonth
 //                     (not unlimited - a flat per-seat fee funding literally
@@ -20,13 +22,16 @@
 //                     row (see resolveLLMForOrg / the ask route's
 //                     billingOwnerId resolution) - one paying seat unlocks
 //                     AI for the whole org, by design.
-//   Enterprise      - $29/seat/mo, 5+ seats, + RBAC + SSO + audit log. Not
-//                     self-serve - talk-to-sales only, manually granted via
-//                     /api/admin/grant-pro. Also where 100+-seat orgs land
-//                     (professional's 99-seat self-serve ceiling pushes them
-//                     here). These customers bring their own BYOK key too
-//                     (same as Free), Enterprise pricing is for the
-//                     compliance/RBAC/SSO features, not AI compute.
+//   Enterprise      - NOT A PRICE. Kept only as a grant-only label for
+//                     negotiated deals (on-prem, air-gapped, 100+ seats)
+//                     applied by hand via /api/admin/grant-pro.
+//                     It deliberately unlocks nothing Professional does not
+//                     already have: RBAC, SSO and the audit log were never
+//                     gated in code, and the pricing page has always
+//                     advertised them under Managed. Charging $29 for them
+//                     would have been selling the same product twice
+//                     (Partha, 2026-09-10). Its Paddle prices are archived,
+//                     so it cannot be bought self-serve either.
 
 export type Tier = 'free' | 'professional' | 'enterprise'
 
@@ -80,9 +85,13 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     maxSeats: 99, // self-serve ceiling - 100+ seats requires talk-to-sales (Enterprise tier)
     minSeats: 1,
     integrationsAll: true,
-    rbac: false,
-    sso: false,
-    auditLog: false,
+    // These four were false while nothing in the codebase read them and the
+    // pricing page advertised all of them under Managed. The paywall never
+    // existed; the table just claimed it did. One paid org price, and it
+    // includes everything. (2026-09-10)
+    rbac: true,
+    sso: true,
+    auditLog: true,
     exitInterviewAgent: false,
     adminCockpit: false,
     chromeExtensionAutoIngest: true,
@@ -104,8 +113,10 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     adminCockpit: true,
     chromeExtensionAutoIngest: true,
     displayName: 'Enterprise',
-    monthlyPrice: 29,
-    annualPriceTotal: 278.4, // $29 × 12 × 0.8 = $278.40
+    // Same numbers as Professional: there is one paid org price. These exist
+    // only so seat-total maths does not divide by a zero for a granted org.
+    monthlyPrice: 19,
+    annualPriceTotal: 182.40
   },
 }
 

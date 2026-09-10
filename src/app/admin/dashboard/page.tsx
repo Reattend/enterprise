@@ -756,7 +756,7 @@ export default function AdminDashboard() {
                   onClick={() => { setTrialTier('enterprise'); if (parseInt(trialSeats) < 5) setTrialSeats('5') }}
                   className={`px-3 py-2 rounded-md border text-sm font-medium transition ${trialTier === 'enterprise' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 hover:border-gray-300'}`}
                 >
-                  Enterprise ($29)
+                  Enterprise (negotiated)
                 </button>
               </div>
             </div>

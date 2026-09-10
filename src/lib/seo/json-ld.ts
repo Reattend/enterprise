@@ -49,7 +49,6 @@ export const JSON_LD_GRAPH = {
     { '@type': 'SiteNavigationElement', name: 'Pricing', url: 'https://reattend.com/pricing' },
     { '@type': 'SiteNavigationElement', name: 'Integrations', url: 'https://reattend.com/integrations' },
     { '@type': 'SiteNavigationElement', name: 'Compliance', url: 'https://reattend.com/compliance' },
-    { '@type': 'SiteNavigationElement', name: 'Sandbox', url: 'https://reattend.com/sandbox' },
     { '@type': 'SiteNavigationElement', name: 'For individuals', url: 'https://reattend.com/personal' },
     { '@type': 'SiteNavigationElement', name: 'About', url: 'https://reattend.com/about' },
     { '@type': 'SiteNavigationElement', name: 'Free Tools', url: 'https://reattend.com/tool' },
@@ -71,7 +70,7 @@ export const JSON_LD_GRAPH = {
           name: 'Free',
           price: '0',
           priceCurrency: 'USD',
-          description: 'Try Reattend with the public sandbox - no card, no signup.',
+          description: 'Free forever when you connect your own AI provider key. No card.',
         },
         {
           '@type': 'Offer',
@@ -86,22 +85,14 @@ export const JSON_LD_GRAPH = {
             referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
           },
           description:
-            'Unlimited AI questions, full memory retention, all connectors, decision log, exit interviews, time machine. $19 per user per month.',
+            'Unlimited AI questions, full memory retention, all connectors, decision log, exit interviews, time machine, SSO (SAML/OIDC), hash-chained audit log and two-tier RBAC. $19 per user per month.',
         },
         {
           '@type': 'Offer',
-          name: 'Enterprise',
-          price: '29',
+          name: 'Government / on-premise',
           priceCurrency: 'USD',
-          priceSpecification: {
-            '@type': 'UnitPriceSpecification',
-            price: '29',
-            priceCurrency: 'USD',
-            unitText: 'user/month',
-            referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
-          },
           description:
-            'Team plan + SSO (SAML/OIDC), hash-chained WORM audit log, two-tier RBAC with per-user overrides, EU data residency. $29 per user per month, 5-seat minimum.',
+            'Custom-quoted on-premise or air-gapped deployment for government and regulated buyers. Talk to sales.',
         },
       ],
       featureList: [
@@ -114,8 +105,7 @@ export const JSON_LD_GRAPH = {
         'Self-healing contradiction detection',
         'Hash-chained WORM audit log',
         'Two-tier RBAC with per-user permission overrides',
-        'EU or US data residency',
-      ],
+            ],
     },
     {
       '@type': 'FAQPage',
@@ -142,7 +132,7 @@ export const JSON_LD_GRAPH = {
           name: 'How much does Reattend cost?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend has three tiers. Team is $19 per user per month with unlimited AI questions, full retention, and all connectors. Enterprise is $29 per user per month with SSO/SAML, hash-chained audit log, two-tier RBAC, and EU data residency - minimum 5 seats. Government / on-premise is custom-quoted. Anyone can try the live product without an account at reattend.com/sandbox.',
+            text: 'Reattend has one paid team price: $19 per user per month, or $182.40 per user per year. It includes unlimited AI questions, full retention, every connector, SSO (SAML/OIDC), the hash-chained audit log and two-tier RBAC - there is no higher tier that unlocks those. You can also use Reattend free forever by connecting your own AI provider key. Government and on-premise deployments are custom-quoted. Every paid plan starts with a 15-day free trial and no card.',
           },
         },
         {
@@ -158,7 +148,7 @@ export const JSON_LD_GRAPH = {
           name: 'What is Reattend\'s compliance posture?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend ships with a hash-chained WORM audit log, record-level RBAC enforced before retrieval, GDPR self-export and erasure built in, and EU or US data residency. SOC 2 is on the roadmap and will be pursued alongside the first regulated customer engagement that requires it. The Compliance page on reattend.com lists every control with its current status - shipped, in progress, or roadmap.',
+            text: 'Reattend ships with a hash-chained WORM audit log, record-level RBAC enforced before retrieval, and GDPR self-export and erasure built in. Data is stored in a single US region today; dedicated regional and on-premise deployments are available for government and regulated engagements. SOC 2 is on the roadmap and will be pursued alongside the first regulated customer engagement that requires it. The Compliance page on reattend.com lists every control with its current status - shipped, in progress, or roadmap.',
           },
         },
         {

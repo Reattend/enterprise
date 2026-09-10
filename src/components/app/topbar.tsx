@@ -997,7 +997,7 @@ function EnterpriseDocsBody({ role }: { role?: string }) {
             />
             <DocRow
               title="Plan & Billing"
-              desc="Upgrade, change seat count, manage SSO/SAML, SCIM provisioning, data residency."
+              desc="Upgrade, change seat count, manage SSO/SAML and invoices."
               can={['super_admin']}
               cannot={['admin', 'member', 'guest']}
             />

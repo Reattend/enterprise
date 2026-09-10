@@ -8,7 +8,8 @@ import { eq, and } from 'drizzle-orm'
 import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 // POST /api/billing/checkout
-//   body: { tier: 'professional' | 'enterprise', cycle: 'monthly' | 'annual', seats?: number }
+//   body: { tier: 'professional', cycle: 'monthly' | 'annual', seats?: number }
+//   ('enterprise' is rejected - it is grant-only, never sold self-serve)
 //
 // Creates a Paddle transaction (in 'draft' status) and returns the transaction
 // ID. The client opens Paddle.js with that ID and the user completes payment
@@ -72,7 +73,17 @@ export async function POST(req: NextRequest) {
 
   const tier = body.tier
   const cycle = body.cycle
-  if (tier !== 'professional' && tier !== 'enterprise') {
+  // Enterprise is not a self-serve price. It is a grant-only label for
+  // negotiated deals and its Paddle prices are archived, so letting a
+  // checkout through here would fail deep inside Paddle with an opaque
+  // error instead of telling the admin to talk to us.
+  if (tier === 'enterprise') {
+    return NextResponse.json({
+      error: 'not_self_serve',
+      message: 'Enterprise deployments are quoted, not bought online. Talk to sales and we will set it up.',
+    }, { status: 400 })
+  }
+  if (tier !== 'professional') {
     return NextResponse.json({ error: 'invalid tier' }, { status: 400 })
   }
   if (cycle !== 'monthly' && cycle !== 'annual') {
