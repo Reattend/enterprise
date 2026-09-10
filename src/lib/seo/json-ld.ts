@@ -132,7 +132,7 @@ export const JSON_LD_GRAPH = {
           name: 'How much does Reattend cost?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Reattend has one paid team price: $19 per user per month, or $182.40 per user per year. It includes unlimited AI questions, full retention, every connector, SSO (SAML/OIDC), the hash-chained audit log and two-tier RBAC - there is no higher tier that unlocks those. You can also use Reattend free forever by connecting your own AI provider key. Government and on-premise deployments are custom-quoted. Every paid plan starts with a 15-day free trial and no card.',
+            text: 'Reattend has one paid team price: $19 per user per month, or $182.40 per user per year. It includes unlimited AI questions, full retention, every connector, SSO (SAML/OIDC), the hash-chained audit log and two-tier RBAC - there is no higher tier that unlocks those. There is also a $9 per month single-user plan, and Reattend is free forever if you connect your own AI provider key. Government and on-premise deployments are custom-quoted. Team plans start with a 15-day free trial, the single-user plan with 7 days, and neither asks for a card.',
           },
         },
         {

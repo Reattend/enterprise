@@ -895,6 +895,15 @@ now match Paddle and `TRIAL_DAYS_BY_TIER`.
 Also: the in-app billing card fell back to **15** days if `/api/billing/status`
 failed, on the card personal users see. Now 7.
 
+**The first sweep missed three of them, and my own JSON-LD was wrong too.** The
+regex looked for "N-day trial" and the page also says "the first 15 days are
+free", "Yes - 15 days, free" and "try Managed free for 15 days". Re-swept every
+page with a wider pattern that reads script blocks as well. And the pricing FAQ
+answer I wrote two commits ago claimed "every paid plan starts with a 15-day
+free trial", which is false for the $9 plan. It now names both: 15 for teams,
+7 for single-user. **Lesson: a claim sweep is only as good as its loosest
+phrasing, and prose says the same number five different ways.**
+
 **A correction to yesterday's commit.** It claimed all four professional tier
 flags were set true. Only three were: the replace I used matched a block where
 `exitInterviewAgent` was already true, which is the enterprise row, so
