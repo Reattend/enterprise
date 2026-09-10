@@ -984,3 +984,116 @@ user costs up to $32 against $9. Org $19 nets ~$17.55, break-even ~440, cap
 3. **No token telemetry.** `usage_daily` counts operations, not tokens, so
    actual spend per user is invisible. Everything above stays an estimate until
    that exists.
+
+---
+
+# ⏸ SESSION PAUSED — 2026-09-10. Read this block first on resume.
+
+## Where everything stands
+
+**Production is healthy and shipping.** `reattend.com` at commit `677988b`, one
+process, one folder, one domain. 23 public routes 200, zero server errors
+across the API sweep, sandbox launches, all six enterprise suites pass. Paddle
+returns 200 and its three active prices reconcile exactly with `.env.local` and
+with `TRIAL_DAYS_BY_TIER`.
+
+| Thing | State |
+|---|---|
+| Paid org price | **One**: $19/seat/mo, $182.40/yr, 15-day trial |
+| Personal price | $9/mo, **7-day** trial, 800 questions |
+| Enterprise tier | Grant-only label. Not sold. Checkout rejects it |
+| personal.reattend.com | **301** to reattend.com. Keep the DNS record and cert |
+| Chrome extension | v0.5.0 **submitted**, awaiting Google review |
+| Server | 908 MB / 3.8 GB used, load 0.71 on 2 cores, 63 GB disk free |
+
+## What this session actually did
+
+Collapsed two paid org tiers into one after proving nothing gated on
+Enterprise. Then, chasing the $29 justification, found and removed a much
+larger class of false claim: six cloud regions we do not run, a data-residency
+console screen that does not exist, a **99.95% uptime SLA with service credits**
+on a single process with no failover, HSM-backed keys, a daily Merkle digest, a
+24/7 security team, and SOC 2 Type II. All corrected to what actually ships.
+
+Decommissioned personal.reattend.com properly: backed up, 301'd rather than
+deleted, process removed, folder archived then dropped.
+
+Caught the personal trial being sold as 15 days when Paddle says 7. **Shipped
+the fix, then found the first sweep had missed three more phrasings** and the
+false promise had briefly gone live. Fixed and verified.
+
+## Three things waiting on you
+
+1. **The personal archive.** `/root/personal-archive-DATA-ONLY/` holds 13
+   records from your old personal account that were never migrated. All from
+   the account's creation day, two Untitled, so they look like test content,
+   but it is the only copy. Delete when you are sure:
+   `ssh root@167.99.158.143 "rm -rf /root/personal-archive-DATA-ONLY"`
+2. **The extension.** Submitted and awaiting review. Nothing to do until Google
+   responds.
+3. **The video.** Brief written, script and graph animation done. See below.
+
+## Three cost guardrails, deliberately NOT done
+
+Reported, not implemented, because you asked what the situation was rather than
+for a fix. In priority order:
+
+1. **A no-card trial grants the full 800 questions.** `start-trial` sets tier
+   `professional` and `gates.ts` has no trial-specific cap, so one trial can
+   burn ~$32 having paid nothing; a 5-seat org trial ~$160. Capping trials near
+   100 questions makes that $4. **This is the one I would do first.**
+2. **The reranker bills us for BYOK users.** `reranker.ts:44` reads
+   `process.env.ANTHROPIC_API_KEY` unconditionally, so every question from a
+   "free forever with your own key" user costs us ~$0.005, unmetered, because
+   BYOK skips the quota counter.
+3. **No token telemetry.** `usage_daily` counts operations, not tokens, so real
+   AI spend per user is invisible. Until this exists, the ~$0.04/question figure
+   stays an estimate.
+
+Load **$250-300** of Claude credit and set a monthly spend cap in the console.
+
+## The video (next piece of work)
+
+Brief, 7-beat script and a working memory-graph animation in the real palette:
+**https://claude.ai/code/artifact/1e2ecc4d-ca3a-46f6-ba96-ae548d077a8b**
+
+Build it in the other Claude session, which has the ElevenLabs key. The script
+and the truth checks come from here because one of them is only visible from
+inside the repo:
+
+- **Gmail cannot be shown connecting.** A personal user has no button. The
+  integrations page says "not switched on yet" in your own words. The routes at
+  `api/integrations/gmail` exist with personal-capable `requireAuth`, the
+  callback is written and `GOOGLE_CLIENT_ID`/`SECRET` are in `.env.local` — what
+  is missing is the connect button. **The OAuth round trip was never tested.**
+- Passive capture must be described as "only on the sites you allow", or the
+  film contradicts the Chrome Web Store privacy disclosure.
+- "A year ago" is safe: the free tier's 90-day retention is a number nothing
+  acts on.
+
+I could not open the reference video Partha linked, so the format is unmatched.
+
+## ▶ EXACT NEXT STEP
+
+**Ship the Gmail connect button for personal users.** It unblocks the video beat
+Partha wanted, it is the shortest path from "coming soon" to a real
+differentiator, and the backend is already there. Concretely: add the connect
+entry point to `src/app/(app)/app/integrations/page.tsx` (currently hard-codes
+the "Connectors are coming soon" empty state for the no-org branch at line
+262), then **test the OAuth round trip end to end before believing it works.**
+
+If Partha would rather not touch Gmail yet, do guardrail #1 above instead: cap
+trial questions in `gates.ts`.
+
+## Standing rules learned or reinforced today
+
+- **Never mix personal and enterprise.** Personal is a no-org tenant, never a
+  hostname or a separate database. That separate deployment is now gone.
+- **Check the running process env, not just `.env.local`.** Cost me a wrong
+  public claim about connectors earlier in this project.
+- **A claim sweep is only as good as its loosest phrasing.** "15-day trial" and
+  "the first 15 days are free" are the same promise; my regex only knew one, and
+  a false promise reached production because of it.
+- **Marketing copy was written for the product we intend to be.** Nothing
+  re-checks it against the product we are. Sweep `/compliance`, `/privacy` and
+  `/terms` against the code before any procurement conversation.
