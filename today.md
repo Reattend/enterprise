@@ -656,4 +656,17 @@ ssh root@167.99.158.143 "docker exec nango-db psql -U nango -d nango -c \\
 - **Live bug found and fixed:** the **Managed pricing tier was white text on a near-white card** - it used to be dark, `site-refresh.css` forced it light with `!important` and never overrode pricing.html's `#fff` text rules, so the entire feature list was invisible from the marketing refresh until now. **Lesson: when overriding a card's background in the refresh layer, override its text colours in the same rule.**
 - Also fixed: `/product`'s "Talk to founders" pointed at `/register` not a booking; four dead `href="#"` links (two "Download PDF" offers with no PDF, a privacy revision-history page that does not exist, a status link now pointing at the real status page); the sign-in page sent new users to "Talk to sales" instead of Start free.
 
+**Personal nav + Landscape-as-board (2026-09-10, `767488f`).**
+
+- **Sign in and Start free were one door.** `/login` and `/register` both run email→OTP through `findOrCreateUser`, and the app's first-run gate routes new accounts to `/onboarding` either way - so two buttons were two doors to one room. Nav keeps **Start free** only. The wizard now also short-circuits when `onboarding_completed` is already true (it previously only checked org / key / paid tier), so returning users who click Start free are not walked through it again.
+- **Onboarding truncation:** "Claude (Anthropic)" / "Gemini (Google)" overflowed the provider pills onto a clipped second line. Short labels + a pill that cannot clip. Verified: zero overflowing elements on the step.
+- **Landscape is a board now:** always full-bleed, rail auto-collapses while open (user's own preference restored on unmount), windowed/Exit toggle and ⌘F removed. Controls stay.
+- **What each personal "More" item actually did (checked, not assumed):**
+  - `Decisions` - every fetch is `/api/enterprise/organizations/${activeOrgId}/...` with `if (!activeOrgId) return`. **Provably empty for a personal account** → removed from the rail *and* from `NO_ORG_ALLOWED_PREFIXES`.
+  - `Transcripts` - **live**: the extension writes `type: 'transcript'` via `/api/tray/voice`, and the page reads `/api/records?type=transcript`. Promoted to the rail.
+  - `Integrations` - promoted, with personal-shaped coming-soon copy. **Nango has zero credentials on prod** (`NANGO_SECRET_KEY`/`NANGO_HOST`/`NEXT_PUBLIC_NANGO` all absent), so connectors are dead for every tenant, not just personal. The API itself only needs `requireAuth`, so personal would work the day it is configured.
+  - `Downloads` - for one person it lists only the Chrome build, which *is* `/app/extension` → folded in.
+  - Nothing left worth hiding → **More is org-only**, and the topbar's Apps + Integrations icons are org-only too.
+- **"Connect a key" landed on Settings → Profile.** Settings tabs are now deep-linkable (`?tab=ai-provider`, controlled `<Tabs>` reading the URL once on mount), the Control Room section has an `#ai-provider` anchor, and the banner + billing card each point at the right one for the account type.
+
 **Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
