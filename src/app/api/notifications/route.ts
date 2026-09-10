@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
 
     const now = new Date().toISOString()
     const global = params.get('global') === 'true'
+    const q = (params.get('q') || '').trim()
 
     const conditions = [
       eq(schema.inboxNotifications.userId, userId),
@@ -47,6 +48,26 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // Free-text search across the title and body. Matched server-side so it
+    // searches the WHOLE inbox, not just the page currently loaded.
+    if (q) {
+      const like = `%${q.replace(/[%_]/g, (m) => '\\' + m)}%`
+      conditions.push(
+        or(
+          sql`${schema.inboxNotifications.title} LIKE ${like} ESCAPE '\\'`,
+          sql`${schema.inboxNotifications.body} LIKE ${like} ESCAPE '\\'`,
+        )!,
+      )
+    }
+
+    // Real total for the current filter, so the UI can page through
+    // everything instead of silently stopping at the first page.
+    const totalRow = await db
+      .select({ n: sql<number>`cast(count(*) as integer)` })
+      .from(schema.inboxNotifications)
+      .where(and(...conditions))
+    const total = totalRow[0]?.n ?? 0
+
     const notifications = await db.query.inboxNotifications.findMany({
       where: and(...conditions),
       orderBy: desc(schema.inboxNotifications.createdAt),
@@ -65,7 +86,13 @@ export async function GET(req: NextRequest) {
       enriched = notifications.map(n => ({ ...n, workspaceName: wsMap[n.workspaceId] || 'Unknown' }))
     }
 
-    return NextResponse.json({ notifications: enriched, total: enriched.length })
+    return NextResponse.json({
+      notifications: enriched,
+      total,                       // every row matching the filter
+      returned: enriched.length,   // rows in THIS page
+      offset,
+      hasMore: offset + enriched.length < total,
+    })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

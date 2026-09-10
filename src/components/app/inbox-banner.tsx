@@ -14,7 +14,7 @@ export function InboxBanner() {
       <span className="text-base leading-none">⚠️</span>
       <span className="flex-1">
         Reattend needs your attention -{' '}
-        <strong>{inboxUnread} {inboxUnread === 1 ? 'memory' : 'memories'}</strong> flagged for review.{' '}
+        <strong>{inboxUnread} {inboxUnread === 1 ? 'item' : 'items'}</strong> waiting for you.{' '}
         <Link href="/app/inbox" className="underline underline-offset-2 font-semibold hover:opacity-80">
           View inbox →
         </Link>

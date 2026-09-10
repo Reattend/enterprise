@@ -69,7 +69,7 @@ export function MemoryPulse({
         {scope === 'team' ? (
           <>
             <div><Database size={14} /><span><b>{recentCount.toLocaleString()}</b><small>new this week</small></span></div>
-            <div><RefreshCcw size={14} /><span><b>{needsReview.toLocaleString()}</b><small>need review</small></span></div>
+            <div><RefreshCcw size={14} /><span><b>{needsReview.toLocaleString()}</b><small>due for re-check</small></span></div>
             <div><Plug size={14} /><span><b>{connectedSources}/{totalSources}</b><small>sources flowing</small></span></div>
           </>
         ) : (
