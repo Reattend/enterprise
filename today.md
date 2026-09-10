@@ -1097,3 +1097,61 @@ trial questions in `gates.ts`.
 - **Marketing copy was written for the product we intend to be.** Nothing
   re-checks it against the product we are. Sweep `/compliance`, `/privacy` and
   `/terms` against the code before any procurement conversation.
+
+---
+
+# 🔴 SECURITY — unverified SSO domain claiming (found 2026-09-10, NOT FIXED)
+
+Found while answering a question about trial eligibility. Unrelated to trials.
+Trials are fine. This is not.
+
+## The hole
+
+`sso_configs.domain` has an **index, not a unique constraint** (schema.ts:1066),
+and there is **no domain verification anywhere in the codebase** — no DNS TXT
+check, nothing. The SSO config route
+(`api/enterprise/organizations/[orgId]/sso/route.ts:69`) accepts any domain
+string. It never checks the domain against the caller's own email, the org's
+`primaryDomain`, or another org's existing claim. The only gate is
+`requireOrgAuth(orgId, 'org.manage')`, which just means you are an admin of
+**your own** org.
+
+## Why that is account takeover, not just squatting
+
+1. Attacker signs up with any work email and creates an org. They are its admin.
+2. They PUT an SSO config with `domain: "victim.com"`, `enabled: true`, pointing
+   at an identity provider **they control**.
+3. They hit `/api/sso/initiate` with any `@victim.com` address. It resolves the
+   domain with `findFirst` and redirects to the attacker's own IdP.
+4. `api/sso/callback/route.ts:72` validates only that the asserted email ends
+   with `@` + `config.domain`. **The attacker's IdP decides that value.** It
+   asserts `ceo@victim.com`.
+5. Line 77 looks up the **existing Reattend user** with that email, line 117
+   issues an SSO ticket for them, and the login page trades it for a real
+   NextAuth session.
+
+Net: sign in as any Reattend user whose email domain you claim. JIT
+provisioning also defaults to on (`justInTimeProvisioning !== false`), so the
+victim additionally gets added to the attacker's org.
+
+## Why now is the cheapest moment to fix it
+
+**Production has zero SSO configs** (`select count(*) from sso_configs` = 0).
+Nobody is using it, so a strict fix breaks no customer. It also means nobody
+has exploited it yet.
+
+## The fix, in order
+
+1. **Stop-gap that kills the attack on its own:** reject any SSO domain that is
+   not the caller's own email domain. One condition in the PUT handler.
+2. Add a **unique constraint** on `sso_configs.domain` so first legitimate
+   claim wins and `findFirst` stops being ambiguous.
+3. Add real **DNS TXT domain verification** before `enabled` may be set true.
+   This is the "domain claiming" item that has been on the backlog since before
+   this session.
+
+Instant mitigation if any doubt: disable the two SSO routes. Nothing in
+production depends on them today.
+
+**Reported, not fixed — Partha was closing the laptop and this is an auth
+change that deserves his explicit go.**
