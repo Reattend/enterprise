@@ -153,13 +153,21 @@ export async function requireExtensionAccess(userId: string): Promise<Response |
   const byok = await resolveByokKey({ organizationId: activeContextOrgId, userId })
   if (byok) return null
 
-  const sub = await getOrCreateSubscription(userId)
+  // In an org, billing lives on the ORG (its createdBy row), not on each
+  // member. Checking the caller's own subscription meant that on a paid org
+  // only the billing owner could use the extension - every other member was
+  // 402'd despite the org paying for them. Falls back to the caller's own
+  // row for personal accounts and if the org row cannot be resolved.
+  const sub = (activeContextOrgId ? await getOrgBillingSubscription(activeContextOrgId) : null)
+    ?? await getOrCreateSubscription(userId)
   if (sub.tier === 'professional' || sub.tier === 'enterprise') return null
 
   return Response.json(
     {
       error: 'extension_requires_ai_configured',
-      message: 'Connect an AI provider key (free) or upgrade to Managed to enable the extension.',
+      message: activeContextOrgId
+        ? 'Your organization needs a Managed plan or an AI provider key before the extension can run. Ask an admin to set one up in the Control Room.'
+        : 'Connect an AI provider key (free) or upgrade to Managed to enable the extension.',
       currentTier: sub.tier,
       settingsUrl: 'https://reattend.com/app/settings',
       upgradeUrl: 'https://reattend.com/pricing',
