@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { db, schema } from '@/lib/db'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 import { eq, and } from 'drizzle-orm'
 import { getOrgBillingSubscription, getOrCreateSubscription, canOrgAddMember } from '@/lib/billing/gates'
 import { TIER_LIMITS } from '@/lib/billing/tier'
@@ -16,9 +17,7 @@ export async function GET() {
   try {
     const { userId } = await requireAuth()
 
-    const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-      .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-    const orgId = userRow?.activeContextOrgId ?? null
+    const orgId = await resolveActiveOrgId(userId)
 
     if (!orgId) {
       // Personal accounts have a real subscription row of their own - the old

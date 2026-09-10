@@ -7,6 +7,7 @@ import { requireExtensionAccess } from '@/lib/billing/gates'
 import { recordUsage } from '@/lib/metering'
 import { resolveLLMForRequest, NoAIConfiguredError } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 const AI_QUERY_LIMIT = 20
 
@@ -86,9 +87,8 @@ export async function POST(req: NextRequest) {
     // requireExtensionAccess() above already confirmed this user's active
     // context has AI configured (BYOK or Managed) - resolve against the
     // same context so the two checks can't disagree.
-    const activeCtxRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-      .from(schema.users).where(eq(schema.users.id, auth.userId)).then(r => r[0])
-    const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: activeCtxRow?.activeContextOrgId ?? null, intent: 'reasoning' })
+    const activeCtxOrgId = await resolveActiveOrgId(auth.userId)
+    const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: activeCtxOrgId, intent: 'reasoning' })
     const keywords = extractKeywords(question)
 
     // Fetch recent + keyword/FTS records

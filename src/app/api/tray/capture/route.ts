@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { consumeCapture } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 import { eq, and, desc, gt } from 'drizzle-orm'
 import { validateApiToken } from '@/lib/auth/token'
 import { requireExtensionAccess } from '@/lib/billing/gates'
@@ -190,12 +191,7 @@ export async function POST(req: NextRequest) {
       typeof metadata?.org_id === 'string' ? metadata.org_id : undefined
     let activeContextOrgId: string | undefined = undefined
     if (!requestedWorkspaceId && !explicitOrgId) {
-      const [u] = await db
-        .select({ activeContextOrgId: schema.users.activeContextOrgId })
-        .from(schema.users)
-        .where(eq(schema.users.id, auth.userId))
-        .limit(1)
-      if (u?.activeContextOrgId) activeContextOrgId = u.activeContextOrgId
+      activeContextOrgId = (await resolveActiveOrgId(auth.userId)) ?? undefined
     }
     const resolved = await resolveTargetWorkspace({
       userId: auth.userId,

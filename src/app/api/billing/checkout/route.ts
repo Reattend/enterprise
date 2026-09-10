@@ -5,6 +5,7 @@ import { tierToPriceId, personalPriceId, TIER_LIMITS } from '@/lib/billing/tier'
 import { getOrCreateSubscription } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 // POST /api/billing/checkout
 //   body: { tier: 'professional' | 'enterprise', cycle: 'monthly' | 'annual', seats?: number }
@@ -32,9 +33,7 @@ export async function POST(req: NextRequest) {
   // gets Managed, paid or trial (see start-trial's identical guard and
   // today.md). Real money doesn't buy an exception: without an org,
   // resolveLLM() would still hard-block AI usage regardless of tier.
-  const [callerRow] = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-    .from(schema.users).where(eq(schema.users.id, userId)).limit(1)
-  const orgId = callerRow?.activeContextOrgId
+  const orgId = await resolveActiveOrgId(userId)
   if (!orgId) {
     // Personal account: a single-seat Managed subscription on the personal
     // price. The webhook keys off customData.userId, so no organizationId.

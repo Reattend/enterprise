@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
 import { handleEnterpriseError } from '@/lib/enterprise'
 
@@ -36,10 +36,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rec
         where: eq(schema.workspaceOrgLinks.workspaceId, row.workspaceId),
       })
       if (!link) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+      // Look the membership up in THIS org. Previously this took the
+      // caller's first membership row (findFirst on userId alone) and then
+      // compared its org - so an admin who also belongs to another org
+      // could be handed the wrong row and denied on records they actually
+      // administer. Never a privilege escalation, but a real false negative
+      // for anyone in more than one org.
       const memb = await db.query.organizationMembers.findFirst({
-        where: eq(schema.organizationMembers.userId, userId),
+        where: and(
+          eq(schema.organizationMembers.userId, userId),
+          eq(schema.organizationMembers.organizationId, link.organizationId),
+        ),
       })
-      const isAdmin = memb && (memb.role === 'super_admin' || memb.role === 'admin') && memb.organizationId === link.organizationId
+      const isAdmin = !!memb && (memb.role === 'super_admin' || memb.role === 'admin')
       if (!isAdmin) return NextResponse.json({ error: 'only owner or admin can verify' }, { status: 403 })
     }
 

@@ -6,6 +6,7 @@ import { requireExtensionAccess } from '@/lib/billing/gates'
 import { getLLM } from '@/lib/ai/llm'
 import { resolveLLMForRequest } from '@/lib/ai/byok'
 import { cosineSimilarity } from '@/lib/utils'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 /**
  * Ambient Recall v3 - embed-first, then LLM gate WITH memory context.
@@ -166,9 +167,8 @@ export async function POST(req: NextRequest) {
     ).join('\n')
 
     try {
-      const activeCtxRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-        .from(schema.users).where(eq(schema.users.id, auth.userId)).then(r => r[0])
-      const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: activeCtxRow?.activeContextOrgId ?? null, intent: 'simple' })
+      const activeCtxOrgId = await resolveActiveOrgId(auth.userId)
+      const llm = await resolveLLMForRequest({ userId: auth.userId, organizationId: activeCtxOrgId, intent: 'simple' })
       const gatePrompt = `You decide whether to show a memory popup to a user. Interrupting is COSTLY - only do it when genuinely valuable.
 
 WHAT THE USER IS CURRENTLY DOING (screen text from ${app_name}):

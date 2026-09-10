@@ -12,6 +12,7 @@
 // routes stay thin.
 
 import { db, schema } from '@/lib/db'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 import { and, eq, sql } from 'drizzle-orm'
 import { TIER_LIMITS, type Tier } from './tier'
 
@@ -140,9 +141,10 @@ export function hasFeature(
 export async function requireExtensionAccess(userId: string): Promise<Response | null> {
   const { resolveByokKey } = await import('@/lib/ai/byok')
 
-  const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-    .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-  const activeContextOrgId = userRow?.activeContextOrgId ?? null
+  // Falls back to real membership when the stored context was never set -
+  // see resolveActiveOrgId. Without this, org members whose admin holds the
+  // org key were 402'd out of the extension entirely.
+  const activeContextOrgId = await resolveActiveOrgId(userId)
 
   // Personal accounts (no active org) get the extension too: with a null
   // organizationId resolveByokKey falls through to the user's own key, and
@@ -184,9 +186,10 @@ export async function consumeCapture(userId: string): Promise<
   | { ok: true; remaining: number | 'unlimited' }
   | { ok: false; remaining: 0; resetAt: string }
 > {
-  const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-    .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-  if (userRow?.activeContextOrgId) return { ok: true, remaining: 'unlimited' }
+  // Resolved, not read raw: the comment above assumes org-context users are
+  // governed by org billing, and a NULL stored context quietly broke that -
+  // metering paying org members against the personal capture cap.
+  if (await resolveActiveOrgId(userId)) return { ok: true, remaining: 'unlimited' }
 
   const { resolveByokKey } = await import('@/lib/ai/byok')
   const byok = await resolveByokKey({ organizationId: null, userId })

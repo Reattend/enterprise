@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth'
 import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { getKeyStatus, saveKey, removeKey, testProviderKey, type ByokProviderName } from '@/lib/ai/byok'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,9 +18,7 @@ export const dynamic = 'force-dynamic'
 // never reach this path.
 
 async function getActiveOrgId(userId: string): Promise<string | null> {
-  const row = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-    .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-  return row?.activeContextOrgId ?? null
+  return resolveActiveOrgId(userId)
 }
 
 export async function GET() {

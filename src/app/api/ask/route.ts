@@ -16,6 +16,7 @@ import { rerankWithClaudeHaiku } from '@/lib/ai/reranker'
 import { consumeAiQuery, getOrCreateSubscription, getOrgBillingSubscription } from '@/lib/billing/gates'
 import { isSandboxEmail } from '@/lib/sandbox/detect'
 import { matchSandboxQuestion, SANDBOX_CHAT, SANDBOX_CHAT_FALLBACK } from '@/lib/sandbox/fixtures'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 const STOP_WORDS = new Set([
   'i', 'me', 'my', 'we', 'our', 'you', 'your', 'he', 'she', 'it', 'they',
@@ -446,8 +447,7 @@ export async function POST(req: NextRequest) {
     let usingByok = false
     let billingOwnerId = userId
     if (!isSandboxEmail(userEmail)) {
-      const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId }).from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-      activeContextOrgId = userRow?.activeContextOrgId ?? null
+      activeContextOrgId = await resolveActiveOrgId(userId)
 
       const sub = activeContextOrgId
         ? (await getOrgBillingSubscription(activeContextOrgId)) ?? (await getOrCreateSubscription(userId))

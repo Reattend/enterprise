@@ -4,6 +4,7 @@ import { db, schema } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { getOrCreateSubscription } from '@/lib/billing/gates'
 import { TRIAL_DAYS } from '@/lib/billing/tier'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,9 +35,7 @@ export async function POST() {
     // features) and is never available in Personal mode - Personal is
     // BYOK-only, full stop (see today.md). Gate on activeContextOrgId
     // rather than trusting the client.
-    const userRow = await db.select({ activeContextOrgId: schema.users.activeContextOrgId })
-      .from(schema.users).where(eq(schema.users.id, userId)).then(r => r[0])
-    const orgId = userRow?.activeContextOrgId
+    const orgId = await resolveActiveOrgId(userId)
     if (!orgId) {
       // Personal account: the trial lives on the caller's own subscription row.
       // Same one-time rule as the org flow below.

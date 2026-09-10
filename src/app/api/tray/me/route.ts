@@ -3,6 +3,7 @@ import { validateApiToken } from '@/lib/auth/token'
 import { getOrCreateSubscription, hasFeature } from '@/lib/billing/gates'
 import { db, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
+import { resolveActiveOrgId } from '@/lib/enterprise/active-org'
 
 /**
  * GET /api/tray/me
@@ -33,8 +34,9 @@ export async function GET(req: NextRequest) {
   // Active context: NULL = Personal, otherwise the orgId. Same value the
   // web app reads/writes via /api/me/active-context, exposed here so the
   // desktop + extension can seed their topbar switcher on token connect.
-  const activeContext = user.activeContextOrgId
-    ? { context: 'org' as const, orgId: user.activeContextOrgId }
+  const resolvedOrgId = await resolveActiveOrgId(user.id)
+  const activeContext = resolvedOrgId
+    ? { context: 'org' as const, orgId: resolvedOrgId }
     : { context: 'personal' as const, orgId: null as string | null }
 
   return Response.json({
