@@ -199,7 +199,7 @@ export default function PermissionsPage({ params }: { params: { orgId: string; u
             <p className="text-muted-foreground text-xs mt-0.5">
               Grant a permission this user wouldn&apos;t normally have, or revoke one their role grants.
               Use this for one-off cases (e.g. COO who isn&apos;t admin but needs audit access).
-              Don&apos;t invent a new role for one customer - override instead. See <Link href="/docs/permissions" className="underline">docs/permissions.md</Link>.
+              Don&apos;t invent a new role for one customer - override instead. See <Link href={`/app/admin/${orgId}/roles`} className="underline">Roles &amp; permissions</Link>.
             </p>
           </div>
         </div>

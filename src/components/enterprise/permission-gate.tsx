@@ -62,8 +62,7 @@ export function PermissionGate({
         <p className="text-sm text-muted-foreground mb-4">
           {deniedDescription || (
             <>This page requires the <code className="font-mono text-xs">{permission}</code> permission.
-            Ask an admin to grant it to you, or to assign you a role that includes it.
-            See <Link href="/docs/permissions" className="underline">permissions guide</Link>.</>
+            Ask an admin to grant it to you, or to assign you a role that includes it.</>
           )}
         </p>
         <Link href={`/app/admin/${orgId}`}>
