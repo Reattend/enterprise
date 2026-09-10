@@ -743,3 +743,65 @@ Also in this build (`8bb0ce9`, v0.4.1): the floating pin is **draggable**, remem
 **`reattend-extension-v0.5.0.zip` is built and ready. The Web Store still has the OLD approved build - everything above is unpublished until Partha uploads it.**
 
 **Remember:** never mix Personal and Enterprise (Partha, repeated). Concretely now: personal code paths key off "no org", never off a hostname or a separate DB.
+
+---
+
+## One paid team price + the residency claims (2026-09-10, `9924329`)
+
+**Partha's call, and the code agreed with him:** "Professional at $19/seat and
+Enterprise at $29/seat would be false no? We are not giving something extra."
+
+He was right, and it was checkable. Evidence, three independent passes:
+
+- Every `=== 'enterprise'` in `src` either pairs it with `'professional'` and
+  treats them identically, or is admin-panel cosmetics (labels, colours, seat
+  minimums), or is a Paddle price lookup.
+- The SSO route, the audit route and `rbac.ts` have **no tier check at all**.
+- The four flags that were meant to enforce the split - `rbac`, `sso`,
+  `auditLog`, `adminCockpit` - are **read nowhere**. `hasFeature()` is called
+  in exactly one product path, `api/tray/me` for `chromeExtensionAutoIngest`.
+  Every apparent flag read was `schema.auditLog` (a table) or `sBody.sso` (a
+  response field).
+- The live pricing page has **always** advertised SSO/RBAC/audit under the $19
+  Managed tier.
+
+So $29 charged a second time for what $19 already shipped. Now:
+`professional`'s four flags are `true` (matching what actually ships and what
+the page promises), `enterprise` is a **grant-only label** for negotiated
+on-prem deals with the same numbers, checkout **rejects** `tier=enterprise`
+with a talk-to-sales message instead of failing opaquely inside Paddle
+(its prices are archived), and the JSON-LD offers plus the pricing FAQ answer
+Google quotes verbatim now describe one paid price.
+
+**Org trial is 15 days** (Partha, this sprint) - already true via
+`trialDaysFor(hasOrg)`; personal stays 7. No change needed, just confirmed.
+
+### The bigger find: residency we do not have
+
+Chasing the "$29 buys EU data residency" justification turned up a worse
+claim. `/compliance` told procurement:
+
+> "Reattend runs on AWS and GCP across six regions. You pick one at sign-up;
+> data - including embeddings, logs, and backups - never crosses the boundary."
+
+with five regions tagged **Live** and a Helm chart. The **privacy policy** -
+a legal document - pointed users at a "Settings → Data residency" console
+screen. `product.html` claimed "EU + US data-residency tenancies today".
+
+None of it exists. Four negatives: no `aws-sdk` or `@google-cloud` dependency
+in `package.json` at all, no region string anywhere in `src`, no region picker
+at signup, no such settings section. One DigitalOcean droplet, one SQLite file.
+
+That copy sits on the page our **first ICP - a government buyer - sends to
+procurement**. All of it now reads: one US region live, dedicated regional or
+on-premise deployments scoped per engagement. Same correction on
+`product.html`, `privacy.html`, the compliance FAQ in JSON-LD, and the topbar
+copy that promised **SCIM provisioning** we have never had.
+
+**Lesson, same shape as the Nango one:** the marketing copy was written for
+the product we intend to be, and nothing re-checks it against the product we
+are. Worth a sweep of `/compliance` and `/privacy` against reality before any
+procurement conversation, not after.
+
+`tsc` clean, all six enterprise suites pass (rbac, policies, agents, transfer,
+audit, briefing).
