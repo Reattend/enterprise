@@ -925,3 +925,62 @@ he says otherwise.
 Desktop verified clean: no personal folders, no local copy of the app or its
 database. `personal.reattend.com` survives only in this journal and CLAUDE.md,
 where it is deliberate.
+
+---
+
+## Launch readiness, headroom, and what the AI actually costs (2026-09-10)
+
+**Readiness: green.** 23 public routes all 200, zero failures. 9 auth/API
+endpoints, zero 5xx (correct 401/307/400/405). Sandbox launches (201). Paddle
+API returns 200 and its three active prices match `.env.local` exactly, with
+`trial_period` of 7 day / 15 day / 15 day, matching `TRIAL_DAYS_BY_TIER` and
+the pages. The `forbidden` errors in the logs are historical, from the rotated
+key. No OOM kills; the 890 pm2 restarts are 26 days of deploys, not a crash
+loop.
+
+**Headroom: fine for launch, with one real constraint.** 908 MB of 3.8 GB used,
+2.9 GB available, 229 MB of 4 GB swap touched, 63 GB disk free, load 0.71 on 2
+cores at rest, DB 44 MB. The constraint is the *build*, not serving: it wants a
+3 GB heap on a 3.8 GB box, which is exactly why pm2 must stop first. Serving
+runs as a single fork-mode process on 2 cores, so there is no redundancy - a
+crash or a deploy is downtime. That is precisely why the 99.95% SLA came out of
+the Terms. Upgrade when load sustains above ~1.5 or available memory drops
+under ~1 GB.
+
+### AI cost, measured against the real code
+
+Ingestion does **not** touch Claude (`llm.ts:415`: "Ingestion stays on
+Groq/Rabbit"), and free users without a key are **hard-stopped** in
+`ask/route.ts` rather than silently falling back to the platform key. Both are
+good calls and they mean captures and free signups cost nothing in Claude.
+
+Per answered question, from the actual prompt shapes and real record sizes
+(882 records, avg summary 397 chars, content 3852 truncated to 1500):
+
+| Call | Model | In | Out | Cost |
+|---|---|---|---|---|
+| Rerank 30 candidates | Haiku 4.5 | ~3,500 | ~250 | ~$0.005 |
+| Answer, 10 records | Sonnet 4.6 | ~7,000 | ~600 | ~$0.030 |
+| **Total** | | | | **~$0.035** |
+
+Plan at **$0.04**. Assumes $3/$15 Sonnet and $1/$5 Haiku; confirm on the
+console, those figures may have moved.
+
+**The 800-question cap is well above break-even.** Personal $9 nets ~$8.05
+after Paddle, so break-even is ~200 questions and the cap is 4x that: a power
+user costs up to $32 against $9. Org $19 nets ~$17.55, break-even ~440, cap
+1.8x.
+
+**Three things worth fixing before volume arrives, none done (not asked):**
+
+1. **A no-card trial grants the full 800.** `start-trial` sets tier
+   `professional` and `gates.ts` has no trial-specific cap, so one trial signup
+   can burn $32 having paid nothing, and a 5-seat org trial $160. Capping
+   trials near 100 questions turns that into $4.
+2. **The reranker bills us for BYOK users.** `reranker.ts:44` reads
+   `process.env.ANTHROPIC_API_KEY` unconditionally, so every question from a
+   "free forever with your own key" user costs us ~$0.005, unmetered and
+   uncapped, because BYOK skips the quota counter entirely.
+3. **No token telemetry.** `usage_daily` counts operations, not tokens, so
+   actual spend per user is invisible. Everything above stays an estimate until
+   that exists.
