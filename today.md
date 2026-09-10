@@ -1153,5 +1153,28 @@ has exploited it yet.
 Instant mitigation if any doubt: disable the two SSO routes. Nothing in
 production depends on them today.
 
-**Reported, not fixed — Partha was closing the laptop and this is an auth
-change that deserves his explicit go.**
+## FIXED 2026-09-10 (Partha: "go")
+
+Step 1 shipped, and it closes the bypass on its own. The PUT handler now
+enforces three conditions before a domain can be attached to an SSO config:
+
+1. It must parse as a bare domain (normalises `@acme.com`, `https://acme.com/`
+   and `ACME.COM` first).
+2. It must not be a public mailbox provider. Claiming `gmail.com` would have
+   put every consumer-address account in reach at once.
+3. **The caller must be signed in at the domain they are claiming.** Until DNS
+   verification exists, that is the only ownership evidence we have.
+4. No other org may already hold the domain, so `/api/sso/initiate`'s
+   `findFirst` can never resolve ambiguously.
+
+Verified with a 10-case table run through the real `isPersonalEmail`, including
+the exact attack (`attacker@evilcorp.com` claiming `google.com` → rejected) and
+the near-miss (`admin@acme.com` claiming `evil.acme.com` → rejected). All six
+enterprise suites still pass.
+
+**Still open, and now the only thing between us and real domain security:**
+DNS TXT verification before `enabled` may be set true, plus a unique constraint
+on `sso_configs.domain` at the schema level rather than only in application
+code. The app-level check is sufficient today because production has zero SSO
+configs and every write goes through this one handler, but a migration is the
+durable answer.
