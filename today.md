@@ -805,3 +805,58 @@ procurement conversation, not after.
 
 `tsc` clean, all six enterprise suites pass (rbac, policies, agents, transfer,
 audit, briefing).
+
+---
+
+## personal.reattend.com decommissioned (2026-09-10)
+
+Partha: "now that personal.reattend.com is redundant, can we delete that
+subdomain and delete the folders we created for this."
+
+**It was not quite redundant, so I checked before deleting.** It was a real
+second deployment: pm2 process `personal` on port 3001, its own
+`/var/www/personal`, its own nginx vhost, and its own 5.5 MB SQLite database
+with **8 accounts and 51 records**. Six of those 8 emails did not exist in the
+main reattend.com database at all, and one account had been created the day
+before.
+
+What made deletion safe was the next query, not the first: those four outside
+accounts have an auto-created default workspace and **zero records between
+them**. All 51 records belong to Partha, his `pb@reattend.ai` alt, and two
+demo accounts. Traffic was 7 requests. Nothing was going to be lost.
+
+Also checked first, because the extension was in review at that moment: the
+extension defaults `baseUrl` to `https://reattend.com` and never references
+the subdomain. Neither does the app or the marketing site. Review unaffected.
+
+**What was done, in this order:**
+
+1. Backed up the database (`.backup`, integrity check ok, row counts match),
+   `.env.local`, the user list and the original vhost to
+   `/root/personal-decom-20260910/`.
+2. Replaced the vhost with a **301 to the same path on reattend.com**, keeping
+   the Certbot cert. Verified deep links: `/app/memories` and `/pricing` both
+   land correctly.
+3. `pm2 stop` + `pm2 delete personal` + `pm2 save` so it does not return on
+   reboot. Frees ~50 MB, which helps the build OOM headroom.
+4. Tarred the folder (420 MB, database confirmed inside) then `rm -rf`.
+   3 GB freed.
+
+**Keep the DNS A record and the cert.** "Delete the subdomain" and "301 to the
+main site" are mutually exclusive; the redirect is the one that does not break
+old links, and it needs DNS to resolve.
+
+### Two things found while doing it
+
+**`/var/www/personal` was not a git checkout.** No `.git` in the archive, no
+remote. Combined with `~/Desktop/Final Reattend/` no longer existing on the
+Mac, that 420 MB tarball on the droplet is now the **only copy** of the
+Personal codebase. Pull it down to a local disk.
+
+**`~/Desktop/reattend-personal-extension` is a separate published extension**
+("Reattend Personal" v1.0.1, zipped 2026-09-07) that defaults its baseUrl to
+personal.reattend.com and **has no git remote**. Not deleted, deliberately:
+the Mac holds the only copy. It needs a decision, since its users now
+authenticate against a database that no longer exists.
+
+CLAUDE.md's stale `Final Reattend` paths corrected in the same pass.

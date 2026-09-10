@@ -14,7 +14,7 @@
 
 **The wedge** — Glean does enterprise search. We do organizational memory. Different soul.
 
-This is a fork of Reattend Personal (`~/Desktop/Final Reattend/reattend/`). `ENTERPRISE.md` has the full architecture / pricing / strategy doc.
+This is a fork of Reattend Personal (that parent repo is no longer on this Mac; see today.md, 2026-09-10). `ENTERPRISE.md` has the full architecture / pricing / strategy doc.
 
 ---
 
@@ -24,11 +24,11 @@ This is a fork of Reattend Personal (`~/Desktop/Final Reattend/reattend/`). `ENT
 |---|---|
 | Local repo (this) | `/Users/partha/Desktop/enterprise` |
 | Chrome extension repo | `/Users/partha/Desktop/enterprise_extension` |
-| Personal Reattend (parent) | `/Users/partha/Desktop/Final Reattend/reattend` |
+| Personal Reattend (parent) | Gone. Archived at `/root/personal-decom-20260910/` on the droplet |
 | GitHub (app) | https://github.com/Reattend/enterprise |
 | GitHub (extension) | (in `enterprise_extension`, check `git remote -v`) |
 | Production droplet | `167.99.158.143` (root SSH) |
-| Production domain | https://enterprise.reattend.com |
+| Production domain | https://reattend.com (enterprise.reattend.com and personal.reattend.com both 301 here) |
 | Public sandbox | https://enterprise.reattend.com/sandbox |
 | PM2 process name | `enterprise` |
 | Production DB path | `/var/www/enterprise/data/reattend.db` (SQLite) |
