@@ -1276,3 +1276,38 @@ To finish (Partha, registrar side):
    `corporateamnesia.com` (+ www) as aliases, A -> 75.2.60.5. Certificates
    are automatic and the redirect rules already cover every alias.
 Keep all three registered; a lapse lets a competitor buy the problem name.
+
+---
+
+## Favicon + the claims Google's AI Overview was quoting (2026-09-12, `86d2f7b`)
+
+**Old gradient logo in Google results.** Google only uses square favicons; the
+current black logo is 734x766, so it fell back to `icon-128.png` - the old
+purple-pink gradient mark - declared by the root layout for every React page.
+The same file is the logo in every email (`src/lib/email.ts`). Fixed with a
+square set from the current mark on a white rounded ground: `favicon.ico`
+(16/32/48), `icon-48/96/192/512.png`, `apple-touch-icon.png`; `icon-128/48/16`
+overwritten so every old reference updates. All 27 static pages now share one
+icon block. **Never declare a non-square icon as rel="icon" again.** Google
+refreshes favicons on its own schedule after recrawling the homepage.
+
+**"Pulls from over 100 workplace tools"** in the AI Overview came from the
+/faq structured data ("is building integrations with 100+ tools" - Google
+dropped "building"). The whole /faq was the old personal product: $20 Pro,
+$5/user Teams, 60-day trial, 20 queries/day, "isolated databases per
+workspace", "all data encrypted at rest". Rewritten to what ships. Same
+fixes on /security (also "high-availability architecture" and "no analytics
+SDKs" - false), /refund (60-day trial; refund terms untouched), help center
+(Webhooks listed live; now documents the real capture API).
+
+Verified true and kept: backups (hourly, daily off-site to B2 + DO Spaces,
+both succeeding), rate limiting (11 routes return 429), self-serve export and
+account deletion, and the MCP claim (`@reattend/mcp` 1.0.0 on npm targets
+reattend.com and all four `/api/tray/*` endpoints it calls exist; not tested
+with a live key).
+
+Why Google shows an AI Overview first and no sitelinks: "reattend" is also an
+English word (Wiktionary result, "re-attempt" PAA), so Google treats the
+query as ambiguous. HeyGen's tidy rows are paid sitelinks ("Sponsored"), and
+its right-hand panel comes from Wikipedia. Brand-term Google Ads would give
+Reattend the same rows immediately.
