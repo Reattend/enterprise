@@ -1311,3 +1311,34 @@ English word (Wiktionary result, "re-attempt" PAA), so Google treats the
 query as ambiguous. HeyGen's tidy rows are paid sitelinks ("Sponsored"), and
 its right-hand panel comes from Wikipedia. Brand-term Google Ads would give
 Reattend the same rows immediately.
+
+---
+
+## Safe Browsing "Deceptive pages" on reattend.com - remediated, review pending (2026-09-12, `910c806`)
+
+Search Console: 1 issue, "Deceptive pages", no sample URLs. Transparency
+Report: apex `reattend.com` only ("some pages unsafe", social engineering);
+www, enterprise, personal, nango subdomains clean; evaluation data dated
+2026-08-05. Server checked: no foreign files, default docroot untouched.
+
+Fixed, strongest suspect first:
+1. **Sandbox impersonated a real government.** "Try as someone else" into
+   "Ministry of Finance" with primary domain `mof.gov.in` (India's real
+   domain) and 22 `@mof.gov.in` users. Now the fictional **Valdora Revenue
+   Ministry (Demo)** on `valdora.example` - seed script AND prod data (backup
+   `/root/pre-demo-rename-20260912T162724Z.db`; audit log untouched). Page +
+   banner say it is fictional. Rule added to CLAUDE.md.
+2. **Unnotarized/unsigned installers** were downloadable, and /app/downloads
+   claimed "notarized, Gatekeeper opens it without warnings" (spctl:
+   "rejected, Unnotarized Developer ID"). Installers removed from public/ and
+   /api/download; the 0.1.13 Mac build (Developer ID signed, team 6AKUD88CVN,
+   likely the only copy) moved to `/root/desktop-builds/`. Re-add only builds
+   that pass `spctl -a -vv -t exec` / Authenticode.
+3. **"Add to Slack"** with Slack branding went to Slack's error page
+   (`SLACK_GAME_CLIENT_ID` unset). Button + install step now render only when
+   the app is configured.
+4. Extension sideload instructions (fixed earlier today).
+
+**Partha to do:** Search Console > Security issues > Request review, with the
+note drafted in this session. Reviews typically take days. Google Ads will not
+approve ads for the domain until the flag clears.

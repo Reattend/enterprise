@@ -160,7 +160,11 @@ export function SlackMemoryMatch({ slackReady = false }: { slackReady?: boolean 
                   <span className="w-7 h-7 rounded-full bg-[#4F46E5]/10 flex items-center justify-center shrink-0 text-[#4F46E5] text-[13px] font-bold">1</span>
                   <div>
                     <p className="font-bold text-[#1a1a2e] mb-0.5">Install the bot</p>
-                    <p>Click the <strong>&ldquo;Add to Slack&rdquo;</strong> button above and authorize it for your workspace. That&apos;s it - no configuration needed.</p>
+                    {slackReady ? (
+                      <p>Click the <strong>&ldquo;Add to Slack&rdquo;</strong> button above and authorize it for your workspace. That&apos;s it - no configuration needed.</p>
+                    ) : (
+                      <p>The Slack app is on its way. Once it is live, you will add it to your workspace in one click - no configuration needed.</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
