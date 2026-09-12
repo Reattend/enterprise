@@ -9,10 +9,11 @@
 //   2. Windows (.msi installer) - built via GitHub Actions per release
 //   3. Chrome extension - proven workflow for browser-native users
 //
-// Asset URLs point at /downloads/* on the same origin, served as static
-// files from the droplet's /var/www/enterprise/public/downloads/. The
-// CI release workflow uploads to that directory; bumping LATEST_VERSION
-// here flips every download link in one edit.
+// Desktop builds are NOT served from public/ until they are notarized
+// (Mac) and Authenticode-signed (Windows). Unnotarized installers on the
+// site were a likely contributor to the Safe Browsing "deceptive pages"
+// flag on reattend.com (2026-09-12). Re-add real hrefs only for builds that
+// pass `spctl -a -vv -t exec` / signtool verify.
 
 import Link from 'next/link'
 import { CHROME_WEB_STORE_URL } from '@/lib/extension'
@@ -21,9 +22,6 @@ import {
   MonitorPlay, ShieldCheck,
 } from 'lucide-react'
 
-const LATEST_VERSION = '0.1.13'
-const MAC_HREF = `/downloads/Reattend_${LATEST_VERSION}_aarch64.app.zip`
-const WIN_HREF = `/downloads/Reattend_${LATEST_VERSION}_x64-setup.exe`
 const CHROME_STORE_HREF = CHROME_WEB_STORE_URL
 
 export default function DownloadsPage() {
@@ -57,7 +55,7 @@ export default function DownloadsPage() {
           ]}
           primary={{
             label: 'Coming soon',
-            href: MAC_HREF,
+            href: '#',
             external: false,
             disabled: true,
             disabledLabel: 'Mac build · coming soon',
@@ -81,8 +79,8 @@ export default function DownloadsPage() {
             { icon: <Mic className="w-3.5 h-3.5" />, label: 'Smart clipboard auto-capture' },
           ]}
           primary={{
-            label: `Download · ${LATEST_VERSION}`,
-            href: WIN_HREF,
+            label: 'Coming soon',
+            href: '#',
             external: false,
             disabled: true,
             disabledLabel: 'Windows build · soon',
@@ -115,12 +113,10 @@ export default function DownloadsPage() {
       <section className="rounded-xl border border-border bg-muted/30 p-5 flex items-start gap-3">
         <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
         <div className="text-[13px] leading-relaxed text-muted-foreground">
-          <span className="font-medium text-foreground">Code-signed, sandbox-respectful.</span>{' '}
-          The Mac build is signed with our Apple Developer ID and notarized - Gatekeeper opens it without warnings.
-          The Windows build will be signed with Authenticode once the cert is provisioned.
-          Auto-updates flow through{' '}
-          <code className="text-[11px] px-1 py-0.5 bg-background rounded">/api/updater</code>{' '}
-          so installed clients pick up new versions without you doing anything.
+          <span className="font-medium text-foreground">Signed and notarized before release.</span>{' '}
+          The desktop apps ship only once they pass Apple notarization and Windows Authenticode signing, so
+          your operating system opens them without security warnings. Until then, the Chrome extension is the
+          way to capture from your browser.
         </div>
       </section>
     </div>

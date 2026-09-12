@@ -172,6 +172,7 @@ Test suite (`npm run test:rbac`) ships with 36 assertions, runs every build.
   | guest | Daniel Schwartz | Jewish/European |
 
 - Visitor clicks → `POST /api/sandbox/launch` → server clones the seeded `demo-mof` org → 60s SSO ticket → browser trades for session cookie → redirect to `/app`
+- **The demo org is FICTIONAL: "Valdora Revenue Ministry (Demo)", people at `@valdora.example`** (slug still `demo-mof`, internal only). It used to be "Ministry of Finance" on the real `mof.gov.in` domain with 22 `@mof.gov.in` addresses - a public page impersonating a real government body, and the likely cause of Google Safe Browsing flagging reattend.com as "deceptive pages" (2026-09-12). **Never put a real organization's name, domain or email addresses in demo or seed data.** Use the reserved `.example` TLD.
 - Sandbox marker: user email ends with `@sandbox.reattend.local`; org slug starts with `sandbox-`
 - AI in sandbox: every endpoint detects sandbox session and returns canned fixtures from `src/lib/sandbox/fixtures.ts` — never hits the LLM
 - Auto-cleanup: cron drops sandbox-prefixed orgs older than 1h

@@ -17,8 +17,14 @@ import path from 'path'
 import { randomUUID } from 'crypto'
 
 const DEMO_SLUG = 'demo-mof'
-const DEMO_NAME = 'Ministry of Finance (Demo)'
-const DEMO_DOMAIN = 'mof.gov.in'
+// FICTIONAL on purpose. This used to be "Ministry of Finance (Demo)" on the
+// real domain mof.gov.in, with 22 people at @mof.gov.in - a public sandbox
+// impersonating a real government body, and the most likely trigger for the
+// Safe Browsing "deceptive pages" flag on reattend.com (2026-09-12). Never use
+// a real organization's name or domain in demo data. The .example TLD is
+// reserved (RFC 2606) and can never resolve.
+const DEMO_NAME = 'Valdora Revenue Ministry (Demo)'
+const DEMO_DOMAIN = 'valdora.example'
 // Accept the creator email via CLI arg: `npm run seed:demo -- your@email.com`.
 // Falls back to the most-recently-signed-in user so the person running the
 // script usually becomes the super_admin automatically.
@@ -121,7 +127,7 @@ function mkDept(name: string, kind: string, parentId: string | null): Dept {
 }
 
 // Top: the Ministry itself
-const ministry = mkDept('Ministry of Finance', 'Ministry', null)
+const ministry = mkDept('Valdora Revenue Ministry', 'Ministry', null)
 
 // Departments under the ministry
 const depRevenue = mkDept('Department of Revenue', 'Department', ministry.id)
@@ -587,7 +593,7 @@ const agentSeeds = [
     tier: 'org', name: 'Policy Helper', slug: 'policy-helper',
     description: 'Answers any policy question. Cites the exact clause. Updated as policies are published.',
     iconName: 'FileText', color: 'text-blue-500',
-    systemPrompt: `You are the Policy Helper for the Ministry of Finance. You answer compliance and policy questions with absolute precision.
+    systemPrompt: `You are the Policy Helper for the Valdora Revenue Ministry. You answer compliance and policy questions with absolute precision.
 Rules:
 - Only answer from published policies. If you don't find a matching policy, say so clearly.
 - Cite the exact policy version and clause number when relevant.

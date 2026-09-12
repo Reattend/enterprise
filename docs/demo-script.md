@@ -2,14 +2,14 @@
 
 **Audience:** sales / founder / engineering hand-off team running live demos.
 **Length:** 12-minute walkthrough · five "money moments" · ends on the Exit Interview reveal.
-**Demo data:** the seeder at `scripts/seed-demo-org.ts` populates a "Ministry of Finance (Demo)" org with 22 members, 12 decisions, 5 policies, 1 completed exit interview, 6 OCR jobs, prompts, calendar events, verification badges. Run `npm run seed:demo -- demo-presenter@reattend.com` before every session.
+**Demo data:** the seeder at `scripts/seed-demo-org.ts` populates a "Valdora Revenue Ministry (Demo)" org with 22 members, 12 decisions, 5 policies, 1 completed exit interview, 6 OCR jobs, prompts, calendar events, verification badges. Run `npm run seed:demo -- demo-presenter@reattend.com` before every session.
 
 ---
 
 ## Pre-flight (60 seconds before the call)
 
 - [ ] DB seeded (`npm run seed:demo`) — verify the demo org appears in the org switcher
-- [ ] Active org: **Ministry of Finance (Demo)**
+- [ ] Active org: **Valdora Revenue Ministry (Demo)**
 - [ ] Toolbar pinned items: Reattend extension, browser zoomed to 110%
 - [ ] Tab 1: `/app` (Home) — for steps 1, 2
 - [ ] Tab 2: `/app/admin/<demo-org-id>/decisions` — for step 3

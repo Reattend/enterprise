@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { SlackMemoryMatch } from './game'
+import { SLACK_GAME_CLIENT_ID } from '@/lib/slack-game'
 
 export const metadata: Metadata = {
   title: 'Memory Match for Slack  | Reattend',
@@ -43,7 +44,7 @@ export default function SlackMemoryMatchPage() {
   return (
     <>
       <Suspense>
-        <SlackMemoryMatch />
+        <SlackMemoryMatch slackReady={!!SLACK_GAME_CLIENT_ID} />
       </Suspense>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     </>

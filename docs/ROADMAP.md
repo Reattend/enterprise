@@ -154,7 +154,7 @@ Plus: **Capture** + **Chat** buttons (primary), **Search** in topbar (⌘K)
 - Self-healing (4 detectors: stale, orphaned, gap, contradiction + rehash)
 
 ### Demo seed
-Ministry of Finance — 7-level hierarchy, 22 members, 12 decisions (3 reversed, 1 superseded), 11 record_links, 5 real agents with system prompts, 3 offboardings, 2 vacant roles with orphaned records.
+Valdora Revenue Ministry — 7-level hierarchy, 22 members, 12 decisions (3 reversed, 1 superseded), 11 record_links, 5 real agents with system prompts, 3 offboardings, 2 vacant roles with orphaned records.
 
 ---
 
@@ -308,7 +308,7 @@ Copilot's actual value per app:
 
 The 3-minute pitch the seeded demo enables:
 
-> "This is Reattend Enterprise. Organizational memory for the Ministry of Finance. Seven levels of hierarchy, 22 members, 12 formal decisions on record.
+> "This is Reattend Enterprise. Organizational memory for the Valdora Revenue Ministry. Seven levels of hierarchy, 22 members, 12 formal decisions on record.
 >
 > Watch what happens when someone leaves. Director of Income Tax — her 47 memory records, 12 decisions authored, 3 open handover threads — all transfer to her successor with her handover notes attached.
 >
@@ -328,7 +328,7 @@ The 3-minute pitch the seeded demo enables:
 - `ENTERPRISE.md` — enterprise-specific architecture + positioning
 - `docs/progress.md` — session-by-session build log
 - `docs/ROADMAP.md` — this file
-- `scripts/seed-demo-org.ts` — the Ministry of Finance seed
+- `scripts/seed-demo-org.ts` — the Valdora Revenue Ministry seed
 
 ---
 

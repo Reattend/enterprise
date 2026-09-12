@@ -4,12 +4,10 @@ import { existsSync } from 'fs'
 import path from 'path'
 import { CHROME_WEB_STORE_URL } from '@/lib/extension'
 
-const ALLOWED_FILES: Record<string, string> = {
-  'Reattend_0.1.0_aarch64.dmg': 'application/x-apple-diskimage',
-  'Reattend_0.1.0_x64-setup.exe': 'application/vnd.microsoft.portable-executable',
-  'Reattend_x64-setup.exe': 'application/vnd.microsoft.portable-executable',
-  'Reattend.dmg': 'application/x-apple-diskimage',
-}
+// Desktop installers are no longer served (2026-09-12): the Mac build was
+// signed but not notarized, and the Windows builds were unsigned. Serve a
+// build here again only once it passes Gatekeeper / Authenticode checks.
+const ALLOWED_FILES: Record<string, string> = {}
 
 export async function GET(
   req: NextRequest,

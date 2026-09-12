@@ -76,7 +76,7 @@ export function SandboxBanner() {
     <div className="demo-banner">
       <span className="demo-banner-tag"><Sparkles size={11} /> Enterprise demo</span>
       <span className="demo-banner-copy">
-        Pre-filled sample organization. Nothing you do here is saved, and the AI is not running.
+        A fictional sample organization - every person and record in it is made up. Nothing you do here is saved, and the AI is not running.
       </span>
       <a className="demo-banner-book" href={CALENDLY} target="_blank" rel="noreferrer">
         <CalendarCheck size={13} /> Schedule a meeting
