@@ -25,7 +25,7 @@ const faqJsonLd = {
       name: 'Is my data encrypted?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. All data is encrypted at rest using AES-256 and in transit using TLS 1.3. Your memories are protected by industry-standard encryption protocols.',
+        text: 'All traffic to Reattend is encrypted in transit with TLS, and credentials such as AI provider keys and SSO secrets are encrypted with AES-256-GCM before storage.',
       },
     },
     {
@@ -41,7 +41,7 @@ const faqJsonLd = {
       name: 'Is Reattend GDPR compliant?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Reattend is fully GDPR compliant. You can export or delete your data at any time. We process only the minimum data required to deliver the service.',
+        text: 'You can export your data and delete your account at any time from settings, and we process only the data the service needs. A formal compliance audit is on the roadmap.',
       },
     },
     {
@@ -49,7 +49,7 @@ const faqJsonLd = {
       name: 'Where is my data stored?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Your data is stored in secure, SOC 2-compliant data centers. We use isolated databases per workspace to ensure complete data separation between teams.',
+        text: 'In a single United States region on SOC 2-audited infrastructure. Every search and answer is permission-filtered per user, so nobody is shown a memory they are not allowed to see. Dedicated regional or on-premise deployments are available for government and regulated organizations.',
       },
     },
     {
@@ -57,7 +57,7 @@ const faqJsonLd = {
       name: 'Can I delete all my data?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. You can delete your account and all associated data at any time from your settings. Deletion is permanent and irreversible, and we purge all data from our systems.',
+        text: 'Yes. You can delete your account and all associated data at any time from your settings. Deletion is permanent and irreversible.',
       },
     },
   ],

@@ -5,13 +5,13 @@ import { MarketingFooter } from '@/components/marketing/marketing-footer'
 
 export const metadata: Metadata = {
   title: 'Refund Policy - Reattend',
-  description: 'Reattend refund policy. 60-day free trial with no charge. Subscription and cancellation details. Billing handled by Paddle.',
+  description: 'Reattend refund policy. Free trials with no charge - 7 days for personal accounts, 15 for team workspaces. Subscription and cancellation details. Billing handled by Paddle.',
   alternates: { canonical: 'https://reattend.com/refund' },
 }
 
 const sections = [
   { id: 'free-plan', label: 'Free Plan' },
-  { id: 'trial', label: '60-Day Free Trial' },
+  { id: 'trial', label: 'Free Trial' },
   { id: 'paid', label: 'Paid Subscriptions' },
   { id: 'eu-uk', label: 'EU / UK Right of Withdrawal' },
   { id: 'exceptions', label: 'Exceptions' },
@@ -72,7 +72,7 @@ export default function RefundPage() {
             {/* TL;DR */}
             <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
               <p className="text-[15px] text-gray-600 leading-relaxed">
-                <strong className="text-[#1a1a2e]">TL;DR:</strong> 60-day free trial, no credit card required.
+                <strong className="text-[#1a1a2e]">TL;DR:</strong> Free trial (7 days personal, 15 days team), no credit card required.
                 Cancel anytime. After payment, subscriptions are non-refundable except for billing errors
                 or technical failures. Your data is always preserved.
               </p>
@@ -96,15 +96,15 @@ export default function RefundPage() {
                   <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">1. Free Plan</h2>
                   <p className="text-[15px] text-gray-600 leading-relaxed">
                     Reattend offers a <strong className="text-[#1a1a2e]">Free Forever</strong> plan with
-                    unlimited standard memories, 10 AI queries per day, and 1 integration of your choice.
-                    No payment is required and no refund applies.
+                    unlimited memories when you connect your own AI provider key, which you pay your
+                    provider for directly. No payment to Reattend is required and no refund applies.
                   </p>
                 </section>
 
                 <section id="trial" className="pt-10">
-                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">2. 60-Day Free Trial (Pro Features)</h2>
+                  <h2 className="text-[20px] font-bold mb-4 text-[#1a1a2e]">2. Free Trial (Pro Features)</h2>
                   <p className="text-[15px] text-gray-600 leading-relaxed mb-3">
-                    Reattend offers a <strong className="text-[#1a1a2e]">60-day free trial</strong> of all
+                    Reattend offers a free trial - <strong className="text-[#1a1a2e]">7 days for personal accounts and 15 days for team workspaces</strong> - of all
                     Pro features, activated from inside the dashboard.
                   </p>
                   <ul className="space-y-2 ml-5">

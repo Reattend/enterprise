@@ -15,19 +15,19 @@ const categories = [
    questions: [
      {
        q: 'What is Reattend?',
-       a: 'Reattend is your AI-powered memory layer. It connects to your tools - Gmail, Google Calendar, Google Meet, Slack - and automatically captures, organizes, and makes every decision, meeting, and insight searchable. Never lose context again.',
+       a: 'Reattend is a memory layer for individuals and teams. It captures the decisions, notes and context you come across while you work, organizes and links them with AI, and answers questions from that memory with the source attached.',
      },
      {
        q: 'Who is Reattend for?',
-       a: 'Reattend is built for individuals and teams who lose track of decisions, context, and knowledge across tools. Whether you\'re a startup, a remote team, or a solo professional - if things fall through the cracks, Reattend helps.',
+       a: 'Anyone who loses track of what was decided and why. Individuals use a personal account as a second brain. Teams use a shared workspace so knowledge stays when people move on, with roles, SSO and an audit log.',
      },
      {
        q: 'How is Reattend different from Notion or Google Docs?',
-       a: 'Notion and Google Docs require you to manually organize everything. Reattend captures automatically from your integrations, categorizes with AI, links related memories, and surfaces knowledge when you need it. It\'s a living memory - not a static document.',
+       a: 'Notion and Google Docs rely on you to write things down and keep them organized. Reattend captures as you work, organizes with AI, links related memories together, and answers questions with a citation back to the original. It is a living memory, not a static document.',
      },
      {
        q: 'Do I need to install anything?',
-       a: 'No installation needed. Reattend is a web app - sign up at reattend.com and start saving memories. Connect Notion to auto-sync your pages, or use the Chrome extension to capture from any web page. Import meeting transcripts from Read.ai, Fireflies, or Otter by dragging files into the Import tool.',
+       a: 'No. Reattend is a web app - sign up at reattend.com and start capturing. For capture from any web page, add the Reattend extension from the Chrome Web Store.',
      },
    ],
  },
@@ -37,23 +37,23 @@ const categories = [
    questions: [
      {
        q: 'How much does Reattend cost?',
-       a: 'Reattend has a free forever plan - no trial clock, no credit card required. Free gives you unlimited memories, 20 AI queries per day, 1 integration of your choice, and 10 DeepThink sessions per day. Pro is $20/month for unlimited AI, all integrations, and unlimited recordings. Teams is $5/user/month.',
+       a: 'Free forever if you connect your own AI provider key - you pay the provider directly and we bill nothing. If you would rather we run the AI, a personal account is $9 a month for up to 800 questions. Team workspaces are $19 per seat per month, or $182.40 per seat per year. Government and on-premise deployments are quoted.',
      },
      {
        q: 'Can I use Reattend for free?',
-       a: 'Yes, forever. The Free plan never expires - no trial, no expiry, no credit card. You get unlimited memory storage, 20 AI queries per day, 1 integration of your choice, and 10 DeepThink sessions per day.',
+       a: 'Yes, forever. Connect your own AI provider key and answers and AI organization run on your key at no charge from us. Without a key you can still capture and store memories; answers need either a key or a paid plan.',
      },
      {
-       q: 'How does the Pro trial work?',
-       a: 'Once you sign up, you can activate a 60-day free Pro trial from inside your dashboard - no credit card needed. At the end of the trial, pay $20/month to continue on Pro, or stay on the Free plan. Your memories are never deleted.',
+       q: 'How does the free trial work?',
+       a: 'Personal accounts get a 7-day free trial of the managed plan, and team workspaces get 15 days. No card is needed to start. If you do not continue, the account moves back to the free plan and your memories are kept.',
      },
      {
        q: 'What payment methods do you accept?',
-       a: 'We accept all major credit and debit cards. PayPal is also supported in select regions.',
+       a: 'Payments are handled by Paddle, which accepts major credit and debit cards and other local payment methods depending on your region.',
      },
      {
        q: 'Can I cancel anytime?',
-       a: 'Absolutely. No contracts, no commitments. Cancel from your settings at any time and you keep access until the end of your billing period. Downgrading to Free keeps all your memories intact.',
+       a: 'Yes. There are no contracts. If you cancel, you move back to the free plan and your memories stay intact.',
      },
    ],
  },
@@ -63,23 +63,19 @@ const categories = [
    questions: [
      {
        q: 'What does the AI actually do?',
-       a: 'The AI triages incoming information from your integrations, auto-generates summaries and tags, extracts decisions and action items, links related memories together, and powers semantic search so you can ask questions in natural language.',
+       a: 'It titles and tags what you capture, picks out decisions and tasks, links related memories together, and answers questions in plain language with a citation to the memory each answer came from.',
      },
      {
-       q: 'What is the Knowledge Graph?',
-       a: 'The Knowledge Graph is an interactive visualization that shows how your memories are connected. Decisions link to meetings, insights connect to projects - you can explore relationships visually and discover patterns you would otherwise miss.',
-     },
-     {
-       q: 'What are Boards?',
-       a: 'Boards are visual canvases where you can spatially arrange memories, add notes, draw connections, and collaborate visually. Think of it as a whiteboard overlay on top of your knowledge.',
+       q: 'What is Landscape?',
+       a: 'Landscape is a board view of your memory. You can see how memories connect, arrange them spatially, and draw a link between two memories and choose what the relationship is.',
      },
      {
        q: 'Can I search across all my memories?',
-       a: 'Yes. On Pro and Teams you get semantic search - search by meaning, not just exact words. Ask "What did we decide about pricing?" and get relevant results instantly. The Free plan includes keyword search.',
+       a: 'Yes. Search works by meaning as well as by exact words, so you can ask "What did we decide about pricing?" and find the relevant memories even if they never use those words.',
      },
      {
        q: 'Does Reattend support teams?',
-       a: 'Yes. The Teams plan gives every member full Pro features plus shared memory spaces, a team knowledge base, admin controls, and bulk onboarding. It\'s $5/user/month with a minimum of 3 users.',
+       a: 'Yes. A team workspace gives everyone shared memory with role-based access, so each person only ever sees what they are allowed to. It includes SSO, an audit log and admin controls at $19 per seat per month.',
      },
    ],
  },
@@ -89,19 +85,19 @@ const categories = [
    questions: [
      {
        q: 'What integrations does Reattend support?',
-       a: 'Currently live: Gmail, Google Calendar, Google Meet, and Slack. Coming soon: Discord, MS Teams, Zoom, Notion, GitHub, Linear, Jira, and more.',
+       a: 'Everyone can capture through the Chrome extension, directly in the app, or through the capture API. Team workspaces can connect Gmail, Google Drive, Slack, Notion and Confluence, switched on per workspace. Connectors for personal accounts are coming soon.',
      },
      {
-       q: 'Are integrations included in the free plan?',
-       a: 'The Free plan includes 1 integration of your choice - Gmail, Google Calendar, Google Meet, or Slack. Pro and Teams plans include all current and future integrations at no extra cost.',
+       q: 'Can I use my memory inside other AI assistants?',
+       a: 'Yes. Reattend runs as an MCP server, so AI assistants that support the Model Context Protocol can search and add to your memory. See the MCP page for setup.',
      },
      {
        q: 'Can I request an integration?',
-       a: 'Yes. Email us at pb@reattend.ai with your request. We prioritize integrations based on user demand, so let us know what tools you need.',
+       a: 'Yes. Email pb@reattend.ai with the tool you need. We prioritize connectors based on what people ask for.',
      },
      {
-       q: 'How do integrations work?',
-       a: 'Connect an integration from your dashboard and Reattend starts syncing automatically - emails from Gmail, events from Calendar, transcripts from Meet, messages from Slack. The AI organizes and links everything as it comes in.',
+       q: 'Can I send data to Reattend from my own scripts?',
+       a: 'Yes. Generate an API key on the Extension page and POST text to the capture API. It arrives like any other capture and the AI organizes it. The help center has the details.',
      },
    ],
  },
@@ -111,23 +107,19 @@ const categories = [
    questions: [
      {
        q: 'Is my data encrypted?',
-       a: 'Yes. All data is encrypted at rest using AES-256 and in transit using TLS 1.3. Your data is protected by industry-standard encryption at every level.',
+       a: 'All traffic to Reattend is encrypted in transit with TLS. Credentials you give us, such as AI provider keys and SSO secrets, are additionally encrypted with AES-256-GCM before they are stored. The Compliance page lists every control with its real status.',
      },
      {
        q: 'Does Reattend sell or share my data?',
        a: 'Never. Your data belongs to you. We do not sell, share, or use your data for advertising or to train models. Reattend only processes your data to deliver the service to you.',
      },
      {
-       q: 'Is Reattend GDPR compliant?',
-       a: 'Yes. You can export or delete all your data at any time. We collect only the minimum data required to deliver the service and process it in line with GDPR requirements.',
-     },
-     {
-       q: 'Can I delete all my data?',
-       a: 'Yes. Delete your account and all associated data at any time from your settings. Deletion is permanent and we purge everything from our systems.',
+       q: 'Can I export or delete my data?',
+       a: 'Yes. You can export your data and delete your account from settings. Account deletion is permanent.',
      },
      {
        q: 'Where is my data stored?',
-       a: 'Your data is stored on secure, encrypted servers hosted on SOC 2-certified infrastructure. We use isolated databases per workspace to ensure complete data separation. All connections use TLS 1.3 encryption.',
+       a: 'In a single United States region. Every search and answer is filtered by permissions before the AI sees anything, so nobody is shown a memory they are not allowed to see. Dedicated regional or on-premise deployments are available for government and regulated organizations.',
      },
    ],
  },
@@ -137,19 +129,19 @@ const categories = [
    questions: [
      {
        q: 'How do I get started?',
-       a: 'Sign up at reattend.com - no download needed. Connect your first integration (Gmail, Google Calendar, Google Meet, or Slack) and Reattend starts capturing automatically. You can also install the Chrome extension for even more coverage.',
+       a: 'Sign up at reattend.com, then either connect your own AI provider key or start the free trial of the managed plan. Add the Chrome extension to capture from any page, and start saving what matters.',
      },
      {
        q: 'How do I add team members?',
-       a: 'Go to Settings in your workspace, then Invite Members. Enter their email addresses and assign roles. They will receive an invitation to join your workspace.',
+       a: 'In a team workspace, an admin opens Members and invites people by email, choosing a role for each. They receive an invitation to join.',
      },
      {
        q: 'What should I capture first?',
-       a: 'Connect Gmail or Google Calendar first - these give you the richest starting memory. From there, add Meet for meeting transcripts and Slack for team conversations. The AI starts linking everything together automatically.',
+       a: 'Start with decisions: what was decided, who decided it and why. Those are the memories people most often need later and can least reconstruct. Pages and passages you keep coming back to are a good second.',
      },
      {
        q: 'Can I import existing data?',
-       a: 'Currently you can capture data through integrations or manually. Bulk import for common formats is on the roadmap. For specific needs, contact us at pb@reattend.ai.',
+       a: 'You can capture through the app, the extension or the capture API. For a larger one-off import, email pb@reattend.ai and we will help.',
      },
    ],
  },

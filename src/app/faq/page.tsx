@@ -10,57 +10,57 @@ export const metadata: Metadata = {
     'Find answers to common questions about Reattend - pricing, security, integrations, getting started, and more.',
   openGraph: {
     title: 'FAQ - Reattend',
-    description: 'Answers to common questions about Reattend, the AI decision intelligence platform for teams.',
+    description: 'Answers to common questions about Reattend - pricing, security, integrations and getting started.',
     url: 'https://reattend.com/faq',
   },
   alternates: { canonical: 'https://reattend.com/faq' },
 }
 
 const faqJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
     {
-      '@type': 'Question',
-      name: 'What is Reattend?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Reattend is the AI that catches what your team forgot. It captures every decision, meeting outcome, and piece of context, then organizes them with AI, catches contradictions, and makes everything searchable through a living knowledge graph.',
-      },
+      "@type": "Question",
+      "name": "What is Reattend?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reattend is a memory layer for individuals and teams. It captures the decisions, notes and context you come across while you work, organizes and links them with AI, and answers questions from that memory with the source attached."
+      }
     },
     {
-      '@type': 'Question',
-      name: 'How much does Reattend cost?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Reattend offers a Pro coming soon with all features - ambient capture, meeting recording, AI triage, semantic search, and more. After the trial, Pro is $20/month for unlimited AI. Or keep using Reattend free forever as a notetaker.',
-      },
+      "@type": "Question",
+      "name": "How much does Reattend cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reattend is free forever if you connect your own AI provider key. If you would rather Reattend run the AI, a personal account is $9 a month for up to 800 questions, with a 7-day free trial. Team workspaces are $19 per seat per month, or $182.40 per seat per year, with a 15-day free trial. No card is needed to start a trial."
+      }
     },
     {
-      '@type': 'Question',
-      name: 'Is my data secure?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yes. All data is encrypted at rest (AES-256) and in transit (TLS 1.3). Each workspace has complete data isolation. We never sell or share your data.',
-      },
+      "@type": "Question",
+      "name": "Is my data secure?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "All traffic is encrypted in transit with TLS, and credentials such as AI provider keys and SSO secrets are encrypted with AES-256-GCM before storage. Every search and answer is permission-filtered per user before the AI sees anything. Reattend does not sell or share your data."
+      }
     },
     {
-      '@type': 'Question',
-      name: 'What integrations does Reattend support?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Reattend is building integrations with 100+ tools including Slack, Notion, Jira, Gmail, Zoom, GitHub, and more. All integrations are included in every plan.',
-      },
+      "@type": "Question",
+      "name": "What integrations does Reattend support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Everyone can capture through the Reattend Chrome extension, in the app, or through the capture API, and use Reattend as an MCP server from compatible AI assistants. Team workspaces can connect Gmail, Google Drive, Slack, Notion and Confluence, switched on per workspace. Connectors for personal accounts are coming soon."
+      }
     },
     {
-      '@type': 'Question',
-      name: 'Can I use Reattend for free?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yes. Reattend offers a Pro coming soon with all features. After the trial, you can upgrade to Pro ($20/month) or continue using Reattend free forever as a notetaker. No credit card required.',
-      },
-    },
-  ],
+      "@type": "Question",
+      "name": "Can I use Reattend for free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, forever, by connecting your own AI provider key. Without a key you can still capture and store memories; answers need either a key or a paid plan."
+      }
+    }
+  ]
 }
 
 export default function FaqPage() {

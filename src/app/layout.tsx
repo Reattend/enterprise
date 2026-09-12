@@ -42,12 +42,17 @@ export const metadata: Metadata = {
   authors: [{ name: 'Reattend', url: 'https://reattend.com' }],
   creator: 'Reattend',
   publisher: 'Reattend',
+  // Square icons only: Google ignores non-square favicons, and the black
+  // logo SVG is 734x766, which is why results kept showing the old gradient
+  // mark from icon-128.png. White ground so it survives dark result pages.
   icons: {
     icon: [
-      { url: '/black_logo.svg', type: 'image/svg+xml' },
-      { url: '/icon-128.png', sizes: '128x128', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icon-96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
-    apple: '/icon-128.png',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     type: 'website',

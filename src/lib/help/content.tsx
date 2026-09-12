@@ -783,7 +783,7 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
      </P>
      <H2>Teams</H2>
      <P>
-       Team workspaces are included in the Pro plan ($20/month per user). See <strong>Billing</strong> for details.
+       Team workspaces are $19 per seat per month, or $182.40 per seat per year, with a 15-day free trial. See <strong>Billing</strong> for details.
      </P>
    </>
  ),
@@ -898,21 +898,25 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
  'integrations/available-integrations': (
    <>
      <P>
-       Reattend connects to your existing tools to automatically capture context. Browse available
-       integrations at <strong>Integrations</strong> in the sidebar.
+       Every account can capture from the web and from its own tools today. Connectors that pull from
+       other apps automatically are live for team workspaces and coming to personal accounts.
      </P>
-     <H2>Connected integrations</H2>
+     <H2>Available to everyone</H2>
      <UL>
-       <li><strong>Gmail</strong> - Capture emails and threads as inbox items.</li>
-       <li><strong>Slack</strong> - Capture messages, threads, and channel updates.</li>
-       <li><strong>Microsoft Teams</strong> - Capture team conversations and meeting notes.</li>
-       <li><strong>Google Calendar</strong> - Import calendar events for context.</li>
-       <li><strong>Webhooks</strong> - Send data from any tool via HTTP.</li>
+       <li><strong>Chrome extension</strong> - Save a page, a selection, or a passage the extension suggests. Install it from the Chrome Web Store.</li>
+       <li><strong>Capture in the app</strong> - Type or paste anything worth keeping.</li>
+       <li><strong>Capture API</strong> - Send text from your own scripts and tools over HTTP. See <em>Capture API</em> below.</li>
+       <li><strong>MCP server</strong> - Search and add to your memory from AI assistants that support the Model Context Protocol.</li>
      </UL>
+     <H2>Team workspaces</H2>
+     <P>
+       Gmail, Google Drive, Slack, Notion and Confluence connectors are switched on per workspace. Once
+       they are, admins connect them from <strong>Integrations</strong> in the sidebar.
+     </P>
      <H2>Coming soon</H2>
      <P>
-       We&apos;re building integrations with 100+ tools including Notion, Jira, GitHub, Zoom, Confluence,
-       Linear, Figma, and more. All integrations will be included in every plan at no extra cost.
+       Connectors for personal accounts. To ask for a specific tool, email pb@reattend.ai - we prioritize
+       by what people request.
      </P>
    </>
  ),
@@ -921,6 +925,10 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
  'integrations/connecting-gmail': (
    <>
      <P>Connect Gmail to automatically capture important emails as inbox items.</P>
+     <P>
+       <strong>Availability:</strong> team workspaces, once connectors are switched on for the
+       workspace. Personal accounts: coming soon.
+     </P>
      <H2>Setup</H2>
      <OL>
        <li>Go to <strong>Integrations</strong> in the sidebar.</li>
@@ -945,6 +953,10 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
  'integrations/connecting-slack': (
    <>
      <P>Connect Slack to capture messages and threads as inbox items.</P>
+     <P>
+       <strong>Availability:</strong> team workspaces, once connectors are switched on for the
+       workspace. Personal accounts: coming soon.
+     </P>
      <H2>Setup</H2>
      <OL>
        <li>Go to <strong>Integrations</strong> in the sidebar.</li>
@@ -964,18 +976,27 @@ export const HELP_CONTENT: Record<string, React.ReactNode> = {
  'integrations/webhooks': (
    <>
      <P>
-       Use webhooks to send data to Reattend from any tool or custom workflow.
+       Send text to Reattend from any script, bot or tool with the capture API. Each capture arrives like
+       anything saved from the extension, and the AI organizes it.
      </P>
-     <H2>How it works</H2>
+     <H2>1. Get an API key</H2>
      <P>
-       Reattend provides a webhook endpoint for your workspace. Send a POST request with your data,
-       and it appears as an inbox item for AI processing.
+       Open <strong>Extension</strong> in the sidebar and generate a key. Copy it straight away - it is
+       only shown once. You can revoke it from the same page at any time.
+     </P>
+     <H2>2. Send a capture</H2>
+     <P>
+       POST JSON to <code>https://reattend.com/api/tray/capture</code> with the header
+       <code>Authorization: Bearer YOUR_KEY</code>. The only required field is <code>text</code>
+       (up to 50,000 characters). Optional fields: <code>source</code> (a label such as
+       <code>&quot;ci&quot;</code>), <code>occurred_at</code> (an ISO date), and <code>metadata</code>
+       (any JSON object, for example a <code>url</code> and <code>title</code>).
      </P>
      <H2>Use cases</H2>
      <UL>
-       <li>CI/CD pipeline notifications</li>
-       <li>Custom monitoring alerts</li>
-       <li>Data from tools without native integrations</li>
+       <li>Deployment and CI notes</li>
+       <li>Monitoring alerts worth remembering</li>
+       <li>Tools that do not have a native connector yet</li>
        <li>Automated capture from scripts or bots</li>
      </UL>
    </>

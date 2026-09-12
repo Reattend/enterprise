@@ -117,10 +117,10 @@ export const HELP_CATEGORIES: HelpCategory[] = [
    description: 'Connect external tools to automatically capture context.',
    icon: 'Plug',
    articles: [
-     { slug: 'available-integrations', title: 'Available integrations', description: 'Browse all integrations - connected and coming soon.', category: 'integrations' },
+     { slug: 'available-integrations', title: 'Available integrations', description: 'What you can connect today, on personal and team accounts.', category: 'integrations' },
      { slug: 'connecting-gmail', title: 'Connecting Gmail', description: 'Set up Gmail integration to capture emails as inbox items.', category: 'integrations' },
      { slug: 'connecting-slack', title: 'Connecting Slack', description: 'Set up Slack integration to capture messages and threads.', category: 'integrations' },
-     { slug: 'webhooks', title: 'Using webhooks', description: 'Send data to Reattend from any tool using webhooks.', category: 'integrations' },
+     { slug: 'webhooks', title: 'Capture API', description: 'Send text to Reattend from any script or tool over HTTP.', category: 'integrations' },
    ],
  },
  {

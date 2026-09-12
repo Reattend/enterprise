@@ -45,7 +45,7 @@ const principles = [
   {
     icon: Lock,
     title: 'Encrypted Everywhere',
-    description: 'AES-256 encryption at rest and TLS 1.3 in transit. Your data is never stored in plain text.',
+    description: 'TLS on every connection. Credentials you give us, like AI provider keys and SSO secrets, are encrypted with AES-256-GCM before storage.',
     color: 'bg-violet-500/10 text-violet-600',
   },
   {
@@ -56,26 +56,26 @@ const principles = [
   },
   {
     icon: Server,
-    title: 'Isolated Workspaces',
-    description: 'Each workspace has complete data isolation. No cross-tenant data leakage, ever.',
+    title: 'Permission-Filtered',
+    description: 'Every search and answer is filtered by who is asking before the AI sees anything, so nobody is shown a memory they are not allowed to see.',
     color: 'bg-emerald-500/10 text-emerald-600',
   },
   {
     icon: FileKey,
-    title: 'SOC 2-Ready Architecture',
-    description: 'Built from day one with SOC 2 Type II controls in mind. Audit trails for every action.',
+    title: 'Built Toward SOC 2',
+    description: 'Designed around SOC 2 control families, with a hash-chained audit log for team workspaces. The audit itself is on the roadmap.',
     color: 'bg-amber-500/10 text-amber-600',
   },
   {
     icon: UserCheck,
-    title: 'GDPR Compliant',
-    description: 'Full GDPR compliance with data portability, right to erasure, and minimal data collection.',
+    title: 'Your Data Rights',
+    description: 'Export your data and delete your account yourself, from settings. We collect only what the service needs.',
     color: 'bg-pink-500/10 text-pink-600',
   },
   {
     icon: Globe,
     title: 'Secure Infrastructure',
-    description: 'Hosted on SOC 2-certified data centers with automated daily backups and high-availability architecture.',
+    description: 'Hosted in a single United States region on SOC 2-audited infrastructure, with hourly backups and daily off-site copies.',
     color: 'bg-cyan-500/10 text-cyan-600',
   },
 ]
@@ -87,19 +87,18 @@ const protections = [
     label: 'Authentication',
     items: [
       'Secure OTP-based passwordless login',
-      'JWT tokens with short expiry windows',
-      'Session management with automatic invalidation',
-      'Role-based access controls (Owner, Admin, Member)',
+      'Signed session tokens',
+      'Organization and department roles, with per-user overrides',
     ],
   },
   {
     icon: Database,
     label: 'Data Protection',
     items: [
-      'AES-256 encryption for all stored data',
-      'TLS 1.3 for all data in transit',
-      'Isolated databases per workspace',
-      'Automated daily encrypted backups',
+      'TLS for all data in transit',
+      'AES-256-GCM for stored credentials and keys',
+      'Permission filtering on every retrieval',
+      'Hourly backups, daily off-site copies',
     ],
   },
   {
@@ -108,7 +107,7 @@ const protections = [
     items: [
       'Workspace-level permission system',
       'Integration tokens are encrypted and scoped',
-      'Admin audit logs for all operations',
+      'Hash-chained audit log for team workspaces',
       'API rate limiting and abuse prevention',
     ],
   },
@@ -117,7 +116,7 @@ const protections = [
     label: 'Privacy by Design',
     items: [
       'Minimal data collection, only what\'s needed',
-      'No third-party tracking or analytics SDKs',
+      'No advertising trackers; page analytics only',
       'AI processing uses your data only for your team',
       'Full data export and deletion on request',
     ],
@@ -126,10 +125,10 @@ const protections = [
 
 // ─── Compliance items ───────────────────────────────────
 const compliance = [
-  { label: 'GDPR', description: 'EU General Data Protection Regulation' },
-  { label: 'SOC 2', description: 'Service Organization Control (Type II ready)' },
-  { label: 'CCPA', description: 'California Consumer Privacy Act' },
-  { label: 'HIPAA', description: 'Health Insurance Portability (roadmap)' },
+  { label: 'GDPR', description: 'Self-serve export and erasure built in' },
+  { label: 'SOC 2', description: 'Audit on the roadmap' },
+  { label: 'CCPA', description: 'Access and deletion rights supported' },
+  { label: 'HIPAA', description: 'Roadmap' },
 ]
 
 export default function SecurityContent() {
