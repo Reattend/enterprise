@@ -1192,3 +1192,87 @@ on `sso_configs.domain` at the schema level rather than only in application
 code. The app-level check is sufficient today because production has zero SSO
 configs and every write goes through this one handler, but a migration is the
 durable answer.
+
+---
+
+## organizationalamnesia.com moved to reattend.com/amnesia; extension on the store (2026-09-11/12, `2c24a10`)
+
+### Extension: published, and the app finally says so
+v0.5.0 is live on the Chrome Web Store:
+https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl
+`/app/extension` still said "Not on the Chrome Web Store yet" and walked
+users through Developer mode with a zip of an unreviewed build. Now it is one
+**Add to Chrome** button from a shared `CHROME_WEB_STORE_URL`
+(`src/lib/extension.ts`), used by `/app/downloads` too. Both old zip URLs
+(`/api/download/reattend-extension.zip`, `/downloads/reattend-extension.zip`)
+301 to the listing, and the zip is deleted from the repo.
+
+### The port
+11 pages at `/amnesia/*`, same editorial design, served by `serveLandingPage`
+from `public/landing-design/amnesia/`. Built by a one-shot transform (not in
+the repo; the output is the source of truth now, edit it directly).
+
+**How the two designs coexist, so nobody undoes it by accident:**
+- Essay CSS is scoped under `.oa` (the div that replaces `<body>`).
+- Reattend's `styles.css` and `site-refresh.css` are `@import`ed into a
+  cascade layer `rt`; a later layer `oareset` does `all: revert` on
+  `.oa *:not(svg, svg *)`. Unlayered essay CSS always wins inside `.oa`.
+- `!important` in a layer beats all of that, so the four shared `!important`
+  rules were handled at the source: `body *` forced font/style and the mobile
+  `h1` cap now read `...:not(:where(.oa, .oa *))` (`:where` keeps specificity
+  identical on every other page), and the two shared class names
+  `page-hero`/`faq-list` are `oa-page-hero`/`oa-faq-list` on these pages.
+- Visually verified against the original served locally: identical.
+
+Footer on every marketing page now reads "Read more about how Organizational
+Amnesia is affecting your business", linked, plus a Resources entry. Sitemap
+has the 11 URLs. JSON-LD `sameAs` no longer lists the old domains.
+
+### What the port deliberately did NOT carry: invented research
+The standalone site presented original research that does not exist, all of
+it added in its first commit (2026-05-04), none of it in the site's own brief:
+"N = 1,284 firms, 2019-2026"; seven working papers WP-24-01..WP-26-03; a "lab"
+with "no corporate parent"; nine anonymised "participating firms" incl. a
+defense contractor and a US healthcare network; an open "Cohort 26" intake;
+kappa = 0.81; a quiz "validated against an 84-item instrument at r = 0.74"; an
+ISSN (2998-4471) that fails its own check digit; and stats like 68%, ~12%,
+3.4x, 7.2x "from our field sample". On reattend.com these would be Reattend's
+own marketing claims. All removed or rewritten against the literature the
+essays already cite; the lab page is now an honest About page.
+
+Also unverifiable, so dropped: two precise "3x" claims attributed to Galan
+(2023). Third-party citations were NOT systematically verified; spot-checked
+Panopto, which led to...
+
+### Panopto figure was wrong on reattend.com itself
+Panopto's 2018 release: $47M is per **average large US business**; per size,
+$8M at 3,000 staff, $26.5M at 10,000 (~$2,650/employee). The anchor blog essay
+said "$47 million per year per 1,000 employees" (~17x too high), credited
+IDC's $31.5B to Panopto and Panopto's 5.3 h/week to IDC. `/about` said "tens
+of millions" for 1,000 people. All corrected; blog essay now cross-links to
+`/amnesia`, `/signs`, `/prevent`, `/quiz`, `/cost`.
+
+### Domains: blocked on Partha, and something odd happened
+Netlify now serves ONLY 301s, page for page (`netlify.toml`, amnesia repo
+`6057261`). Verified via `organizationalamnesia.netlify.app` and via Netlify's
+LB with the real Host header: `/cost.html` -> `/amnesia/cost`, `/team.html`
+-> `/amnesia/about`, `/` -> `/amnesia`.
+
+**But the domains no longer point at Netlify.** RDAP (registrar Realtime
+Register B.V., all registered May 2026, expire May 2027, transfer-locked):
+nameservers changed to **ns1/ns2.afternic.com** on **2026-09-11** for both
+organizationalamnesia.com and organisationalamnesia.com, and to
+ns5/ns6.afternic.com on **2026-09-04** for corporateamnesia.com. Afternic is
+GoDaddy's domain-sale marketplace; those IPs are its parking pages and they
+currently time out. Nothing in this session touched DNS.
+
+To finish (Partha, registrar side):
+1. Confirm whether the Afternic listing was deliberate. If not, secure the
+   registrar account (password, 2FA) - someone changed nameservers.
+2. Put nameservers back on the registrar's own DNS (or Netlify DNS), then:
+   `organizationalamnesia.com` A -> 75.2.60.5, `www` CNAME ->
+   `organizationalamnesia.netlify.app`.
+3. In Netlify > Domain management, add `organisationalamnesia.com` and
+   `corporateamnesia.com` (+ www) as aliases, A -> 75.2.60.5. Certificates
+   are automatic and the redirect rules already cover every alias.
+Keep all three registered; a lapse lets a competitor buy the problem name.
