@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Organizational Amnesia Diagnostic (OAQ-12) - Free Test</title>
+<meta name="description" content="A 12-question diagnostic to estimate the memory health of your organization in four minutes. Anonymous, no login, results not stored." />
+<link rel="icon" type="image/svg+xml" href="/landing-design/black_logo.svg" />
+<link rel="icon" type="image/png" sizes="128x128" href="/landing-design/black_logo.png" />
+<link rel="apple-touch-icon" href="/landing-design/black_logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap" rel="stylesheet" />
+<style>
+/* Reattend's header and footer styles sit in the "rt" cascade layer. The
+   essay stylesheet below is unlayered and scoped to .oa, so it always wins
+   inside the essay body, and "oareset" rolls back anything reattend's
+   element rules (section, p, a, h1...) would otherwise add there. Net
+   effect: .oa renders exactly as it did on the old standalone site. */
+@layer rt, oareset;
+@import url("/landing-design/styles.css?v=18oa") layer(rt);
+@import url("/landing-design/site-refresh.css?v=oa1") layer(rt);
+@layer oareset { .oa, .oa *:not(svg, svg *) { all: revert; } }
+</style>
+<link rel="stylesheet" href="/landing-design/amnesia/site.css?v=1" />
+<script src="/landing-design/auth-cta.js" defer></script>
+<script src="/landing-design/mobile-menu.js" defer></script>
+</head>
+<body data-page="quiz" class="oa-page">
+
+<header class="topbar">
+<div class="topbar-inner">
+<a class="brand" href="/" aria-label="Reattend home">
+<img class="brand-logo" src="/landing-design/black_logo.svg" alt="" width="30" height="30">
+<span class="brand-word">Reattend</span>
+</a>
+<nav class="nav" aria-label="Main navigation">
+<a class="nav-item" href="/">Home</a>
+<a class="nav-item" href="/product">Product</a>
+<a class="nav-item" href="/integrations">Integrations</a>
+<a class="nav-item" href="/pricing">Pricing</a>
+<a class="nav-item" href="/compliance">Compliance</a>
+</nav>
+<div style="display:flex; gap:8px;">
+<a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a><a class="btn btn-primary btn-fill" href="/register">Start free</a>
+</div>
+</div>
+</header>
+
+<div class="oa" data-page="quiz">
+<div class="topbar">
+  <a href="/amnesia" class="brand">organizational amnesia</a>
+  <div class="center">How organizations forget</div>
+  <nav aria-label="Organizational amnesia sections"><a href="/amnesia">Overview</a><a href="/amnesia/quiz" class="active">Diagnostic</a><a href="/amnesia/cost">Cost</a><a href="/amnesia/research">Research</a><a href="/amnesia/about">About</a></nav>
+</div>
+
+<section class="quiz-wrap">
+  <div class="quiz-inner">
+    <div class="quiz-header">
+      <div class="eyebrow">Self-assessment · OAQ-12</div>
+      <h1>The Organizational Amnesia Quotient.</h1>
+      <p class="lede">A 12-question self-assessment built around the five mechanisms of forgetting. Estimates how much of your organization's collective memory is, at this moment, at risk.</p>
+      <div class="cite quiz-meta">~4 min · Anonymous · Results not stored</div>
+    </div>
+
+    <div class="quiz-progress">
+      <div class="progress-bar"><div class="progress-fill" id="pf"></div></div>
+      <div class="progress-meta">
+        <span id="qcounter">Question 1 of 12</span>
+        <span id="qsection">§ Documentation</span>
+      </div>
+    </div>
+
+    <div class="quiz-stage" id="stage"></div>
+
+    <div class="quiz-foot">
+      <button class="btn ghost" id="back" disabled>← Back</button>
+      <button class="btn" id="next" disabled>Next →</button>
+    </div>
+  </div>
+</section>
+
+<nav class="footer" aria-label="Organizational amnesia index">
+  <div>
+    <div class="imprint">organizational amnesia</div>
+    <div class="colophon">An essay series from Reattend on how, why, and at what cost organizations forget. Every figure names its source.</div>
+  </div>
+  <div>
+    <h4>Sections</h4>
+    <ul>
+      <li><a href="/amnesia">Overview</a></li>
+      <li><a href="/amnesia/quiz">Diagnostic (OAQ-12)</a></li>
+      <li><a href="/amnesia/cost">Cost calculator</a></li>
+      <li><a href="/amnesia/research">Research &amp; bibliography</a></li>
+      <li><a href="/amnesia/about">About</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Reading</h4>
+    <ul>
+      <li><a href="/amnesia/signs">10 signs of amnesia</a></li>
+      <li><a href="/amnesia/attrition">Knowledge attrition</a></li>
+      <li><a href="/amnesia/prevent">How to prevent it</a></li>
+      <li><a href="/amnesia/tacit-knowledge">Tacit knowledge</a></li>
+      <li><a href="/amnesia/ai-memory">AI memory</a></li>
+      <li><a href="/amnesia/resources">Reading list</a></li>
+      <li><a href="/blog/what-is-organizational-amnesia">The long-form essay</a></li>
+      <li><a href="/amnesia#faq">FAQ</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <ul>
+      <li><a href="mailto:pb@reattend.ai">pb@reattend.ai</a></li>
+      <li><a href="/product">The Reattend product</a></li>
+    </ul>
+  </div>
+</nav>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      <p style="margin-top: 12px; font-size: 12px;">Read more about how <a href="/amnesia" style="color: var(--accent); text-decoration: underline;">Organizational Amnesia</a> is affecting your business.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="/login">Sign in</a>
+      <a href="/integrations">Integrations</a>
+    </div>
+    <div class="footer-col">
+      <h5>Capabilities</h5>
+      <a href="/product#capture">Capture</a>
+      <a href="/product#connect">Connect</a>
+      <a href="/product#recall">Recall</a>
+      <a href="/product#run">Run</a>
+      <a href="/product#govern">Govern</a>
+      <a href="/product#deploy">Deploy</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/coming-soon">Careers</a>
+      <a href="/coming-soon">Press</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="/blog">Blog</a>
+      <a href="/glossary">Glossary</a>
+      <a href="/amnesia">Organizational amnesia</a>
+      <a href="/help">Help center</a>
+      <a href="/tool">Free tools</a>
+      <a href="/game">Free games</a>
+      <a href="/compliance">Trust</a>
+      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;">
+      <a href="/privacy" style="color:inherit;">Privacy</a>
+      <a href="/terms" style="color:inherit;">Terms</a>
+      <a href="/compliance" style="color:inherit;">Compliance</a>
+      <a href="/support" style="color:inherit;">Support</a>
+    </span>
+  </div>
+</footer>
+
+<style>
+.oa .quiz-wrap { padding: 64px var(--gutter) 120px; min-height: 80vh; }
+.oa .quiz-inner { max-width: 820px; margin: 0 auto; }
+.oa .quiz-header { margin-bottom: 56px; }
+.oa .quiz-header h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(38px, 5.4vw, 72px); line-height: 1; margin: 16px 0 20px; letter-spacing: -0.02em; }
+.oa .quiz-header .lede { max-width: 50ch; }
+.oa .quiz-meta { margin-top: 18px; }
+
+.oa .quiz-progress { margin-bottom: 48px; }
+.oa .progress-bar { height: 2px; background: var(--rule); position: relative; overflow: hidden; }
+.oa .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); width: 8%; transition: width 360ms ease; }
+.oa .progress-meta { display: flex; justify-content: space-between; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.oa .quiz-stage { min-height: 360px; }
+.oa .q { animation: qfade 360ms ease both; }
+@keyframes qfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.oa .q-num { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+.oa .q-text { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 3vw, 34px); line-height: 1.25; margin: 0 0 32px; max-width: 28ch; text-wrap: balance; }
+
+.oa .opts { display: grid; gap: 12px; }
+.oa .opt {
+  display: grid; grid-template-columns: 28px 1fr auto; gap: 16px; align-items: center;
+  border: 1px solid var(--rule); padding: 18px 22px; cursor: pointer;
+  font-size: 16px; transition: all 160ms ease; background: transparent; text-align: left; color: var(--fg); font-family: var(--serif);
+}
+.oa .opt:hover { border-color: var(--rule-strong); background: var(--bg-2); }
+.oa .opt .key { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.06em; }
+.oa .opt .score { font-family: var(--mono); font-size: 11px; color: transparent; }
+.oa .opt.selected { border-color: var(--accent); background: rgba(127,176,105,0.06); }
+.oa .opt.selected .key { color: var(--accent); }
+
+.oa .quiz-foot { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--rule); }
+.oa .btn[disabled] { opacity: 0.35; pointer-events: none; }
+
+.oa .result { display: grid; gap: 32px; }
+.oa .result .score-row { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+.oa .result .figure { font-size: clamp(96px, 14vw, 180px); }
+.oa .result .verdict { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 2.8vw, 32px); line-height: 1.2; margin: 0 0 8px; }
+.oa .result .verdict-cite { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+.oa .result-deck { font-size: 17px; line-height: 1.55; color: var(--fg-dim); max-width: 56ch; }
+.oa .scale { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--rule); }
+.oa .scale-cell { padding: 16px 18px; border-right: 1px solid var(--rule); }
+.oa .scale-cell:last-child { border-right: none; }
+.oa .scale-cell.active { background: var(--bg-3); }
+.oa .scale-cell .lab { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+.oa .scale-cell .name { font-family: var(--serif); font-size: 18px; margin-top: 6px; }
+.oa .scale-cell.active .name { color: var(--accent); }
+.oa .scale-cell .range { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); margin-top: 4px; }
+
+.oa .breakdown { border-top: 1px solid var(--rule); padding-top: 32px; }
+.oa .breakdown h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 18px; }
+.oa .bd-row { display: grid; grid-template-columns: 200px 1fr 60px; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.oa .bd-row:last-child { border-bottom: none; }
+.oa .bd-bar { height: 8px; background: var(--bg-3); position: relative; }
+.oa .bd-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.oa .bd-label { font-size: 14.5px; }
+.oa .bd-val { font-family: var(--mono); font-size: 12px; color: var(--fg-dim); text-align: right; }
+.oa .bd-bar-fill.warn { background: var(--warn); }
+.oa .bd-bar-fill.dim { background: var(--fg-mute); }
+
+.oa .recommendations { border-top: 1px solid var(--rule); padding-top: 32px; }
+.oa .recommendations h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 18px; }
+.oa .rec { display: grid; grid-template-columns: 24px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.oa .rec:last-child { border: none; }
+.oa .rec-num { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); padding-top: 3px; }
+.oa .rec h4 { margin: 0 0 4px; font-family: var(--serif); font-size: 16px; font-weight: 500; }
+.oa .rec p { margin: 0; color: var(--fg-dim); font-size: 14.5px; line-height: 1.5; }
+
+.oa .result-actions { display: flex; gap: 14px; flex-wrap: wrap; padding-top: 8px; }
+</style>
+
+<script>
+const QUESTIONS = [
+  { section: "Documentation", q: "If your three most senior individual contributors quit on the same Friday, by what Monday could a peer team reconstruct what they were working on?",
+    opts: [
+      { t: "Same Monday - it's all written down.", s: 0 },
+      { t: "Within a week, with effort.", s: 1 },
+      { t: "Within a month, with significant rework.", s: 2 },
+      { t: "Honestly, we couldn't.", s: 3 },
+    ]},
+  { section: "Documentation", q: "How often does someone on your team say \"there's a doc for that\" - and the doc turns out to be wrong, outdated, or unfindable?",
+    opts: [
+      { t: "Rarely. Docs are trusted.", s: 0 },
+      { t: "Occasionally - a known annoyance.", s: 1 },
+      { t: "Most weeks.", s: 2 },
+      { t: "Constantly. The doc is a starting point, not an answer.", s: 3 },
+    ]},
+  { section: "Departure", q: "What's your annual employee turnover, roughly?",
+    opts: [
+      { t: "Under 8% - quite stable.", s: 0 },
+      { t: "8–12% - typical.", s: 1 },
+      { t: "12–20% - elevated.", s: 2 },
+      { t: "Over 20% - or a recent layoff/RIF.", s: 3 },
+    ]},
+  { section: "Departure", q: "When someone resigns, what does their last two weeks look like?",
+    opts: [
+      { t: "Structured handover, written runbook, named successor.", s: 0 },
+      { t: "Informal handover meetings.", s: 1 },
+      { t: "Mostly farewell lunches; some scrambling.", s: 2 },
+      { t: "We'll figure it out after they're gone.", s: 3 },
+    ]},
+  { section: "Search", q: "When you need a piece of internal information you've never accessed before, how often do you find it on the first try?",
+    opts: [
+      { t: "Almost always - search works.", s: 0 },
+      { t: "Roughly two-thirds of the time.", s: 1 },
+      { t: "Less than half - I usually ask a person.", s: 2 },
+      { t: "Asking a person <em>is</em> the search.", s: 3 },
+    ]},
+  { section: "Search", q: "How many systems would you have to consult to answer the question \"what was decided in the redesign last year and why?\"",
+    opts: [
+      { t: "One - there's a canonical record.", s: 0 },
+      { t: "Two or three.", s: 1 },
+      { t: "Four to six.", s: 2 },
+      { t: "I'd start by guessing who was in the room.", s: 3 },
+    ]},
+  { section: "Repetition", q: "In the last year, how often did your team re-litigate a decision that had been made (and documented) earlier?",
+    opts: [
+      { t: "Never that I'm aware of.", s: 0 },
+      { t: "Once or twice.", s: 1 },
+      { t: "A handful of times.", s: 2 },
+      { t: "It's a recurring pattern.", s: 3 },
+    ]},
+  { section: "Repetition", q: "Do new hires regularly surface things that surprise long-tenured staff - bugs, processes, customer pain - that the org used to know about and forgot?",
+    opts: [
+      { t: "Almost never - institutional memory is intact.", s: 0 },
+      { t: "Occasionally.", s: 1 },
+      { t: "Often.", s: 2 },
+      { t: "It's the most useful thing new hires do.", s: 3 },
+    ]},
+  { section: "Postmortems", q: "After a project fails or an incident occurs, what happens to the postmortem?",
+    opts: [
+      { t: "It's read, indexed, and referenced when planning new work.", s: 0 },
+      { t: "It's filed and occasionally consulted.", s: 1 },
+      { t: "It's filed; nobody re-reads it.", s: 2 },
+      { t: "We don't write them, or we don't finish them.", s: 3 },
+    ]},
+  { section: "Tacit", q: "If your most experienced engineer or operator said \"I'd never do it that way\" - could anyone else explain <em>why</em>?",
+    opts: [
+      { t: "Yes - the reasoning is widely shared.", s: 0 },
+      { t: "Some of it is shared; not all.", s: 1 },
+      { t: "Only after a long conversation with them.", s: 2 },
+      { t: "No. The reasoning lives only in their head.", s: 3 },
+    ]},
+  { section: "Continuity", q: "Has your organization gone through a reorg, leadership change, or acquisition in the last 24 months?",
+    opts: [
+      { t: "No major continuity events.", s: 0 },
+      { t: "One - handled with structured handover.", s: 1 },
+      { t: "One - handled informally.", s: 2 },
+      { t: "Multiple, or one with significant turnover.", s: 3 },
+    ]},
+  { section: "Continuity", q: "If we asked five long-tenured employees to write down \"the unwritten rules of how things really work here,\" how much would the lists overlap?",
+    opts: [
+      { t: "Substantially - there's a shared culture.", s: 0 },
+      { t: "Mostly - with a few divergences.", s: 1 },
+      { t: "Some agreement, lots of variance.", s: 2 },
+      { t: "Five different organizations.", s: 3 },
+    ]},
+];
+
+const STAGE = document.getElementById('stage');
+const PF = document.getElementById('pf');
+const QC = document.getElementById('qcounter');
+const QS = document.getElementById('qsection');
+const NEXT = document.getElementById('next');
+const BACK = document.getElementById('back');
+
+let idx = 0;
+const answers = new Array(QUESTIONS.length).fill(null);
+
+function render() {
+  if (idx >= QUESTIONS.length) { renderResult(); return; }
+  const Q = QUESTIONS[idx];
+  PF.style.width = `${((idx) / QUESTIONS.length) * 100}%`;
+  QC.textContent = `Question ${idx + 1} of ${QUESTIONS.length}`;
+  QS.textContent = `§ ${Q.section}`;
+  STAGE.innerHTML = `
+    <div class="q">
+      <div class="q-num">Item ${String(idx+1).padStart(2,'0')}</div>
+      <h2 class="q-text">${Q.q}</h2>
+      <div class="opts">
+        ${Q.opts.map((o, i) => `
+          <button class="opt ${answers[idx] === i ? 'selected' : ''}" data-i="${i}">
+            <span class="key">${String.fromCharCode(65 + i)}</span>
+            <span class="text">${o.t}</span>
+            <span class="score">+${o.s}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  STAGE.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i, 10);
+      answers[idx] = i;
+      STAGE.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      NEXT.disabled = false;
+    });
+  });
+  BACK.disabled = idx === 0;
+  NEXT.disabled = answers[idx] === null;
+  NEXT.innerHTML = (idx === QUESTIONS.length - 1
+    ? '<span>See result</span><span class="arrow">→</span>'
+    : '<span>Next</span><span class="arrow">→</span>');
+}
+
+NEXT.addEventListener('click', () => {
+  if (answers[idx] === null) return;
+  idx++;
+  render();
+});
+BACK.addEventListener('click', () => {
+  if (idx > 0) idx--;
+  render();
+});
+
+function renderResult() {
+  PF.style.width = '100%';
+  QC.textContent = 'Diagnostic complete';
+  QS.textContent = '§ Result';
+  let total = 0;
+  const sectionScores = {};
+  const sectionCounts = {};
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const s = QUESTIONS[i].opts[answers[i]].s;
+    total += s;
+    const sec = QUESTIONS[i].section;
+    sectionScores[sec] = (sectionScores[sec] || 0) + s;
+    sectionCounts[sec] = (sectionCounts[sec] || 0) + 1;
+  }
+  const oaq = Math.round((total / 36) * 100);
+
+  let band, bandIdx, blurb;
+  if (oaq < 25) { band = "Intact"; bandIdx = 0; blurb = "Your organization remembers itself unusually well. The architecture is doing its job. Stay vigilant during scaling and leadership transitions; this is also where intact memory most often quietly degrades."; }
+  else if (oaq < 50) { band = "Eroding"; bandIdx = 1; blurb = "Memory is largely intact but starting to drift. The signals are subtle - a stale runbook here, a re-litigated decision there. Untreated, this is the band that compounds the fastest. The next eighteen months are decisive."; }
+  else if (oaq < 75) { band = "Amnesiac"; bandIdx = 2; blurb = "Your organization is, by our definition, amnesiac. Decisions are being re-made. Postmortems are being re-written. Tacit knowledge has begun to live exclusively in a small number of overburdened people. The cost is real and accruing."; }
+  else { band = "Acute"; bandIdx = 3; blurb = "Acute organizational amnesia. The institution is operating largely from individual memory, not collective memory. Departures, even routine ones, are likely to remove load-bearing knowledge. This is the band where preventable failures concentrate."; }
+
+  const recs = generateRecs(sectionScores, sectionCounts);
+
+  STAGE.innerHTML = `
+    <div class="result q">
+      <div class="q-num">OAQ-12 Result · Form A</div>
+      <div class="score-row">
+        <div class="figure">${oaq}<span class="unit">/100</span></div>
+        <div>
+          <div class="verdict-cite">Classification</div>
+          <div class="verdict">${band}.</div>
+          <div class="result-deck">${blurb}</div>
+        </div>
+      </div>
+      <div class="scale">
+        ${["Intact","Eroding","Amnesiac","Acute"].map((n, i) => `
+          <div class="scale-cell ${i === bandIdx ? 'active' : ''}">
+            <div class="lab">Band ${i+1}</div>
+            <div class="name">${n}</div>
+            <div class="range">${[0,25,50,75][i]}–${[24,49,74,100][i]}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="breakdown">
+        <h3>Where the memory loss is concentrated.</h3>
+        ${Object.keys(sectionScores).map(sec => {
+          const max = sectionCounts[sec] * 3;
+          const pct = Math.round((sectionScores[sec] / max) * 100);
+          const cls = pct >= 67 ? 'warn' : (pct >= 34 ? 'dim' : '');
+          return `
+            <div class="bd-row">
+              <div class="bd-label">${sec}</div>
+              <div class="bd-bar"><div class="bd-bar-fill ${cls}" style="width:${pct}%"></div></div>
+              <div class="bd-val">${pct}%</div>
+            </div>`;
+        }).join('')}
+      </div>
+
+      <div class="recommendations">
+        <h3>What to do about it.</h3>
+        ${recs.map((r, i) => `
+          <div class="rec">
+            <div class="rec-num">${String(i+1).padStart(2,'0')}</div>
+            <div><h4>${r.h}</h4><p>${r.p}</p></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="result-actions">
+        <button class="btn" onclick="location.reload()"><span>Take it again</span><span class="arrow">↻</span></button>
+        <a class="btn ghost" href="/amnesia/cost"><span>Estimate the dollar cost</span><span class="arrow">→</span></a>
+        <a class="btn ghost" href="/amnesia/research"><span>Read the research</span><span class="arrow">→</span></a>
+        <a class="btn ghost" href="/amnesia"><span>Back to overview</span><span class="arrow">→</span></a>
+      </div>
+
+      <div class="cite" style="margin-top:24px">OAQ-12 is a self-assessment, not a validated psychometric test, and it is no substitute for a full knowledge audit. Treat the score as a prompt for a conversation, not a measurement.</div>
+    </div>
+  `;
+  NEXT.style.display = 'none';
+  BACK.style.display = 'none';
+}
+
+function generateRecs(scores, counts) {
+  const ratio = (sec) => (scores[sec] || 0) / (counts[sec] * 3);
+  const out = [];
+  if (ratio("Documentation") >= 0.5) out.push({h: "Adopt a single source of truth, then prune.", p: "Most amnesiac orgs do not under-document; they over-document in too many places. Consolidate to one canonical home per knowledge type and aggressively retire competing copies."});
+  if (ratio("Departure") >= 0.5) out.push({h: "Treat departures as research events.", p: "Every resignation is an interview opportunity to capture tacit knowledge. Structured exit conversations built around real past situations recover far more than a checklist handover."});
+  if (ratio("Search") >= 0.5) out.push({h: "Measure search latency, not search volume.", p: "How long until an employee finds what they need? Track the metric monthly. Anything above 3 minutes for canonical questions is a signal of decay."});
+  if (ratio("Repetition") >= 0.5) out.push({h: "Index decisions, not just documents.", p: "Postmortems and decision records that aren't searchable by future-you are not memory. Tag every meaningful decision with the question it answered, not just the conclusion."});
+  if (ratio("Postmortems") >= 0.5) out.push({h: "Re-read your last five postmortems before planning the next quarter.", p: "PMI's research identifies giving lip service to lessons learned as the single most common driver of corporate amnesia. The fix is mechanical: schedule the re-read."});
+  if (ratio("Tacit") >= 0.5) out.push({h: "Pair the load-bearing humans.", p: "Tacit knowledge transfers through proximity, not documents. Identify the 3–5 people who 'just know' how things work and pair them with successors before, not during, the transition."});
+  if (ratio("Continuity") >= 0.5) out.push({h: "Write down the unwritten rules - together.", p: "Run a 90-minute workshop where five long-tenured staff list the things 'everyone knows' about how the place works. The differences in their lists are where amnesia lives."});
+  if (out.length < 3) out.push({h: "Stay measured.", p: "A low score is not a permanent state. The dimensions most likely to degrade are the ones currently strongest, because they get the least attention."});
+  return out.slice(0, 5);
+}
+
+render();
+</script>
+
+
+<script src="/landing-design/site-refresh.js" defer></script>
+</body>
+</html>

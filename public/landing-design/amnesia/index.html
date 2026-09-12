@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Organizational Amnesia - How Companies Forget, and What It Costs</title>
+<meta name="description" content="What organizational amnesia is, what causes it, what it costs, and how to measure it in your own organization. Essays, a free diagnostic and a cost calculator, with every figure sourced." />
+
+<link rel="icon" type="image/svg+xml" href="/landing-design/black_logo.svg" />
+<link rel="icon" type="image/png" sizes="128x128" href="/landing-design/black_logo.png" />
+<link rel="apple-touch-icon" href="/landing-design/black_logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap" rel="stylesheet" />
+<style>
+/* Reattend's header and footer styles sit in the "rt" cascade layer. The
+   essay stylesheet below is unlayered and scoped to .oa, so it always wins
+   inside the essay body, and "oareset" rolls back anything reattend's
+   element rules (section, p, a, h1...) would otherwise add there. Net
+   effect: .oa renders exactly as it did on the old standalone site. */
+@layer rt, oareset;
+@import url("/landing-design/styles.css?v=18oa") layer(rt);
+@import url("/landing-design/site-refresh.css?v=oa1") layer(rt);
+@layer oareset { .oa, .oa *:not(svg, svg *) { all: revert; } }
+</style>
+<link rel="stylesheet" href="/landing-design/amnesia/site.css?v=1" />
+<script src="/landing-design/auth-cta.js" defer></script>
+<script src="/landing-design/mobile-menu.js" defer></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is organizational amnesia the same thing as knowledge loss?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Closely related but not identical. Knowledge loss is the broader phenomenon - anything that removes institutional know-how. Organizational amnesia is specifically the unintentional, accidental subset: the knowledge the organization didn't mean to lose."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Isn't this just an argument for better documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Documentation helps with explicit knowledge - policies, runbooks, step-by-step procedures. The harder problem is tacit knowledge: judgment, relationships, instinct that don't reduce well to bullet points. The literature is consistent that 'write it down' is necessary but never sufficient."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How big a problem is organizational amnesia, in dollars?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most-cited figure is IDC's estimate of $31.5B in annual losses across the Fortune 500 from forgotten organizational knowledge. Kransdorff has put the upper bound, including 'experiential non-learning,' at up to 9.7% of GDP in developed economies."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who publishes this?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reattend, which makes organizational memory software. We publish these essays because the problem is the reason the product exists, and understanding it is useful whether or not you ever buy anything. Every figure names its source."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I suggest a source or a correction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Email pb@reattend.ai with the source or the error. We read everything and correct what does not hold up."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is organizational amnesia related to AI memory?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Closely. The retrieval, ranking, and freshness problems organizations have always had with their wikis, runbooks, and decision records are the same problems AI engineers are now solving with RAG, vector stores, and agent memory. The AI-memory problem and the organizational-memory problem are the same problem - see the dedicated essay at https://reattend.com/amnesia/ai-memory."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from knowledge attrition or employee turnover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Departure-driven knowledge loss is one of five mechanisms; employee turnover is its main driver. Organizational amnesia is broader - knowledge can also evaporate via decay, dispersal, defensiveness, and discontinuity, even in firms with zero turnover."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body data-page="index" class="oa-page">
+
+<header class="topbar">
+<div class="topbar-inner">
+<a class="brand" href="/" aria-label="Reattend home">
+<img class="brand-logo" src="/landing-design/black_logo.svg" alt="" width="30" height="30">
+<span class="brand-word">Reattend</span>
+</a>
+<nav class="nav" aria-label="Main navigation">
+<a class="nav-item" href="/">Home</a>
+<a class="nav-item" href="/product">Product</a>
+<a class="nav-item" href="/integrations">Integrations</a>
+<a class="nav-item" href="/pricing">Pricing</a>
+<a class="nav-item" href="/compliance">Compliance</a>
+</nav>
+<div style="display:flex; gap:8px;">
+<a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a><a class="btn btn-primary btn-fill" href="/register">Start free</a>
+</div>
+</div>
+</header>
+
+<div class="oa" data-page="index">
+<div class="topbar">
+  <a href="/amnesia" class="brand">organizational amnesia</a>
+  <div class="center">How organizations forget</div>
+  <nav aria-label="Organizational amnesia sections"><a href="/amnesia" class="active">Overview</a><a href="/amnesia/quiz">Diagnostic</a><a href="/amnesia/cost">Cost</a><a href="/amnesia/research">Research</a><a href="/amnesia/about">About</a></nav>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero grain" data-screen-label="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-grid">
+    <div class="hero-meta">
+      <div class="meta-row"><span class="k">Field</span><span class="v">Organizational Behavior · Knowledge Management</span></div>
+      <div class="meta-row"><span class="k">Sources</span><span class="v">Published research, cited</span></div>
+      <div class="meta-row"><span class="k">Format</span><span class="v">Essays · Tools · Reading list</span></div>
+      <div class="meta-row"><span class="k">Publisher</span><span class="v">Reattend</span></div>
+    </div>
+
+    <div class="hero-body">
+      <div class="hero-eyebrow">An essay series from Reattend</div>
+      <h1 class="hero-title">
+        Companies are losing<br />
+        their <em>memory</em>.
+      </h1>
+      <p class="hero-deck">
+        Every year, organizations forget how to do the very things they exist to do. IDC puts the cost at <strong>$31.5&nbsp;billion</strong> a year across the Fortune 500 alone. These essays collect what the research says about that forgetting: its causes, its symptoms, and the institutions it hollows out.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#stats"><span>Read the findings</span><span class="arrow">→</span></a>
+        <a class="btn ghost" href="/amnesia/quiz"><span>Take the diagnostic</span><span class="arrow">→</span></a>
+      </div>
+    </div>
+
+    <aside class="hero-aside">
+      <div class="hero-fig">
+        <div class="figure">9.7<span class="unit">%</span></div>
+        <div class="cite">of GDP - estimated cost of corporate amnesia in developed economies (Kransdorff via <em>Wikipedia</em>, 2024).</div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="hero-foot">
+    <div class="foot-left">↓ scroll · 7 sections · ~10 min read</div>
+    <div class="foot-right">Fig. 1 - Documents drift, decay, and dissolve. <span class="serif-italic">An organization, observed.</span></div>
+  </div>
+</section>
+
+<!-- ============ DEFINITION ============ -->
+<section class="section" id="definition" data-screen-label="definition">
+  <div class="section-head">
+    <div class="label">§ 01 · Definition</div>
+    <h2>What we mean when we say <em>organizational amnesia</em>.</h2>
+  </div>
+
+  <div class="defn-grid">
+    <div class="defn-main body">
+      <p class="lede">
+        Organizational amnesia is the gradual, often silent loss of an organization's collective memory - the know-how, judgment, and context that lived in the people, processes, and pages that made the place work.
+      </p>
+      <p class="dropcap">
+        It is not a data breach. Nothing is stolen; nothing is even technically deleted. A senior engineer takes a new job and the only person who understood the failover script is gone. A reorg buries the postmortem from the last outage two folders deeper than anyone will ever look. A migration drops the metadata that explained <em>why</em> a clause exists in the contract template. Multiply by ten thousand small acts of forgetting. The organization, overall, has stopped knowing what it knew.
+      </p>
+      <p>
+        Researchers describe the phenomenon as <span class="smallcaps">accidental, unintentional evaporation of knowledge that accumulates from learning and from individual and collective actions</span>. We use the term <em>amnesia</em> deliberately: like the human kind, it is rarely total, often unnoticed, and almost always more expensive than the institution suspects. <a href="/blog/what-is-organizational-amnesia">The long-form essay</a> goes further.
+      </p>
+    </div>
+
+    <aside class="defn-side">
+      <div class="defn-card">
+        <div class="cite">Working definition</div>
+        <p>The accidental, unintentional evaporation of organizational knowledge - distinct from deliberate purging or strategic unlearning.</p>
+        <div class="cite muted">- after de Holan &amp; Phillips (2004); Perrott (2007)</div>
+      </div>
+      <div class="defn-card">
+        <div class="cite">Synonyms in literature</div>
+        <ul class="taxonomy">
+          <li>Corporate amnesia</li>
+          <li>Institutional forgetting</li>
+          <li>Knowledge attrition</li>
+          <li>Knowledge depreciation</li>
+          <li>Organizational memory loss</li>
+        </ul>
+      </div>
+      <div class="defn-card">
+        <div class="cite">Four types of lost knowledge</div>
+        <ol class="taxonomy num">
+          <li><strong>Conscious</strong> - explicit, individual, codifiable</li>
+          <li><strong>Codified</strong> - explicit, captured at the social level</li>
+          <li><strong>Automatic</strong> - implicit, individual</li>
+          <li><strong>Collective</strong> - implicit, embedded in the organization</li>
+        </ol>
+        <div class="cite muted">- <em>Journal of Knowledge Management</em> (2018)</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ STATS / DATA ============ -->
+<section class="section stats" id="stats" data-screen-label="stats">
+  <div class="section-head">
+    <div class="label">§ 02 · Findings</div>
+    <h2>The numbers an organization usually does not see.</h2>
+  </div>
+
+  <div class="stat-grid">
+    <article class="stat big">
+      <div class="figure">$31.5<span class="unit">B</span></div>
+      <div class="stat-cap">Annual losses across the Fortune 500 attributable to forgotten organizational knowledge.</div>
+      <div class="cite">- International Data Corp. (IDC)</div>
+    </article>
+
+    <article class="stat">
+      <div class="figure">9.7<span class="unit">%</span></div>
+      <div class="stat-cap">of GDP lost to "experiential non-learning" in developed economies.</div>
+      <div class="cite">- Kransdorff, in <em>Corporate Amnesia</em> (Wikipedia, 2024)</div>
+    </article>
+
+    <article class="stat">
+      <div class="figure">$2.7<span class="unit">M</span></div>
+      <div class="stat-cap">Annual loss for a 1,000-person firm from inefficient knowledge sharing.</div>
+      <div class="cite">- Panopto Workplace Knowledge and Productivity Report (2018), scaled from its per-size figures</div>
+    </article>
+
+    <article class="stat">
+      <div class="figure">$72<span class="unit">M</span></div>
+      <div class="stat-cap">Annual productivity loss for a 30,000-person enterprise from day-to-day inefficiency caused by knowledge loss.</div>
+      <div class="cite">- ProcedureFlow Industry Report</div>
+    </article>
+  </div>
+
+  <div class="divider" style="margin: 64px 0;"></div>
+
+  <div class="chart-block">
+    <div class="chart-title">
+      <div class="cite">Figure 2.a</div>
+      <h3>The forgetting curve, observed in 100-year-old institutions.</h3>
+      <p class="chart-deck">In a longitudinal Project Management Institute study of a century-old firm, researchers found the institution <em>lost its bearings</em> roughly every 20 years - one full leadership generation. The chart below sketches that pattern; it is an illustration, not data.</p>
+    </div>
+    <div class="chart-frame">
+      <svg viewBox="0 0 800 320" preserveAspectRatio="none" class="chart-svg" aria-hidden="true">
+        <g stroke="#2a2823" stroke-width="1">
+          <line x1="60" x2="780" y1="40" y2="40"/>
+          <line x1="60" x2="780" y1="100" y2="100"/>
+          <line x1="60" x2="780" y1="160" y2="160"/>
+          <line x1="60" x2="780" y1="220" y2="220"/>
+          <line x1="60" x2="780" y1="280" y2="280"/>
+        </g>
+        <g fill="#6f6a5d" font-family="JetBrains Mono, monospace" font-size="10">
+          <text x="50" y="44" text-anchor="end">100%</text>
+          <text x="50" y="104" text-anchor="end">75%</text>
+          <text x="50" y="164" text-anchor="end">50%</text>
+          <text x="50" y="224" text-anchor="end">25%</text>
+          <text x="50" y="284" text-anchor="end">0%</text>
+        </g>
+        <g fill="#6f6a5d" font-family="JetBrains Mono, monospace" font-size="10">
+          <text x="60" y="304">YR 0</text>
+          <text x="204" y="304">20</text>
+          <text x="348" y="304">40</text>
+          <text x="492" y="304">60</text>
+          <text x="636" y="304">80</text>
+          <text x="780" y="304" text-anchor="end">100</text>
+        </g>
+        <g stroke="#3a382f" stroke-dasharray="2 4">
+          <line x1="204" x2="204" y1="40" y2="280"/>
+          <line x1="348" x2="348" y1="40" y2="280"/>
+          <line x1="492" x2="492" y1="40" y2="280"/>
+          <line x1="636" x2="636" y1="40" y2="280"/>
+        </g>
+        <path d="M 60,60 C 130,55 170,75 204,210 C 240,180 290,75 348,235 C 380,200 430,80 492,225 C 530,190 580,90 636,240 C 670,205 720,95 780,230"
+              fill="none" stroke="#7fb069" stroke-width="2"/>
+        <g fill="#c1664a">
+          <circle cx="204" cy="210" r="3.5"/>
+          <circle cx="348" cy="235" r="3.5"/>
+          <circle cx="492" cy="225" r="3.5"/>
+          <circle cx="636" cy="240" r="3.5"/>
+        </g>
+        <g fill="#c1664a" font-family="JetBrains Mono, monospace" font-size="9">
+          <text x="210" y="200">amnesia event</text>
+          <text x="354" y="225">↓</text>
+          <text x="498" y="215">↓</text>
+          <text x="642" y="230">↓</text>
+        </g>
+      </svg>
+      <div class="chart-legend">
+        <span><span class="sw moss"></span> Institutional knowledge level</span>
+        <span><span class="sw amber"></span> Generational handover (≈20-yr cycle)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" style="margin: 64px 0;"></div>
+
+  <div class="bars-block">
+    <div class="bars-title">
+      <div class="cite">Figure 2.b</div>
+      <h3>Where the day actually goes.</h3>
+      <p>At companies above 10,000 employees, the typical knowledge worker spends <strong>over 100 minutes a day</strong> looking for information they can't find. Below: how a representative day breaks down.</p>
+    </div>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-label">Searching for information</div><div class="bar"><div class="bar-fill" style="width:21%; background:var(--warn)"></div></div><div class="bar-val">102 min</div></div>
+      <div class="bar-row"><div class="bar-label">Recreating work that already exists</div><div class="bar"><div class="bar-fill" style="width:14%; background:var(--warn); opacity:.85"></div></div><div class="bar-val">68 min</div></div>
+      <div class="bar-row"><div class="bar-label">Asking colleagues for context</div><div class="bar"><div class="bar-fill" style="width:11%; background:var(--fg-mute)"></div></div><div class="bar-val">52 min</div></div>
+      <div class="bar-row"><div class="bar-label">Meetings to re-establish shared memory</div><div class="bar"><div class="bar-fill" style="width:18%; background:var(--fg-mute)"></div></div><div class="bar-val">86 min</div></div>
+      <div class="bar-row"><div class="bar-label">Actually doing the job</div><div class="bar"><div class="bar-fill" style="width:36%; background:var(--accent)"></div></div><div class="bar-val">172 min</div></div>
+    </div>
+    <div class="cite" style="margin-top:24px">Per Iterators (2025), summarising knowledge-loss field literature. Day modeled at 480 minutes.</div>
+  </div>
+</section>
+
+<!-- ============ CAUSES ============ -->
+<section class="section causes" id="causes" data-screen-label="causes">
+  <div class="section-head">
+    <div class="label">§ 03 · Causes</div>
+    <h2>Five mechanisms by which an organization forgets.</h2>
+  </div>
+
+  <ol class="cause-list">
+    <li class="cause">
+      <div class="cause-num">01</div>
+      <div class="cause-body">
+        <h3>Departure</h3>
+        <p>The most studied cause. Voluntary and involuntary turnover; retirement, layoff, restructure. Tacit knowledge - the kind that resists documentation - leaves with the body that held it. <span class="smallcaps">Above 10% annual turnover, productivity begins to degrade in measurable ways.</span></p>
+        <div class="cause-stat"><span class="figure small">73<span class="unit">%</span></span><span class="cite">of CEOs report a shortage of skills and knowledge that disrupt the business. <em>(Gartner)</em></span></div>
+      </div>
+    </li>
+    <li class="cause">
+      <div class="cause-num">02</div>
+      <div class="cause-body">
+        <h3>Decay</h3>
+        <p>Knowledge that exists but is not used drifts toward the unusable. Old runbooks rot in old wikis. Process documents go stale. The information is technically present; nobody trusts it enough to consult it.</p>
+        <div class="cause-stat"><span class="figure small">47<span class="unit">%</span></span><span class="cite">of knowledge workers struggle to find information relevant to their role. <em>(Gartner)</em></span></div>
+      </div>
+    </li>
+    <li class="cause">
+      <div class="cause-num">03</div>
+      <div class="cause-body">
+        <h3>Dispersal</h3>
+        <p>The same fact lives in seven systems and three Slack threads, each authoritative, none of them final. Disconnected platforms create silos that trap explicit knowledge. The knowledge is everywhere and so, effectively, nowhere.</p>
+        <div class="cause-stat"><span class="figure small">60<span class="unit">%</span></span><span class="cite">of employees say it's difficult or near-impossible to extract essential information from colleagues. <em>(Iterators)</em></span></div>
+      </div>
+    </li>
+    <li class="cause">
+      <div class="cause-num">04</div>
+      <div class="cause-body">
+        <h3>Defensiveness</h3>
+        <p>Selective recall. The team remembers the wins and forgets, with surprising thoroughness, the failures it would most benefit from learning from. PMI calls this <em>giving lip service to lessons learned</em>; it is the most common documented form of organizational amnesia.</p>
+        <div class="cause-stat"><span class="figure small">88<span class="unit">%</span></span><span class="cite">of business transformations fail to meet their original ambitions - much of it amnesia about prior failures. <em>(Bain, 2024)</em></span></div>
+      </div>
+    </li>
+    <li class="cause">
+      <div class="cause-num">05</div>
+      <div class="cause-body">
+        <h3>Discontinuity</h3>
+        <p>Generational handover. Reorganization. Acquisition. Each is a moment at which the implicit "how we do things" can fail to make the jump from the old group of people to the new one. PMI's longitudinal work finds an institution loses its bearings about <em>once a generation</em>.</p>
+        <div class="cause-stat"><span class="figure small">~20<span class="unit">yr</span></span><span class="cite">observed periodicity of major institutional memory loss in century-old firms. <em>(PMI)</em></span></div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ METHODOLOGY PREVIEW ============ -->
+<section class="section method" id="methodology" data-screen-label="methodology">
+  <div class="section-head">
+    <div class="label">§ 04 · Measurement</div>
+    <h2>How we measure something an organization, by definition, doesn't remember.</h2>
+  </div>
+
+  <div class="method-grid">
+    <div class="body">
+      <p class="lede">Forgetting is, methodologically, a problem. The thing you're trying to study has already left the building. Four methods from the knowledge-management literature, each one something you can run in your own organization.</p>
+    </div>
+    <ol class="method-steps">
+      <li>
+        <div class="step-num">i.</div>
+        <div>
+          <h4>Knowledge audit</h4>
+          <p>A structured inventory of explicit, implicit, tacit, and collective knowledge across a representative sample of teams. Best run together with your people-ops team.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">ii.</div>
+        <div>
+          <h4>Departure interviews</h4>
+          <p>Long-form qualitative interviews with employees within 60 days of leaving. Captures what they know they knew and, more importantly, what nobody asked them about before they left.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">iii.</div>
+        <div>
+          <h4>Search-cycle telemetry</h4>
+          <p>Anonymized, aggregate metrics on how long it takes employees to find information; how often the search ends in a colleague rather than a document; how often the document is wrong.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">iv.</div>
+        <div>
+          <h4>Retrospective failure mapping</h4>
+          <p>For each material project failure, trace whether the knowledge that would have prevented it had previously existed in the organization - and if so, where it went.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="method-cta">
+    <a class="btn" href="/amnesia/research"><span>Read the methods and the bibliography</span><span class="arrow">→</span></a>
+  </div>
+</section>
+
+<!-- ============ TOOLS ============ -->
+<section class="section tools" id="tools" data-screen-label="tools">
+  <div class="section-head">
+    <div class="label">§ 05 · Instruments</div>
+    <h2>Two free tools.</h2>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="cite">Instrument · OAQ-12</div>
+      <h3>The Organizational Amnesia Quotient.</h3>
+      <p>A 12-question self-assessment, built around the five mechanisms above, that estimates the memory health of your organization in roughly four minutes. Scored on a 0–100 scale across four bands: Intact, Eroding, Amnesiac, Acute.</p>
+      <a class="btn" href="/amnesia/quiz"><span>Begin the diagnostic</span><span class="arrow">→</span></a>
+      <div class="cite tool-foot">Anonymous · No login · Results not stored</div>
+    </div>
+
+    <div class="tool-card">
+      <div class="cite">Instrument · KLR-CALC</div>
+      <h3>The cost calculator.</h3>
+      <p>An interactive estimator that converts headcount, turnover, salary, industry, and tenure into a defensible per-employee and total-firm dollar cost of organizational amnesia. Built from Panopto, McKinsey, IDC, and Gartner figures.</p>
+      <a class="btn" href="/amnesia/cost"><span>Open the calculator</span><span class="arrow">→</span></a>
+      <div class="cite tool-foot">Local computation · Methodology disclosed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ READING ============ -->
+<section class="section reading" id="reading" data-screen-label="reading" style="background: var(--bg-2);">
+  <div class="section-head">
+    <div class="label">§ 06 · Further reading</div>
+    <h2>Field notes, listicles, and the curated bibliography.</h2>
+  </div>
+
+  <div class="read-grid">
+    <a class="read-card" href="/amnesia/signs">
+      <div class="cite">Field guide · 9 min</div>
+      <h3>Ten signs your company has organizational amnesia.</h3>
+      <p>The symptoms that tell you institutional knowledge is leaking, and why three or more of them together should worry you.</p>
+      <span class="read-more">Read the field guide <span class="arrow">→</span></span>
+    </a>
+
+    <a class="read-card" href="/amnesia/attrition">
+      <div class="cite">Field note · 12 min</div>
+      <h3>Knowledge attrition: when people leave, what leaves with them.</h3>
+      <p>What the published literature actually says about turnover-driven knowledge loss, the 60-day window, and a situational interview that gets far more out of a departure than the usual exit checklist.</p>
+      <span class="read-more">Read the field note <span class="arrow">→</span></span>
+    </a>
+
+    <a class="read-card" href="/amnesia/prevent">
+      <div class="cite">Field guide · 13 min</div>
+      <h3>How to prevent organizational amnesia.</h3>
+      <p>Five prevention systems, what does not work, the week-1 actions any operator can take, and the year-1 rhythm that distinguishes institutions that succeed from those that abandon the work.</p>
+      <span class="read-more">Read the guide <span class="arrow">→</span></span>
+    </a>
+
+    <a class="read-card" href="/amnesia/ai-memory">
+      <div class="cite">Field note · 14 min</div>
+      <h3>AI memory <em>is</em> organizational memory.</h3>
+      <p>Why the AI-memory problem and the organizational-memory problem are the same problem - and what RAG, agents, and long-context models do (and don't) fix about institutional forgetting.</p>
+      <span class="read-more">Read the essay <span class="arrow">→</span></span>
+    </a>
+
+    <a class="read-card" href="/amnesia/tacit-knowledge">
+      <div class="cite">Primer · 11 min</div>
+      <h3>Tacit knowledge: why you can't write it down.</h3>
+      <p>Polanyi's six-word claim - "we know more than we can tell" - and the four-quadrant taxonomy that explains why "just document everything" has never worked.</p>
+      <span class="read-more">Read the primer <span class="arrow">→</span></span>
+    </a>
+
+    <a class="read-card" href="/amnesia/resources">
+      <div class="cite">Reading list · ~30 entries</div>
+      <h3>The curated reading list.</h3>
+      <p>Books, peer-reviewed papers, industry reports, and lectures on organizational memory, knowledge management, and AI memory - annotated for relevance, updated quarterly.</p>
+      <span class="read-more">Open the reading list <span class="arrow">→</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section faq" id="faq" data-screen-label="faq">
+  <div class="section-head">
+    <div class="label">§ 07 · Frequently asked</div>
+    <h2>Questions people ask, with answers.</h2>
+  </div>
+
+  <div class="oa-faq-list">
+    <details>
+      <summary>Is "organizational amnesia" the same thing as "knowledge loss"?</summary>
+      <div class="faq-body"><p>Closely related but not identical. <em>Knowledge loss</em> is the broader phenomenon - anything that removes institutional know-how, including deliberate decisions to stop tracking something. <em>Organizational amnesia</em> is specifically the unintentional, accidental subset: the knowledge the organization didn't mean to lose.</p></div>
+    </details>
+    <details>
+      <summary>Isn't this just an argument for better documentation?</summary>
+      <div class="faq-body"><p>Documentation helps with explicit knowledge - the policies, runbooks, and step-by-step procedures that already exist in writeable form. The harder problem is tacit knowledge: the judgment, relationships, and instinct that don't reduce well to bullet points. The literature is consistent that "write it down" is necessary but never sufficient.</p></div>
+    </details>
+    <details>
+      <summary>How big a problem is this, in dollars?</summary>
+      <div class="faq-body"><p>The most-cited figure is IDC's estimate of $31.5B in annual losses across the Fortune 500 from forgotten organizational knowledge. Kransdorff has put the upper bound, including "experiential non-learning," at up to 9.7% of GDP in developed economies.</p></div>
+    </details>
+    <details>
+      <summary>Who publishes this?</summary>
+      <div class="faq-body"><p>Reattend, which makes organizational memory software. We publish these essays because the problem is the reason the product exists, and understanding it is useful whether or not you ever buy anything. Every figure names its source. More on the <a href="/amnesia/about">About</a> page.</p></div>
+    </details>
+    <details>
+      <summary>Can I suggest a source or a correction?</summary>
+      <div class="faq-body"><p>Yes. Email <span class="mono-inline">pb@reattend.ai</span> with the source or the error. We read everything and correct what does not hold up.</p></div>
+    </details>
+    <details>
+      <summary>How is organizational amnesia related to AI memory?</summary>
+      <div class="faq-body"><p>Closely. The retrieval, ranking, and freshness problems that organizations have always had with their wikis, runbooks, and decision records are the same problems AI engineers are now solving with RAG, vector stores, and agent memory. We argue in <a href="/amnesia/ai-memory">a dedicated essay</a> that AI memory and organizational memory are the same problem - and that the older knowledge-management literature has 30 years of warnings the AI-memory community is now beginning to rediscover.</p></div>
+    </details>
+    <details>
+      <summary>How is this different from "knowledge attrition" or employee turnover?</summary>
+      <div class="faq-body"><p>Departure-driven knowledge loss is one of the five mechanisms (we call it <em>departure</em>); employee turnover is its main driver. But organizational amnesia is broader - knowledge can also evaporate via decay, dispersal, defensiveness, and discontinuity, even in firms with zero turnover. A team that never loses a person can still lose its institutional memory through disuse, fragmentation across systems, and reorgs. See the <a href="#causes">five mechanisms</a>.</p></div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ END NOTE ============ -->
+<section class="section endnote" data-screen-label="endnote">
+  <p class="endnote-q">If your organization, today, lost the five people who tacitly know how everything works - could it remember itself by Monday?</p>
+  <p class="endnote-a">Most organizations cannot. Knowing where you stand on that is the first useful thing.</p>
+  <div class="endnote-actions">
+    <a class="btn" href="/amnesia/quiz"><span>Run the diagnostic</span><span class="arrow">→</span></a>
+    <a class="btn ghost" href="/amnesia/research"><span>Read the research</span><span class="arrow">→</span></a>
+  </div>
+</section>
+
+<nav class="footer" aria-label="Organizational amnesia index">
+  <div>
+    <div class="imprint">organizational amnesia</div>
+    <div class="colophon">An essay series from Reattend on how, why, and at what cost organizations forget. Every figure names its source.</div>
+  </div>
+  <div>
+    <h4>Sections</h4>
+    <ul>
+      <li><a href="/amnesia">Overview</a></li>
+      <li><a href="/amnesia/quiz">Diagnostic (OAQ-12)</a></li>
+      <li><a href="/amnesia/cost">Cost calculator</a></li>
+      <li><a href="/amnesia/research">Research &amp; bibliography</a></li>
+      <li><a href="/amnesia/about">About</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Reading</h4>
+    <ul>
+      <li><a href="/amnesia/signs">10 signs of amnesia</a></li>
+      <li><a href="/amnesia/attrition">Knowledge attrition</a></li>
+      <li><a href="/amnesia/prevent">How to prevent it</a></li>
+      <li><a href="/amnesia/tacit-knowledge">Tacit knowledge</a></li>
+      <li><a href="/amnesia/ai-memory">AI memory</a></li>
+      <li><a href="/amnesia/resources">Reading list</a></li>
+      <li><a href="/blog/what-is-organizational-amnesia">The long-form essay</a></li>
+      <li><a href="/amnesia#faq">FAQ</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <ul>
+      <li><a href="mailto:pb@reattend.ai">pb@reattend.ai</a></li>
+      <li><a href="/product">The Reattend product</a></li>
+    </ul>
+  </div>
+</nav>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      <p style="margin-top: 12px; font-size: 12px;">Read more about how <a href="/amnesia" style="color: var(--accent); text-decoration: underline;">Organizational Amnesia</a> is affecting your business.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="/login">Sign in</a>
+      <a href="/integrations">Integrations</a>
+    </div>
+    <div class="footer-col">
+      <h5>Capabilities</h5>
+      <a href="/product#capture">Capture</a>
+      <a href="/product#connect">Connect</a>
+      <a href="/product#recall">Recall</a>
+      <a href="/product#run">Run</a>
+      <a href="/product#govern">Govern</a>
+      <a href="/product#deploy">Deploy</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/coming-soon">Careers</a>
+      <a href="/coming-soon">Press</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="/blog">Blog</a>
+      <a href="/glossary">Glossary</a>
+      <a href="/amnesia">Organizational amnesia</a>
+      <a href="/help">Help center</a>
+      <a href="/tool">Free tools</a>
+      <a href="/game">Free games</a>
+      <a href="/compliance">Trust</a>
+      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;">
+      <a href="/privacy" style="color:inherit;">Privacy</a>
+      <a href="/terms" style="color:inherit;">Terms</a>
+      <a href="/compliance" style="color:inherit;">Compliance</a>
+      <a href="/support" style="color:inherit;">Support</a>
+    </span>
+  </div>
+</footer>
+
+<style>
+/* ---------- Hero ---------- */
+.oa .hero {
+  position: relative;
+  min-height: 92vh;
+  padding: 0;
+  overflow: hidden;
+  background: #07070a;
+  border-bottom: 1px solid var(--rule);
+}
+.oa #hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 0.55;
+}
+.oa .hero::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.78) 35%, rgba(7,7,10,0.35) 70%, rgba(7,7,10,0.0) 100%),
+    linear-gradient(180deg, rgba(7,7,10,0.4) 0%, rgba(7,7,10,0.0) 30%, rgba(7,7,10,0.0) 70%, rgba(7,7,10,0.6) 100%);
+  pointer-events: none;
+}
+.oa .hero-grid {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  gap: 56px;
+  padding: 110px var(--gutter) 80px;
+  min-height: 92vh;
+  align-items: start;
+}
+.oa .hero-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 14px;
+  display: grid;
+  gap: 14px;
+}
+.oa .hero-meta .meta-row { display: grid; grid-template-columns: 80px 1fr; gap: 10px; }
+.oa .hero-meta .k { color: var(--fg-mute); text-transform: uppercase; }
+.oa .hero-meta .v { color: var(--fg); }
+.oa .hero-meta .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); margin-right: 6px;
+  box-shadow: 0 0 0 0 rgba(127,176,105,0.7);
+  animation: pulse 2.4s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(127,176,105,0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(127,176,105,0); }
+  100% { box-shadow: 0 0 0 0 rgba(127,176,105,0); }
+}
+
+.oa .hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+  margin-bottom: 28px;
+}
+.oa .hero-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(46px, 7.4vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin: 0 0 28px;
+  text-wrap: balance;
+  text-shadow: 0 2px 30px rgba(7,7,10,0.95), 0 1px 6px rgba(7,7,10,0.9);
+}
+.oa .hero-title em {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-weight: 400;
+}
+.oa .hero-deck {
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.55;
+  max-width: 48ch;
+  color: var(--fg-dim);
+  margin: 0 0 36px;
+  text-wrap: pretty;
+  text-shadow: 0 1px 12px rgba(7,7,10,0.9);
+}
+.oa .hero-deck strong { color: var(--fg); font-weight: 500; }
+.oa .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.oa .btn.ghost { color: var(--fg-dim); }
+
+.oa .hero-aside {
+  border-left: 1px solid var(--rule-strong);
+  padding-left: 28px;
+  margin-top: 8px;
+}
+.oa .hero-fig .figure { color: var(--accent); font-size: clamp(64px, 7vw, 104px); }
+.oa .hero-fig .cite { margin-top: 16px; color: var(--fg-dim); }
+
+.oa .hero-foot {
+  position: absolute;
+  bottom: 0; left: 0; right: 0; z-index: 2;
+  display: flex; justify-content: space-between;
+  padding: 18px var(--gutter);
+  border-top: 1px solid var(--rule);
+  background: rgba(7,7,10,0.7);
+  backdrop-filter: blur(6px);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+}
+
+@media (max-width: 1000px) {
+  .oa .hero-grid { grid-template-columns: 1fr; gap: 40px; padding: 80px var(--gutter) 100px; }
+  .oa .hero-aside { border-left: none; border-top: 1px solid var(--rule-strong); padding-left: 0; padding-top: 24px; }
+}
+
+/* ---------- Definition ---------- */
+.oa .defn-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; }
+.oa .defn-side { display: grid; gap: 24px; align-content: start; }
+.oa .defn-card {
+  border: 1px solid var(--rule);
+  padding: 24px;
+  background: var(--bg-2);
+}
+.oa .defn-card .cite { margin-bottom: 10px; }
+.oa .defn-card .cite.muted { margin-top: 12px; color: var(--fg-mute); margin-bottom: 0; }
+.oa .defn-card p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--fg-dim); }
+.oa .defn-card p strong { color: var(--fg); }
+.oa .taxonomy { list-style: none; padding: 0; margin: 0; font-family: var(--mono); font-size: 12px; line-height: 2.1; color: var(--fg-dim); }
+.oa .taxonomy.num { counter-reset: tx; }
+.oa .taxonomy.num li { counter-increment: tx; font-family: var(--serif); font-size: 14px; line-height: 1.5; margin-bottom: 6px; color: var(--fg-dim); padding-left: 28px; position: relative; }
+.oa .taxonomy.num li::before { content: counter(tx, lower-roman) "."; position: absolute; left: 0; font-family: var(--mono); font-size: 11px; color: var(--fg-mute); top: 4px; }
+.oa .taxonomy.num li strong { color: var(--fg); }
+@media (max-width: 900px) { .oa .defn-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Stats ---------- */
+.oa .stats { background: var(--bg-2); }
+.oa .stat-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.oa .stat { padding: 32px 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 14px; align-content: end; min-height: 220px; }
+.oa .stat.big { background: var(--bg-3); }
+.oa .stat .figure { color: var(--fg); }
+.oa .stat.big .figure { color: var(--accent); }
+.oa .stat-cap { font-size: 14.5px; line-height: 1.5; color: var(--fg-dim); max-width: 36ch; }
+.oa .stat .cite { color: var(--fg-mute); }
+@media (max-width: 980px) { .oa .stat-grid { grid-template-columns: 1fr 1fr; } .oa .stat.big { grid-column: 1 / -1; } }
+
+.oa .chart-block { display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; align-items: start; }
+.oa .chart-title h3 { font-family: var(--serif); font-weight: 400; font-size: 24px; line-height: 1.2; margin: 8px 0 16px; max-width: 22ch; text-wrap: balance; }
+.oa .chart-deck { font-size: 15px; color: var(--fg-dim); line-height: 1.55; max-width: 36ch; }
+.oa .chart-frame { border: 1px solid var(--rule); padding: 20px; background: var(--bg-3); }
+.oa .chart-svg { width: 100%; height: auto; display: block; }
+.oa .chart-legend { display: flex; gap: 24px; margin-top: 16px; font-family: var(--mono); font-size: 11px; color: var(--fg-mute); flex-wrap: wrap; }
+.oa .sw { display: inline-block; width: 14px; height: 8px; vertical-align: middle; margin-right: 6px; }
+.oa .sw.moss { background: var(--accent); }
+.oa .sw.amber { background: transparent; border-top: 1px dashed var(--rule-strong); width: 18px; }
+@media (max-width: 900px) { .oa .chart-block { grid-template-columns: 1fr; } }
+
+.oa .bars-block { display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; align-items: start; }
+.oa .bars-title h3 { font-family: var(--serif); font-weight: 400; font-size: 24px; line-height: 1.2; margin: 8px 0 16px; max-width: 22ch; }
+.oa .bars-title p { font-size: 15px; color: var(--fg-dim); line-height: 1.55; max-width: 36ch; }
+.oa .bars { display: grid; gap: 16px; }
+.oa .bar-row { display: grid; grid-template-columns: 240px 1fr 70px; gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.oa .bar-label { font-size: 14.5px; color: var(--fg); }
+.oa .bar { height: 14px; background: var(--bg-3); position: relative; }
+.oa .bar-fill { height: 100%; background: var(--fg); transition: width 800ms ease; }
+.oa .bar-val { font-family: var(--mono); font-size: 12px; color: var(--fg-dim); text-align: right; font-feature-settings: "tnum"; }
+@media (max-width: 900px) { .oa .bars-block { grid-template-columns: 1fr; } .oa .bar-row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ---------- Causes ---------- */
+.oa .cause-list { list-style: none; padding: 0; margin: 0; counter-reset: cs; }
+.oa .cause { display: grid; grid-template-columns: 120px 1fr; gap: 40px; padding: 36px 0; border-top: 1px solid var(--rule); }
+.oa .cause:last-child { border-bottom: 1px solid var(--rule); }
+.oa .cause-num { font-family: var(--mono); font-size: 12px; color: var(--fg-mute); letter-spacing: 0.06em; }
+.oa .cause-body h3 { font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 12px; }
+.oa .cause-body p { max-width: 60ch; color: var(--fg-dim); margin: 0 0 18px; }
+.oa .cause-body p strong { color: var(--fg); font-weight: 500; }
+.oa .cause-stat { display: flex; align-items: baseline; gap: 18px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.oa .cause-stat .figure.small { font-size: 42px; line-height: 1; color: var(--accent); }
+.oa .cause-stat .cite { max-width: 40ch; color: var(--fg-dim); text-transform: none; letter-spacing: 0; line-height: 1.5; font-size: 12px; }
+@media (max-width: 720px) { .oa .cause { grid-template-columns: 1fr; gap: 12px; } }
+
+/* ---------- Methodology ---------- */
+.oa .method-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 56px; }
+.oa .method-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 24px; }
+.oa .method-steps li { display: grid; grid-template-columns: 60px 1fr; gap: 16px; border-top: 1px solid var(--rule); padding-top: 18px; }
+.oa .step-num { font-family: var(--mono); font-size: 12px; color: var(--fg-mute); letter-spacing: 0.06em; padding-top: 4px; }
+.oa .method-steps h4 { font-family: var(--serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; color: var(--fg); }
+.oa .method-steps p { margin: 0; font-size: 15px; color: var(--fg-dim); line-height: 1.55; max-width: 50ch; }
+.oa .method-cta { margin-top: 56px; }
+@media (max-width: 900px) { .oa .method-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Tools (diagnostic + cost) ---------- */
+.oa .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.oa .tool-card { padding: 40px 32px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 14px; align-content: start; background: var(--bg-3); }
+.oa .tool-card h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.2; margin: 6px 0 4px; max-width: 22ch; text-wrap: balance; }
+.oa .tool-card p { color: var(--fg-dim); font-size: 15.5px; line-height: 1.6; max-width: 50ch; margin: 0 0 10px; }
+.oa .tool-card .btn { justify-self: start; }
+.oa .tool-card .tool-foot { margin-top: 6px; }
+@media (max-width: 800px) { .oa .tool-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Reading ---------- */
+.oa .read-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.oa .read-card {
+  padding: 32px 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  display: grid; gap: 12px; align-content: start;
+  background: var(--bg-3); color: var(--fg);
+  border-bottom: 1px solid var(--rule); transition: background 160ms ease;
+}
+.oa .read-card:hover { background: var(--bg); border-bottom-color: var(--accent); color: var(--fg); }
+.oa .read-card .cite { color: var(--fg-mute); }
+.oa .read-card h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 1.25; margin: 4px 0 6px; max-width: 24ch; text-wrap: balance; }
+.oa .read-card h3 em { font-style: italic; color: var(--fg-dim); }
+.oa .read-card p { color: var(--fg-dim); font-size: 14.5px; line-height: 1.55; margin: 0 0 4px; }
+.oa .read-card .read-more { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 6px; }
+.oa .read-card .read-more .arrow { transition: transform 200ms ease; display: inline-block; }
+.oa .read-card:hover .read-more .arrow { transform: translateX(4px); }
+@media (max-width: 1100px) { .oa .read-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px) { .oa .read-grid { grid-template-columns: 1fr; } }
+
+/* ---------- FAQ ---------- */
+.oa .oa-faq-list { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.oa .oa-faq-list details { border-bottom: 1px solid var(--rule); padding: 20px 0; }
+.oa .oa-faq-list summary { font-family: var(--serif); font-size: 19px; line-height: 1.4; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+.oa .oa-faq-list summary::-webkit-details-marker { display: none; }
+.oa .oa-faq-list summary::after { content: "+"; font-family: var(--mono); font-weight: 400; color: var(--fg-mute); font-size: 18px; }
+.oa .oa-faq-list details[open] summary::after { content: "−"; color: var(--accent); }
+.oa .faq-body { margin-top: 12px; max-width: 64ch; color: var(--fg-dim); line-height: 1.6; font-size: 16px; }
+.oa .faq-body a { color: var(--fg); border-bottom: 1px solid var(--rule-strong); }
+.oa .mono-inline { font-family: var(--mono); font-size: 0.92em; background: var(--bg-3); padding: 1px 6px; }
+
+/* ---------- Endnote ---------- */
+.oa .endnote { background: var(--bg); text-align: center; padding-top: 140px; padding-bottom: 140px; }
+.oa .endnote-q { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(28px, 4.4vw, 56px); line-height: 1.15; margin: 0 auto 28px; max-width: 22ch; text-wrap: balance; color: var(--fg); }
+.oa .endnote-a { font-size: clamp(17px, 1.6vw, 20px); color: var(--fg-dim); max-width: 38ch; margin: 0 auto 40px; line-height: 1.5; }
+.oa .endnote-actions { display: inline-flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+</style>
+
+
+<script src="/landing-design/amnesia/hero.js"></script>
+<script>
+  const bars = document.querySelectorAll('.bar-fill');
+  const finalWidths = Array.from(bars).map(b => b.style.width);
+  bars.forEach(b => b.style.width = '0%');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        bars.forEach((b, i) => setTimeout(() => { b.style.width = finalWidths[i]; }, i * 120));
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const target = document.querySelector('.bars-block');
+  if (target) obs.observe(target);
+</script>
+
+<script src="/landing-design/site-refresh.js" defer></script>
+</body>
+</html>

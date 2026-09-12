@@ -3008,7 +3008,7 @@ footer {
   .topbar-inner { padding: 10px 14px; }
 
   /* Hero h1 cap so massive serif headlines don't overflow */
-  h1, .hv2-h1, .pr-hero h1, .sup-hero h1, .int-hero h1, .sandbox-hero h1 {
+  h1:not(:where(.oa *)), .hv2-h1, .pr-hero h1, .sup-hero h1, .int-hero h1, .sandbox-hero h1 {
     font-size: clamp(36px, 9vw, 56px) !important;
     line-height: 1.05 !important;
   }

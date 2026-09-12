@@ -21,8 +21,9 @@ export function MarketingFooter() {
           </Link>
           <p>Organizational memory for teams that can&apos;t afford to forget. Built by Reattend Technologies Private Limited.</p>
           <p style={{ marginTop: 12, fontSize: 12 }}>
-            Researching the problem? Read our essays at{' '}
-            <a href="https://organizationalamnesia.com" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>organizationalamnesia.com</a>.
+            Read more about how{' '}
+            <Link href="/amnesia" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Organizational Amnesia</Link>{' '}
+            is affecting your business.
           </p>
         </div>
         <div className="footer-col">
@@ -54,6 +55,7 @@ export function MarketingFooter() {
           <h5>Resources</h5>
           <Link href="/blog">Blog</Link>
           <Link href="/glossary">Glossary</Link>
+          <Link href="/amnesia">Organizational amnesia</Link>
           <Link href="/help">Help center</Link>
           <Link href="/tool">Free tools</Link>
           <Link href="/game">Free games</Link>

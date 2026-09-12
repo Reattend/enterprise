@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import path from 'path'
+import { CHROME_WEB_STORE_URL } from '@/lib/extension'
 
 const ALLOWED_FILES: Record<string, string> = {
   'Reattend_0.1.0_aarch64.dmg': 'application/x-apple-diskimage',
   'Reattend_0.1.0_x64-setup.exe': 'application/vnd.microsoft.portable-executable',
   'Reattend_x64-setup.exe': 'application/vnd.microsoft.portable-executable',
   'Reattend.dmg': 'application/x-apple-diskimage',
-  'reattend-extension.zip': 'application/zip',
 }
 
 export async function GET(
@@ -16,6 +16,13 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   const { filename } = await params
+
+  // The extension is published on the Chrome Web Store (2026-09-12). The old
+  // unpacked zip was an unreviewed build; send anyone holding that link to the
+  // store instead of handing it out.
+  if (filename === 'reattend-extension.zip') {
+    return NextResponse.redirect(CHROME_WEB_STORE_URL, 301)
+  }
 
   const mimeType = ALLOWED_FILES[filename]
   if (!mimeType) {

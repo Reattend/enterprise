@@ -39,17 +39,16 @@ body {
   color: var(--ink);
 }
 
+/* The /amnesia essays (.oa) keep their own serif and italic type. :where()
+   keeps these selectors at their original specificity, so every other
+   page renders exactly as before. */
 html,
 body,
-body * {
-  font-family: var(--font) !important;
-}
+body *:not(:where(.oa, .oa *)) { font-family: var(--font) !important; }
 
-body *,
-body *::before,
-body *::after {
-  font-style: normal !important;
-}
+body *:not(:where(.oa, .oa *)),
+body *:not(:where(.oa, .oa *))::before,
+body *:not(:where(.oa, .oa *))::after { font-style: normal !important; }
 
 body::before { opacity: 0.22; }
 ::selection { background: var(--lime); color: #2b391d; }

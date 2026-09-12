@@ -60,7 +60,7 @@ export const BLOG_CONTENT: Record<string, React.ReactNode> = {
     <>
       <P>
         <Strong>Organizational amnesia is the loss of institutional knowledge that happens when employees leave, transfer, or retire - taking their context, decisions, relationships, and unwritten know-how with them.</Strong>
-        It is one of the most expensive and most invisible costs in modern knowledge work. Researchers estimate it costs US companies alone <Strong>$31.5 billion per year</Strong>, and that number rises every year as average employee tenure shortens.
+        It is one of the most expensive and most invisible costs in modern knowledge work. IDC estimates it costs the Fortune 500 alone <Strong>$31.5 billion a year</Strong>, and the pressure grows as average employee tenure shortens. We keep a whole <a href="/amnesia" className="text-[#4F46E5] hover:underline">series on organizational amnesia</a>; this essay is the overview.
       </P>
       <P>
         Most companies do not have a name for it. They feel the symptoms - repeated mistakes, slow new-hire ramp-up, decisions re-debated quarterly, customers asking the same question three times - but they treat each symptom as a one-off. They are not. They are all expressions of the same underlying problem: your organization has no memory.
@@ -127,10 +127,13 @@ export const BLOG_CONTENT: Record<string, React.ReactNode> = {
         The org adopts a system that captures knowledge as a byproduct of work, not as additional work. AI summarizes meetings automatically. Decisions log themselves. Exit interviews are run by an AI that asks the right questions. The org now <em>has</em> a memory that survives any single person leaving.
       </P>
       <P>
-        Most teams are stuck somewhere between stage 1 and stage 3. Stage 4 is the goal.
+        Most teams are stuck somewhere between stage 1 and stage 3. Stage 4 is the goal. The <a href="/amnesia/quiz" className="text-[#4F46E5] hover:underline">four-minute diagnostic</a> gives a rough read on where yours sits.
       </P>
 
       <H2>10 signs your company has organizational amnesia</H2>
+      <P>
+        A longer version, with what each sign usually means, is in the <a href="/amnesia/signs" className="text-[#4F46E5] hover:underline">field guide</a>.
+      </P>
       <OL>
         <li><Strong>The same decision gets re-debated every 6 months.</Strong> Pricing tiers, hiring rubric, meeting cadence - these surface again because nobody remembers why we landed where we did.</li>
         <li><Strong>New hires take 90+ days to ramp.</Strong> Most of that time is them asking questions that have been answered before, just not anywhere they can find.</li>
@@ -149,15 +152,18 @@ export const BLOG_CONTENT: Record<string, React.ReactNode> = {
         Putting a number on it is genuinely hard because the cost is distributed across thousands of micro-events. Researchers have tried:
       </P>
       <UL>
-        <li>Panopto&apos;s 2018 <em>Workplace Knowledge and Productivity Report</em> estimated US businesses lose <Strong>$47 million per year per 1,000 employees</Strong> from inefficient knowledge sharing - roughly $31.5 billion across the Fortune 500 alone.</li>
+        <li>Panopto&apos;s 2018 <em>Workplace Knowledge and Productivity Report</em> estimated the average large US business loses <Strong>$47 million a year</Strong> to inefficient knowledge sharing - about $8 million for a 3,000-person company. IDC separately put the loss across the Fortune 500 at $31.5 billion a year.</li>
         <li>McKinsey&apos;s 2012 study found knowledge workers spend <Strong>1.8 hours per day</Strong> searching for information. At a $50/hour blended rate, that is roughly $22,500 per knowledge worker per year - most of it caused by amnesia.</li>
-        <li>IDC&apos;s research found employees waste <Strong>5.3 hours per week</Strong> waiting for information from coworkers - knowledge they should have been able to find on their own if it existed in a system.</li>
+        <li>The same Panopto survey found knowledge workers waste <Strong>5.3 hours a week</Strong> waiting for information from colleagues or recreating knowledge that already exists.</li>
       </UL>
       <P>
-        These numbers are conservative because they count only direct time loss. They do not count repeated mistakes, lost customers, slow product decisions, or the morale tax of people feeling like they are reinventing wheels every quarter.
+        These numbers are conservative because they count only direct time loss. To estimate your own, try the <a href="/amnesia/cost" className="text-[#4F46E5] hover:underline">cost calculator</a>. They do not count repeated mistakes, lost customers, slow product decisions, or the morale tax of people feeling like they are reinventing wheels every quarter.
       </P>
 
       <H2>How to prevent organizational amnesia</H2>
+      <P>
+        The short version is below. The <a href="/amnesia/prevent" className="text-[#4F46E5] hover:underline">full prevention guide</a> covers what does not work and a first-week plan.
+      </P>
 
       <H3>1. Capture decisions with rationale, not just outcomes</H3>
       <P>

@@ -19,12 +19,9 @@ export const JSON_LD_GRAPH = {
       name: 'Reattend',
       url: 'https://reattend.com',
       logo: 'https://reattend.com/black_logo.svg',
-      sameAs: [
-        // Sister content domains - same brand, separate authority play.
-        // See docs/organizational-amnesia-domains.md.
-        'https://organizationalamnesia.com',
-        'https://organisationalamnesia.com',
-      ],
+      // sameAs used to list organizationalamnesia.com and its en-GB twin as
+      // sister domains. Both now 301 to reattend.com/amnesia (2026-09-11), so
+      // they are no longer separate profiles of this organization.
       description:
         'Reattend is the organizational memory layer for fast-moving teams. Decisions, context, and the why behind them - captured, linked, and recalled even when people leave, transfer, or change roles.',
     },

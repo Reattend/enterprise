@@ -16,6 +16,17 @@ const nextConfig = {
       'pdfjs-dist',
     ],
   },
+  // The extension is on the Chrome Web Store now (2026-09-12). Old links to
+  // the unpacked zip go to the listing rather than a stale, unreviewed build.
+  async redirects() {
+    return [
+      {
+        source: '/downloads/reattend-extension.zip',
+        destination: 'https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl',
+        permanent: true,
+      },
+    ]
+  },
   // Strip Next.js font preload Link headers from API routes.
   // Chrome extension popups receive these headers and emit "preloaded but not used" warnings.
   async headers() {

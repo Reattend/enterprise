@@ -15,6 +15,7 @@
 // here flips every download link in one edit.
 
 import Link from 'next/link'
+import { CHROME_WEB_STORE_URL } from '@/lib/extension'
 import {
   Apple, Chrome, ExternalLink, Sparkles, Mic, Layers,
   MonitorPlay, ShieldCheck,
@@ -23,8 +24,7 @@ import {
 const LATEST_VERSION = '0.1.13'
 const MAC_HREF = `/downloads/Reattend_${LATEST_VERSION}_aarch64.app.zip`
 const WIN_HREF = `/downloads/Reattend_${LATEST_VERSION}_x64-setup.exe`
-const CHROME_STORE_HREF =
-  'https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl'
+const CHROME_STORE_HREF = CHROME_WEB_STORE_URL
 
 export default function DownloadsPage() {
   return (

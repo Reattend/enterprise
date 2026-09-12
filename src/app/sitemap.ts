@@ -121,8 +121,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.3,
   }))
 
+  // /amnesia - the organizational amnesia series, moved here from
+  // organizationalamnesia.com (which now 301s page-for-page to these URLs).
+  const amnesia: MetadataRoute.Sitemap = [
+    { path: '/amnesia', priority: 0.9 },
+    ...['signs', 'attrition', 'prevent', 'tacit-knowledge', 'ai-memory', 'quiz', 'cost']
+      .map((s) => ({ path: `/amnesia/${s}`, priority: 0.8 })),
+    ...['research', 'resources', 'about'].map((s) => ({ path: `/amnesia/${s}`, priority: 0.5 })),
+  ].map(({ path, priority }) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: BUILD_DATE,
+    changeFrequency: 'monthly' as const,
+    priority,
+  }))
+
   return [
     ...marketingPages,
+    ...amnesia,
     ...freeTools,
     ...games,
     ...legal,

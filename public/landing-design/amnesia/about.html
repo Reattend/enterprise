@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About - Organizational Amnesia</title>
+<meta name="description" content="Who publishes these essays on organizational amnesia, where the figures come from, and how to send a correction." />
+<link rel="icon" type="image/svg+xml" href="/landing-design/black_logo.svg" />
+<link rel="icon" type="image/png" sizes="128x128" href="/landing-design/black_logo.png" />
+<link rel="apple-touch-icon" href="/landing-design/black_logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap" rel="stylesheet" />
+<style>
+/* Reattend's header and footer styles sit in the "rt" cascade layer. The
+   essay stylesheet below is unlayered and scoped to .oa, so it always wins
+   inside the essay body, and "oareset" rolls back anything reattend's
+   element rules (section, p, a, h1...) would otherwise add there. Net
+   effect: .oa renders exactly as it did on the old standalone site. */
+@layer rt, oareset;
+@import url("/landing-design/styles.css?v=18oa") layer(rt);
+@import url("/landing-design/site-refresh.css?v=oa1") layer(rt);
+@layer oareset { .oa, .oa *:not(svg, svg *) { all: revert; } }
+</style>
+<link rel="stylesheet" href="/landing-design/amnesia/site.css?v=1" />
+<script src="/landing-design/auth-cta.js" defer></script>
+<script src="/landing-design/mobile-menu.js" defer></script>
+</head>
+<body data-page="team" class="oa-page">
+
+<header class="topbar">
+<div class="topbar-inner">
+<a class="brand" href="/" aria-label="Reattend home">
+<img class="brand-logo" src="/landing-design/black_logo.svg" alt="" width="30" height="30">
+<span class="brand-word">Reattend</span>
+</a>
+<nav class="nav" aria-label="Main navigation">
+<a class="nav-item" href="/">Home</a>
+<a class="nav-item" href="/product">Product</a>
+<a class="nav-item" href="/integrations">Integrations</a>
+<a class="nav-item" href="/pricing">Pricing</a>
+<a class="nav-item" href="/compliance">Compliance</a>
+</nav>
+<div style="display:flex; gap:8px;">
+<a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a><a class="btn btn-primary btn-fill" href="/register">Start free</a>
+</div>
+</div>
+</header>
+
+<div class="oa" data-page="team">
+<div class="topbar">
+  <a href="/amnesia" class="brand">organizational amnesia</a>
+  <div class="center">How organizations forget</div>
+  <nav aria-label="Organizational amnesia sections"><a href="/amnesia">Overview</a><a href="/amnesia/quiz">Diagnostic</a><a href="/amnesia/cost">Cost</a><a href="/amnesia/research">Research</a><a href="/amnesia/about" class="active">About</a></nav>
+</div>
+
+<section class="oa-page-hero">
+  <div class="ph-inner">
+    <div class="eyebrow">§ About</div>
+    <h1>Why a memory company writes about forgetting.</h1>
+    <p class="lede">These essays are published by Reattend, which makes organizational memory software. We write them because the problem is older and larger than any product, and most of what gets said about it online is either vendor copy or one recycled statistic.</p>
+  </div>
+</section>
+
+<section class="section" id="charter">
+  <div class="section-head">
+    <div class="label">§ Charter</div>
+    <h2>What this is, and what it is not.</h2>
+  </div>
+
+  <div class="charter-grid">
+    <div class="charter-col">
+      <h3>What this is</h3>
+      <ul class="charter-list">
+        <li>A plain-language guide to the published research on organizational forgetting, knowledge loss and corporate amnesia.</li>
+        <li>Figures with their sources attached. Every number names the paper, book or report it comes from.</li>
+        <li>Two free tools, a self-assessment and a cost estimator. Both run in your browser and store nothing.</li>
+        <li>A reading list of the books and papers worth your time.</li>
+      </ul>
+    </div>
+    <div class="charter-col">
+      <h3>What this is not</h3>
+      <ul class="charter-list muted">
+        <li>Original field research. We have not run our own studies. Where an essay makes an argument rather than reports a finding, it says so.</li>
+        <li>A validated test. The diagnostic is a structured way to think about exposure, not a psychometric instrument.</li>
+        <li>Neutral about software. We build a product in this space, and the essays say so where it is relevant.</li>
+        <li>Gated. Nothing here asks for your email address.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="structure" style="background: var(--bg-2);">
+  <div class="section-head">
+    <div class="label">§ Details</div>
+    <h2>Who is behind it, and how to reach us.</h2>
+  </div>
+
+  <div class="struct-grid">
+    <div class="struct-card">
+      <div class="cite">Publisher</div>
+      <h3>Reattend</h3>
+      <p>Reattend Technologies Private Limited builds organizational memory software. The essays live on reattend.com so you can see who wrote them.</p>
+    </div>
+    <div class="struct-card">
+      <div class="cite">Sources</div>
+      <h3>Published research</h3>
+      <p>The essays draw on the organizational-behavior and knowledge-management literature. The <a href="/amnesia/research#bibliography">bibliography</a> lists the core texts.</p>
+    </div>
+    <div class="struct-card">
+      <div class="cite">Corrections</div>
+      <h3>Tell us what is wrong</h3>
+      <p>Found an error, a stronger source, or a claim that does not hold up? Email <span class="mono-inline">pb@reattend.ai</span> and we will correct it.</p>
+    </div>
+    <div class="struct-card">
+      <div class="cite">The product</div>
+      <h3>If you want the tool</h3>
+      <p>Reattend captures decisions, context and the reasons behind them as work happens, so the answer is still there after the person who knew it has moved on. <a href="/product">See how it works</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section endnote">
+  <p class="endnote-q">Most organizations do not know what they have already forgotten.</p>
+  <p class="endnote-a">Four minutes with the diagnostic is a reasonable place to start.</p>
+  <div class="endnote-actions">
+    <a class="btn" href="/amnesia/quiz"><span>Take the diagnostic</span><span class="arrow">→</span></a>
+    <a class="btn ghost" href="mailto:pb@reattend.ai"><span>pb@reattend.ai</span><span class="arrow">→</span></a>
+  </div>
+</section>
+
+<nav class="footer" aria-label="Organizational amnesia index">
+  <div>
+    <div class="imprint">organizational amnesia</div>
+    <div class="colophon">An essay series from Reattend on how, why, and at what cost organizations forget. Every figure names its source.</div>
+  </div>
+  <div>
+    <h4>Sections</h4>
+    <ul>
+      <li><a href="/amnesia">Overview</a></li>
+      <li><a href="/amnesia/quiz">Diagnostic (OAQ-12)</a></li>
+      <li><a href="/amnesia/cost">Cost calculator</a></li>
+      <li><a href="/amnesia/research">Research &amp; bibliography</a></li>
+      <li><a href="/amnesia/about">About</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Reading</h4>
+    <ul>
+      <li><a href="/amnesia/signs">10 signs of amnesia</a></li>
+      <li><a href="/amnesia/attrition">Knowledge attrition</a></li>
+      <li><a href="/amnesia/prevent">How to prevent it</a></li>
+      <li><a href="/amnesia/tacit-knowledge">Tacit knowledge</a></li>
+      <li><a href="/amnesia/ai-memory">AI memory</a></li>
+      <li><a href="/amnesia/resources">Reading list</a></li>
+      <li><a href="/blog/what-is-organizational-amnesia">The long-form essay</a></li>
+      <li><a href="/amnesia#faq">FAQ</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <ul>
+      <li><a href="mailto:pb@reattend.ai">pb@reattend.ai</a></li>
+      <li><a href="/product">The Reattend product</a></li>
+    </ul>
+  </div>
+</nav>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      <p style="margin-top: 12px; font-size: 12px;">Read more about how <a href="/amnesia" style="color: var(--accent); text-decoration: underline;">Organizational Amnesia</a> is affecting your business.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="/login">Sign in</a>
+      <a href="/integrations">Integrations</a>
+    </div>
+    <div class="footer-col">
+      <h5>Capabilities</h5>
+      <a href="/product#capture">Capture</a>
+      <a href="/product#connect">Connect</a>
+      <a href="/product#recall">Recall</a>
+      <a href="/product#run">Run</a>
+      <a href="/product#govern">Govern</a>
+      <a href="/product#deploy">Deploy</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/coming-soon">Careers</a>
+      <a href="/coming-soon">Press</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="/blog">Blog</a>
+      <a href="/glossary">Glossary</a>
+      <a href="/amnesia">Organizational amnesia</a>
+      <a href="/help">Help center</a>
+      <a href="/tool">Free tools</a>
+      <a href="/game">Free games</a>
+      <a href="/compliance">Trust</a>
+      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;">
+      <a href="/privacy" style="color:inherit;">Privacy</a>
+      <a href="/terms" style="color:inherit;">Terms</a>
+      <a href="/compliance" style="color:inherit;">Compliance</a>
+      <a href="/support" style="color:inherit;">Support</a>
+    </span>
+  </div>
+</footer>
+
+<style>
+.oa .oa-page-hero { padding: 100px var(--gutter) 80px; border-bottom: 1px solid var(--rule); }
+.oa .ph-inner { max-width: 1100px; }
+.oa .oa-page-hero h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(40px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -0.02em; margin: 14px 0 28px; max-width: 22ch; text-wrap: balance; }
+.oa .oa-page-hero .lede { max-width: 60ch; }
+
+.oa .charter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.oa .charter-col h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 18px; }
+.oa .charter-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.oa .charter-list li { padding: 14px 0 14px 20px; border-top: 1px solid var(--rule); position: relative; font-size: 15px; line-height: 1.5; color: var(--fg-dim); max-width: 56ch; }
+.oa .charter-list li::before { content: "·"; position: absolute; left: 0; top: 13px; color: var(--accent); font-size: 18px; }
+.oa .charter-list li:last-child { border-bottom: 1px solid var(--rule); }
+.oa .charter-list.muted li::before { color: var(--warn); content: "×"; font-size: 14px; top: 14px; }
+@media (max-width: 800px) { .oa .charter-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.oa .struct-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.oa .struct-card { padding: 32px 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 12px; align-content: start; }
+.oa .struct-card h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0; }
+.oa .struct-card p { margin: 0; color: var(--fg-dim); font-size: 15px; line-height: 1.55; max-width: 50ch; }
+@media (max-width: 720px) { .oa .struct-grid { grid-template-columns: 1fr; } }
+
+.oa .partner-intro { margin-bottom: 32px; }
+.oa .partner-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.oa .partner { padding: 24px 22px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 8px; min-height: 140px; }
+.oa .partner-tag { font-family: var(--mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 0.1em; text-transform: uppercase; }
+.oa .partner-name { font-family: var(--serif); font-size: 17px; line-height: 1.3; color: var(--fg); margin-top: auto; }
+.oa .partner-meta { font-family: var(--mono); font-size: 11px; color: var(--fg-mute); display: flex; gap: 16px; }
+.oa .partner.ghost .partner-name { color: var(--accent); font-style: italic; }
+@media (max-width: 980px) { .oa .partner-grid { grid-template-columns: repeat(2, 1fr); } }
+.oa .mono-inline { font-family: var(--mono); font-size: 0.92em; background: var(--bg-3); padding: 1px 6px; }
+</style>
+
+
+<script src="/landing-design/site-refresh.js" defer></script>
+</body>
+</html>

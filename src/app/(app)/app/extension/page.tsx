@@ -9,13 +9,14 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Key, Copy, Check, Eye, EyeOff, Chrome, Shield, Loader2, Trash2, Download, Puzzle,
+  Key, Copy, Check, Eye, EyeOff, Chrome, Shield, Loader2, Trash2, ExternalLink, Puzzle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { CHROME_WEB_STORE_URL } from '@/lib/extension'
 
 interface ApiToken {
   id: string
@@ -125,21 +126,20 @@ export default function ExtensionPage() {
           <CardTitle className="text-base flex items-center gap-2">
             <Chrome className="h-4 w-4 text-[#4F46E5]" /> Reattend for Chrome
           </CardTitle>
-          <CardDescription>Not on the Chrome Web Store yet - install unpacked, takes about a minute.</CardDescription>
+          <CardDescription>Install from the Chrome Web Store. The same extension works with personal and team accounts.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <Button asChild>
-              <a href="/api/download/reattend-extension.zip">
-                <Download className="h-4 w-4 mr-1.5" /> Download extension
+              <a href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+                <Chrome className="h-4 w-4 mr-1.5" /> Add to Chrome <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />
               </a>
             </Button>
           </div>
           <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
-            <li>Unzip the download.</li>
-            <li>Open <code className="bg-muted px-1 py-0.5 rounded text-[10px]">chrome://extensions</code>, turn on <strong>Developer mode</strong> (top right).</li>
-            <li><strong>Load unpacked</strong> and select the unzipped folder.</li>
-            <li>Generate a key below, open the extension&apos;s options page, and paste it in.</li>
+            <li>Add Reattend from the Chrome Web Store.</li>
+            <li>Generate a key below.</li>
+            <li>Paste it into the options page, which opens by itself the first time you install.</li>
           </ol>
         </CardContent>
       </Card>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Knowledge Attrition: When Employees Leave, What Leaves With Them</title>
+<meta name="description" content="A field-grade analysis of knowledge attrition - the share of organizational know-how that departs with employees and is never recovered. Drawn from Galan 2023, Massingham 2018 and the wider knowledge-management literature." />
+<meta name="keywords" content="knowledge attrition, employee turnover knowledge loss, tacit knowledge departure, exit interviews, organizational memory" />
+<meta property="article:published_time" content="2026-05-05" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Knowledge Attrition: When Employees Leave, What Leaves With Them",
+  "description": "A field-grade analysis of knowledge attrition - the share of organizational know-how that departs with employees and is never recovered.",
+  "author": {
+    "@type": "Organization",
+    "name": "Reattend",
+    "url": "https://reattend.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Reattend",
+    "url": "https://reattend.com"
+  },
+  "datePublished": "2026-05-05",
+  "dateModified": "2026-05-05",
+  "url": "https://reattend.com/amnesia/attrition",
+  "mainEntityOfPage": "https://reattend.com/amnesia/attrition",
+  "keywords": "knowledge attrition, employee turnover, tacit knowledge, exit interviews, organizational memory"
+}
+</script>
+
+<link rel="icon" type="image/svg+xml" href="/landing-design/black_logo.svg" />
+<link rel="icon" type="image/png" sizes="128x128" href="/landing-design/black_logo.png" />
+<link rel="apple-touch-icon" href="/landing-design/black_logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700;750;800&display=swap" rel="stylesheet" />
+<style>
+/* Reattend's header and footer styles sit in the "rt" cascade layer. The
+   essay stylesheet below is unlayered and scoped to .oa, so it always wins
+   inside the essay body, and "oareset" rolls back anything reattend's
+   element rules (section, p, a, h1...) would otherwise add there. Net
+   effect: .oa renders exactly as it did on the old standalone site. */
+@layer rt, oareset;
+@import url("/landing-design/styles.css?v=18oa") layer(rt);
+@import url("/landing-design/site-refresh.css?v=oa1") layer(rt);
+@layer oareset { .oa, .oa *:not(svg, svg *) { all: revert; } }
+</style>
+<link rel="stylesheet" href="/landing-design/amnesia/site.css?v=1" />
+<script src="/landing-design/auth-cta.js" defer></script>
+<script src="/landing-design/mobile-menu.js" defer></script>
+</head>
+<body data-page="attrition" class="oa-page">
+
+<header class="topbar">
+<div class="topbar-inner">
+<a class="brand" href="/" aria-label="Reattend home">
+<img class="brand-logo" src="/landing-design/black_logo.svg" alt="" width="30" height="30">
+<span class="brand-word">Reattend</span>
+</a>
+<nav class="nav" aria-label="Main navigation">
+<a class="nav-item" href="/">Home</a>
+<a class="nav-item" href="/product">Product</a>
+<a class="nav-item" href="/integrations">Integrations</a>
+<a class="nav-item" href="/pricing">Pricing</a>
+<a class="nav-item" href="/compliance">Compliance</a>
+</nav>
+<div style="display:flex; gap:8px;">
+<a class="btn btn-outline" href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a><a class="btn btn-primary btn-fill" href="/register">Start free</a>
+</div>
+</div>
+</header>
+
+<div class="oa" data-page="attrition">
+<div class="topbar">
+  <a href="/amnesia" class="brand">organizational amnesia</a>
+  <div class="center">How organizations forget</div>
+  <nav aria-label="Organizational amnesia sections"><a href="/amnesia">Overview</a><a href="/amnesia/quiz">Diagnostic</a><a href="/amnesia/cost">Cost</a><a href="/amnesia/research">Research</a><a href="/amnesia/about">About</a></nav>
+</div>
+
+<section class="oa-page-hero">
+  <div class="ph-inner">
+    <div class="eyebrow">§ Field note · 2026</div>
+    <h1>Knowledge attrition: when people leave, what leaves with them.</h1>
+    <p class="lede">Every resignation is a small bankruptcy event. The visible part - the role, the responsibilities, the unfinished projects - is the part the org plans for. The expensive part is everything the departing employee knew that nobody else does, and nobody asked.</p>
+    <div class="cite hero-meta">~12 min read · Field note 2026.03</div>
+  </div>
+</section>
+
+<section class="section essay">
+  <div class="essay-body body">
+
+    <p class="dropcap">Of the five mechanisms by which an organization forgets, departure-driven loss is the most studied, the most quantified, and - counterintuitively - the most preventable. The published field knows what an exit interview should look like. It knows that the weeks around a resignation are when transfer is still possible. It knows that asking about specific past situations draws out far more than a handover checklist. None of this is mystery. It is overwhelmingly under-applied.</p>
+
+    <p>This essay walks through what the literature actually says about knowledge attrition, what fails in practice, and what works - from Galan's 2023 systematic review of 137 turnover-knowledge studies, Massingham's 2018 longitudinal data, and the older Parise/Cross/Davenport synthesis from <em>MIT Sloan Management Review</em>.</p>
+
+    <h2>I. Defining knowledge attrition</h2>
+
+    <p><em>Knowledge attrition</em> is the gradual depletion of organizational know-how attributable to employee departure. It is a subset of <a href="/amnesia#causes">organizational amnesia</a> - specifically the <em>departure</em> mechanism - but it has its own literature, its own measurement instruments, and its own remedies, because the failure mode is bounded in time. The opportunity to prevent each unit of departure-driven loss exists for roughly 60 days on either side of the resignation date. Outside that window, the literature is consistent: the knowledge is not coming back.</p>
+
+    <p>The classical four-type taxonomy from <a href="/amnesia/research#bibliography">Massingham (2018)</a> divides what an employee knows into <strong>conscious</strong> (explicit, individual - what they could write down if asked), <strong>codified</strong> (explicit, social - what is already in the wiki because the team built it together), <strong>automatic</strong> (implicit, individual - the muscle memory of how they actually do their work), and <strong>collective</strong> (implicit, social - the unwritten rules they participate in but cannot themselves articulate). The first two survive most departures, in principle, because they are written down somewhere. The latter two - the <a href="/amnesia/tacit-knowledge">tacit knowledge</a> - are what attrition takes with the body. They are the expensive part.</p>
+
+    <h2>II. What the data actually says about turnover and knowledge loss</h2>
+
+    <p>The empirical picture, gathered across 30 years and roughly 150 published studies (per Galan's review), is unusually convergent. The findings that have replicated:</p>
+
+    <ul class="list">
+      <li><strong>Above 10% annual turnover, productivity degrades measurably.</strong> Below 10%, the noise dominates. The 10% threshold holds across most industries; the curve above it bends fast - going from 10% to 15% costs more than going from 5% to 10%.</li>
+      <li><strong>Tenure is not the same as knowledge.</strong> The most-cited study by tenure-band (Argote, Darr &amp; Epple 1995, on franchise food production) finds the knowledge-depreciation curve is sharply non-linear. Years 2–4 of an employee's tenure encode the bulk of the role-specific tacit knowledge; years 5+ encode much smaller marginal contributions. Losing a 3-year employee and a 15-year employee from the same role is not, in expectation, a 5× difference.</li>
+      <li><strong>Voluntary departures cause more knowledge loss than involuntary ones</strong> - counter to the intuition that layoffs are the worse case. Voluntary departures correlate with seniority and tenure; involuntary ones often target the recently-hired, who hold less tacit knowledge to lose. (Layoffs that target tenured staff invert this; the most damaging organizational events on record are large RIFs in mature firms.)</li>
+      <li><strong>The successor matters more than the protocol.</strong> A named, role-shadowing successor at the time of resignation plausibly does more for retention than any change to the exit interview, because the successor absorbs context that no document captures.</li>
+      <li><strong>Most exit interviews recover almost nothing.</strong> The conventional checklist exit interview (rating manager, listing reasons for leaving, suggesting improvements) recovers tacit knowledge at roughly the rate that asking someone to "list everything they know" does. Which is to say: very little. The literature has been clear about this since the early 2000s.</li>
+    </ul>
+
+    <h2>III. The 60-day window</h2>
+
+    <p>A useful way to frame the problem is what we call the <em>60-day window</em>: the period beginning 30 days before a resignation takes effect and ending 30 days after. Outside this window, knowledge transfer tends to happen at noise-floor levels. Inside it, with the right protocol, far more can be recovered.</p>
+
+    <p>The mechanism is straightforward. Before the window opens, the employee has no incentive to transfer tacit knowledge - they don't know they're leaving, and the institution doesn't know to ask. After the window closes, the employee has lost contextual access (calendar, Slack, codebase, customer relationships) and the receiving party has, in most studies, simply stopped asking. The 60-day window is the only period in which both parties are aware, motivated, and resourced to do the transfer.</p>
+
+    <p>The format we recommend is a walk-through of three specific past situations the employee handled, with follow-up questions about what they did, why, and what they almost did instead. It borrows from knowledge-elicitation methods such as the critical decision method, and it gets far more out of a departure than the usual checklist. The mechanism: walking through situations gives the interviewee the contextual cues that elicit the implicit knowledge they did not, when asked abstractly, know they had. Asking "what did you know about X?" produces a list of generalities. Asking "tell me about the worst incident you handled in 2024 - what happened, what you did, why you chose to do it that way, and what you almost did instead" produces 40 minutes of high-value tacit material that nobody had ever written down.</p>
+
+    <h2>IV. What does not work</h2>
+
+    <p>The negative results from the literature are as informative as the positive ones. These interventions, despite being widely promoted, do not measurably reduce knowledge attrition:</p>
+
+    <ul class="list">
+      <li><strong>Generic exit-interview templates.</strong> The HR-vendor-supplied "rate your manager 1–5" form. The data extracted is not knowledge; it is sentiment. Sentiment is useful for HR strategy but does not address knowledge attrition.</li>
+      <li><strong>"Knowledge transfer documents" as a deliverable.</strong> Asking the departing employee to "write down everything they know" before they leave tends to produce a few pages of material, little of it new to the institution. The deliverable feels like progress; in practice it captures only the conscious-explicit portion of the four-type taxonomy.</li>
+      <li><strong>Recording the last week of meetings.</strong> The information density of a typical knowledge worker's last week is, perversely, low. They are wrapping up, saying goodbyes, transferring access. The actual decision-making is largely behind them. Recording this material for posterity captures the wrap-up, not the work.</li>
+      <li><strong>Boomerang offers.</strong> Counterintuitively, knowing an employee may return reduces the discipline of capturing their knowledge - both parties act as if the transfer is reversible. When the boomerang fails to materialize (which it does, in the literature, more than half the time), the institution discovers it never made the transfer.</li>
+      <li><strong>Increasing salary alone.</strong> Retention reduces departures, but it does not reduce the per-departure knowledge loss. Firms that buy retention without investing in transfer protocol still lose disproportionate amounts of knowledge in the departures they do have. Retention is necessary; it is not, by itself, sufficient.</li>
+    </ul>
+
+    <h2>V. What works</h2>
+
+    <p>Five interventions, ordered roughly by effort-to-impact ratio:</p>
+
+    <ol class="list ordered">
+      <li><strong>Name the successor before announcing the departure.</strong> If the successor is internal, the 30-day pre-departure window can be used for shadow-pairing rather than handover documentation. The transfer surface is much higher. Of everything on this list, it is likely the highest-leverage step.</li>
+      <li><strong>Run the situational walk-through interview.</strong> Block 90 minutes. Pick three past situations the departing employee handled - chosen for difficulty, not for outcome. Walk through each chronologically. Ask "what did you do," "why did you do it that way," and "what did you almost do instead." Record (with consent), transcribe, and have two people code it. Use an interviewer who is not the employee's manager.</li>
+      <li><strong>Capture the unwritten map.</strong> Independent of the situational interview, ask the employee to draw their internal "who-to-call-for-what" map. Names of internal experts, vendors, customers. Their unstructured contact list <em>is</em> a substantial portion of the institutional memory; the institution often does not realize it has been routing critical questions through this person until they leave.</li>
+      <li><strong>Treat the 30-day post-departure period as research time.</strong> When an immediate successor cannot be named, designate a named "knowledge interpreter" who has 30 days to consult the captured material, ask follow-up questions of the still-reachable departed employee, and produce a usable artifact. The 30-day window is the institution's last chance to ask - make sure someone is, in fact, asking.</li>
+      <li><strong>Track Knowledge Loss Ratio (KLR) on a rolling basis.</strong> For each material project failure or near-miss in the year following departures, code whether the contributing knowledge previously existed in the organization. Departures with high downstream KLR are the ones whose protocol was inadequate; the metric is a feedback loop into the next departure's protocol.</li>
+    </ol>
+
+    <h2>VI. The broader context: why turnover is not the only problem</h2>
+
+    <p>It is tempting, when reading the attrition literature, to conclude that the answer is simply to retain employees. The retention literature is its own field; it overlaps with this one but is not the same. Even at zero voluntary turnover, organizations forget - through <a href="/amnesia/signs">decay, dispersal, defensiveness, and discontinuity</a>. A team with a 3% turnover rate that has not refreshed its postmortem habits in five years is amnesiac in a different way, and the cost shows up in the same line items.</p>
+
+    <p>Knowledge attrition is the most visible, most quantifiable, and most preventable form of organizational forgetting. It is also, in most firms, the symptom that gets the most management attention - sometimes at the expense of the four other mechanisms that, overall, may be costing the institution more. Take attrition seriously, but do not assume that solving it solves the broader problem. Run the <a href="/amnesia/quiz">OAQ-12 diagnostic</a> to see where your organization sits across all five mechanisms; use the <a href="/amnesia/cost">cost calculator</a> to put a dollar figure on the aggregate.</p>
+
+    <hr class="rule"/>
+
+    <h2>Further reading</h2>
+
+    <ul class="ref-list">
+      <li><strong>Galan, N.</strong> (2023). Knowledge loss induced by organizational member turnover (Parts I &amp; II). <em>The Learning Organization</em>. The most current systematic review of departure-driven knowledge loss. Reviews 137 studies; unusually clear about which findings replicate.</li>
+      <li><strong>Massingham, P. R.</strong> (2018). Measuring the impact of knowledge loss: A longitudinal study. <em>Journal of Knowledge Management</em>. The four-type taxonomy that organizes the field.</li>
+      <li><strong>Argote, L., Darr, E., &amp; Epple, D.</strong> (1995). The acquisition, transfer and depreciation of knowledge in service organizations. <em>Management Science</em>. The empirical anchor for the tenure-knowledge curve.</li>
+      <li><strong>Parise, S., Cross, R., &amp; Davenport, T. H.</strong> (2006). Strategies for preventing a knowledge-loss crisis. <em>MIT Sloan Management Review</em>. The closest thing to a step-by-step playbook the literature offers.</li>
+      <li><strong>DeLong, D. W.</strong> (2017). <em>Lost knowledge</em>. The practitioner-oriented synthesis. The chapters on baby-boomer retirement waves are especially relevant for institutions facing demographic departure pressure.</li>
+    </ul>
+
+    <p class="cite" style="margin-top:24px">This is a working field note, not a peer-reviewed paper. Feedback at <span class="mono-inline">pb@reattend.ai</span>.</p>
+  </div>
+</section>
+
+<section class="section endnote">
+  <p class="endnote-q">Every resignation is an interview opportunity. Most of them are wasted.</p>
+  <div class="endnote-actions">
+    <a class="btn" href="/amnesia/quiz"><span>Run the diagnostic</span><span class="arrow">→</span></a>
+    <a class="btn ghost" href="/amnesia/cost"><span>Estimate the cost</span><span class="arrow">→</span></a>
+    <a class="btn ghost" href="/amnesia/prevent"><span>How to prevent it</span><span class="arrow">→</span></a>
+  </div>
+</section>
+
+<nav class="footer" aria-label="Organizational amnesia index">
+  <div>
+    <div class="imprint">organizational amnesia</div>
+    <div class="colophon">An essay series from Reattend on how, why, and at what cost organizations forget. Every figure names its source.</div>
+  </div>
+  <div>
+    <h4>Sections</h4>
+    <ul>
+      <li><a href="/amnesia">Overview</a></li>
+      <li><a href="/amnesia/quiz">Diagnostic (OAQ-12)</a></li>
+      <li><a href="/amnesia/cost">Cost calculator</a></li>
+      <li><a href="/amnesia/research">Research &amp; bibliography</a></li>
+      <li><a href="/amnesia/about">About</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Reading</h4>
+    <ul>
+      <li><a href="/amnesia/signs">10 signs of amnesia</a></li>
+      <li><a href="/amnesia/attrition">Knowledge attrition</a></li>
+      <li><a href="/amnesia/prevent">How to prevent it</a></li>
+      <li><a href="/amnesia/tacit-knowledge">Tacit knowledge</a></li>
+      <li><a href="/amnesia/ai-memory">AI memory</a></li>
+      <li><a href="/amnesia/resources">Reading list</a></li>
+      <li><a href="/blog/what-is-organizational-amnesia">The long-form essay</a></li>
+      <li><a href="/amnesia#faq">FAQ</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <ul>
+      <li><a href="mailto:pb@reattend.ai">pb@reattend.ai</a></li>
+      <li><a href="/product">The Reattend product</a></li>
+    </ul>
+  </div>
+</nav>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a class="brand" href="/">
+        <img class="brand-logo" src="/landing-design/black_logo.svg" alt="Reattend" width="28" height="28" />
+        <span class="brand-word">Reattend</span>
+      </a>
+      <p>Organizational memory for teams that can't afford to forget. Built by Reattend Technologies Private Limited.</p>
+      <p style="margin-top: 12px; font-size: 12px;">Read more about how <a href="/amnesia" style="color: var(--accent); text-decoration: underline;">Organizational Amnesia</a> is affecting your business.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="/product">Product</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/compliance">Compliance</a>
+      <a href="/login">Sign in</a>
+      <a href="/integrations">Integrations</a>
+    </div>
+    <div class="footer-col">
+      <h5>Capabilities</h5>
+      <a href="/product#capture">Capture</a>
+      <a href="/product#connect">Connect</a>
+      <a href="/product#recall">Recall</a>
+      <a href="/product#run">Run</a>
+      <a href="/product#govern">Govern</a>
+      <a href="/product#deploy">Deploy</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="/about">About</a>
+      <a href="/coming-soon">Careers</a>
+      <a href="/coming-soon">Press</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="/blog">Blog</a>
+      <a href="/glossary">Glossary</a>
+      <a href="/amnesia">Organizational amnesia</a>
+      <a href="/help">Help center</a>
+      <a href="/tool">Free tools</a>
+      <a href="/game">Free games</a>
+      <a href="/compliance">Trust</a>
+      <a href="https://stats.uptimerobot.com/KNL7AXsPis" target="_blank" rel="noreferrer">Status</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Reattend Technologies Private Limited</span>
+    <span style="display:flex; gap:24px;">
+      <a href="/privacy" style="color:inherit;">Privacy</a>
+      <a href="/terms" style="color:inherit;">Terms</a>
+      <a href="/compliance" style="color:inherit;">Compliance</a>
+      <a href="/support" style="color:inherit;">Support</a>
+    </span>
+  </div>
+</footer>
+
+<style>
+.oa .oa-page-hero { padding: 100px var(--gutter) 80px; border-bottom: 1px solid var(--rule); }
+.oa .ph-inner { max-width: 1100px; }
+.oa .oa-page-hero h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(36px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -0.02em; margin: 14px 0 28px; max-width: 22ch; text-wrap: balance; }
+.oa .oa-page-hero .lede { max-width: 60ch; }
+.oa .hero-meta { margin-top: 18px; }
+
+.oa .essay { padding-top: clamp(40px, 6vw, 80px); }
+.oa .essay-body { max-width: 760px; margin: 0 auto; }
+.oa .essay-body h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.2; margin: 56px 0 18px; max-width: 32ch; text-wrap: balance; }
+.oa .essay-body h2:first-of-type { margin-top: 40px; }
+.oa .essay-body p { font-size: 17px; line-height: 1.65; color: var(--fg-dim); margin: 0 0 18px; max-width: 70ch; }
+.oa .essay-body p strong { color: var(--fg); font-weight: 500; }
+.oa .essay-body p em { font-style: italic; }
+.oa .essay-body a { color: var(--fg); border-bottom: 1px solid var(--rule-strong); }
+
+.oa .list { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 10px; max-width: 75ch; }
+.oa .list li { padding: 10px 0 10px 18px; border-top: 1px solid var(--rule); position: relative; color: var(--fg-dim); font-size: 16px; line-height: 1.6; }
+.oa .list li:last-child { border-bottom: 1px solid var(--rule); }
+.oa .list li::before { content: "·"; position: absolute; left: 0; top: 8px; color: var(--accent); font-size: 18px; }
+.oa .list li strong { color: var(--fg); font-weight: 500; }
+.oa .list.ordered { counter-reset: ord; }
+.oa .list.ordered li { padding-left: 32px; counter-increment: ord; }
+.oa .list.ordered li::before { content: counter(ord, decimal-leading-zero); font-family: var(--mono); font-size: 11px; color: var(--accent); top: 12px; }
+
+.oa .mono-inline { font-family: var(--mono); font-size: 0.92em; background: var(--bg-3); padding: 1px 6px; }
+.oa .rule { border: none; height: 1px; background: var(--rule); margin: 48px 0; }
+.oa .ref-list { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 14px; max-width: 80ch; }
+.oa .ref-list li { padding: 12px 0; border-top: 1px solid var(--rule); font-size: 14.5px; line-height: 1.55; color: var(--fg-dim); }
+.oa .ref-list li:last-child { border-bottom: 1px solid var(--rule); }
+.oa .ref-list li strong { color: var(--fg); font-weight: 500; }
+</style>
+
+
+<script src="/landing-design/site-refresh.js" defer></script>
+</body>
+</html>
