@@ -1342,3 +1342,27 @@ Fixed, strongest suspect first:
 **Partha to do:** Search Console > Security issues > Request review, with the
 note drafted in this session. Reviews typically take days. Google Ads will not
 approve ads for the domain until the flag clears.
+
+---
+
+## AI provider readiness check before a 1,000-user day (2026-09-13)
+
+Tested each production key with a one-token request on the server (keys never
+printed). Only two providers are on live paths: Anthropic and Groq. The
+self-hosted Rabbit model is not configured and is not on any production path
+(its two test accounts fall back to Anthropic); embeddings are local FastEmbed.
+
+- **Anthropic: working and funded.** Same limits for Sonnet 4.6 and Haiku 4.5:
+  10,000 requests, 10M input tokens, 2M output tokens per minute. Answers,
+  reranking and background capture triage (Haiku, via resolveLLMForWorkspace)
+  all run here for trial/paid users. No API exposes prepaid balance - check
+  console.anthropic.com > Billing and turn on auto-reload.
+- **Groq: key in .env.local is INVALID (401 "Invalid API Key").** The running
+  process has no GROQ_API_KEY of its own, so Next.js uses the file value.
+  Only Whisper voice transcription depends on it (`/api/records/voice`,
+  `/api/tray/voice`; Brain Dump + voice recorder): users get "transcription
+  failed (401)". Needs a new key from console.groq.com in `.env.local`, then
+  `pm2 restart` with `--update-env` via the standard deploy. Check the new key's
+  `x-ratelimit-*` headers - Groq's free tier is capped per minute/day.
+- The trial question cap (guardrail #1 from 2026-09-10) is still not built;
+  1,000 signups is the scenario it was meant for.
