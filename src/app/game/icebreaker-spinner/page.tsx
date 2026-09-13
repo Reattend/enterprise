@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { IcebreakerSpinner } from './spinner'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Icebreaker Spinner - Free Team Game | Reattend',
   description: 'Spin the wheel and answer fun icebreaker questions. 4 categories from fun to deep. Perfect for TGIF, team meetings, and office gatherings. Free, no signup.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Icebreaker Spinner - Free Team Game | Reattend',
     description: 'Spin the wheel and answer icebreaker questions. Free team bonding game for offices.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Icebreaker Spinner - Free Team Game | Reattend',
     description: 'Spin the wheel and answer icebreaker questions. Free team game.',

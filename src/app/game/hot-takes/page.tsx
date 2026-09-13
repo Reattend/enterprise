@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { HotTakes } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Hot Takes Board - Free Team Game | Reattend',
   description: 'Submit anonymous hot takes and vote agree or disagree. Discover your team\'s most controversial opinions. Free game for TGIF and team bonding.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Hot Takes Board - Free Team Game | Reattend',
     description: 'Anonymous hot takes and voting for teams. Free game.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Hot Takes Board - Free Team Game | Reattend',
     description: 'Anonymous hot takes for team bonding. Free game.',

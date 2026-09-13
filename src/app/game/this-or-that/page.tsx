@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { ThisOrThat } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'This or That - Free Team Game | Reattend',
   description: 'Rapid-fire binary choices for teams. Coffee or tea? Tabs or spaces? See where your team splits. Free game for TGIF and office gatherings.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'This or That - Free Team Game | Reattend',
     description: 'Rapid-fire binary choices for teams. Free office game.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'This or That - Free Team Game | Reattend',
     description: 'Rapid-fire binary choices for teams. Free game.',

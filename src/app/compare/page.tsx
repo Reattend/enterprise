@@ -5,12 +5,14 @@ import { ArrowRight, Sparkles } from 'lucide-react'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { COMPETITORS } from '@/lib/compare/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Compare Reattend - How We Stack Up Against Alternatives',
   description:
     'See how Reattend compares to Notion, Confluence, Obsidian, Roam Research, Mem, Slite, Microsoft Loop, and Coda. Feature-by-feature comparisons.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Compare Reattend - How We Stack Up',
     description: 'Feature-by-feature comparisons of Reattend vs popular knowledge management tools.',
     url: 'https://reattend.com/compare',

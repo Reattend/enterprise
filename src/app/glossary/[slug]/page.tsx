@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, BookOpen, FileText, Wrench, Link2 } from 'lucide
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { getAllGlossaryTerms, getGlossaryTermBySlug } from '@/lib/glossary/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export function generateStaticParams() {
   return getAllGlossaryTerms().map(t => ({ slug: t.slug }))
@@ -18,6 +19,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${term.term} - Definition | Reattend Glossary`,
     description: term.definition,
     openGraph: {
+      images: [OG_IMAGE],
       title: `${term.term} - Definition | Reattend Glossary`,
       description: term.definition,
       url: `https://reattend.com/glossary/${term.slug}`,

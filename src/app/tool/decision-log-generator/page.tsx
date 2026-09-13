@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { DecisionLogGenerator } from './generator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Decision Log Generator  | Reattend',
   description: 'Turn messy meeting outcomes into clean, structured decision records. Free tool for founders, PMs, and team leads.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Decision Log Generator  | Reattend',
     description: 'Turn messy meeting outcomes into clean, structured decision records. Free, no signup required.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Decision Log Generator  | Reattend',
     description: 'Turn messy meeting outcomes into clean, structured decision records.',

@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { auth } from '@/lib/auth'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 interface SharePageProps {
   params: Promise<{ token: string }>
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
     title: `${share.title} - Shared from Reattend`,
     description: share.summary || 'Meeting notes shared from Reattend',
     openGraph: {
+      images: [OG_IMAGE],
       title: share.title,
       description: share.summary || 'Meeting notes shared from Reattend',
       siteName: 'Reattend',

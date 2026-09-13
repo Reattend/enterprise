@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { RaciGenerator } from './generator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free RACI Chart Generator | Create RACI Matrix Online',
   description:
     'Create a RACI chart in minutes. Define tasks, assign roles (Responsible, Accountable, Consulted, Informed), and export as PDF. Free, no signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free RACI Chart Generator | Reattend',
     description:
       'Create a RACI chart in minutes. Define tasks, assign roles, and export as PDF. Free, no signup.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free RACI Chart Generator | Reattend',
     description: 'Create a RACI chart in minutes. Free, no signup required.',

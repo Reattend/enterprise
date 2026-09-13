@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { StandupLanding } from './standup-landing'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Async Standup Bot for Slack | Reattend',
   description:
     'Run daily standups in Slack without meetings. Free forever, no credit card required. Automated DMs, scheduled summaries, timezone support. Replace Geekbot for free.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Async Standup Bot for Slack | Reattend',
     description:
       'Run daily standups in Slack without meetings. Free forever. Automated DMs, scheduled summaries, timezone support.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Async Standup Bot for Slack | Reattend',
     description:

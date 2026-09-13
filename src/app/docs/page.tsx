@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { DocsContent } from './docs-content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'API Docs - Reattend',
   description: 'REST API reference for Reattend. Capture, search, and query your memory programmatically.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Reattend API Docs',
     description: 'REST API reference for Reattend. Capture, search, and query your memory programmatically.',
   },

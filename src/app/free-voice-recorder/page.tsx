@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { VoiceRecorder } from './voice-recorder'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Voice Recorder | Record Audio Online, No Login | Reattend',
   description: 'Record voice notes instantly. No login, no uploads, no account required. Audio never leaves your device. Privacy-first free voice recorder that runs entirely in your browser.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Voice Recorder | Record Audio Online, No Login | Reattend',
     description: 'Record voice notes instantly. No login, no uploads. Audio never leaves your device. Privacy-first, runs in your browser.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Voice Recorder | Record Audio Online | Reattend',
     description: 'Record voice notes instantly. No login, no uploads. Privacy-first, runs in your browser.',

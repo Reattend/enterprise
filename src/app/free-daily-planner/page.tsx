@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { DailyPlanner } from './daily-planner'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Daily Planner | Simple Work Planner Online, No Login | Reattend',
   description: 'A simple, free daily planner you can use instantly. Plan your priorities, tasks, meetings, and reflect on your day. No login, no installs, nothing is saved. Daily planner template that runs in your browser.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Daily Planner | Plan Your Day Instantly | Reattend',
     description: 'A simple, free daily work planner. No login, no installs, nothing is saved. Runs entirely in your browser.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Daily Planner | Plan Your Day Instantly | Reattend',
     description: 'A simple, free daily work planner. No login, no installs, nothing is saved.',

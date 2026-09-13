@@ -9,6 +9,7 @@ import { HelpBreadcrumbs } from '@/components/help/help-breadcrumbs'
 import { HelpSidebar } from '@/components/help/help-sidebar'
 import { HELP_CATEGORIES, getCategoryBySlug, getArticleBySlug } from '@/lib/help/data'
 import { HELP_CONTENT } from '@/lib/help/content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export function generateStaticParams() {
   return HELP_CATEGORIES.flatMap(c =>
@@ -24,6 +25,7 @@ export function generateMetadata({ params }: { params: { category: string; artic
     title: `${art.title} | ${cat.title} | Reattend Help`,
     description: art.description,
     openGraph: {
+      images: [OG_IMAGE],
       title: `${art.title} | Reattend Help`,
       description: art.description,
       url: `https://reattend.com/help/${cat.slug}/${art.slug}`,

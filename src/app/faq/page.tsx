@@ -3,12 +3,14 @@ import { Metadata } from 'next'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import FaqContent from './faq-content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'FAQ - Frequently Asked Questions | Reattend',
   description:
     'Find answers to common questions about Reattend - pricing, security, integrations, getting started, and more.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'FAQ - Reattend',
     description: 'Answers to common questions about Reattend - pricing, security, integrations and getting started.',
     url: 'https://reattend.com/faq',

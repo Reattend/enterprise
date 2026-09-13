@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { MemoryDebtCalculator } from './calculator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 type Props = {
   searchParams: { s?: string; c?: string }
@@ -14,12 +15,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title: `My Memory Debt Score: ${score}/100`,
       description: `I just measured my team's knowledge loss with the Memory Debt Calculator. Take the free assessment and find out your score.`,
       openGraph: {
+        images: [OG_IMAGE],
         title: `My Memory Debt Score: ${score}/100`,
         description: `I just measured my team's knowledge loss with the Memory Debt Calculator. Take the free assessment and find out your score.`,
         type: 'website',
         siteName: 'Reattend',
       },
       twitter: {
+        images: [OG_IMAGE.url],
         card: 'summary_large_image',
         title: `My Memory Debt Score: ${score}/100`,
         description: `I just measured my team's knowledge loss. Take the free assessment.`,
@@ -32,12 +35,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title: 'Memory Debt Calculator  | Reattend',
     description: 'Find out how much knowledge your team is silently losing. A free 10-question assessment that reveals your organization\'s hidden knowledge gaps.',
     openGraph: {
+      images: [OG_IMAGE],
       title: 'Memory Debt Calculator  | Reattend',
       description: 'Find out how much knowledge your team is silently losing. A free 10-question assessment.',
       type: 'website',
       siteName: 'Reattend',
     },
     twitter: {
+      images: [OG_IMAGE.url],
       card: 'summary_large_image',
       title: 'Memory Debt Calculator  | Reattend',
       description: 'Find out how much knowledge your team is silently losing. Take the free assessment.',

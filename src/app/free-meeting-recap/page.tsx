@@ -1,12 +1,14 @@
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import RecapLanding from './recap-landing'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Meeting Recap Bot for Microsoft Teams | Reattend',
   description:
     'Capture meeting decisions, action items, and notes from your team, all in one place. Free alternative to Microsoft Copilot meeting recaps ($30/user/mo). No per-user pricing.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Meeting Recap Bot for Microsoft Teams',
     description:
       'Replace $30/user/mo Copilot recaps with a free bot. Collect decisions, action items, and notes from everyone after every meeting.',
@@ -15,6 +17,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Meeting Recap Bot for Microsoft Teams',
     description:

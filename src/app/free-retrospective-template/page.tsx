@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { RetroGenerator } from './generator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Retrospective Template Generator | Sprint Retro Made Easy',
   description:
     'Generate sprint retrospective templates for your team. Choose from multiple formats (Start/Stop/Continue, 4Ls, Mad/Sad/Glad, and more). Export as PDF. Free forever.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Retrospective Template Generator | Reattend',
     description:
       'Generate sprint retrospective templates. Multiple formats, export as PDF. Free, no signup.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Retrospective Template Generator | Reattend',
     description: 'Generate sprint retro templates in seconds. Free, no signup required.',

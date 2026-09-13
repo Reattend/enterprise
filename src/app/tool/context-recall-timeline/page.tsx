@@ -1,16 +1,19 @@
 import { Metadata } from 'next'
 import { ContextRecallTimeline } from './timeline'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Context Recall Timeline  | Reattend',
   description: 'Reconstruct what happened and when. Build a visual timeline of meetings, decisions, and notes to trace context across weeks and months. Free, no signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Context Recall Timeline  | Reattend',
     description: 'Reconstruct what happened and when. Build a visual timeline of meetings, decisions, and notes.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Context Recall Timeline  | Reattend',
     description: 'Reconstruct what happened and when. Free tool for knowledge workers.',

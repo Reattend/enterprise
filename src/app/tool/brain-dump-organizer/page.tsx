@@ -1,16 +1,19 @@
 import { Metadata } from 'next'
 import { BrainDumpOrganizer } from './organizer'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Brain Dump Organizer | Reattend',
   description: 'Dump everything on your mind and watch it organize itself into tasks, decisions, ideas, questions, and more. Free tool for knowledge workers.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Brain Dump Organizer | Reattend',
     description: 'Dump everything on your mind and watch it organize itself. Free, no signup required.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Brain Dump Organizer | Reattend',
     description: 'Dump everything on your mind and watch it organize itself. Free tool for knowledge workers.',

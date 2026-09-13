@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { GuessTheColleague } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Guess the Colleague - Free Team Game | Reattend',
   description: 'Everyone submits a fun fact anonymously. The team guesses who said what. The team game that builds real connections. Free, no signup.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Guess the Colleague - Free Team Game | Reattend',
     description: 'Guess who said the fun fact. Free team bonding game.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Guess the Colleague - Free Team Game | Reattend',
     description: 'Guess the colleague from fun facts. Free game.',

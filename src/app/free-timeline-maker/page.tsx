@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { TimelineMaker } from './timeline-maker'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Timeline Maker | Create a Timeline Online, No Login | Reattend',
   description: 'Create a timeline instantly. Free forever, no login, nothing is stored. Build project timelines, work history, event sequences, and decision timelines. Free timeline generator that runs in your browser.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Timeline Maker | Create a Timeline Online | Reattend',
     description: 'Create a project timeline online instantly. Free forever, no login, nothing is stored. Runs in your browser.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Timeline Maker | Create a Timeline Online | Reattend',
     description: 'Create a project timeline online instantly. Free forever, no login, nothing is stored.',

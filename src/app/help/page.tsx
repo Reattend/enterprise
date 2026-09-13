@@ -3,12 +3,14 @@ import { Metadata } from 'next'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { HelpSearch } from '@/components/help/help-search'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Help Center - Reattend',
   description:
     'Learn how to use Reattend - guides on decisions, projects, boards, search, Ask AI, teams, integrations, and more.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Help Center - Reattend',
     description: 'Guides and documentation for Reattend, the AI decision intelligence platform for teams.',
     url: 'https://reattend.com/help',

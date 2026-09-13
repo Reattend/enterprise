@@ -5,12 +5,14 @@ import { ArrowRight, BookOpen } from 'lucide-react'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { getAllGlossaryTerms } from '@/lib/glossary/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Glossary | Team Knowledge & Decision Intelligence Terms',
   description:
     'Definitions for concepts in team knowledge management, decision intelligence, and organizational memory. Learn about meeting debt, decision decay, tribal knowledge, and more.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Glossary | Team Knowledge & Decision Intelligence Terms',
     description:
       'Definitions for concepts in team knowledge management, decision intelligence, and organizational memory.',

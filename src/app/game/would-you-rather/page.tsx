@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { WouldYouRather } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Would You Rather - Work Edition | Free Team Game | Reattend',
   description: 'Work-themed "Would You Rather" questions for team bonding. Vote, see the split, and debate. Free game for TGIF, team meetings, and office fun.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Would You Rather - Work Edition | Free Team Game | Reattend',
     description: 'Work-themed Would You Rather for teams. Vote and see the split. Free.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Would You Rather - Work Edition | Free Team Game | Reattend',
     description: 'Work-themed Would You Rather for teams. Free game.',

@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { SlackMemoryMatch } from './game'
 import { SLACK_GAME_CLIENT_ID } from '@/lib/slack-game'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Memory Match for Slack  | Reattend',
   description: 'A lightweight Slack game that shows how differently your team remembers the same moment. Free, no configuration required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Memory Match for Slack  | Reattend',
     description: 'Same conversation. Different memories. A Slack game for teams.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Memory Match for Slack  | Reattend',
     description: 'Same conversation. Different memories. A Slack game for teams.',

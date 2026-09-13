@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { TeamSuperlatives } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Team Superlatives - Free Team Game | Reattend',
   description: '"Most likely to..." - Vote on fun categories and crown your team\'s superstars. Free game for TGIF and team bonding. No signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Team Superlatives - Free Team Game | Reattend',
     description: 'Vote on "Most likely to..." team superlatives. Free game.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Team Superlatives - Free Team Game | Reattend',
     description: 'Team superlatives voting game. Free.',

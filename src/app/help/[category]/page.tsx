@@ -7,6 +7,7 @@ import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { HelpBreadcrumbs } from '@/components/help/help-breadcrumbs'
 import { HELP_CATEGORIES, getCategoryBySlug } from '@/lib/help/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export function generateStaticParams() {
   return HELP_CATEGORIES.map(c => ({ category: c.slug }))
@@ -19,6 +20,7 @@ export function generateMetadata({ params }: { params: { category: string } }): 
     title: `${cat.title} | Help Center | Reattend`,
     description: cat.description,
     openGraph: {
+      images: [OG_IMAGE],
       title: `${cat.title} | Reattend Help`,
       description: cat.description,
       url: `https://reattend.com/help/${cat.slug}`,

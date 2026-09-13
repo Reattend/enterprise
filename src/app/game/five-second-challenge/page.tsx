@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { FiveSecondChallenge } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: '5-Second Challenge - Free Team Game | Reattend',
   description: 'Name 3 things in 5 seconds. Random categories, maximum pressure, pure fun. Free team game for TGIF and office gatherings. No signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: '5-Second Challenge - Free Team Game | Reattend',
     description: 'Name 3 things in 5 seconds. Free team game for offices.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: '5-Second Challenge - Free Team Game | Reattend',
     description: 'Name 3 things in 5 seconds. Free team game.',

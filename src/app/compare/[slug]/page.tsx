@@ -6,6 +6,7 @@ import { Check, X, ArrowRight, ChevronRight, Sparkles } from 'lucide-react'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { COMPETITORS, getCompetitorBySlug } from '@/lib/compare/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export function generateStaticParams() {
   return COMPETITORS.map(c => ({ slug: c.slug }))
@@ -18,6 +19,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${comp.tagline} | Reattend`,
     description: comp.description,
     openGraph: {
+      images: [OG_IMAGE],
       title: comp.tagline,
       description: comp.description,
       url: `https://reattend.com/compare/${comp.slug}`,

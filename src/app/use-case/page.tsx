@@ -13,12 +13,14 @@ import {
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { USE_CASES } from '@/lib/use-cases/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Use Cases - Reattend',
   description:
     'See how teams use Reattend for decision tracking, contradiction detection, onboarding, remote context, project handoffs, and knowledge management.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Reattend Use Cases',
     description:
       'See how teams use Reattend for decision tracking, contradiction detection, onboarding, and more.',

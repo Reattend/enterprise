@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { MeetingCostCalculator } from './calculator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Meeting Cost Calculator | How Much Do Your Meetings Cost?',
   description:
     'Calculate the true cost of your meetings. Enter attendees, salaries, and duration to see how much your team spends in meetings per week, month, and year.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Meeting Cost Calculator | Reattend',
     description:
       'Calculate the true cost of your meetings. See how much your team spends in meetings per week, month, and year.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Meeting Cost Calculator | Reattend',
     description: 'Calculate the true cost of your meetings. Free, no signup required.',

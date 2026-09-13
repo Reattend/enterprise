@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { OneOnOneBuilder } from './builder'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free 1-on-1 Meeting Template | Agenda Builder for Managers',
   description:
     'Build better 1-on-1 meeting agendas in seconds. Choose from proven question templates, customize for your team, and export as PDF. Free for managers and team leads.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free 1-on-1 Meeting Template | Reattend',
     description:
       'Build better 1-on-1 meeting agendas. Choose from proven question templates and export as PDF. Free.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free 1-on-1 Meeting Template | Reattend',
     description: 'Build better 1-on-1 meeting agendas in seconds. Free, no signup required.',

@@ -1,12 +1,14 @@
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Importer } from './importer'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Import and See | Watch AI Analyze Your Notes | Reattend',
   description:
     'Paste any note, meeting summary, or decision and watch our AI extract entities, classify the type, identify dates, and suggest connections, all in real time. No signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Import and See | Watch AI Analyze Your Notes',
     description:
       'Paste a note and watch AI extract entities, classify the type, and find patterns in seconds. No signup required.',
@@ -15,6 +17,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Import and See | Watch AI Analyze Your Notes',
     description:

@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { TwoTruthsOneLie } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Two Truths & A Lie - Free Team Game | Reattend',
   description: 'The classic icebreaker game, digitized. Each person enters two truths and one lie. The team guesses which is the lie. Free, no signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Two Truths & A Lie - Free Team Game | Reattend',
     description: 'Classic icebreaker game for teams. Free, no signup.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Two Truths & A Lie - Free Team Game | Reattend',
     description: 'Two Truths & A Lie for teams. Free game.',

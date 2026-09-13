@@ -1,12 +1,14 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { OkrGenerator } from './generator'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free OKR Template Generator | Create OKRs for Your Team',
   description:
     'Create OKRs (Objectives and Key Results) for your team in minutes. Choose from example templates or build your own. Export as PDF. Free, no signup required.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free OKR Template Generator | Reattend',
     description:
       'Create OKRs for your team in minutes. Example templates, export as PDF. Free, no signup.',
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free OKR Template Generator | Reattend',
     description: 'Create OKRs for your team in minutes. Free, no signup required.',

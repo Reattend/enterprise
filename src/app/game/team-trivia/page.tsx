@@ -2,17 +2,20 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { TeamTrivia } from './game'
 import { GamePageFallback } from '@/components/game/game-page-fallback'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Team Trivia Maker - Free Team Game | Reattend',
   description: 'Create custom trivia quizzes about your team or company. Share a link and play together. Free game for TGIF and team bonding.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Team Trivia Maker - Free Team Game | Reattend',
     description: 'Create custom trivia for your team. Free game.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Team Trivia Maker - Free Team Game | Reattend',
     description: 'Create custom trivia for teams. Free game.',

@@ -3,12 +3,14 @@ import { Metadata } from 'next'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import SecurityContent from './security-content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Security - Your Data, Protected | Reattend',
   description:
     'Reattend keeps your team knowledge secure, private, and fully protected. End-to-end encryption, SOC 2-ready architecture, and zero-compromise data privacy.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Security - Reattend',
     description: 'Your team knowledge, secure and private. End-to-end encryption, SOC 2-ready, GDPR compliant.',
     url: 'https://reattend.com/security',

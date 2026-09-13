@@ -5,12 +5,14 @@ import { ArrowRight, Clock, Calendar } from 'lucide-react'
 import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { BLOG_POSTS, formatDate } from '@/lib/blog/data'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Blog - Reattend',
   description:
     'Insights on team decision tracking, meeting productivity, contradiction detection, and building decision intelligence for teams.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Reattend Blog',
     description: 'Insights on team decision tracking, meeting productivity, and decision intelligence.',
     url: 'https://reattend.com/blog',

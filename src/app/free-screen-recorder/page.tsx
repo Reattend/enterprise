@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { ScreenRecorder } from './screen-recorder'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Screen Recorder | No Login, No Watermark, Browser-Only | Reattend',
   description: 'Record your screen instantly. No login, no uploads, no watermark. Runs entirely in your browser. Privacy-first free screen recorder for work demos, tutorials, and meetings.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Screen Recorder | No Login, No Watermark | Reattend',
     description: 'Record your screen instantly. No login, no uploads, no watermark. Runs entirely in your browser.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Screen Recorder | No Login, No Watermark | Reattend',
     description: 'Record your screen instantly. No login, no uploads, no watermark. Runs entirely in your browser.',

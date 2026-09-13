@@ -17,6 +17,7 @@ import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { USE_CASES, getUseCaseBySlug } from '@/lib/use-cases/data'
 import { USE_CASE_CONTENT } from '@/lib/use-cases/content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   MessageSquare: <MessageSquare className="w-7 h-7" />,
@@ -38,6 +39,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${uc.title} - Reattend Use Cases`,
     description: uc.description,
     openGraph: {
+      images: [OG_IMAGE],
       title: `${uc.title} - Reattend`,
       description: uc.description,
       url: `https://reattend.com/use-case/${uc.slug}`,

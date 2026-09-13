@@ -1,17 +1,20 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { WorkJournal } from './work-journal'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Free Work Journal | Daily Work Log Template, No Login | Reattend',
   description: 'A simple work journal you can use instantly. Log what you worked on, what changed, and what needs attention next. Free, no login, nothing is saved. Daily work journal template that runs in your browser.',
   openGraph: {
+    images: [OG_IMAGE],
     title: 'Free Work Journal | Daily Work Log, No Login | Reattend',
     description: 'A simple, free daily work journal. Log your progress, decisions, and context. No login, nothing is saved.',
     type: 'website',
     siteName: 'Reattend',
   },
   twitter: {
+    images: [OG_IMAGE.url],
     card: 'summary_large_image',
     title: 'Free Work Journal | Daily Work Log | Reattend',
     description: 'A simple, free daily work journal. Log your progress, decisions, and context. No login, nothing is saved.',

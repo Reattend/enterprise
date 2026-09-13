@@ -7,6 +7,7 @@ import { MarketingNavbar } from '@/components/marketing/marketing-navbar'
 import { MarketingFooter } from '@/components/marketing/marketing-footer'
 import { BLOG_POSTS, getBlogPostBySlug, formatDate } from '@/lib/blog/data'
 import { BLOG_CONTENT } from '@/lib/blog/content'
+import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export function generateStaticParams() {
   return BLOG_POSTS.map(p => ({ slug: p.slug }))
@@ -19,6 +20,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${post.title} - Reattend Blog`,
     description: post.description,
     openGraph: {
+      images: [OG_IMAGE],
       title: post.title,
       description: post.description,
       url: `https://reattend.com/blog/${post.slug}`,
