@@ -1366,3 +1366,13 @@ self-hosted Rabbit model is not configured and is not on any production path
   `x-ratelimit-*` headers - Groq's free tier is capped per minute/day.
 - The trial question cap (guardrail #1 from 2026-09-10) is still not built;
   1,000 signups is the scenario it was meant for.
+
+**Update, same day:** Partha created new Anthropic and Groq keys ($20 credit
+on Anthropic; Groq is postpaid). Both copied to the server's `.env.local`
+(via a root-only temp file, shredded; old file backed up as
+`.env.local.bak-*`) and the app restarted. Verified: both keys return 200,
+the running process reads them from the file, and a spoken test clip
+transcribed exactly through `whisper-large-v3-turbo` (Groq limit 200,000
+requests). Note: this Groq account cannot use `llama-3.3-70b-versatile`,
+the app's Groq chat fallback, which only runs if no Anthropic key is set.
+**$20 of Anthropic credit covers roughly 500 questions** - enable auto-reload.
