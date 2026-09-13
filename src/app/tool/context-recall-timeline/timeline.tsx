@@ -70,7 +70,7 @@ function getWeekLabel(weekStart: Date): string {
   if (startMonth === endMonth) {
     return `${startMonth} ${weekStart.getDate()}–${weekEnd.getDate()}, ${weekStart.getFullYear()}`
   }
-  return `${startMonth} ${weekStart.getDate()} – ${endMonth} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`
+  return `${startMonth} ${weekStart.getDate()} - ${endMonth} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`
 }
 
 function daysBetween(a: Date, b: Date): number {

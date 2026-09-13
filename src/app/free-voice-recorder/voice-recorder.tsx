@@ -273,7 +273,7 @@ export function VoiceRecorder() {
   }
 
   const emailToSelf = () => {
-    const subject = encodeURIComponent(`Voice note – ${dateStr()} ${timeStr()}`)
+    const subject = encodeURIComponent(`Voice note - ${dateStr()} ${timeStr()}`)
     const body = encodeURIComponent([
       'Voice Note',
       '',

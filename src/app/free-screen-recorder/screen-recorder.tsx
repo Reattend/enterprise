@@ -234,7 +234,7 @@ export function ScreenRecorder() {
   }
 
   const emailToSelf = () => {
-    const subject = encodeURIComponent(`Screen recording – ${dateStr()} ${timeStr()}`)
+    const subject = encodeURIComponent(`Screen recording - ${dateStr()} ${timeStr()}`)
     const body = encodeURIComponent([
       'Screen Recording',
       '',

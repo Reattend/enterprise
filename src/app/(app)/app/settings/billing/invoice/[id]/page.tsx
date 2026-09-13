@@ -28,7 +28,7 @@ interface Txn {
 }
 
 function money(total: string | null, currency: string | null) {
-  if (!total) return '—'
+  if (!total) return '-'
   // Paddle returns minor units as a string ("900" = $9.00).
   const n = Number(total)
   if (Number.isNaN(n)) return total
@@ -36,7 +36,7 @@ function money(total: string | null, currency: string | null) {
 }
 
 function fmtDate(s: string | null) {
-  if (!s) return '—'
+  if (!s) return '-'
   try {
     return new Date(s).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
   } catch { return s }
@@ -130,7 +130,7 @@ export default function InvoicePage() {
         <div className="grid grid-cols-2 gap-8 mb-10 text-sm">
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Billed to</div>
-            <div>{email || '—'}</div>
+            <div>{email || '-'}</div>
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Date</div>
@@ -150,7 +150,7 @@ export default function InvoicePage() {
           <tbody>
             <tr className="border-b">
               <td className="py-3">
-                Reattend — Managed subscription
+                Reattend - Managed subscription
                 <div className="text-xs text-muted-foreground">Subscription</div>
               </td>
               <td className="py-3 text-right tabular-nums">{money(txn.total, txn.currency)}</td>

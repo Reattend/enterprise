@@ -63,10 +63,10 @@ export const metadata: Metadata = {
     description: 'When employees leave, their institutional knowledge stays. Decisions, exit interviews, handoffs, time-machine queries - the memory layer your wiki can\'t give you.',
     images: [
       {
-        url: '/hero.png',
-        width: 1400,
-        height: 900,
-        alt: 'Reattend - Organizational Memory That Never Forgets',
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Reattend: a little less remembering, a lot more possibility.',
       },
     ],
   },
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Reattend - Organizational Memory That Never Forgets',
     description: 'When employees leave, their institutional knowledge stays. The org memory layer your wiki can\'t give you.',
-    images: ['/hero.png'],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,

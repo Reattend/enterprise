@@ -369,7 +369,7 @@ export default function BillingPage() {
                   <div>{new Date(t.billedAt || t.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                   <div className="text-xs text-muted-foreground capitalize">{t.status}</div>
                 </div>
-                <div className="tabular-nums">{t.total ? `${t.currency || 'USD'} ${(Number(t.total) / 100).toFixed(2)}` : '\u2014'}</div>
+                <div className="tabular-nums">{t.total ? `${t.currency || 'USD'} ${(Number(t.total) / 100).toFixed(2)}` : '-'}</div>
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/app/settings/billing/invoice/${t.id}`}>Receipt</Link>
                 </Button>

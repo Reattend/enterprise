@@ -154,7 +154,7 @@
       description: 'Create a polished timeline for projects, launches and milestones, then export it for the people who need the full story.',
       action: 'Create a timeline',
       label: 'List your milestones',
-      placeholder: 'Research — Sep 12; Prototype — Sep 19; Launch — Oct 03',
+      placeholder: 'Research - Sep 12; Prototype - Sep 19; Launch - Oct 03',
       sample: 'Timeline created with three milestones and a clean share-ready layout.',
       suggestions: ['Project plan', 'Launch history']
     },
@@ -178,7 +178,7 @@
       description: 'Map who is responsible, accountable, consulted and informed for each task, then export a clear matrix as a PDF.',
       action: 'Generate RACI chart',
       label: 'Describe the work and people',
-      placeholder: 'Launch page — Maya, Arjun, Lina; analytics — Sam, Lina...',
+      placeholder: 'Launch page - Maya, Arjun, Lina; analytics - Sam, Lina...',
       sample: 'RACI matrix created with clear ownership and two responsibility conflicts highlighted.',
       suggestions: ['Product launch', 'Client onboarding']
     },
@@ -444,7 +444,7 @@
     var root = document.getElementById('detail-app');
     if (!root || !info) return;
 
-    document.title = info.title + ' — Reattend';
+    document.title = info.title + ' - Reattend';
     document.documentElement.style.setProperty('--detail-tint', info.tint);
 
     var suggestions = info.suggestions.map(function (suggestion) {

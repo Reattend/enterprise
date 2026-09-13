@@ -209,7 +209,7 @@ export function MeetingRecorder() {
     ]
     if (participants.trim()) lines.push(`Participants: ${participants}`)
     lines.push('', 'Notes:', notes || '(No notes recorded)')
-    lines.push('', '\u2500'.repeat(40), 'Recorded with Reattend Meeting Recorder \u2014 reattend.com/record')
+    lines.push('', '\u2500'.repeat(40), 'Recorded with Reattend Meeting Recorder - reattend.com/record')
     return lines.join('\n')
   }
 

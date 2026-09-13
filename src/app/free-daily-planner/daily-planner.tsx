@@ -240,7 +240,7 @@ ${(refDone.trim() || refForward.trim() || refDidnt.trim()) ? `<h2>End-of-Day Ref
 
   const emailToSelf = () => {
     const dateDisplay = formatDateDisplay(date)
-    const subject = encodeURIComponent(`Daily plan – ${dateDisplay}`)
+    const subject = encodeURIComponent(`Daily plan - ${dateDisplay}`)
     const body = encodeURIComponent(generateText() + '\n\nSave this to Reattend to build a history of your work:\nhttps://reattend.com/register')
     window.location.href = `mailto:?subject=${subject}&body=${body}`
   }

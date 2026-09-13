@@ -18,7 +18,7 @@ export const JSON_LD_GRAPH = {
       '@id': 'https://reattend.com/#organization',
       name: 'Reattend',
       url: 'https://reattend.com',
-      logo: 'https://reattend.com/black_logo.svg',
+      logo: 'https://reattend.com/icon-512.png',
       // sameAs used to list organizationalamnesia.com and its en-GB twin as
       // sister domains. Both now 301 to reattend.com/amnesia (2026-09-11), so
       // they are no longer separate profiles of this organization.

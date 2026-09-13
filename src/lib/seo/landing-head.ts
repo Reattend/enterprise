@@ -13,7 +13,10 @@ import { JSON_LD_GRAPH } from './json-ld'
 // static HTML stay intact - we only add what was missing.
 
 const SITE_URL = 'https://reattend.com'
-const DEFAULT_OG_IMAGE = `${SITE_URL}/black_logo.svg`
+// 1200x630 PNG. Link previews (X, LinkedIn, Slack, WhatsApp, iMessage) do not
+// render SVG, so the old black_logo.svg default showed a blank placeholder.
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`
+const DEFAULT_OG_ALT = 'Reattend: a little less remembering, a lot more possibility.'
 const GA_ID = 'G-0J0Y3SL5CY'
 
 interface InjectOpts {
@@ -55,6 +58,11 @@ export function injectSeoIntoHead(html: string, opts: InjectOpts): string {
 <meta property="og:title" content="${escapeAttr(title)}" />
 <meta property="og:description" content="${escapeAttr(description)}" />
 <meta property="og:image" content="${escapeAttr(image)}" />
+${image === DEFAULT_OG_IMAGE ? `<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="${escapeAttr(DEFAULT_OG_ALT)}" />
+<meta name="twitter:image:alt" content="${escapeAttr(DEFAULT_OG_ALT)}" />` : ''}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${escapeAttr(title)}" />
 <meta name="twitter:description" content="${escapeAttr(description)}" />

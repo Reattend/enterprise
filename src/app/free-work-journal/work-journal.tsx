@@ -210,7 +210,7 @@ p{margin:0 0 8px}hr{border:none;border-top:1px solid #eee;margin:28px 0}.footer{
   const emailEntry = () => {
     const e = latestEntry
     if (!e) return
-    const subject = encodeURIComponent(`Work journal – ${fmtDate(e.date)}`)
+    const subject = encodeURIComponent(`Work journal - ${fmtDate(e.date)}`)
     const body = encodeURIComponent(entryToText(e) + '\n\nSave this to Reattend to build a long-term work history:\nhttps://reattend.com/register')
     window.location.href = `mailto:?subject=${subject}&body=${body}`
   }

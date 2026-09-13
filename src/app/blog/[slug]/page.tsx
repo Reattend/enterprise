@@ -55,7 +55,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       url: 'https://reattend.com',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://reattend.com/black_logo.svg',
+        url: 'https://reattend.com/icon-512.png',
       },
     },
     mainEntityOfPage: {

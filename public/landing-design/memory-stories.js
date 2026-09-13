@@ -86,7 +86,7 @@
   const scenarios = {
     personal: {
       question: 'What was that idea I had on my walk?',
-      answer: 'You wanted onboarding to feel like a conversation, not a checklist. Start by asking people what they want to make room for — then guide them to one small win.',
+      answer: 'You wanted onboarding to feel like a conversation, not a checklist. Start by asking people what they want to make room for - then guide them to one small win.',
       followup: 'Did I ever mention it to the team?',
       reply: 'You did. It came up in the design sync, and the team agreed to explore a more personal welcome. Your customer interviews point in the same direction.',
       next: 'Your next step: sketch the first question.',
