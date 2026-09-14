@@ -1376,3 +1376,44 @@ transcribed exactly through `whisper-large-v3-turbo` (Groq limit 200,000
 requests). Note: this Groq account cannot use `llama-3.3-70b-versatile`,
 the app's Groq chat fallback, which only runs if no Anthropic key is set.
 **$20 of Anthropic credit covers roughly 500 questions** - enable auto-reload.
+
+## Landscape board rebuilt as a Miro-style canvas (2026-09-14, `14f9fb5`)
+
+Partha: "It has to be like the Miro board only ... full screen by default,
+sidebar/topbar removed ... when I link two nodes it does not show me the
+relation types ... clicking a memory opens a slide drawer ... make it playable."
+
+- **Fullscreen route.** `CANVAS_ROUTES = ['/app/landscape']` in
+  `src/app/(app)/app/layout.tsx` drops sidebar, topbar and every banner (org
+  fetch, first-run redirect, store hydration, capture drawer still run).
+  Rewind (`?mode=rewind`) gets a slim header with Back + Board/Rewind tabs.
+- **Files.** `landscape/board-model.ts` (types, 11 relation kinds + colours,
+  frame layout, per-browser positions, `useIsDark`), `board-parts.tsx`
+  (card, frame, floating connector, relation picker, drawer, composer),
+  `board-view.tsx` (state + chrome), `board.css` (all `.rb-*`, dark mode).
+- **Why the relation picker never showed:** it rendered in a React Flow
+  bottom Panel that sat below the visible viewport, and the connect handler
+  was a stale closure that reloaded with the first-render org id. Now the
+  picker opens at the drop point *before* the link is saved; the link is
+  created with the chosen kind. Labels are clickable (change / reverse /
+  remove) and stay a readable size at any zoom; on dense boards (>80 links)
+  they hide below 30% zoom except for the hovered or opened card.
+- **Create on the board:** double-click, N, or rail button; save with Cmd+Enter
+  or click-away. POST /api/records with `orgId` only when an org is active
+  (no Personal/org mixing). Board polls 4/10/20/40s to pick up the AI's title.
+- **Undo/redo** for moves, links, relation changes, tidy, and memories made
+  on the board (undo deletes via DELETE /api/records, which checks access).
+- **API changes:** graph returns `manual` + `explanation`. GET
+  `/api/records/[id]` now uses `canAccessRecord` - org admins no longer 404,
+  and a teammate's private record is no longer readable by id (RBAC gap).
+- **Tested** locally via sandbox login + Playwright: 31 interaction checks
+  pass (drawer open/swap/outside-close, drag-link, picker, number keys,
+  edit, undo/redo, composer, search, legend, tidy, reload persistence,
+  dark mode, 400px phone, Rewind, other pages keep the sidebar). 300 cards
+  + 400 links render in ~1s. All 7 test suites pass.
+
+**Found, not fixed (security, needs a decision):** `DELETE /api/records/[id]`
+lets any member of a workspace delete any record in it, and `DELETE
+/api/records` (body id) only checks *read* access (`canAccessRecord`), so any
+org member who can see an org-visible memory can delete it. Should be
+`canManageRecordAccess` (creator / admin / dept head).
