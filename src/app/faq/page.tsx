@@ -8,7 +8,7 @@ import { OG_IMAGE } from '@/lib/seo/og-image'
 export const metadata: Metadata = {
   title: 'FAQ - Frequently Asked Questions | Reattend',
   description:
-    'Find answers to common questions about Reattend - pricing, security, integrations, getting started, and more.',
+    'Answers to common questions about Reattend: pricing and free trials, using your own AI key, security, integrations, the Chrome extension and getting started.',
   openGraph: {
     images: [OG_IMAGE],
     title: 'FAQ - Reattend',

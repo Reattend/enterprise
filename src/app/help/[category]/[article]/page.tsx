@@ -17,17 +17,30 @@ export function generateStaticParams() {
   )
 }
 
+function helpDescription(summary: string, category: string): string {
+  let d = summary.trim()
+  if (!/[.!?]$/.test(d)) d += '.'
+  if (d.length >= 120) return d
+  d += ` From the ${category} section of the Reattend help center, the memory app for individuals and teams.`
+  if (d.length <= 160) return d
+  return d.slice(0, 157).replace(/\s+\S*$/, '') + '...'
+}
+
 export function generateMetadata({ params }: { params: { category: string; article: string } }): Metadata {
   const cat = getCategoryBySlug(params.category)
   const art = getArticleBySlug(params.category, params.article)
   if (!cat || !art) return {}
+  // Article summaries are one-liners ("Rename, configure, or delete a
+  // workspace."), which Bing flags as too short. Pad them with true context
+  // to land in the 120-160 character range search engines display.
+  const description = helpDescription(art.description, cat.title)
   return {
     title: `${art.title} | ${cat.title} | Reattend Help`,
-    description: art.description,
+    description,
     openGraph: {
       images: [OG_IMAGE],
       title: `${art.title} | Reattend Help`,
-      description: art.description,
+      description,
       url: `https://reattend.com/help/${cat.slug}/${art.slug}`,
     },
     alternates: { canonical: `https://reattend.com/help/${cat.slug}/${art.slug}` },

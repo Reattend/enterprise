@@ -20,6 +20,10 @@ const nextConfig = {
   // the unpacked zip go to the listing rather than a stale, unreviewed build.
   async redirects() {
     return [
+      // Old addresses Googlebot still requests (seen in the access logs).
+      { source: '/index.htm', destination: '/', permanent: true },
+      { source: '/index.html', destination: '/', permanent: true },
+      { source: '/download', destination: 'https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl', permanent: true },
       {
         source: '/downloads/reattend-extension.zip',
         destination: 'https://chromewebstore.google.com/detail/reattend/nndcdadidlnohfebdkdehfeokgplcnkl',
@@ -34,6 +38,14 @@ const nextConfig = {
       {
         source: '/api/:path*',
         headers: [{ key: 'Link', value: '' }],
+      },
+      // The raw files behind every marketing page (/landing-design/pricing.html
+      // and so on) are reachable directly, with no canonical tag - Search
+      // Console reported them as duplicates. The clean routes serve the same
+      // files with SEO injected; keep the raw copies out of the index.
+      {
+        source: '/landing-design/:file(.*\\.html)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
       },
     ]
   },

@@ -5,7 +5,7 @@ import { OG_IMAGE } from '@/lib/seo/og-image'
 
 export const metadata: Metadata = {
   title: 'Join Game Room | Reattend',
-  description: 'Enter your room code to join a multiplayer team game. Free team games for meetings, TGIFs, and team bonding.',
+  description: 'Enter your room code to join a multiplayer team game. Free team games for meetings, TGIFs and team bonding, played in the browser with no signup or download.',
   openGraph: {
     images: [OG_IMAGE],
     title: 'Join Game Room | Reattend',

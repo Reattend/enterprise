@@ -6,7 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/app/', '/api/', '/admin/'],
+        // /admin/ is NOT disallowed on purpose: its pages carry noindex, and
+        // Google can only honour noindex on pages it is allowed to crawl.
+        disallow: ['/app/', '/api/'],
       },
     ],
     sitemap: 'https://reattend.com/sitemap.xml',
