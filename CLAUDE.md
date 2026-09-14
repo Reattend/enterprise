@@ -39,6 +39,9 @@ This is a fork of Reattend Personal (that parent repo is no longer on this Mac; 
 ```bash
 ssh root@167.99.158.143 "cd /var/www/enterprise && git pull && pm2 stop enterprise && rm -rf .next && NODE_OPTIONS='--max-old-space-size=3072' npm run build && pm2 start enterprise --update-env"
 ```
+After a deploy that adds or changes public pages, run `node scripts/indexnow-submit.mjs` (Bing and
+other IndexNow engines; Google uses the sitemap). Pass paths to submit only those.
+
 Always include `npx tsx src/lib/db/migrate.ts` if schema changed (after the
 build, before `pm2 start`).
 
@@ -73,6 +76,13 @@ build, before `pm2 start`).
   nginx's default 4 KB proxy buffer → `upstream sent too big header` →
   silent 502s on `/api/auth/verify-otp` and similar. Verify with
   `grep proxy_buffer /etc/nginx/sites-enabled/enterprise`.
+- **Deploy windows return 503, not 502** (set 2026-09-14): `error_page 502 504 = @deploying` in the
+  reattend.com server block of `/etc/nginx/sites-enabled/enterprise` returns 503 + `Retry-After: 180`
+  while pm2 is stopped. Search engines treat 502 as a broken site and 503 as planned downtime.
+- **robots.txt never errors**: `location = /robots.txt` proxies to the app and falls back to
+  `/var/www/robots-fallback/robots.txt` when it is down (a 5xx on robots.txt makes Google pause
+  crawling the whole site). **If you change `src/app/robots.ts`, update that static copy too.**
+  Backup of the pre-change config: `/root/nginx-enterprise.bak-*`.
 - **Cookies** for auth use NextAuth's official cookie writer (NOT custom
   Route-Handler `cookies().set()`). Hand-rolled cookies via `next/headers`
   in Route Handlers emit a `Set-Cookie` header that Chrome silently drops
