@@ -82,6 +82,10 @@ export async function GET(req: NextRequest) {
         to: l.toRecordId,
         kind: l.kind,
         weight: l.weight,
+        explanation: l.explanation,
+        // Drawn by a person on the board, as opposed to inferred at ingest
+        // (those rows keep the column default, 'agent').
+        manual: l.createdBy !== 'agent',
       })),
     })
   } catch (err) {

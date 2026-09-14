@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
+import { buildAccessContext, canAccessRecord, filterToAccessibleRecords } from '@/lib/enterprise'
 
 export async function GET(
   req: NextRequest,
@@ -11,21 +12,14 @@ export async function GET(
     const { userId } = await requireAuth()
     const { id } = await params
 
-    // Resolve all workspaces this user belongs to so cross-workspace
-    // source links from Ask AI resolve correctly
-    const memberships = await db.query.workspaceMembers.findMany({
-      where: eq(schema.workspaceMembers.userId, userId),
-    })
-    const allWorkspaceIds = memberships.map(m => m.workspaceId)
-
+    // Same record-level rules as every other read path (rbac-records.ts).
+    // This used to be "any workspace you are a member of", which let a
+    // workspace member open a teammate's private record by id, and 404'd
+    // org admins on records the Board and search already show them.
     const record = await db.query.records.findFirst({
-      where: and(
-        eq(schema.records.id, id),
-        inArray(schema.records.workspaceId, allWorkspaceIds),
-      ),
+      where: eq(schema.records.id, id),
     })
-
-    if (!record) {
+    if (!record || !(await canAccessRecord(await buildAccessContext(userId), id))) {
       return NextResponse.json({ error: 'Record not found' }, { status: 404 })
     }
 
@@ -42,10 +36,16 @@ export async function GET(
       })
     )
 
-    // Get links
-    const links = await db.query.recordLinks.findMany({
+    // Get links - only to records this user may see, so a link never
+    // leaks the title of a memory they have no access to.
+    const allLinks = await db.query.recordLinks.findMany({
       where: eq(schema.recordLinks.fromRecordId, id),
     })
+    const visibleTargets = await filterToAccessibleRecords(
+      await buildAccessContext(userId),
+      allLinks.map((l) => l.toRecordId),
+    )
+    const links = allLinks.filter((l) => visibleTargets.has(l.toRecordId))
     const linksWithTitles = await Promise.all(
       links.map(async (link) => {
         const target = await db.query.records.findFirst({

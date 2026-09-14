@@ -34,6 +34,11 @@ import { cn } from '@/lib/utils'
 // children should also be full-bleed (e.g. /app/memories AND /app/memories/[id]).
 const FULL_BLEED_PREFIXES: string[] = ['/app/ask', '/app/brain-dump', '/app/memories', '/app/landscape', '/app/wiki', '/app/integrations', '/app/tasks', '/app/admin', '/app/hierarchy']
 
+// Routes that take the whole window: no sidebar, topbar or banners. The
+// Landscape board is a Miro-style canvas and brings its own chrome (brand
+// block with a way back, tool rail, zoom). Exact match only.
+const CANVAS_ROUTES: string[] = ['/app/landscape']
+
 // Routes a user is allowed to visit when they belong to ZERO organizations.
 // Solo-Free users live entirely inside this list. Routes NOT on this list
 // (e.g. /app/exit-interview, /app/hierarchy, /app/policies, /app/wiki,
@@ -69,6 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const isFullBleed = FULL_BLEED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
+  const isCanvas = CANVAS_ROUTES.includes(pathname)
   const [isMobile, setIsMobile] = useState(false)
   const [orgsLoaded, setOrgsLoaded] = useState(false)
   const [askExpertsOpen, setAskExpertsOpen] = useState(false)
@@ -193,6 +199,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // feel like a forced upsell.
     router.replace('/app')
   }, [orgsLoaded, enterpriseOrgs.length, pathname, router])
+
+  if (isCanvas) {
+    // Same providers as the shell below (store hydration, shortcuts, the
+    // capture drawer) so the canvas behaves like any other app page, minus
+    // the chrome. The org fetch and first-run redirect above still run.
+    return (
+      <div className="enterprise-shell reattend-workspace canvas-shell h-screen overflow-hidden" data-route={pathname}>
+        <StoreHydrator />
+        <KeyboardShortcuts />
+        <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
+        <CaptureDrawer />
+        {children}
+      </div>
+    )
+  }
 
   return (
     // h-screen (not min-h-screen) - locks the shell to exactly the viewport

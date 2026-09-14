@@ -2,78 +2,55 @@
 
 // Landscape - two projections of the same memory corpus.
 //
-//   Board:  Memory graph editor. React Flow layout - manage links here.
-//           The default landing mode.
+//   Board:  Miro-style canvas of memories and their links. Full window,
+//           no app chrome (see CANVAS_ROUTES in app/layout.tsx). Default.
 //   Rewind: Time-Machine slider. Scrub through 24 months of org state.
 //
 // Mode persists via ?mode=rewind|board. Older mode=temporal still
-// resolves to rewind; mode=causal still resolves to board. mode=space
-// (the 3D constellation view) was removed 2026-08-29 - any old links
-// with ?mode=space now fall through to the board default below.
-//
-// Each mode renders its own page-shaped view underneath, so the inner
-// views own their crumb / hero / content.
+// resolves to rewind; mode=causal and the removed mode=space fall through
+// to the board.
 
-import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { RotateCcw, GitBranch } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Suspense } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { RotateCcw, GitBranch, ArrowLeft } from 'lucide-react'
 import { RewindView } from './rewind-view'
 import { BoardView } from './board-view'
-
-type Mode = 'rewind' | 'board'
-
-function normalizeMode(raw: string | null): Mode {
-  if (raw === 'rewind' || raw === 'temporal') return 'rewind'
-  return 'board'
-}
+import { useIsDark } from './board-model'
 
 function LandscapeInner() {
   const searchParams = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
-  const urlMode = normalizeMode(searchParams.get('mode'))
-  const [mode, setMode] = useState<Mode>(urlMode)
+  const raw = searchParams.get('mode')
+  const rewind = raw === 'rewind' || raw === 'temporal'
+  const dark = useIsDark()
 
-  useEffect(() => { setMode(urlMode) }, [urlMode])
+  if (!rewind) return <BoardView />
 
-  function pick(next: Mode) {
-    setMode(next)
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('mode', next)
-    router.replace(`${pathname}?${params.toString()}`)
-  }
-
+  // The layout has no sidebar or topbar on this route, so Rewind carries
+  // its own slim bar: back to the app, and back to the board.
   return (
-    <div className="lsc-page-wrap">
-      <div className="lsc-page">
-        {/* Mode switch - violet-gradient pill matches design exactly */}
+    <div className="rb-rewind-shell">
+      <div className="rb-rewind-top">
+        <Link href="/app" className="rb-back" title="Back to Reattend" aria-label="Back to Reattend">
+          <ArrowLeft size={15} />
+        </Link>
+        <img src={dark ? '/white_logo.png' : '/black_logo.png'} alt="" className="logo" />
+        <span className="app">Reattend</span>
         <div className="lsc-modes" role="tablist">
-          <button
-            type="button"
-            className={cn('lsc-mode-btn', mode === 'board' && 'active')}
-            onClick={() => pick('board')}
-            role="tab"
-            aria-selected={mode === 'board'}
-          >
+          <Link href="/app/landscape" className="lsc-mode-btn" role="tab" aria-selected={false}>
             <GitBranch size={14} strokeWidth={1.8} />
             Board
-            <span className="lab-sub">· Edit map</span>
-          </button>
-          <button
-            type="button"
-            className={cn('lsc-mode-btn', mode === 'rewind' && 'active')}
-            onClick={() => pick('rewind')}
-            role="tab"
-            aria-selected={mode === 'rewind'}
-          >
+          </Link>
+          <span className="lsc-mode-btn active" role="tab" aria-selected>
             <RotateCcw size={14} strokeWidth={1.8} />
             Rewind
-            <span className="lab-sub">· Scrub through time</span>
-          </button>
+          </span>
         </div>
-
-        {mode === 'rewind' ? <RewindView /> : <BoardView />}
+      </div>
+      <div className="lsc-page-wrap">
+        <div className="lsc-page">
+          <RewindView />
+        </div>
       </div>
     </div>
   )
