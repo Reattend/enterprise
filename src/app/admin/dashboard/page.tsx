@@ -29,6 +29,10 @@ interface Stats {
   totalApiTokens: number; pendingJobs: number; failedJobs: number; totalChats: number
 }
 
+interface IngestItem { at: string; channel: string; where: string | null; account: string; user: string | null }
+interface IngestChannel { channel: string; last: string; last24h: number; last7d: number; total: number }
+interface IngestActivity { last: IngestItem | null; recent: IngestItem[]; channels: IngestChannel[]; scanned: number }
+
 interface RecentUser {
   id: string; email: string; name: string; createdAt: string
   plan: string; tier: 'free' | 'professional' | 'enterprise'
@@ -43,6 +47,7 @@ export default function AdminDashboard() {
   const [section, setSection] = useState<Section>('overview')
   const [admin, setAdmin] = useState<AdminUser | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
+  const [ingest, setIngest] = useState<IngestActivity | null>(null)
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([])
   const [loading, setLoading] = useState(true)
   const [showExtendTrial, setShowExtendTrial] = useState(false)
@@ -92,6 +97,13 @@ export default function AdminDashboard() {
     } catch { } finally { setLoading(false) }
   }, [])
 
+  const fetchIngest = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/ingest-activity', { cache: 'no-store' })
+      if (res.ok) setIngest(await res.json())
+    } catch { }
+  }, [])
+
   const fetchAdmins = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/admins')
@@ -118,7 +130,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAdmin().then(() => {
-      fetchStats(); fetchAdmins(); fetchFeedback(); fetchIntegrationRequests()
+      fetchStats(); fetchIngest(); fetchAdmins(); fetchFeedback(); fetchIntegrationRequests()
     })
   }, [fetchAdmin, fetchStats, fetchAdmins, fetchFeedback, fetchIntegrationRequests])
 
@@ -369,6 +381,86 @@ export default function AdminDashboard() {
                       <StatCard label="Desktop / Ext" value={stats.totalApiTokens} icon={Monitor} />
                     </div>
                   </section>
+
+                  {/* Ingestion: where memories are coming from. Provenance only, never content. */}
+                  {ingest && (
+                    <section>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingestion</h2>
+                        <button onClick={fetchIngest} className="text-xs text-gray-500 hover:text-gray-900">Refresh</button>
+                      </div>
+
+                      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                        <p className="text-xs text-gray-500 mb-1">Last memory ingested</p>
+                        {ingest.last ? (
+                          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <span className="text-2xl font-bold text-gray-900">{timeAgo(ingest.last.at)}</span>
+                            <Badge variant="outline" className="text-xs">{ingest.last.channel}</Badge>
+                            {ingest.last.where && <span className="text-sm text-gray-700">{ingest.last.where}</span>}
+                            <span className="text-sm text-gray-500">
+                              {ingest.last.account}{ingest.last.user ? ` · ${ingest.last.user}` : ''}
+                            </span>
+                            <span className="text-xs text-gray-400">{new Date(ingest.last.at).toLocaleString()}</span>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500">No memories yet.</p>
+                        )}
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
+                                <th className="px-4 py-2 font-medium">Channel</th>
+                                <th className="px-4 py-2 font-medium">Last</th>
+                                <th className="px-4 py-2 font-medium text-right">24h</th>
+                                <th className="px-4 py-2 font-medium text-right">7d</th>
+                                <th className="px-4 py-2 font-medium text-right">All</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {ingest.channels.map((c) => (
+                                <tr key={c.channel} className="border-b border-gray-50 last:border-0">
+                                  <td className="px-4 py-2 text-gray-900">{c.channel}</td>
+                                  <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{timeAgo(c.last)}</td>
+                                  <td className="px-4 py-2 text-right tabular-nums">{c.last24h}</td>
+                                  <td className="px-4 py-2 text-right tabular-nums">{c.last7d}</td>
+                                  <td className="px-4 py-2 text-right tabular-nums text-gray-500">{c.total}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
+                                <th className="px-4 py-2 font-medium">When</th>
+                                <th className="px-4 py-2 font-medium">Channel</th>
+                                <th className="px-4 py-2 font-medium">Where</th>
+                                <th className="px-4 py-2 font-medium">Account</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {ingest.recent.map((r, i) => (
+                                <tr key={i} className="border-b border-gray-50 last:border-0">
+                                  <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{timeAgo(r.at)}</td>
+                                  <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{r.channel}</td>
+                                  <td className="px-4 py-2 text-gray-700">{r.where || '-'}</td>
+                                  <td className="px-4 py-2 text-gray-500" title={r.user || ''}>{r.account}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-2">
+                        Sandbox demos excluded. Shows where memories came from, never their content. Captures before 14 Sep 2026 cannot tell the Chrome extension from the desktop app or API, so they show as untagged.
+                      </p>
+                    </section>
+                  )}
 
                   {/* Product */}
                   <section>
@@ -908,6 +1000,17 @@ export default function AdminDashboard() {
       </Dialog>
     </div>
   )
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m} min ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h} h ago`
+  const d = Math.floor(h / 24)
+  return `${d} d ago`
 }
 
 function StatCard({ label, value, icon: Icon, accent, danger }: {

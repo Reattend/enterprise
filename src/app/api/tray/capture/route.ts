@@ -225,7 +225,10 @@ export async function POST(req: NextRequest) {
       workspaceId: targetWorkspaceId,
       text,
       occurredAt: occurred_at || new Date().toISOString(),
-      metadata: metadata ? JSON.stringify({ ...metadata, capturedBy: 'tray' }) : JSON.stringify({ capturedBy: 'tray' }),
+      // `channel` keeps the caller's source ('extension', 'mcp', 'tray', or a
+      // capture-API label). It used to be parsed and dropped, so the admin
+      // ingest view could not tell the extension from the MCP server.
+      metadata: JSON.stringify({ ...(metadata || {}), capturedBy: 'tray', channel: source || 'tray' }),
       status: 'new',
     })
 
