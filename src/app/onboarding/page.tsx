@@ -4,10 +4,12 @@ import { cn } from '@/lib/utils'
 
 // /onboarding - first-run wizard for personal accounts.
 //
-// Three steps: what Reattend is → how AI runs → you're set. Self-serve signup
-// always creates a personal account; organizations are set up with sales and
-// their members arrive by invite or SSO, so anyone who already belongs to an
-// org skips this page entirely (see the mount effect).
+// Four steps: what Reattend is → how the AI runs (Managed trial, the easy
+// default, or your own key with a how-to) → the browser extension (one click
+// makes and copies the Reattend token it needs) → you're set. Team signups go
+// to /app/admin/onboarding instead (the "For my team" door on /register, or
+// the link on step 1), and anyone who already belongs to an org skips this
+// page entirely (see the mount effect).
 //
 // Every exit path (finish OR skip) POSTs /api/user/onboarding to set
 // users.onboarding_completed, which is what (app)/app/layout.tsx reads to
@@ -20,8 +22,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Loader2, KeyRound, Check, Sparkles, Brain, MessageSquareText, Network, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Loader2, KeyRound, Check, Sparkles, Brain, MessageSquareText, Network, ArrowRight, ArrowLeft, Chrome, Copy, ChevronDown, ExternalLink, Users } from 'lucide-react'
 import { toast } from 'sonner'
+import { CHROME_WEB_STORE_URL } from '@/lib/extension'
 
 type ByokProvider = 'anthropic' | 'openai' | 'gemini'
 // Short labels - the full vendor names ("Claude (Anthropic)") overflowed
@@ -38,6 +41,19 @@ const PROVIDER_LABELS: Record<ByokProvider, string> = {
 // literal because that module pulls in the DB layer and can't be imported
 // into a client component.
 const TRIAL_DAYS = 7
+// Managed limits for a personal account - TIER_LIMITS.professional and the
+// personal Paddle price. Same duplication reason as TRIAL_DAYS.
+const MANAGED_QUESTIONS = 800
+const PERSONAL_PRICE = 9
+
+// Where to get a key, for people who have never made one. Steps match each
+// provider's console as of 2026-09.
+const KEY_HELP: Record<ByokProvider, { url: string; host: string; steps: string }> = {
+  anthropic: { url: 'https://console.anthropic.com/settings/keys', host: 'console.anthropic.com', steps: 'Sign in, add a few dollars of credit under Billing, then Create Key and copy it.' },
+  openai: { url: 'https://platform.openai.com/api-keys', host: 'platform.openai.com', steps: 'Sign in, add credit under Billing, then Create new secret key and copy it.' },
+  gemini: { url: 'https://aistudio.google.com/apikey', host: 'aistudio.google.com', steps: 'Sign in with Google, then Create API key and copy it. Google has a free tier.' },
+}
+const STEPS = 4
 
 const WHAT_IT_DOES: { icon: any; title: string; body: string }[] = [
   {
@@ -87,6 +103,9 @@ function OnboardingInner() {
   const [startingManaged, setStartingManaged] = useState(false)
   const [aiChoice, setAiChoice] = useState<'byok' | 'managed' | null>(null)
   const [leaving, setLeaving] = useState(false)
+  const [showKeyHelp, setShowKeyHelp] = useState(false)
+  const [extToken, setExtToken] = useState<string | null>(null)
+  const [makingToken, setMakingToken] = useState(false)
 
   // Auth check via a plain fetch, not useSession() - this app has never
   // wrapped itself in a <SessionProvider>, so useSession() throws. Hitting
@@ -196,6 +215,28 @@ function OnboardingInner() {
     }
   }
 
+  // Makes a Reattend token for the extension and puts it on the clipboard,
+  // so the only thing left to do in the extension is paste.
+  async function handleMakeToken() {
+    if (makingToken) return
+    setMakingToken(true)
+    try {
+      const res = await fetch('/api/tray/tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Chrome extension' }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.token) { toast.error('Could not make a token - try again'); return }
+      setExtToken(data.token)
+      try { await navigator.clipboard.writeText(data.token); toast.success('Token copied') } catch { /* shown below to copy by hand */ }
+    } catch {
+      toast.error('Network error - try again')
+    } finally {
+      setMakingToken(false)
+    }
+  }
+
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
@@ -204,7 +245,7 @@ function OnboardingInner() {
     )
   }
 
-  const cardWidth = step === 1 ? 'max-w-[520px]' : 'max-w-[420px]'
+  const cardWidth = step === 1 || step === 3 ? 'max-w-[520px]' : 'max-w-[440px]'
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAFA] px-6 py-10 relative overflow-hidden">
@@ -233,7 +274,7 @@ function OnboardingInner() {
         >
           {/* Progress */}
           <div className="flex items-center gap-2 mb-6">
-            {[1, 2, 3].map((n) => (
+            {Array.from({ length: STEPS }, (_, i) => i + 1).map((n) => (
               <div
                 key={n}
                 className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
@@ -285,6 +326,13 @@ function OnboardingInner() {
                   Set up AI
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
+                <button
+                  onClick={() => markCompleteAndLeave('/app/admin/onboarding')}
+                  disabled={leaving}
+                  className="w-full mt-3 text-center text-[12.5px] text-gray-500 hover:text-[#2563EB] font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <Users className="h-3.5 w-3.5" /> Setting this up for a team? Create an organization instead
+                </button>
               </motion.div>
             )}
 
@@ -302,14 +350,36 @@ function OnboardingInner() {
                   Pick one now, or skip and set it up later in Settings.
                 </p>
 
-                <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-3">
+                {/* Managed first: for someone arriving from an ad, "paste an
+                    API key" is a wall. The trial needs nothing. */}
+                <div className="rounded-xl border-2 border-[#2563EB]/35 bg-white/80 backdrop-blur-sm p-4 mb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles className="h-4 w-4 text-[#2563EB]" />
+                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Let Reattend run it</p>
+                    <span className="ml-auto text-[10.5px] font-bold uppercase tracking-wide text-white bg-[#2563EB] rounded-full px-2 py-0.5">Easiest</span>
+                  </div>
+                  <p className="text-[12px] text-gray-500 mb-3">
+                    Nothing to set up. {TRIAL_DAYS} days free with no card, then ${PERSONAL_PRICE}/month for up to {MANAGED_QUESTIONS} questions a month.
+                    If you walk away, nothing is charged.
+                  </p>
+                  <button
+                    onClick={handleStartTrial}
+                    disabled={startingManaged}
+                    className="w-full h-[40px] bg-[#2563EB] hover:bg-[#1d4ed8] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {startingManaged ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    Start my {TRIAL_DAYS}-day free trial
+                  </button>
+                </div>
+
+                <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-4">
                   <div className="flex items-center gap-2 mb-1">
                     <KeyRound className="h-4 w-4 text-[#2563EB]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Bring your own key</p>
+                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Use your own AI key</p>
                     <span className="ml-auto text-[11px] font-semibold text-emerald-600">Free forever</span>
                   </div>
                   <p className="text-[12px] text-gray-500 mb-3">
-                    Your own Anthropic, OpenAI, or Gemini key - unlimited questions, nothing billed by Reattend.
+                    Already pay for an AI provider? Connect its key and Reattend is free, with no question limit. Your provider bills you directly.
                   </p>
                   {/* Segmented control, not a native <select>: the select
                       inherited a near-invisible text colour on this card and
@@ -340,32 +410,38 @@ function OnboardingInner() {
                     />
                   </div>
                   <button
+                    type="button"
+                    onClick={() => setShowKeyHelp(v => !v)}
+                    className="mt-2 text-[12px] text-[#2563EB] hover:underline font-medium flex items-center gap-1"
+                    aria-expanded={showKeyHelp}
+                  >
+                    Don&apos;t have a key? How to get one
+                    <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', showKeyHelp && 'rotate-180')} />
+                  </button>
+                  {showKeyHelp && (
+                    <div className="mt-2 rounded-lg bg-white/80 border border-white p-3 text-[12px] text-gray-600 leading-relaxed">
+                      <p className="mb-1.5">
+                        An API key is a password that lets Reattend use your {PROVIDER_LABELS[byokProvider]} account. It takes about two minutes:
+                      </p>
+                      <p className="mb-2">{KEY_HELP[byokProvider].steps}</p>
+                      <a
+                        href={KEY_HELP[byokProvider].url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 font-semibold text-[#2563EB] hover:underline"
+                      >
+                        Open {KEY_HELP[byokProvider].host} <ExternalLink className="h-3 w-3" />
+                      </a>
+                      <p className="mt-2 text-gray-400">Not sure? Start the free trial above; you can switch to your own key any time in Settings.</p>
+                    </div>
+                  )}
+                  <button
                     onClick={handleConnectByok}
                     disabled={connectingByok || !byokKey.trim()}
                     className="w-full h-[40px] mt-2.5 bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {connectingByok ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                     Connect &amp; continue
-                  </button>
-                </div>
-
-                <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Sparkles className="h-4 w-4 text-[#2563EB]" />
-                    <p className="text-[14px] font-semibold text-[#1a1a2e]">Managed</p>
-                    <span className="ml-auto text-[11px] font-semibold text-[#2563EB]">{TRIAL_DAYS}-day free trial</span>
-                  </div>
-                  <p className="text-[12px] text-gray-500 mb-3">
-                    No key to manage - Reattend runs the AI for you. 300 questions/month,
-                    then $9/mo. No card needed to start.
-                  </p>
-                  <button
-                    onClick={handleStartTrial}
-                    disabled={startingManaged}
-                    className="w-full h-[40px] border border-[#2563EB]/30 hover:bg-[#2563EB]/5 active:scale-[0.98] text-[#2563EB] text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {startingManaged ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                    Start {TRIAL_DAYS}-day trial
                   </button>
                 </div>
 
@@ -388,10 +464,102 @@ function OnboardingInner() {
               </motion.div>
             )}
 
-            {/* ─────────── STEP 3: you're set ─────────── */}
+            {/* ─────────── STEP 3: the browser extension ─────────── */}
             {step === 3 && (
               <motion.div
                 key="step3"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex justify-center mb-3">
+                  <div className="h-11 w-11 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center">
+                    <Chrome className="h-5 w-5" />
+                  </div>
+                </div>
+                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">Add Reattend to your browser</h1>
+                <p className="text-[13px] text-gray-500 text-center mb-5 leading-relaxed">
+                  This is where Reattend earns its keep. It saves what matters from the pages and email you already read,
+                  and answers from your memory in a side panel while you work. Works in Chrome, Brave and Arc.
+                </p>
+
+                <ol className="space-y-3 mb-5">
+                  <li className="rounded-xl border border-white/80 bg-white/70 p-3.5 flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-[#1a1a2e] text-white text-[12px] font-bold flex items-center justify-center shrink-0">1</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-[#1a1a2e] mb-2">Add it from the Chrome Web Store</p>
+                      <a
+                        href={CHROME_WEB_STORE_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 h-[34px] px-3 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[12.5px] font-semibold"
+                      >
+                        <Chrome className="h-3.5 w-3.5" /> Add to Chrome <ExternalLink className="h-3 w-3 opacity-80" />
+                      </a>
+                    </div>
+                  </li>
+                  <li className="rounded-xl border border-white/80 bg-white/70 p-3.5 flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-[#1a1a2e] text-white text-[12px] font-bold flex items-center justify-center shrink-0">2</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-[#1a1a2e] mb-1">Copy your Reattend token</p>
+                      <p className="text-[12px] text-gray-500 mb-2">It links the extension to this account. Keep it private, like a password.</p>
+                      {extToken ? (
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 min-w-0 truncate font-mono text-[11.5px] bg-white border border-gray-200 rounded-lg px-2.5 py-2 select-all">{extToken}</code>
+                          <button
+                            type="button"
+                            onClick={() => { navigator.clipboard.writeText(extToken).then(() => toast.success('Token copied')).catch(() => {}) }}
+                            className="h-[34px] px-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-[12px] font-semibold flex items-center gap-1"
+                          >
+                            <Copy className="h-3.5 w-3.5" /> Copy
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleMakeToken}
+                          disabled={makingToken}
+                          className="inline-flex items-center gap-1.5 h-[34px] px-3 rounded-lg bg-[#1a1a2e] hover:bg-[#2d2b55] text-white text-[12.5px] font-semibold disabled:opacity-50"
+                        >
+                          {makingToken ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Copy className="h-3.5 w-3.5" />}
+                          Copy my token
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                  <li className="rounded-xl border border-white/80 bg-white/70 p-3.5 flex gap-3">
+                    <span className="h-6 w-6 rounded-full bg-[#1a1a2e] text-white text-[12px] font-bold flex items-center justify-center shrink-0">3</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-[#1a1a2e] mb-1">Paste it into the extension</p>
+                      <p className="text-[12px] text-gray-500">
+                        Its settings page opens by itself after you install. Paste the token and save. Lost the page?
+                        Click the puzzle icon in your browser bar, then Reattend, then Options.
+                      </p>
+                    </div>
+                  </li>
+                </ol>
+
+                <button
+                  onClick={() => setStep(4)}
+                  className="w-full h-[42px] bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 mb-2.5"
+                >
+                  {extToken ? 'Done, continue' : 'Continue'}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setStep(4)}
+                  className="w-full text-center text-[13px] text-gray-500 hover:text-[#2563EB] font-medium transition-colors"
+                >
+                  I&apos;ll do this later
+                </button>
+              </motion.div>
+            )}
+
+            {/* ─────────── STEP 4: you're set ─────────── */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -12 }}

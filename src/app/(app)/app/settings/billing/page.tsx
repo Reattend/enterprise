@@ -229,13 +229,14 @@ export default function BillingPage() {
             <CardHeader>
               <CardTitle>Using Reattend with a team?</CardTitle>
               <CardDescription>
-                Organization plans add shared memory, decision logs, roles and admin controls, and are set up with us
-                rather than self-serve. Your personal memory stays yours either way.
+                An organization gives your team one shared memory, a decision log, roles and admin controls. Create
+                one in two minutes: 15 days of Managed free, no card, then $19 per seat a month. Your personal memory
+                stays yours either way.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild>
-                <Link href="/pricing">Talk to us about teams</Link>
+                <Link href="/app/admin/onboarding">Create an organization</Link>
               </Button>
             </CardContent>
           </Card>
@@ -258,14 +259,14 @@ export default function BillingPage() {
               <CardHeader>
                 <CardTitle>Go Managed</CardTitle>
                 <CardDescription>
-                  We run the AI for your whole org - no key for employees to manage. $15/seat/mo, self-serve up to 99
-                  seats. Start with a 7-day trial, no card needed.
+                  We run the AI for your whole org - no key for employees to manage. $19/seat/mo, self-serve up to 99
+                  seats. Start with a {data?.trialDays ?? 15}-day trial, no card needed.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Button onClick={handleStartTrial} disabled={startingTrial}>
                   {startingTrial ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : null}
-                  Start 7-day free trial
+                  Start {data?.trialDays ?? 15}-day free trial
                 </Button>
                 <Button variant="outline" asChild>
                   <a href="https://calendly.com/pb-reattend/30min" target="_blank" rel="noreferrer">Talk to sales</a>

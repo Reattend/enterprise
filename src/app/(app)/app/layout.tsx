@@ -67,6 +67,7 @@ const NO_ORG_ALLOWED_PREFIXES = [
   '/app/compose',             // draft emails / broadcasts
   '/app/settings',            // profile, billing, integrations, API keys
   '/app/extension',           // Chrome extension install + API key management
+  '/app/admin/onboarding',    // create an organization (the "For my team" signup door)
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -179,6 +180,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         if (cancelled) return
         const u = data?.user
         if (!u || u.onboardingCompleted !== false) return
+        // Team signups create their org first; that wizard marks onboarding
+        // done itself, so don't pull them into the personal one.
+        if (window.location.pathname.startsWith('/app/admin/onboarding')) return
         const createdAt = u.createdAt ? new Date(u.createdAt).getTime() : 0
         if (createdAt >= FIRST_RUN_CUTOFF) router.replace('/onboarding')
       } catch { /* never block the app on this check */ }

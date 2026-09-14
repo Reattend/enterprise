@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { useAppStore } from '@/stores/app-store'
 import PersonalHomePage from './personal-home'
+import { GettingStarted } from '@/components/app/getting-started'
 
 interface AnalyticsTotals {
   activeMembers: number
@@ -203,6 +204,8 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
+
+      <GettingStarted />
 
       <WorkspaceFocus />
 

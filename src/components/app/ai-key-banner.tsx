@@ -31,46 +31,62 @@ export function AiKeyBanner() {
   const [href, setHref] = useState<string | null>(null)
   const [invalid, setInvalid] = useState(false)
 
+  const [tick, setTick] = useState(0)
+  // Re-check when the tab regains focus, and when something on the page
+  // starts a trial or connects a key (they dispatch reattend:billing-changed).
+  useEffect(() => {
+    const bump = () => setTick((t) => t + 1)
+    window.addEventListener('focus', bump)
+    window.addEventListener('reattend:billing-changed', bump)
+    return () => {
+      window.removeEventListener('focus', bump)
+      window.removeEventListener('reattend:billing-changed', bump)
+    }
+  }, [])
+
   useEffect(() => {
     if (!enterpriseOrgsLoaded) return
     let cancelled = false
-
     ;(async () => {
+      // Every path ends in exactly one setHref, so the banner also goes away
+      // once AI is on (it used to stick until a full reload).
+      let next: string | null = null
+      let bad = false
       try {
-        // The Enterprise demo runs with the AI deliberately off and its
-        // visitor cannot connect anything, so never nag there.
         const meRes = await fetch('/api/user', { cache: 'no-store' })
         const meEmail: string = meRes.ok ? ((await meRes.json())?.user?.email || '') : ''
-        if (meEmail.toLowerCase().endsWith('@sandbox.reattend.local')) return
-
-        const res = await fetch('/api/billing/me')
-        if (!res.ok) return
-        const me = (await res.json()) as BillingMe
-        if (cancelled) return
-
-        // Managed / paid: we supply the AI, nothing to connect.
-        if (me.tier && me.tier !== 'free') return
-
-        if (activeEnterpriseOrgId) {
-          const role = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)?.role
-          if (role !== 'admin' && role !== 'super_admin') return
-          const keyRes = await fetch(`/api/enterprise/organizations/${activeEnterpriseOrgId}/ai-provider-key`)
-          const key = keyRes.ok ? (await keyRes.json())?.key : null
-          if (cancelled) return
-          if (key && key.status !== 'invalid') return
-          setInvalid(!!key)
-          setHref(`/app/admin/${activeEnterpriseOrgId}/settings#ai-provider`)
-          return
+        if (!meEmail.toLowerCase().endsWith('@sandbox.reattend.local')) {
+          // /api/billing/status is org-aware (resolves the org's billing
+          // owner); /api/billing/me is the caller's own row, which made the
+          // banner nag admins of a Managed org who didn't create it.
+          const [statusRes, byokRes] = await Promise.all([fetch('/api/billing/status'), fetch('/api/billing/me')])
+          const status = statusRes.ok ? await statusRes.json() : null
+          const me = byokRes.ok ? ((await byokRes.json()) as BillingMe) : null
+          const tier = status?.tier ?? me?.tier
+          if (!tier || tier === 'free') {
+            if (activeEnterpriseOrgId) {
+              const role = enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId)?.role
+              if (role === 'admin' || role === 'super_admin') {
+                const keyRes = await fetch(`/api/enterprise/organizations/${activeEnterpriseOrgId}/ai-provider-key`)
+                const key = keyRes.ok ? (await keyRes.json())?.key : null
+                if (!key || key.status === 'invalid') {
+                  bad = !!key
+                  next = `/app/admin/${activeEnterpriseOrgId}/settings#ai-provider`
+                }
+              }
+            } else if (!me?.byok || me.byok.status === 'invalid') {
+              bad = !!me?.byok
+              next = '/app/settings?tab=ai-provider'
+            }
+          }
         }
-
-        if (me.byok && me.byok.status !== 'invalid') return
-        setInvalid(!!me.byok)
-        setHref('/app/settings?tab=ai-provider')
       } catch { /* non-fatal: a missing banner is better than a broken shell */ }
+      if (cancelled) return
+      setInvalid(bad)
+      setHref(next)
     })()
-
     return () => { cancelled = true }
-  }, [activeEnterpriseOrgId, enterpriseOrgs, enterpriseOrgsLoaded])
+  }, [activeEnterpriseOrgId, enterpriseOrgs, enterpriseOrgsLoaded, tick])
 
   if (!href) return null
 

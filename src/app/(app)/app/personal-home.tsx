@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
 import { MemorySignals } from '@/components/app/memory-signals'
+import { GettingStarted } from '@/components/app/getting-started'
 import {
   Plus, MessageSquare, Database, Sparkles, Zap,
   FileText, Layers,
@@ -102,6 +103,8 @@ export default function PersonalHomePage({ user }: Props) {
         </div>
       </div>
 
+      <GettingStarted />
+
       <WorkspaceFocus />
 
       <MemoryPulse
@@ -113,31 +116,6 @@ export default function PersonalHomePage({ user }: Props) {
 
       <MemorySignals />
 
-      {/* Empty-state helper for brand-new accounts */}
-      {!recentLoading && recent.length === 0 && (
-        <section style={{
-          border: '1px solid var(--line)',
-          borderRadius: 14,
-          background: 'var(--panel)',
-          padding: '28px 26px',
-          marginBottom: 16,
-        }}>
-          <h2 style={{ fontFamily: 'var(--serif)', fontSize: 22, margin: '0 0 8px', color: 'var(--ink)' }}>
-            Welcome to Reattend.
-          </h2>
-          <p style={{ color: 'var(--ink-3)', fontSize: 14, lineHeight: 1.55, margin: '0 0 18px', maxWidth: '60ch' }}>
-            Capture a thought, paste a meeting transcript, or connect an integration. Your memory grows from day one - and you can ask anything across it the moment there's something to ask about.
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <Link href="/app/brain-dump" style={ctaPrimary}>
-              <Sparkles className="h-3.5 w-3.5" /> Start with a brain-dump
-            </Link>
-            <Link href="/app/integrations" style={ctaGhost}>
-              <Zap className="h-3.5 w-3.5" /> Connect Gmail / Notion / Calendar
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Stat row - two personal-flavored cards. Quota meter intentionally
           deferred to a follow-up: /api/subscription doesn't yet expose

@@ -35,6 +35,14 @@ export async function middleware(request: NextRequest) {
     })
 
     if (token) {
+      // Already signed in and clicked "Start a team trial": go straight to
+      // creating the organization rather than dropping them on /app.
+      if (pathname === '/register' && request.nextUrl.searchParams.get('for') === 'team') {
+        const dest = new URL('/app/admin/onboarding', request.url)
+        const plan = request.nextUrl.searchParams.get('plan')
+        if (plan) dest.searchParams.set('plan', plan)
+        return NextResponse.redirect(dest)
+      }
       return NextResponse.redirect(new URL('/app', request.url))
     }
 

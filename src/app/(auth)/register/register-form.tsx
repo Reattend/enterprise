@@ -1,25 +1,35 @@
 'use client'
 
-// Registration is just email -> OTP now. The org-creation + AI-choice
-// steps moved to /onboarding (a standalone page, not owned by this
-// component) so Google OAuth signups go through the exact same flow
-// instead of bypassing it - that gap was letting accounts land in a bare
-// Personal dashboard with no org at all. See today.md 2026-08-25 and
-// /app/onboarding/page.tsx.
+// Registration is email -> OTP (or Google), with one question first: is
+// this for me, or for my team? (?for=team preselects the team door; the
+// pricing page's Managed button links there.)
+//
+//   For me       -> /onboarding (personal wizard: AI choice, extension)
+//   For my team  -> /app/admin/onboarding (create the org, pick a plan,
+//                   invite people)
+//
+// The code is verified through NextAuth's own `otp` credentials provider
+// (signIn('otp')), the same path /login uses, so the session cookie is
+// written by NextAuth. The old /api/auth/verify-otp route set the cookie by
+// hand, which CLAUDE.md records Chrome silently dropping.
 
 import React, { useState, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, ArrowLeft, Lock } from 'lucide-react'
+import { Loader2, ArrowLeft, Lock, User, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { signIn } from 'next-auth/react'
 
 export default function RegisterPage() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/app'
-  const onboardingUrl = redirectTo === '/app' ? '/onboarding' : `/onboarding?redirect=${encodeURIComponent(redirectTo)}`
+  const [audience, setAudience] = useState<'me' | 'team'>(searchParams.get('for') === 'team' ? 'team' : 'me')
+  const plan = searchParams.get('plan')
+  const personalUrl = redirectTo === '/app' ? '/onboarding' : `/onboarding?redirect=${encodeURIComponent(redirectTo)}`
+  const teamUrl = `/app/admin/onboarding${plan ? `?plan=${encodeURIComponent(plan)}` : ''}`
+  const onboardingUrl = audience === 'team' ? teamUrl : personalUrl
 
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
@@ -57,25 +67,22 @@ export default function RegisterPage() {
     }
   }
 
-  const handleVerifyOTP = async () => {
-    const code = otp.join('')
+  // Takes the code explicitly when called right after a state update (typing
+  // the 6th digit, paste, dev fill): reading `otp` there would see the value
+  // from before the update, so auto-submit silently did nothing.
+  const handleVerifyOTP = async (codeArg?: string) => {
+    const code = codeArg ?? otp.join('')
     if (code.length !== 6) return
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), code }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || 'Invalid or expired code. Please try again.')
+      const res = await signIn('otp', { email: email.trim().toLowerCase(), code, redirect: false })
+      if (!res || res.error) {
+        toast.error('Invalid or expired code. Please try again.')
         setOtp(['', '', '', '', '', ''])
         inputRefs.current[0]?.focus()
       } else {
-        toast.success('Account created! Welcome to Reattend.')
+        toast.success('You are in. Welcome to Reattend.')
         window.location.href = onboardingUrl
       }
     } catch {
@@ -92,7 +99,7 @@ export default function RegisterPage() {
     setOtp(newOtp)
     if (value && index < 5) inputRefs.current[index + 1]?.focus()
     if (newOtp.every(d => d !== '') && newOtp.join('').length === 6) {
-      setTimeout(() => handleVerifyOTP(), 100)
+      setTimeout(() => handleVerifyOTP(newOtp.join('')), 100)
     }
   }
 
@@ -108,14 +115,14 @@ export default function RegisterPage() {
     if (pasted.length === 6) {
       setOtp(pasted.split(''))
       inputRefs.current[5]?.focus()
-      setTimeout(() => handleVerifyOTP(), 100)
+      setTimeout(() => handleVerifyOTP(pasted), 100)
     }
   }
 
   const handleUseDevCode = () => {
     if (devCode) {
       setOtp(devCode.split(''))
-      setTimeout(() => handleVerifyOTP(), 100)
+      setTimeout(() => handleVerifyOTP(devCode), 100)
     }
   }
 
@@ -156,7 +163,35 @@ export default function RegisterPage() {
                 exit={{ opacity: 0, y: -8 }}
                 className="w-full"
               >
-                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-8 text-center">Create your workspace</h1>
+                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">
+                  {audience === 'team' ? "Start your team's free trial" : 'Create your free account'}
+                </h1>
+                <p className="text-[13px] text-gray-500 text-center mb-5 leading-relaxed">
+                  {audience === 'team'
+                    ? '15 days free, no card. Next you name your organization and invite your team.'
+                    : 'Your own private memory. Free forever on your own AI key, or try ours for 7 days.'}
+                </p>
+
+                {/* Who is it for - decides where you land after signing in. */}
+                <div className="grid grid-cols-2 gap-1 p-1 mb-5 rounded-xl bg-white/70 border border-white/80" role="radiogroup" aria-label="Who is this for">
+                  {([
+                    { key: 'me', label: 'For me', Icon: User },
+                    { key: 'team', label: 'For my team', Icon: Users },
+                  ] as const).map(({ key, label, Icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="radio"
+                      aria-checked={audience === key}
+                      onClick={() => setAudience(key)}
+                      className={`h-[38px] rounded-lg text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                        audience === key ? 'bg-[#1a1a2e] text-white shadow-sm' : 'text-gray-600 hover:bg-white'
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" /> {label}
+                    </button>
+                  ))}
+                </div>
 
                 {/* Google OAuth - routes through the same org-creation +
                     AI-choice flow as email/OTP, via callbackUrl. */}
@@ -187,7 +222,7 @@ export default function RegisterPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
+                    placeholder={audience === 'team' ? 'you@yourcompany.com' : 'name@example.com'}
                     required
                     autoFocus
                     className="w-full h-[48px] px-4 text-[14px] text-[#1a1a2e] bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl outline-none transition-all placeholder:text-gray-400 focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
@@ -253,12 +288,12 @@ export default function RegisterPage() {
                 )}
 
                 <button
-                  onClick={handleVerifyOTP}
+                  onClick={() => handleVerifyOTP()}
                   disabled={loading || otp.join('').length !== 6}
                   className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Verify & Create Account
+                  {audience === 'team' ? 'Verify & set up my team' : 'Verify & continue'}
                 </button>
 
                 <div className="mt-5 flex items-center justify-center gap-4">

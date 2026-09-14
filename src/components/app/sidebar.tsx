@@ -468,6 +468,12 @@ export function AppSidebar() {
                   <Link href="/app/settings/billing"><CreditCard className="h-3.5 w-3.5 mr-2" /> Billing & plan</Link>
                 </DropdownMenuItem>
               )}
+              {/* Personal accounts can turn into a team at any point. */}
+              {!activeEnterpriseOrgId && (
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/app/admin/onboarding"><Building2 className="h-3.5 w-3.5 mr-2" /> Create an organization</Link>
+                </DropdownMenuItem>
+              )}
               {activeEnterpriseOrgId && (
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href={`/app/admin/${activeEnterpriseOrgId}`}>

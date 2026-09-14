@@ -128,8 +128,8 @@ export function hasFeature(
  * default, per-user override, or personal) or an active Managed
  * subscription. Both Free/BYOK and Managed get the extension per the
  * 2026-08-23 restructure; the old "Professional+ only" tier gate is gone.
- * Personal accounts are excluded entirely regardless of BYOK status - by
- * design, Personal never gets extension access (see today.md).
+ * Personal accounts get it on the same terms (their own key, or the
+ * personal Managed trial/plan).
  *
  * Apply this immediately after validateApiToken() in any tray route. Re-runs
  * on every call so losing AI access (key removed, subscription lapsed)

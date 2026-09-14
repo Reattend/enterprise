@@ -67,7 +67,7 @@ interface Notification {
 export function AppTopbar() {
   const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
-  const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId, createTeamOpen, setCreateTeamOpen, setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
+  const { inboxPanelOpen, setInboxPanelOpen, subscription, workspaceName, workspaceType, allWorkspaces, currentWorkspaceId,  setInviteOpen, mobileSidebarOpen, setMobileSidebarOpen, enterpriseOrgs, activeEnterpriseOrgId } = useAppStore()
   // Only consider the user's pick - never silently fall back to the first
   // org when activeEnterpriseOrgId is null. The null state IS the "Personal"
   // selection and must render as such; falling back desyncs the button label
@@ -76,11 +76,6 @@ export function AppTopbar() {
     ? enterpriseOrgs.find((o) => o.orgId === activeEnterpriseOrgId) ?? null
     : null
   const hasEnterprise = enterpriseOrgs.length > 0
-
-  // Create team
-  const [newTeamName, setNewTeamName] = useState('')
-  const [creatingTeam, setCreatingTeam] = useState(false)
-  const [teamCreated, setTeamCreated] = useState(false)
 
   // Docs
   const [docsOpen, setDocsOpen] = useState(false)
@@ -114,30 +109,6 @@ export function AppTopbar() {
       }
     } catch {
       toast.error('Failed to switch workspace')
-    }
-  }
-
-  const handleCreateTeam = async () => {
-    if (!newTeamName.trim()) return
-    setCreatingTeam(true)
-    try {
-      const res = await fetch('/api/workspaces', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newTeamName.trim() }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast.success(`Team "${newTeamName.trim()}" created!`)
-        setNewTeamName('')
-        setTeamCreated(true)
-      } else {
-        toast.error(data.message || data.error || 'Failed to create team')
-      }
-    } catch {
-      toast.error('Failed to create team')
-    } finally {
-      setCreatingTeam(false)
     }
   }
 
@@ -595,96 +566,6 @@ export function AppTopbar() {
         )}
       </AnimatePresence>
 
-      {/* Create Team Dialog */}
-      <AnimatePresence>
-        {createTeamOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            onClick={() => { setCreateTeamOpen(false); setTeamCreated(false) }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-background rounded-2xl border shadow-2xl w-full max-w-md mx-4 p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {teamCreated ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <CheckCircle2 className="h-6 w-6 text-emerald-500" />
-                    <h3 className="font-semibold text-base">Team created!</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Here&apos;s what to do next:</p>
-                  <div className="space-y-2">
-                    {[
-                      { num: 1, text: 'Invite your team members', Icon: UserPlus },
-                      { num: 2, text: 'Create your first team project', Icon: FolderKanban },
-                      { num: 3, text: 'Start adding shared memories', Icon: Brain },
-                    ].map((step) => (
-                      <div key={step.num} className="flex items-center gap-3 rounded-lg bg-muted/30 px-3 py-2.5">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-bold text-indigo-500">
-                          {step.num}
-                        </div>
-                        <step.Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{step.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Button
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white"
-                    onClick={() => { setCreateTeamOpen(false); setTeamCreated(false); window.location.href = '/app' }}
-                  >
-                    Go to Dashboard
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10">
-                      <Users className="h-5 w-5 text-indigo-500" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-base">Create Team Workspace</h3>
-                      <p className="text-xs text-muted-foreground">Collaborate with your team on shared memories.</p>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Team Name</label>
-                      <Input
-                        value={newTeamName}
-                        onChange={(e) => setNewTeamName(e.target.value)}
-                        placeholder="e.g. Acme Corp, Product Team"
-                        autoFocus
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleCreateTeam() }}
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2 pt-2">
-                      <Button variant="ghost" size="sm" onClick={() => { setCreateTeamOpen(false); setNewTeamName('') }}>
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="bg-indigo-500 hover:bg-indigo-600 text-white"
-                        disabled={!newTeamName.trim() || creatingTeam}
-                        onClick={handleCreateTeam}
-                      >
-                        {creatingTeam ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Plus className="h-3.5 w-3.5 mr-1" />}
-                        {creatingTeam ? 'Creating...' : 'Create Team'}
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }
