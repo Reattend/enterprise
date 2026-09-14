@@ -13,7 +13,7 @@
   --rb-ink-3: #80858f;
   --rb-shadow: 0 1px 2px rgba(17, 20, 28, 0.06), 0 6px 20px -8px rgba(17, 20, 28, 0.18);
   --rb-label-scale: 1;
-  --rb-frame-scale: 1;
+  --rb-dot-label-scale: 1;
   position: relative;
   width: 100%;
   height: 100%;
@@ -41,9 +41,8 @@
 .rb-root .react-flow__background.rb-bg circle { fill: var(--rb-dot); }
 .rb-root.tool-memory .react-flow__pane { cursor: crosshair; }
 .rb-root.tool-connect .react-flow__pane,
-.rb-root.tool-connect .rb-card { cursor: alias; }
+.rb-root.tool-connect .rb-dot { cursor: alias; }
 .rb-root .react-flow__pane.dragging { cursor: grabbing; }
-.rb-root.is-arranging .react-flow__node { transition: transform 520ms cubic-bezier(.2, .8, .2, 1); }
 
 /* The app's older graph styles (globals.css, dashboard.css, dark-refresh.css)
    paint every React Flow node, control and minimap. Undo them here. */
@@ -51,9 +50,8 @@
 .rb-root .react-flow__node-memory { cursor: pointer; }
 .rb-root .react-flow__node-memory.dragging { cursor: grabbing; }
 
-/* Frames never take a click - they are area labels, the pane handles the
-   clicks behind them (placing a memory, panning, double-click). */
-.rb-root .react-flow__node-frame { pointer-events: none !important; }
+/* dark-refresh.css paints every node's first child; dots stay transparent. */
+.dark .rb-root .react-flow__node > .rb-dot { background: transparent; border-color: transparent; }
 
 .rb-panel {
   background: var(--rb-panel);
@@ -61,130 +59,160 @@
   box-shadow: var(--rb-shadow), 0 0 0 1px var(--rb-line);
 }
 
-/* ─── Memory card (sticky note) ─────────────────────────────────────── */
+/* ─── Memory dots (Obsidian-style) ─────────────────────────────────── */
 
-.rb-card {
+.rb-dot {
   position: relative;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 11px 13px 10px;
-  border-radius: 6px;
-  background: var(--fill);
-  color: var(--rb-ink);
-  box-shadow: 0 1px 1px rgba(17, 20, 28, 0.06), 0 6px 16px -8px rgba(17, 20, 28, 0.22);
-  transition: box-shadow 160ms ease, opacity 180ms ease, transform 160ms ease, outline-color 160ms ease;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+  border-radius: 50%;
   cursor: pointer;
+  transition: opacity 180ms ease;
 }
-.dark .rb-root .react-flow__node > .rb-card {
-  background: color-mix(in srgb, var(--ink) 20%, #1c1f26);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
+.rb-dot-core {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--ink) 55%, white) 0%, var(--ink) 62%);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ink) 16%, transparent),
+    0 3px 10px -3px color-mix(in srgb, var(--ink) 70%, transparent);
+  transition: transform 180ms cubic-bezier(.2, .9, .3, 1.3), box-shadow 180ms ease, outline-color 160ms ease;
+  outline: 2px solid transparent;
+  outline-offset: 3px;
 }
-.rb-card:hover { box-shadow: 0 2px 3px rgba(17, 20, 28, 0.08), 0 14px 28px -10px rgba(17, 20, 28, 0.3); transform: translateY(-1px); }
-.rb-card.is-selected { outline-color: var(--rb-accent); }
-.rb-card.is-open { outline: 3px solid var(--rb-accent); outline-offset: 3px; }
-.rb-card.is-faded { opacity: 0.2; }
-.rb-card.is-faded:hover { opacity: 0.7; }
-.rb-card.is-match { outline: 2px solid #f59f00; outline-offset: 3px; }
-.rb-card.is-source { outline: 2px dashed var(--rb-accent); outline-offset: 4px; animation: rb-pulse 1.2s ease-in-out infinite; }
-.rb-card.is-fresh { animation: rb-pop 520ms cubic-bezier(.2, 1.4, .4, 1) both; }
-.rb-card.is-fresh .rb-card-foot { color: var(--rb-accent); }
+.dark .rb-dot-core {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ink) 26%, transparent),
+    0 0 14px -2px color-mix(in srgb, var(--ink) 80%, transparent);
+}
+.rb-dot:hover .rb-dot-core,
+.rb-dot.is-lit .rb-dot-core {
+  transform: scale(1.28);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--ink) 22%, transparent),
+    0 0 26px 2px color-mix(in srgb, var(--ink) 65%, transparent);
+}
+.rb-dot.is-faded { opacity: 0.14; }
+.rb-dot.is-selected .rb-dot-core { outline-color: var(--rb-accent); }
+.rb-dot.is-open .rb-dot-core { outline: 3px solid var(--rb-accent); outline-offset: 4px; }
+.rb-dot.is-match .rb-dot-core { outline: 2px solid #f59f00; outline-offset: 4px; }
+.rb-dot.is-source .rb-dot-core { outline: 2px dashed var(--rb-accent); outline-offset: 5px; animation: rb-pulse 1.2s ease-in-out infinite; }
+.rb-dot.is-fresh .rb-dot-core { animation: rb-pop 620ms cubic-bezier(.2, 1.5, .4, 1) both; }
+.rb-dot.is-fresh::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  animation: rb-ripple 1.6s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes rb-pop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes rb-pulse { 50% { outline-offset: 8px; } }
+@keyframes rb-ripple { from { transform: scale(0.8); opacity: 0.8; } to { transform: scale(2.4); opacity: 0; } }
 
-@keyframes rb-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes rb-pulse { 50% { outline-offset: 7px; } }
-
-.rb-card-type {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.dark .rb-card-type { color: color-mix(in srgb, var(--ink) 55%, white); }
-.rb-card-type .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); flex: none; }
-.rb-card-type .deg {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 10.5px;
-  letter-spacing: 0;
+.rb-dot-label {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 7px);
+  left: 50%;
+  translate: -50% 0;
+  scale: var(--rb-dot-label-scale, 1);
+  transform-origin: top center;
+  width: max-content;
+  max-width: 140px;
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.25;
+  font-weight: 550;
   color: var(--rb-ink-2);
-  font-weight: 600;
-}
-.rb-card-title {
-  font-size: 13.5px;
-  line-height: 1.32;
-  font-weight: 600;
-  color: var(--rb-ink);
+  pointer-events: none;
+  text-shadow: 0 0 3px var(--rb-canvas), 0 0 6px var(--rb-canvas), 0 0 10px var(--rb-canvas);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  word-break: break-word;
-  flex: 1;
+  transition: opacity 180ms ease;
 }
-.rb-card-foot { font-size: 11px; color: var(--rb-ink-3); }
-.dark .rb-card-foot { color: var(--rb-ink-3); }
+.rb-dot-label em { font-style: normal; color: var(--rb-accent); }
+.rb-dot.is-hub .rb-dot-label { font-weight: 650; color: var(--rb-ink); }
+.rb-dot.is-lit .rb-dot-label, .rb-dot:hover .rb-dot-label { color: var(--rb-ink); font-weight: 650; }
+.rb-root.labels-hubs .rb-dot:not(.is-hub):not(.is-lit):not(:hover):not(.is-open):not(.is-match):not(.is-fresh) .rb-dot-label,
+.rb-root.labels-none .rb-dot:not(.is-lit):not(:hover):not(.is-open):not(.is-match):not(.is-fresh) .rb-dot-label { opacity: 0; }
+.rb-dot.is-faded .rb-dot-label { opacity: 0; }
 
-/* Connection dots - one per side, shown on hover and while linking. */
-.rb-root .rb-handle.react-flow__handle {
-  width: 11px;
-  height: 11px;
+/* Link handle: one dot on the rim, shown on hover. */
+.rb-root .rb-dot .rb-handle.react-flow__handle {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--rb-panel);
   border: 2px solid var(--rb-accent);
   opacity: 0;
   transition: opacity 120ms ease, scale 120ms ease;
   cursor: crosshair;
+  /* Above the dot (which grows on hover) and just outside its rim. */
+  z-index: 3;
+  right: -9px;
 }
-.rb-root .rb-card:hover .rb-handle,
+.rb-root .rb-dot:hover .rb-handle,
 .rb-root.is-connecting .rb-handle,
 .rb-root.tool-connect .rb-handle { opacity: 1; }
-.rb-root .rb-handle:hover { scale: 1.35; background: var(--rb-accent); }
-.rb-root.is-connecting .rb-card:hover { outline: 2px solid var(--rb-accent); outline-offset: 3px; }
+.rb-root .rb-handle:hover { scale: 1.4; background: var(--rb-accent); }
+.rb-root.is-connecting .rb-dot:hover .rb-dot-core { outline: 2px solid var(--rb-accent); outline-offset: 5px; }
 
-/* ─── Frames ────────────────────────────────────────────────────────── */
+/* ─── Blast ──────────────────────────────────────────────────────────── */
 
-.rb-frame {
-  position: relative;
-  box-sizing: border-box;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--ink) 4%, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+/* While dots fly: titles hide, dots glow, connectors thin out. */
+.rb-root.is-flying .rb-dot-label { opacity: 0 !important; }
+.rb-root.is-flying .rb-dot-core { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 20%, transparent), 0 0 22px 3px color-mix(in srgb, var(--ink) 70%, transparent); }
+.rb-root.is-flying .react-flow__edge-path { stroke-opacity: 0.35; }
+/* Big flights move dots outside React, so connectors would lag: fade them
+   out for the flight and back in when the dots land. */
+.rb-root .react-flow__edges, .rb-root .react-flow__edgelabel-renderer { transition: opacity 320ms ease; }
+.rb-root.is-direct .react-flow__edges, .rb-root.is-direct .react-flow__edgelabel-renderer { opacity: 0; transition-duration: 120ms; }
+.rb-root.is-direct .react-flow__node { will-change: transform; }
+.rb-root.is-flying .rb-edge-anchor { opacity: 0; }
+.rb-root.is-shaking .react-flow { animation: rb-shake 480ms cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes rb-shake {
+  10%, 90% { transform: translate(-1px, 1px); }
+  20%, 80% { transform: translate(3px, -2px); }
+  30%, 50%, 70% { transform: translate(-6px, 3px); }
+  40%, 60% { transform: translate(6px, -3px); }
 }
-.dark .rb-root .react-flow__node > .rb-frame { background: color-mix(in srgb, var(--ink) 7%, #1a1c22); border-color: color-mix(in srgb, var(--ink) 22%, transparent); color: var(--rb-ink); }
-.rb-frame[data-kind='new'] { border-style: dashed; }
-.rb-frame-label {
-  position: absolute;
-  left: 2px;
-  bottom: 100%;
-  margin-bottom: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--rb-ink);
-  transform-origin: bottom left;
-  scale: var(--rb-frame-scale);
+.rb-boom { position: absolute; z-index: 9; width: 0; height: 0; pointer-events: none; }
+.rb-boom > span { position: absolute; left: 0; top: 0; border-radius: 50%; }
+.rb-boom .flash {
+  width: 520px; height: 520px; margin: -260px 0 0 -260px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, color-mix(in srgb, var(--rb-accent) 45%, transparent) 30%, transparent 68%);
+  animation: rb-flash 520ms ease-out both;
 }
-.rb-frame-label .dot { width: 9px; height: 9px; border-radius: 3px; background: var(--ink); }
-.rb-frame-label .n {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--rb-ink-3);
-  background: var(--rb-panel);
-  border: 1px solid var(--rb-line);
-  border-radius: 999px;
-  padding: 1px 7px;
+.rb-boom .ring {
+  width: 1100px; height: 1100px; margin: -550px 0 0 -550px;
+  border: 3px solid color-mix(in srgb, var(--rb-accent) 80%, transparent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--rb-accent) 40%, transparent), inset 0 0 40px color-mix(in srgb, var(--rb-accent) 25%, transparent);
+  animation: rb-ring 1100ms cubic-bezier(.1, .7, .3, 1) both;
+}
+.rb-boom .ring.r2 { border-color: color-mix(in srgb, #f59f00 70%, transparent); animation-delay: 110ms; animation-duration: 1300ms; }
+.rb-boom .spark {
+  margin: -3px 0 0 -3px;
+  box-shadow: 0 0 10px currentColor;
+  animation: rb-spark 950ms cubic-bezier(.15, .8, .3, 1) both;
+}
+@keyframes rb-flash { from { transform: scale(0.1); opacity: 1; } to { transform: scale(1); opacity: 0; } }
+@keyframes rb-ring { from { transform: scale(0.02); opacity: 1; } 70% { opacity: 0.5; } to { transform: scale(1); opacity: 0; } }
+@keyframes rb-spark {
+  from { transform: translate(0, 0) scale(1); opacity: 1; }
+  to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+.rb-blast-btn:not(:disabled):hover svg { animation: rb-wiggle 420ms ease-in-out; }
+.rb-blast-btn.is-active svg { animation: rb-spin 6s linear infinite; }
+@keyframes rb-wiggle { 25% { rotate: -14deg; } 75% { rotate: 14deg; } }
+@keyframes rb-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .rb-root.is-shaking .react-flow, .rb-boom, .rb-blast-btn svg, .rb-dot.is-fresh::after { animation: none !important; }
+  .rb-boom { display: none; }
 }
 
 /* ─── Connectors ────────────────────────────────────────────────────── */

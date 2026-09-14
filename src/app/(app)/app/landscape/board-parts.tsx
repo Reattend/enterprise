@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  TYPE_META, RELATIONS, relationMeta, borderPoint, timeAgo, NODE_W, NODE_H,
+  TYPE_META, RELATIONS, relationMeta, rimPoint, timeAgo, MIN_DOT,
   type RecordType, type GraphNode, type GraphEdge, type XY,
 } from './board-model'
 
@@ -42,68 +42,60 @@ export const BoardCtx = createContext<BoardUi>({
   selectedEdgeId: null, onEdgeLabel: () => {},
 })
 
-// ─── Memory card ───────────────────────────────────────────────────────
+// ─── Memory dot ────────────────────────────────────────────────────────
+// Obsidian-style: a dot coloured by type and sized by how connected it is,
+// title underneath. The node box is just the dot (the label hangs outside
+// it), so connectors and hit-testing work on the circle.
 
 export type MemoryData = {
   title: string
   type: RecordType
   updatedAt: string
   degree: number
+  size: number
+  hub?: boolean
   fresh?: boolean
 }
 
-const SIDES = [
-  ['t', Position.Top], ['r', Position.Right], ['b', Position.Bottom], ['l', Position.Left],
-] as const
+// Compared without position props: a dot only re-renders when its data,
+// selection or the shared UI state change, not on every frame of a flight.
+const sameDot = (a: NodeProps<Node<MemoryData>>, b: NodeProps<Node<MemoryData>>) =>
+  a.id === b.id && a.data === b.data && a.selected === b.selected && a.dragging === b.dragging
 
-export const MemoryCard = memo(function MemoryCard({ id, data, selected }: NodeProps<Node<MemoryData>>) {
+export const MemoryDot = memo(function MemoryDot({ id, data, selected }: NodeProps<Node<MemoryData>>) {
   const ui = useContext(BoardCtx)
   const meta = TYPE_META[data.type] ?? TYPE_META.note
   const matches = !ui.query || data.title.toLowerCase().includes(ui.query)
   const faded = !matches || (ui.focus !== null && !ui.focus.has(id))
+  const lit = ui.focusId === id || ui.hoverId === id
+  const title = data.title || 'Untitled memory'
   return (
     <div
       className={cn(
-        'rb-card',
+        'rb-dot',
         selected && 'is-selected',
         faded && 'is-faded',
+        lit && 'is-lit',
         ui.query && matches && 'is-match',
         ui.connectSource === id && 'is-source',
         ui.drawerId === id && 'is-open',
         data.fresh && 'is-fresh',
+        data.hub && 'is-hub',
       )}
       data-type={data.type}
-      style={{ ['--ink' as string]: meta.ink, ['--fill' as string]: meta.fill, width: NODE_W, height: NODE_H }}
+      data-links={data.degree}
+      style={{ ['--ink' as string]: meta.ink, width: data.size, height: data.size }}
+      title={title}
     >
-      {SIDES.map(([hid, pos]) => (
-        <Handle key={hid} id={hid} type="source" position={pos} className="rb-handle" />
-      ))}
-      <div className="rb-card-type">
-        <span className="dot" />
-        {meta.label}
-        {data.degree > 0 && <span className="deg" title={`${data.degree} link${data.degree === 1 ? '' : 's'}`}><Link2 size={10} /> {data.degree}</span>}
-      </div>
-      <div className="rb-card-title">{data.title || 'Untitled memory'}</div>
-      <div className="rb-card-foot">{data.fresh ? 'Filing it…' : timeAgo(data.updatedAt)}</div>
+      <Handle id="r" type="source" position={Position.Right} className="rb-handle" />
+      <span className="rb-dot-core" />
+      <span className="rb-dot-label">
+        {title.length > 64 ? `${title.slice(0, 62)}…` : title}
+        {data.fresh && <em> · filing it…</em>}
+      </span>
     </div>
   )
-})
-
-// ─── Frame ─────────────────────────────────────────────────────────────
-
-export type FrameData = { label: string; ink: string; count: number; w: number; h: number; kind: string }
-
-export const FrameCard = memo(function FrameCard({ data }: NodeProps<Node<FrameData>>) {
-  return (
-    <div className="rb-frame" data-kind={data.kind} style={{ width: data.w, height: data.h, ['--ink' as string]: data.ink }}>
-      <div className="rb-frame-label">
-        <span className="dot" />
-        {data.label}
-        <span className="n">{data.count}</span>
-      </div>
-    </div>
-  )
-})
+}, sameDot)
 
 // ─── Connector ─────────────────────────────────────────────────────────
 // Floating: it meets each card on the border facing the other card, so it
@@ -118,17 +110,13 @@ export function Connector({ id, source, target, data, markerEnd }: EdgeProps<Edg
   const t = useInternalNode(target)
   if (!s || !t || !data) return null
 
-  const rect = (n: NonNullable<typeof s>) => ({
-    x: n.internals.positionAbsolute.x,
-    y: n.internals.positionAbsolute.y,
-    w: n.measured.width ?? NODE_W,
-    h: n.measured.height ?? NODE_H,
-  })
-  const sr = rect(s), tr = rect(t)
-  const sc: XY = { x: sr.x + sr.w / 2, y: sr.y + sr.h / 2 }
-  const tc: XY = { x: tr.x + tr.w / 2, y: tr.y + tr.h / 2 }
-  const p1 = borderPoint(sr, tc)
-  const p2 = borderPoint(tr, sc)
+  const circle = (n: NonNullable<typeof s>) => {
+    const d = n.measured.width ?? MIN_DOT
+    return { c: { x: n.internals.positionAbsolute.x + d / 2, y: n.internals.positionAbsolute.y + d / 2 }, r: d / 2 + 3 }
+  }
+  const sa = circle(s), ta = circle(t)
+  const p1 = rimPoint(sa.c, sa.r, ta.c)
+  const p2 = rimPoint(ta.c, ta.r, sa.c)
   const [path, lx, ly] = getStraightPath({ sourceX: p1.x, sourceY: p1.y, targetX: p2.x, targetY: p2.y })
 
   const rel = relationMeta(data.kind)
@@ -147,9 +135,9 @@ export function Connector({ id, source, target, data, markerEnd }: EdgeProps<Edg
         interactionWidth={18}
         style={{
           stroke: rel.color,
-          strokeWidth: active ? 2.6 : 1.6,
-          strokeDasharray: data.pending ? '7 6' : data.manual ? undefined : '5 5',
-          opacity: faded ? 0.12 : 0.95,
+          strokeWidth: active ? 2.2 : 1.1,
+          strokeDasharray: data.pending ? '7 6' : data.manual ? undefined : '4 4',
+          opacity: faded ? 0.08 : active ? 1 : 0.5,
           transition: 'opacity 160ms ease, stroke-width 160ms ease',
         }}
       />

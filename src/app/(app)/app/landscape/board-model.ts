@@ -83,96 +83,188 @@ export function relationMeta(kind: string) {
 }
 
 // ─── Layout ────────────────────────────────────────────────────────────
-// Miro-style frames: one frame per memory type, cards in a grid inside it.
-// Inside a frame, cards that are linked sit next to each other (grouped by
-// connected component, busiest first), so most links stay short.
+// A small force simulation that settles memories into a round, brain-like
+// cloud (the Obsidian graph look): linked memories pull together, every
+// memory pushes its neighbours away, a gentle pull keeps the whole thing
+// circular, and each type drifts into its own wedge so colours form lobes.
+// Past ~40 memories a soft centre line splits it into two hemispheres.
+// Seeded from each memory's id, so the same board lays out the same way.
 
-export const NODE_W = 232
-export const NODE_H = 104
-const GAP = 28
-const FRAME_PAD = 40
-const FRAME_HEAD = 56
-const FRAME_GAP = 140
-const ROW_MAX_W = 5200
+export const MIN_DOT = 14
 
-export interface Frame {
-  type: RecordType
-  x: number
-  y: number
-  w: number
-  h: number
-  count: number
+// Dot diameter grows with how connected a memory is.
+export function dotSize(degree: number): number {
+  return Math.round(MIN_DOT + Math.min(26, Math.sqrt(degree) * 7))
 }
 
-export function autoLayout(nodes: GraphNode[], edges: GraphEdge[]): { positions: Map<string, XY>; frames: Frame[] } {
-  // Union-find over links for component grouping.
-  const parent = new Map<string, string>()
-  const find = (a: string): string => {
-    let r = a
-    while (parent.get(r) && parent.get(r) !== r) r = parent.get(r)!
-    parent.set(a, r)
-    return r
+export interface BrainLayout {
+  centers: Map<string, XY>
+  radius: number
+  sector: Map<RecordType, number>
+  spacing: number // typical distance between neighbouring dots, in flow units
+}
+
+function hashSeed(s: string): number {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) }
+  return h >>> 0
+}
+export function seededRandom(seed: number | string): () => number {
+  let a = typeof seed === 'string' ? hashSeed(seed) : seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
-  for (const n of nodes) parent.set(n.id, n.id)
-  const degree = new Map<string, number>()
+}
+
+export function brainLayout(nodes: GraphNode[], edges: GraphEdge[]): BrainLayout {
+  const n = nodes.length
+  const centers = new Map<string, XY>()
+  const sector = new Map<RecordType, number>()
+  if (n === 0) return { centers, radius: 0, sector, spacing: 100 }
+
+  const typeOf = (g: GraphNode) => (TYPE_META[g.type] ? g.type : 'note') as RecordType
+  const index = new Map(nodes.map((g, i) => [g.id, i]))
+  const deg = new Float64Array(n)
+  const links: Array<[number, number]> = []
   for (const e of edges) {
-    if (!parent.has(e.from) || !parent.has(e.to)) continue
-    parent.set(find(e.from), find(e.to))
-    degree.set(e.from, (degree.get(e.from) ?? 0) + 1)
-    degree.set(e.to, (degree.get(e.to) ?? 0) + 1)
+    const a = index.get(e.from), b = index.get(e.to)
+    if (a === undefined || b === undefined || a === b) continue
+    links.push([a, b])
+    deg[a]++
+    deg[b]++
   }
-  const compSize = new Map<string, number>()
-  for (const n of nodes) compSize.set(find(n.id), (compSize.get(find(n.id)) ?? 0) + 1)
+  const rad = nodes.map((_, i) => dotSize(deg[i]) / 2)
 
-  const byType = new Map<RecordType, GraphNode[]>()
-  for (const n of nodes) {
-    const t = (TYPE_META[n.type] ? n.type : 'note') as RecordType
-    const list = byType.get(t) ?? []
-    list.push(n)
-    byType.set(t, list)
-  }
-
-  const positions = new Map<string, XY>()
-  const frames: Frame[] = []
-  let cx = 0
-  let cy = 0
-  let rowH = 0
-
+  // Each type owns a wedge sized by its share, starting at 12 o'clock.
+  const counts = new Map<RecordType, number>()
+  for (const g of nodes) counts.set(typeOf(g), (counts.get(typeOf(g)) ?? 0) + 1)
+  const span = new Map<RecordType, number>()
+  let acc = 0
   for (const t of TYPE_ORDER) {
-    const list = byType.get(t)
-    if (!list?.length) continue
-    list.sort((a, b) => {
-      const ca = find(a.id), cb = find(b.id)
-      const sa = compSize.get(ca) ?? 1, sb = compSize.get(cb) ?? 1
-      if (sa !== sb) return sb - sa
-      if (ca !== cb) return ca < cb ? -1 : 1
-      const da = degree.get(a.id) ?? 0, db = degree.get(b.id) ?? 0
-      if (da !== db) return db - da
-      return b.updatedAt.localeCompare(a.updatedAt)
-    })
-    const cols = Math.min(8, Math.max(2, Math.ceil(Math.sqrt(list.length * 1.3))))
-    const rows = Math.ceil(list.length / cols)
-    const w = FRAME_PAD * 2 + cols * NODE_W + (cols - 1) * GAP
-    const h = FRAME_HEAD + FRAME_PAD + rows * NODE_H + (rows - 1) * GAP
-
-    if (cx > 0 && cx + w > ROW_MAX_W) {
-      cx = 0
-      cy += rowH + FRAME_GAP
-      rowH = 0
-    }
-    frames.push({ type: t, x: cx, y: cy, w, h, count: list.length })
-    list.forEach((n, i) => {
-      const c = i % cols
-      const r = Math.floor(i / cols)
-      positions.set(n.id, {
-        x: cx + FRAME_PAD + c * (NODE_W + GAP),
-        y: cy + FRAME_HEAD + r * (NODE_H + GAP),
-      })
-    })
-    cx += w + FRAME_GAP
-    rowH = Math.max(rowH, h)
+    const c = counts.get(t)
+    if (!c) continue
+    const share = (c / n) * Math.PI * 2
+    sector.set(t, -Math.PI / 2 + acc + share / 2)
+    span.set(t, share)
+    acc += share
   }
-  return { positions, frames }
+
+  const R = Math.max(140, Math.sqrt(n) * 58)
+  const x = new Float64Array(n), y = new Float64Array(n)
+  const vx = new Float64Array(n), vy = new Float64Array(n)
+  const home = new Float64Array(n)
+  nodes.forEach((g, i) => {
+    const r = seededRandom(g.id)
+    const t = typeOf(g)
+    const th = (sector.get(t) ?? 0) + (r() - 0.5) * (span.get(t) ?? 1) * 0.85
+    const rr = R * Math.sqrt(0.08 + 0.92 * r())
+    x[i] = Math.cos(th) * rr
+    y[i] = Math.sin(th) * rr
+    home[i] = sector.get(t) ?? 0
+  })
+
+  const fissure = n >= 40 ? Math.max(34, R * 0.08) : 0
+  const iters = n > 250 ? 260 : 320
+  const decay = 1 - Math.pow(0.001, 1 / iters)
+  const linkDist = 80
+  const linkK = 0.22
+  const gravity = 0.055
+  const angular = 0.075
+  const maxRep = 420 * 420
+  let alpha = 1
+
+  for (let it = 0; it < iters; it++) {
+    // Many-body repulsion (bigger dots push harder).
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        let dx = x[j] - x[i], dy = y[j] - y[i]
+        let d2 = dx * dx + dy * dy
+        if (d2 > maxRep) continue
+        if (d2 < 1) { dx = (i % 7) - 3 + 0.5; dy = (j % 5) - 2 + 0.5; d2 = dx * dx + dy * dy }
+        const f = (-(55 + rad[i] + rad[j]) * alpha) / d2
+        vx[i] += dx * f; vy[i] += dy * f
+        vx[j] -= dx * f; vy[j] -= dy * f
+      }
+    }
+    // Springs along links.
+    for (const [a, b] of links) {
+      const dx = x[b] - x[a], dy = y[b] - y[a]
+      const d = Math.sqrt(dx * dx + dy * dy) || 1
+      const f = ((d - linkDist) / d) * linkK * alpha
+      const ba = deg[a] / (deg[a] + deg[b])
+      vx[b] -= dx * f * (1 - ba); vy[b] -= dy * f * (1 - ba)
+      vx[a] += dx * f * ba; vy[a] += dy * f * ba
+    }
+    for (let i = 0; i < n; i++) {
+      // Round overall shape.
+      vx[i] -= x[i] * gravity * alpha
+      vy[i] -= y[i] * gravity * alpha
+      // Drift toward the type's wedge (tangential only).
+      const r = Math.sqrt(x[i] * x[i] + y[i] * y[i]) || 1
+      const th = Math.atan2(y[i], x[i])
+      let dth = home[i] - th
+      while (dth > Math.PI) dth -= Math.PI * 2
+      while (dth < -Math.PI) dth += Math.PI * 2
+      vx[i] += (-y[i] / r) * dth * r * angular * alpha
+      vy[i] += (x[i] / r) * dth * r * angular * alpha
+      // Hemispheres: keep a soft gap along the vertical centre line.
+      if (fissure) {
+        const side = Math.cos(home[i]) >= 0 ? 1 : -1
+        const want = side * fissure
+        if (side * x[i] < fissure) vx[i] += (want - x[i]) * 0.2 * alpha
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      vx[i] *= 0.6; vy[i] *= 0.6
+      x[i] += vx[i]; y[i] += vy[i]
+      // In the back half of the run the centre gap becomes firm, so the
+      // hemispheres read clearly (links still cross it, like a bridge).
+      if (fissure && it > iters * 0.35) {
+        const side = Math.cos(home[i]) >= 0 ? 1 : -1
+        if (side * x[i] < fissure) x[i] += (side * fissure - x[i]) * 0.35
+      }
+    }
+    alpha -= alpha * decay
+  }
+
+  // Collision pass: no two dots (plus room for a label) overlap. Small
+  // boards get more air so every title can show at a normal zoom.
+  const pad = n <= 30 ? 120 : n <= 80 ? 50 : 24
+  for (let pass = 0; pass < 6; pass++) {
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const min = rad[i] + rad[j] + pad
+        const dx = x[j] - x[i], dy = y[j] - y[i]
+        const d2 = dx * dx + dy * dy
+        if (d2 >= min * min) continue
+        const d = Math.sqrt(d2) || 0.01
+        const push = ((min - d) / d) * 0.5
+        x[i] -= dx * push; y[i] -= dy * push
+        x[j] += dx * push; y[j] += dy * push
+      }
+    }
+  }
+
+  let maxR = 0
+  nodes.forEach((g, i) => {
+    // A touch taller than wide, like a brain seen from above.
+    centers.set(g.id, { x: x[i], y: y[i] * 1.08 })
+    maxR = Math.max(maxR, Math.sqrt(x[i] * x[i] + y[i] * y[i]))
+  })
+  return { centers, radius: maxR, sector, spacing: Math.sqrt((Math.PI * maxR * maxR * 1.08) / n) }
+}
+
+// Where a memory that arrived after the layout was made should appear:
+// just outside the cloud, in its own type's wedge.
+export function arrivalPoint(layout: BrainLayout, type: RecordType, id: string): XY {
+  const r = seededRandom(id)
+  const th = (layout.sector.get(type) ?? -Math.PI / 2) + (r() - 0.5) * 0.5
+  const rr = (layout.radius || 200) + 60 + r() * 50
+  return { x: Math.cos(th) * rr, y: Math.sin(th) * rr * 1.08 }
 }
 
 // ─── Saved positions ───────────────────────────────────────────────────
@@ -180,7 +272,8 @@ export function autoLayout(nodes: GraphNode[], edges: GraphEdge[]): { positions:
 // (each org, and Personal, get their own board). Kept client-side on
 // purpose: the layout is a personal view, not org data.
 
-const POS_KEY = (scope: string) => `reattend:board:v2:pos:${scope}`
+// Values are dot centres (v3; v2 held top-left corners of the old cards).
+const POS_KEY = (scope: string) => `reattend:board:v3:pos:${scope}`
 
 export function loadPositions(scope: string): Map<string, XY> {
   try {
@@ -205,18 +298,13 @@ export function clearPositions(scope: string) {
   try { window.localStorage.removeItem(POS_KEY(scope)) } catch { /* ignore */ }
 }
 
-// Rectangle edge point on the line from a rect's centre towards `to`, used
-// by the floating connector so arrows meet the card border, not its centre.
-export function borderPoint(rect: { x: number; y: number; w: number; h: number }, to: XY): XY {
-  const cx = rect.x + rect.w / 2
-  const cy = rect.y + rect.h / 2
-  const dx = to.x - cx
-  const dy = to.y - cy
-  if (dx === 0 && dy === 0) return { x: cx, y: cy }
-  const sx = (rect.w / 2) / Math.abs(dx || 1e-9)
-  const sy = (rect.h / 2) / Math.abs(dy || 1e-9)
-  const s = Math.min(sx, sy)
-  return { x: cx + dx * s, y: cy + dy * s }
+// Point on a dot's rim facing `to`, so a connector meets the dot's edge
+// rather than its centre.
+export function rimPoint(c: XY, r: number, to: XY): XY {
+  const dx = to.x - c.x, dy = to.y - c.y
+  const d = Math.sqrt(dx * dx + dy * dy)
+  if (d < 0.001) return c
+  return { x: c.x + (dx / d) * r, y: c.y + (dy / d) * r }
 }
 
 export function timeAgo(iso: string): string {
