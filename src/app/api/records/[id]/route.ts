@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { eq, and, inArray } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth'
-import { buildAccessContext, canAccessRecord, filterToAccessibleRecords } from '@/lib/enterprise'
+import {
+  buildAccessContext, canAccessRecord, canDeleteRecord, DELETE_FORBIDDEN, filterToAccessibleRecords,
+  auditForAllUserOrgs, extractRequestMeta,
+} from '@/lib/enterprise'
 
 export async function GET(
   req: NextRequest,
@@ -19,9 +22,12 @@ export async function GET(
     const record = await db.query.records.findFirst({
       where: eq(schema.records.id, id),
     })
-    if (!record || !(await canAccessRecord(await buildAccessContext(userId), id))) {
+    const ctx = await buildAccessContext(userId)
+    if (!record || !(await canAccessRecord(ctx, id))) {
       return NextResponse.json({ error: 'Record not found' }, { status: 404 })
     }
+    // Lets the UI hide Delete for people who can read but not remove it.
+    const canDelete = await canDeleteRecord(ctx, id)
 
     // Get entities
     const recordEntities = await db.query.recordEntities.findMany({
@@ -42,7 +48,7 @@ export async function GET(
       where: eq(schema.recordLinks.fromRecordId, id),
     })
     const visibleTargets = await filterToAccessibleRecords(
-      await buildAccessContext(userId),
+      ctx,
       allLinks.map((l) => l.toRecordId),
     )
     const links = allLinks.filter((l) => visibleTargets.has(l.toRecordId))
@@ -83,6 +89,7 @@ export async function GET(
       record: {
         ...record,
         tags: record.tags ? JSON.parse(record.tags) : [],
+        canDelete,
         entities: entities.filter(Boolean),
         links: linksWithTitles,
         project,
@@ -141,30 +148,34 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await requireAuth()
+    const { userId, session } = await requireAuth()
     const { id } = await params
 
-    const memberships = await db.query.workspaceMembers.findMany({
-      where: eq(schema.workspaceMembers.userId, userId),
-    })
-    const allWorkspaceIds = memberships.map(m => m.workspaceId)
-
-    const record = await db.query.records.findFirst({
-      where: and(
-        eq(schema.records.id, id),
-        inArray(schema.records.workspaceId, allWorkspaceIds),
-      ),
-    })
-
-    if (!record) {
+    // Same rule as DELETE /api/records: this used to accept any member of
+    // the record's workspace, so a teammate could delete anyone's memory
+    // (the inbox Reject button calls this). See canDeleteRecord.
+    const ctx = await buildAccessContext(userId)
+    if (!(await canAccessRecord(ctx, id))) {
       return NextResponse.json({ error: 'Record not found' }, { status: 404 })
+    }
+    if (!(await canDeleteRecord(ctx, id))) {
+      return NextResponse.json({ error: DELETE_FORBIDDEN }, { status: 403 })
     }
 
     await db.delete(schema.records).where(eq(schema.records.id, id))
+
+    const reqMeta = extractRequestMeta(req)
+    auditForAllUserOrgs(userId, session?.user?.email || 'unknown', 'delete', {
+      resourceType: 'record',
+      resourceId: id,
+      ipAddress: reqMeta.ipAddress,
+      userAgent: reqMeta.userAgent,
+    })
+
     return NextResponse.json({ deleted: true })
   } catch (error: any) {
     if (error.message === 'Unauthorized') {

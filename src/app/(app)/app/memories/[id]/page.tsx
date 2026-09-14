@@ -184,11 +184,16 @@ export default function MemoryDetailPage() {
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this memory?')) return
     try {
-      await fetch('/api/records', {
+      const res = await fetch('/api/records', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: recordId }),
       })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}))
+        toast.error(j.error || 'Failed to delete')
+        return
+      }
       toast.success('Memory deleted')
       router.push('/app/memories')
     } catch { toast.error('Failed to delete') }
@@ -290,14 +295,16 @@ export default function MemoryDetailPage() {
               {isEditing ? <X size={13} strokeWidth={1.8} /> : <Edit3 size={13} strokeWidth={1.8} />}
               {isEditing ? 'Cancel' : 'Edit'}
             </button>
-            <button
-              className="mem-act-btn danger"
-              onClick={handleDelete}
-              title="Delete"
-              aria-label="Delete"
-            >
-              <Trash2 size={13} strokeWidth={1.8} />
-            </button>
+            {record.canDelete !== false && (
+              <button
+                className="mem-act-btn danger"
+                onClick={handleDelete}
+                title="Delete"
+                aria-label="Delete"
+              >
+                <Trash2 size={13} strokeWidth={1.8} />
+              </button>
+            )}
           </div>
         </div>
 

@@ -301,6 +301,27 @@ async function runChecks() {
     console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${a.who.padEnd(36)} ${a.permission.padEnd(28)} got=${got ? 'Y' : 'N'}  want=${a.want ? 'Y' : 'N'}`)
   }
 
+  // ─── 9b. Delete: seeing a record is not enough ─────────────────────────
+  // canDeleteRecord follows the manage rule: creator (while a member), org
+  // admins, dept_head/manager of the record's dept. engUserId is dept_head
+  // of Eng at this point (promoted above) - still no rights over HR records.
+  console.log('\n── Delete permission ────────────────────────────────────')
+  const { canDeleteRecord } = await import('../src/lib/enterprise/rbac-records')
+  const deleteChecks: Array<[string, string, string, boolean]> = [
+    ['HR user → own HR org record',              hrUserId,       hrOrg,         true],
+    ['Eng user → HR org record (visible only)',  engUserId,      hrOrg,         false],
+    ['Eng user → HR record shared to Eng',       engUserId,      hrSharedToEng, false],
+    ['HR user → Eng org record (visible only)',  hrUserId,       engOrg,        false],
+    ['Org admin → Eng private record',           adminUserId,    engPrivate,    true],
+    ['Outsider → Eng org record',                outsiderUserId, engOrg,        false],
+  ]
+  for (const [who, uid, rid, want] of deleteChecks) {
+    const got = await canDeleteRecord(await buildAccessContext(uid), rid)
+    const ok = got === want
+    if (!ok) fail++
+    console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${who.padEnd(40)} got=${got ? 'Y' : 'N'}  want=${want ? 'Y' : 'N'}`)
+  }
+
   // ─── 10. Per-user override: grant a member org.audit.read ──────────────
   console.log('\n── Per-user override ────────────────────────────────────')
   sqlite.prepare(`INSERT INTO organization_member_permission_overrides

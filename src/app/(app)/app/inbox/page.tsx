@@ -183,9 +183,12 @@ function InboxContent() {
   const handleReject = async (notif: Notification) => {
     setActing(prev => new Set(prev).add(notif.id))
     try {
-      // Delete the record and mark notification done
+      // Delete the record (only if it's yours to delete - 'needs review'
+      // items go to everyone in the workspace) and clear it from this inbox.
+      let kept = false
       if (notif.objectType === 'record' && notif.objectId) {
-        await fetch(`/api/records/${notif.objectId}`, { method: 'DELETE' })
+        const res = await fetch(`/api/records/${notif.objectId}`, { method: 'DELETE' })
+        kept = res.status === 403
       }
       await fetch('/api/notifications', {
         method: 'PUT',
@@ -193,7 +196,9 @@ function InboxContent() {
         body: JSON.stringify({ id: notif.id, status: 'done' }),
       })
       setInboxItems(prev => prev.filter(n => n.id !== notif.id))
-      toast('Rejected and removed')
+      toast(kept
+        ? 'Removed from your inbox. The memory stays: only the person who saved it, or an admin, can delete it.'
+        : 'Rejected and removed')
     } catch {
       toast.error('Failed')
     } finally {

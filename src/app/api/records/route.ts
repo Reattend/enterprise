@@ -10,6 +10,8 @@ import {
   buildAccessContext,
   filterToAccessibleRecords,
   canAccessRecord,
+  canDeleteRecord,
+  DELETE_FORBIDDEN,
 } from '@/lib/enterprise'
 import { findExactDuplicate, contentHash } from '@/lib/ai/ingestion'
 
@@ -343,11 +345,14 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'id required' }, { status: 400 })
     }
 
-    // Same gate as PUT above - without this, any authenticated user who
-    // knew a record's UUID could delete it regardless of workspace/org.
+    // Not visible at all -> 404 (don't confirm the id exists). Visible but
+    // not yours to remove -> 403. See canDeleteRecord in rbac-records.ts.
     const ctx = await buildAccessContext(userId)
     if (!(await canAccessRecord(ctx, id))) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    if (!(await canDeleteRecord(ctx, id))) {
+      return NextResponse.json({ error: DELETE_FORBIDDEN }, { status: 403 })
     }
 
     await db.delete(schema.records).where(eq(schema.records.id, id))

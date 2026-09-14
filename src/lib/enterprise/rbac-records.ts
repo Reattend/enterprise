@@ -205,6 +205,20 @@ export async function canAccessRecord(ctx: AccessContext, recordId: string): Pro
   return set.has(recordId)
 }
 
+// Who may DELETE a record. Seeing it is not enough: an org-visible memory is
+// readable by every member, and 'needs review' inbox items go to everyone in
+// the workspace, so a read-level check let any teammate delete anyone's
+// memory. Delete follows the manage rule below - the creator while they are
+// still a member (own_record), org admins, dept_head/manager for their
+// department, and for personal workspaces the creator or workspace
+// owner/admin. A creator who has left the org can no longer delete what they
+// saved, which is the point of organizational memory.
+export const DELETE_FORBIDDEN = 'Only the person who saved this memory, or an admin, can delete it.'
+
+export async function canDeleteRecord(ctx: AccessContext, recordId: string): Promise<boolean> {
+  return canManageRecordAccess(ctx, recordId)
+}
+
 // Is this user allowed to CHANGE the visibility of a record or create a share?
 // Defers to the permission matrix in src/lib/enterprise/permissions.ts -
 // `records.share.manage` defaults to:
