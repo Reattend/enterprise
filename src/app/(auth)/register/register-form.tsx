@@ -1,12 +1,23 @@
 'use client'
 
-// Registration is email -> OTP (or Google), with one question first: is
-// this for me, or for my team? (?for=team preselects the team door; the
-// pricing page's Managed button links there.)
+// Sign up AND log in, as two tabs on one card (?mode=login opens the Log in
+// tab). Both are the same email -> code (or Google) sign-in underneath - the
+// otp provider creates the account if it doesn't exist - so the tabs only
+// change the words and where you land. /login still exists (SSO returns
+// there) but this page no longer sends anyone to it.
+//
+// Sign up asks one question first: is this for me, or for my team?
+// (?for=team preselects the team door; the pricing page's Managed button
+// links there.)
 //
 //   For me       -> /onboarding (personal wizard: AI choice, extension)
 //   For my team  -> /app/admin/onboarding (create the org, pick a plan,
 //                   invite people)
+//   Log in       -> ?callbackUrl or /app (the app shell still routes a
+//                   brand-new account to onboarding)
+//
+// Emails on a domain with SSO switched on go to the company's identity
+// provider instead of getting a code, same as /login.
 //
 // The code is verified through NextAuth's own `otp` credentials provider
 // (signIn('otp')), the same path /login uses, so the session cookie is
@@ -25,11 +36,40 @@ import { signIn } from 'next-auth/react'
 export default function RegisterPage() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/app'
+  const [mode, setMode] = useState<'signup' | 'login'>(searchParams.get('mode') === 'login' ? 'login' : 'signup')
+  const loginDest = searchParams.get('callbackUrl') || redirectTo
   const [audience, setAudience] = useState<'me' | 'team'>(searchParams.get('for') === 'team' ? 'team' : 'me')
   const plan = searchParams.get('plan')
   const personalUrl = redirectTo === '/app' ? '/onboarding' : `/onboarding?redirect=${encodeURIComponent(redirectTo)}`
   const teamUrl = `/app/admin/onboarding${plan ? `?plan=${encodeURIComponent(plan)}` : ''}`
-  const onboardingUrl = audience === 'team' ? teamUrl : personalUrl
+  const onboardingUrl = mode === 'login' ? loginDest : audience === 'team' ? teamUrl : personalUrl
+
+  // Switch tabs in place; keep the URL in step so refresh/back behave.
+  const switchMode = (next: 'signup' | 'login') => {
+    setMode(next)
+    setStep('email')
+    setOtp(['', '', '', '', '', ''])
+    setDevCode(null)
+    try {
+      const url = new URL(window.location.href)
+      if (next === 'login') url.searchParams.set('mode', 'login')
+      else url.searchParams.delete('mode')
+      window.history.replaceState(null, '', url.toString())
+    } catch { /* cosmetic only */ }
+  }
+
+  // Same check /login does before sending a code: if the email's domain has
+  // SSO switched on, hand off to the company's identity provider.
+  const maybeStartSso = async (addr: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sso/initiate?email=' + encodeURIComponent(addr), { redirect: 'manual' })
+      if (res.type === 'opaqueredirect' || res.status === 0) {
+        window.location.href = '/api/sso/initiate?email=' + encodeURIComponent(addr)
+        return true
+      }
+    } catch { /* fall through to email code */ }
+    return false
+  }
 
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [email, setEmail] = useState('')
@@ -44,6 +84,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
+      if (await maybeStartSso(email.trim())) return
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,7 +123,7 @@ export default function RegisterPage() {
         setOtp(['', '', '', '', '', ''])
         inputRefs.current[0]?.focus()
       } else {
-        toast.success('You are in. Welcome to Reattend.')
+        toast.success(mode === 'login' ? 'Welcome back.' : 'You are in. Welcome to Reattend.')
         window.location.href = onboardingUrl
       }
     } catch {
@@ -163,16 +204,40 @@ export default function RegisterPage() {
                 exit={{ opacity: 0, y: -8 }}
                 className="w-full"
               >
+                {/* Sign up / Log in - one card, two tabs, same sign-in. */}
+                <div className="flex border-b border-gray-200/80 mb-6 -mt-1" role="tablist" aria-label="Sign up or log in">
+                  {([
+                    { key: 'signup', label: 'Create account' },
+                    { key: 'login', label: 'Log in' },
+                  ] as const).map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="tab"
+                      aria-selected={mode === key}
+                      onClick={() => switchMode(key)}
+                      className={`flex-1 pb-3 text-[14px] font-semibold border-b-2 -mb-px transition-colors ${
+                        mode === key ? 'border-[#1a1a2e] text-[#1a1a2e]' : 'border-transparent text-gray-400 hover:text-gray-600'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
                 <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">
-                  {audience === 'team' ? "Start your team's free trial" : 'Create your free account'}
+                  {mode === 'login' ? 'Welcome back' : audience === 'team' ? "Start your team's free trial" : 'Create your free account'}
                 </h1>
                 <p className="text-[13px] text-gray-500 text-center mb-5 leading-relaxed">
-                  {audience === 'team'
-                    ? '15 days free, no card. Next you name your organization and invite your team.'
-                    : 'Your own private memory. Free forever on your own AI key, or try ours for 7 days.'}
+                  {mode === 'login'
+                    ? "Enter your email and we'll send you a sign-in code. No password needed."
+                    : audience === 'team'
+                      ? '15 days free, no card. Next you name your organization and invite your team.'
+                      : 'Your own private memory. Free forever on your own AI key, or try ours for 7 days.'}
                 </p>
 
                 {/* Who is it for - decides where you land after signing in. */}
+                {mode === 'signup' && (
                 <div className="grid grid-cols-2 gap-1 p-1 mb-5 rounded-xl bg-white/70 border border-white/80" role="radiogroup" aria-label="Who is this for">
                   {([
                     { key: 'me', label: 'For me', Icon: User },
@@ -192,6 +257,7 @@ export default function RegisterPage() {
                     </button>
                   ))}
                 </div>
+                )}
 
                 {/* Google OAuth - routes through the same org-creation +
                     AI-choice flow as email/OTP, via callbackUrl. */}
@@ -222,7 +288,7 @@ export default function RegisterPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={audience === 'team' ? 'you@yourcompany.com' : 'name@example.com'}
+                    placeholder={mode === 'signup' && audience === 'team' ? 'you@yourcompany.com' : 'name@example.com'}
                     required
                     autoFocus
                     className="w-full h-[48px] px-4 text-[14px] text-[#1a1a2e] bg-white/70 backdrop-blur-sm border border-white/80 rounded-xl outline-none transition-all placeholder:text-gray-400 focus:border-[#4F46E5]/40 focus:ring-2 focus:ring-[#4F46E5]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
@@ -234,19 +300,27 @@ export default function RegisterPage() {
                     className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
                   >
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                    Continue with email
+                    {mode === 'login' ? 'Send me a code' : 'Continue with email'}
                   </button>
                 </form>
 
-                <p className="mt-8 text-center text-[13px] text-gray-500">
-                  By signing up, you agree to our{' '}
-                  <Link href="/terms" className="text-[#4F46E5] hover:underline">Terms of Service</Link>
-                </p>
-
-                <p className="mt-4 text-center text-[13px] text-gray-500">
-                  Already have an account?{' '}
-                  <Link href="/login" className="text-[#4F46E5] font-medium hover:underline">Log in</Link>
-                </p>
+                {mode === 'signup' ? (
+                  <>
+                    <p className="mt-8 text-center text-[13px] text-gray-500">
+                      By signing up, you agree to our{' '}
+                      <Link href="/terms" className="text-[#4F46E5] hover:underline">Terms of Service</Link>
+                    </p>
+                    <p className="mt-4 text-center text-[13px] text-gray-500">
+                      Already have an account?{' '}
+                      <button type="button" onClick={() => switchMode('login')} className="text-[#4F46E5] font-medium hover:underline">Log in</button>
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-8 text-center text-[13px] text-gray-500">
+                    New to Reattend?{' '}
+                    <button type="button" onClick={() => switchMode('signup')} className="text-[#4F46E5] font-medium hover:underline">Create an account</button>
+                  </p>
+                )}
               </motion.div>
             ) : (
               <motion.div
@@ -293,7 +367,7 @@ export default function RegisterPage() {
                   className="w-full h-[48px] bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.98] text-white text-[14px] font-semibold rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_rgba(79,70,229,0.3)]"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {audience === 'team' ? 'Verify & set up my team' : 'Verify & continue'}
+                  {mode === 'login' ? 'Log in' : audience === 'team' ? 'Verify & set up my team' : 'Verify & continue'}
                 </button>
 
                 <div className="mt-5 flex items-center justify-center gap-4">
