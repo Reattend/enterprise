@@ -1454,3 +1454,44 @@ like Obsidian ... colour code the dots."
   and the earlier interaction suites (drawer, drag-link, picker, undo,
   composer, search, legend, reload). Link handle was hidden under the
   hover-grown dot - fixed (z-index + nudged outside the rim).
+
+## Self-serve teams + first-run guidance (2026-09-14, `49102ba`)
+
+Partha asked: can org people self-serve, and how does a personal user from an
+ad learn what is what (own key, extension)? Findings, then "go".
+
+**Before:** the org wizard (/app/admin/onboarding) existed but nothing linked
+to it, and the app shell bounced no-org users off it; every CTA went to
+/register which only made personal accounts. Its copy said $15/7 days.
+The personal wizard led with "paste an API key", never mentioned the
+extension, and said 300 questions (real: 800).
+
+**Now:**
+- /register asks "For me / For my team" (?for=team from pricing). Team ->
+  org wizard (org -> plan -> invite); me -> personal wizard. Code verified
+  via signIn('otp') (NextAuth cookie) and auto-submit fixed (stale closure).
+  NOTE: nginx logs showed 434 /register views vs 2 verify-otp successes;
+  watch signups after this deploy.
+- Personal wizard: Managed trial first, key how-to per provider, new
+  extension step that makes + copies the Reattend token.
+- Getting-started checklist on both homes (`/api/me/getting-started`,
+  `components/app/getting-started.tsx`), ticks from real activity.
+- "Create an organization" in the account menu, wizard step 1, Billing.
+- AI key banner: org-aware, clears when AI turns on.
+- Pricing/billing copy corrected (no "talk to sales" for Managed, no SCIM /
+  custom domains, key FAQ fixed).
+
+**Open, needs Partha's decision:**
+1. **Managed question quota is org-wide, not per seat.** consumeAiQuery
+   counts on the org billing owner's row: 800 questions/month for the whole
+   org, whether it has 2 seats or 50. A 20-seat org hits that fast.
+   Probably should be 800 x seats.
+2. **Trial abuse:** ENTERPRISE_STRICT_ONBOARDING is off in prod, so any new
+   account (gmail included) can start a 15-day org trial; a personal 7-day
+   trial is also per account. Fine for now, revisit if abuse shows.
+3. Extension still needs a pasted token; auto sign-in needs an extension
+   release (externally_connectable from reattend.com).
+4. Emails (day 1 extension, day 3 first question, trial ending) and an ad
+   landing page were proposed as next steps (D, E).
+5. /sandbox says "Sessions reset every 24 hours" but cleanup drops sandbox
+   orgs after 1 hour.
