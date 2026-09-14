@@ -1412,8 +1412,14 @@ relation types ... clicking a memory opens a slide drawer ... make it playable."
   dark mode, 400px phone, Rewind, other pages keep the sidebar). 300 cards
   + 400 links render in ~1s. All 7 test suites pass.
 
-**Found, not fixed (security, needs a decision):** `DELETE /api/records/[id]`
-lets any member of a workspace delete any record in it, and `DELETE
-/api/records` (body id) only checks *read* access (`canAccessRecord`), so any
-org member who can see an org-visible memory can delete it. Should be
-`canManageRecordAccess` (creator / admin / dept head).
+**Delete-permission gap - FIXED same day (`0c6bcd0`, Partha: "do and deploy").**
+`DELETE /api/records/[id]` let any workspace member delete any record (the
+inbox Reject button calls it, and 'needs review' items go to every member),
+and `DELETE /api/records` only checked read access. Both now use
+`canDeleteRecord` (= the manage rule: creator while a member, org admins,
+dept_head/manager of the dept). 404 if not visible, 403 if visible but not
+yours. Memory page hides Delete via `canDelete` from GET; inbox Reject on a
+colleague's memory just clears your inbox item. test:rbac has 6 new delete
+assertions. Still open, same family: `PUT /api/records` (edit) is gated on
+read access only - any member who can see an org memory can edit it. Decide
+whether team editing is intended before tightening.
