@@ -1423,3 +1423,34 @@ colleague's memory just clears your inbox item. test:rbac has 6 new delete
 assertions. Still open, same family: `PUT /api/records` (edit) is gated on
 read access only - any member who can see an org memory can edit it. Decide
 whether team editing is intended before tightening.
+
+## Landscape: brain layout + Blast (2026-09-14, `fa9e93f`)
+
+Partha: "put a blast option ... nodes blast and scatter very beautifully ...
+clicking again will rearrange ... make them circular like a brain, sort of
+like Obsidian ... colour code the dots."
+
+- **Dots, not cards.** `MemoryDot` in `board-parts.tsx`: colour = type,
+  size = link count (`dotSize`), title underneath. Frames and sticky cards
+  are gone. Saved drag positions are dot centres under a new key
+  (`reattend:board:v3:pos:<scope>`), so old card positions are ignored.
+- **Brain layout** (`brainLayout` in `board-model.ts`): seeded force sim
+  (repulsion, link springs, gravity to centre, tangential pull into a
+  per-type wedge, and a firm centre gap past 40 memories = two
+  hemispheres). ~120ms for 300 memories. Tidy up re-runs it.
+- **Blast** (rail button, key B): flash + two rings + 34 sparks + screen
+  shake, dots fly out on arcs (inner first); second press flies them home
+  to the exact pre-blast spots. Scattered state never saved.
+- **Motion engine** `animateTo` in `board-view.tsx`: <=60 moving dots via
+  React state (links stretch live); more than that moves node elements
+  directly and commits once, links fade out in flight. Profiled: JS is
+  small; headless test Chrome (no GPU) paints 300 dots at ~30fps, a real
+  Mac should do better. If it ever feels heavy, first suspects are the dot
+  glow box-shadows and the Background dots.
+- **Labels by density:** titles all / hubs (top 12%, >=3 links) / none from
+  on-screen spacing; relation labels only when there is room (or <=12
+  links), and always for the hovered or opened memory's links.
+- Tested: brain at 17 / 60 / 300 memories, blast + return, dark, phone,
+  and the earlier interaction suites (drawer, drag-link, picker, undo,
+  composer, search, legend, reload). Link handle was hidden under the
+  hover-grown dot - fixed (z-index + nudged outside the rim).
