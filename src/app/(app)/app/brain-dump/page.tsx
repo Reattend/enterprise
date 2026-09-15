@@ -449,9 +449,12 @@ export default function BrainDumpPage() {
               </Link>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
-            <button onClick={reset} className="cap-commit">
-              <Sparkles className="h-4 w-4" /> Capture again
+          <div style={{ display: 'flex', gap: 8, paddingTop: 8, flexWrap: 'wrap' }}>
+            <Link href="/app/first-look" className="cap-commit" style={{ textDecoration: 'none' }}>
+              <Sparkles className="h-4 w-4" /> See what Reattend found
+            </Link>
+            <button onClick={reset} className="cap-ftool">
+              Capture again
             </button>
             <Link href="/app/memories" className="cap-ftool" style={{ textDecoration: 'none' }}>
               See all memories

@@ -111,9 +111,10 @@ export function ChatView() {
   const { upsertRecentChat } = useAppStore()
   const searchParams = useSearchParams()
   const promptParam = searchParams.get('q')
+  const autoSend = searchParams.get('send') === '1'
   useEffect(() => {
-    if (promptParam) setInput(promptParam)
-  }, [promptParam])
+    if (promptParam && !autoSend) setInput(promptParam)
+  }, [promptParam, autoSend])
   const chatIdParam = searchParams.get('chat')
   const agentIdParam = searchParams.get('agent')
   const [agent, setAgent] = useState<{ id: string; name: string; description: string | null; systemPrompt: string; iconName: string | null; color: string | null } | null>(null)
@@ -423,6 +424,19 @@ export function ChatView() {
     if (sourceCount === 0) return true
     return HEDGE_RE.test(content.slice(0, 600))
   }
+
+  // ?q=...&send=1 asks straight away (the First look page's suggested
+  // questions). Waits for the store so the right org/Personal scope is used
+  // and runs once. The URL is left alone: rewriting it mid-send remounted
+  // the page and dropped the answer; once the chat saves, the URL becomes
+  // ?chat=<id> anyway, which the guard below respects.
+  const hydrated = useAppStore((st) => st.hasHydratedStore)
+  const autoSentRef = useRef(false)
+  useEffect(() => {
+    if (autoSentRef.current || !hydrated || !autoSend || !promptParam || chatIdParam) return
+    autoSentRef.current = true
+    sendMessage(promptParam)
+  }, [hydrated, autoSend, promptParam, chatIdParam]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const giveFeedback = async (msgId: string, vote: 'up' | 'down') => {
     setFeedbackGiven(prev => ({ ...prev, [msgId]: vote }))

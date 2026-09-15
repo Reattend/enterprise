@@ -23,6 +23,7 @@ import {
 import { useAppStore } from '@/stores/app-store'
 import PersonalHomePage from './personal-home'
 import { GettingStarted } from '@/components/app/getting-started'
+import { BriefingCard } from '@/components/app/briefing-card'
 
 interface AnalyticsTotals {
   activeMembers: number
@@ -204,6 +205,8 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
+
+      <BriefingCard />
 
       <GettingStarted />
 

@@ -1,0 +1,75 @@
+/* First look - "Here's what Reattend found". App shell tokens. */
+
+.fl-page { max-width: 1000px; margin: 0 auto; width: 100%; padding: 12px 8px 64px; color: var(--ink); }
+.fl-loading { display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 14px; padding: 60px 0; justify-content: center; }
+.fl-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand-ink, var(--brand));
+}
+.fl-page h1 { font-family: var(--serif); font-size: clamp(30px, 4vw, 42px); line-height: 1.1; margin: 8px 0 6px; font-weight: 500; letter-spacing: -0.01em; }
+.fl-sub { color: var(--ink-3); font-size: 15px; line-height: 1.5; margin: 0 0 18px; max-width: 62ch; }
+.fl-filing {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px;
+  padding: 8px 12px; border-radius: 9px; font-size: 13px; color: var(--brand-ink, var(--brand));
+  background: color-mix(in oklch, var(--brand) 9%, transparent);
+}
+
+.fl-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.fl-stat { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 14px 16px; }
+.fl-stat b { display: block; font-family: var(--serif); font-size: 30px; font-weight: 500; line-height: 1; color: var(--ink); }
+.fl-stat span { display: block; margin-top: 6px; font-size: 12px; color: var(--ink-3); }
+
+.fl-card { border: 1px solid var(--line); background: var(--panel); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+.fl-card.is-warn { border-color: color-mix(in oklch, oklch(0.62 0.18 25) 45%, var(--line)); background: color-mix(in oklch, oklch(0.62 0.18 25) 6%, var(--panel)); }
+.fl-h { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.fl-card.is-warn .fl-h { color: oklch(0.55 0.18 25); }
+
+.fl-ask { margin-bottom: 14px; background: radial-gradient(500px 180px at 100% 0%, color-mix(in oklch, var(--brand) 10%, transparent), transparent 70%), var(--panel); }
+.fl-questions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.fl-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 550; line-height: 1.35;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+.fl-q:hover { border-color: var(--brand); transform: translateY(-1px); }
+.fl-q svg { flex: none; color: var(--brand-ink, var(--brand)); }
+.fl-note { font-size: 13.5px; color: var(--ink-3); margin: 0; }
+.fl-note a { color: var(--brand-ink, var(--brand)); font-weight: 600; }
+
+.fl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.fl-row {
+  display: block; padding: 7px 0; border-top: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+  font-size: 14px; font-weight: 550; color: var(--ink); text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fl-row:first-of-type { border-top: 0; }
+a.fl-row:hover, .fl-dated a:hover { color: var(--brand-ink, var(--brand)); }
+.fl-dated { display: flex; flex-direction: column; gap: 1px; white-space: normal; }
+.fl-dated a, .fl-dated span { color: var(--ink); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fl-dated em { font-style: normal; font-size: 12px; color: var(--ink-3); font-weight: 500; }
+
+.fl-people { display: flex; flex-wrap: wrap; gap: 6px; }
+.fl-person {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px;
+  background: color-mix(in oklch, var(--brand) 9%, transparent); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600;
+}
+.fl-person em { font-style: normal; font-weight: 500; color: var(--ink-3); font-size: 12px; }
+.fl-person:hover { background: color-mix(in oklch, var(--brand) 16%, transparent); }
+
+.fl-conn { margin: 0; font-size: 14.5px; line-height: 1.55; }
+.fl-conn a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: color-mix(in oklch, var(--ink) 25%, transparent); text-underline-offset: 3px; }
+.fl-rel { display: inline-block; margin: 0 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: color-mix(in oklch, var(--ink) 7%, transparent); color: var(--ink-2); }
+.fl-card.is-warn .fl-rel { background: oklch(0.62 0.18 25); color: white; }
+
+.fl-foot, .fl-empty-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.fl-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 10px;
+  background: var(--brand); color: white; font-size: 13.5px; font-weight: 600; text-decoration: none;
+}
+.fl-btn:hover { filter: brightness(1.06); }
+.fl-btn.ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+
+@media (max-width: 640px) {
+  .fl-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

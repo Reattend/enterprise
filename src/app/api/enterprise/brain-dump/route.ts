@@ -159,6 +159,7 @@ Rules:
 - Titles are 3-12 words, imperative or declarative. Not full sentences from the dump.
 - "detail" is optional, adds the 1-2 sentences of context from the dump.
 - "sourceSpan" is a short quoted-verbatim snippet (10-30 words) from the dump so the user can verify grounding. DO NOT invent content.
+- Keep times in the writer's own words ("last quarter", "next Thursday", "the 30th"). Never turn them into a specific quarter, month, year or date they did not write.
 - If the dump is genuinely empty / pure noise, return { "items": [], "rejectedReason": "nothing actionable in this dump" }.
 
 DUMP:

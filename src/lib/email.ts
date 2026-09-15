@@ -395,3 +395,94 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 }
+
+// ─── Start My Day (morning briefing) ──────────────────────────────────
+// Sent by the jobs cron in the person's morning (src/lib/briefing/morning.ts)
+// only when there is something real to say. Every item links back to the
+// memory it came from. One-click unsubscribe via List-Unsubscribe.
+type MorningBriefingOpts = {
+  toEmail: string
+  name: string
+  tz: string
+  briefing: import('./briefing').Briefing
+  unsubscribeUrl: string
+}
+
+export function renderMorningBriefingEmail(opts: MorningBriefingOpts): { subject: string; html: string } {
+  const b = opts.briefing
+  const tz = opts.tz
+  const link = (id: string) => `https://reattend.com/app/memories/${encodeURIComponent(id)}`
+  const when = (iso: string) => new Date(iso).toLocaleString('en-US', { timeZone: tz, weekday: 'short', hour: 'numeric', minute: '2-digit' })
+  const time = (iso: string) => new Date(iso).toLocaleTimeString('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' })
+  const weekday = new Date().toLocaleDateString('en-US', { timeZone: tz, weekday: 'long' })
+  const h3 = (t: string) => `<p style="margin:22px 0 8px; font-family:${TOKENS.fontSans}; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:${TOKENS.ink3}; font-weight:600;">${t}</p>`
+  const row = (main: string, sub = '') => `<p style="margin:0 0 8px; font-family:${TOKENS.fontSans}; font-size:15px; line-height:1.45; color:${TOKENS.ink};">${main}${sub ? `<br /><span style="font-size:13px; color:${TOKENS.ink3};">${sub}</span>` : ''}</p>`
+  const a = (href: string, text: string) => `<a href="${href}" style="color:${TOKENS.ink}; text-decoration:underline; text-decoration-color:${TOKENS.rule};">${escapeHtml(text)}</a>`
+
+  const parts: string[] = []
+  if (b.counts.pendingAcks) parts.push(`${b.counts.pendingAcks} polic${b.counts.pendingAcks === 1 ? 'y' : 'ies'} to acknowledge`)
+  if (b.counts.dueSoon) parts.push(`${b.counts.dueSoon} due soon`)
+  if (b.counts.meetings) parts.push(`${b.counts.meetings} meeting${b.counts.meetings === 1 ? '' : 's'} today`)
+  if (b.counts.newMemories) parts.push(`${b.counts.newMemories} new memor${b.counts.newMemories === 1 ? 'y' : 'ies'}`)
+  const subject = `Start your day: ${parts.join(', ') || 'your memory this morning'}`
+
+  let body = b.focus
+    ? `<p style="margin:0 0 6px; font-size:16px; line-height:1.55; color:${TOKENS.ink};">${escapeHtml(b.focus)}</p>`
+    : ''
+  if (b.counts.pendingAcks) {
+    body += h3('Waiting for you')
+    body += row(a('https://reattend.com/app/policies', `${b.counts.pendingAcks} polic${b.counts.pendingAcks === 1 ? 'y' : 'ies'} to read and acknowledge`))
+  }
+  if (b.dueSoon.length) {
+    body += h3('Coming up')
+    body += b.dueSoon.slice(0, 5).map((d) => row(d.objectId ? a(link(d.objectId), d.title) : escapeHtml(d.title), when(d.when))).join('')
+  }
+  if (b.meetings.length) {
+    body += h3('Meetings today')
+    body += b.meetings.slice(0, 5).map((m) => row(`${time(m.startAt)} · ${escapeHtml(m.title)}`, m.attendees.length ? `with ${escapeHtml(m.attendees.slice(0, 4).join(', '))}` : '')).join('')
+  }
+  if (b.newMemories.length) {
+    body += h3('New since yesterday')
+    const label: Record<string, string> = { decision: 'Decision', tasklike: 'Task', meeting: 'Meeting', context: 'Context', note: 'Note', insight: 'Insight', idea: 'Idea', transcript: 'Transcript' }
+    body += b.newMemories.slice(0, 5).map((m) => row(a(link(m.id), m.title), label[m.type] ?? m.type)).join('')
+  }
+  if (b.resurfaced) {
+    const weeks = Math.max(2, Math.round(b.resurfaced.ageDays / 7))
+    body += h3(`From ${weeks} weeks ago`)
+    body += row(a(link(b.resurfaced.id), b.resurfaced.title), b.resurfaced.summary ? escapeHtml(b.resurfaced.summary.slice(0, 160)) : '')
+  }
+
+  const html = renderEmail({
+    preheader: b.focus ? b.focus.slice(0, 140) : subject,
+    heading: `Your ${weekday}, from your memory.`,
+    bodyHtml: body,
+    ctaLabel: 'Open Reattend',
+    ctaUrl: 'https://reattend.com/app',
+    postCtaHtml: `You get this because the Start My Day email is on. <a href="${opts.unsubscribeUrl}" style="color:${TOKENS.ink3};">Turn it off</a>.`,
+  })
+  return { subject, html }
+}
+
+export async function sendMorningBriefing(opts: MorningBriefingOpts): Promise<boolean> {
+  const { subject, html } = renderMorningBriefingEmail(opts)
+  if (!resend) {
+    console.log(`[Morning briefing] (dev) → ${opts.toEmail} · ${subject}`)
+    return true
+  }
+  try {
+    await resend.emails.send({
+      from: 'Reattend <pb@reattend.com>',
+      to: opts.toEmail,
+      subject,
+      html,
+      headers: {
+        'List-Unsubscribe': `<${opts.unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    })
+    return true
+  } catch (err) {
+    console.error('[Morning briefing] Failed to send:', err)
+    return false
+  }
+}

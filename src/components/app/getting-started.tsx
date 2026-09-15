@@ -187,6 +187,11 @@ export function GettingStarted() {
         })}
       </ol>
 
+      {items.memory && (
+        <p className="gs-foot">
+          <Link href="/app/first-look">See what Reattend has found so far</Link>: decisions, dates, people and questions worth asking.
+        </p>
+      )}
       {!inOrg && (
         <p className="gs-foot">
           Using Reattend with a team? <Link href="/app/admin/onboarding">Create an organization</Link>: 15 days free, no card.

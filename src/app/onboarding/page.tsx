@@ -4,9 +4,11 @@ import { cn } from '@/lib/utils'
 
 // /onboarding - first-run wizard for personal accounts.
 //
-// Four steps: what Reattend is → how the AI runs (Managed trial, the easy
-// default, or your own key with a how-to) → the browser extension (one click
-// makes and copies the Reattend token it needs) → you're set. Team signups go
+// Five steps: what Reattend is → how the AI runs (Managed trial, the easy
+// default, or your own key with a how-to) → bring in what you already have
+// (connect a tool or add files, so the memory starts full) → the browser
+// extension (one click makes and copies the Reattend token it needs) → done,
+// which opens First look ("here's what Reattend found"). Team signups go
 // to /app/admin/onboarding instead (the "For my team" door on /register, or
 // the link on step 1), and anyone who already belongs to an org skips this
 // page entirely (see the mount effect).
@@ -25,6 +27,8 @@ import Image from 'next/image'
 import { Loader2, KeyRound, Check, Sparkles, Brain, MessageSquareText, Network, ArrowRight, ArrowLeft, Chrome, Copy, ChevronDown, ExternalLink, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { CHROME_WEB_STORE_URL } from '@/lib/extension'
+import { reportTimezone } from '@/components/app/timezone-reporter'
+import { ImportSources } from '@/components/app/import-sources'
 
 type ByokProvider = 'anthropic' | 'openai' | 'gemini'
 // Short labels - the full vendor names ("Claude (Anthropic)") overflowed
@@ -53,7 +57,7 @@ const KEY_HELP: Record<ByokProvider, { url: string; host: string; steps: string 
   openai: { url: 'https://platform.openai.com/api-keys', host: 'platform.openai.com', steps: 'Sign in, add credit under Billing, then Create new secret key and copy it.' },
   gemini: { url: 'https://aistudio.google.com/apikey', host: 'aistudio.google.com', steps: 'Sign in with Google, then Create API key and copy it. Google has a free tier.' },
 }
-const STEPS = 4
+const STEPS = 5
 
 const WHAT_IT_DOES: { icon: any; title: string; body: string }[] = [
   {
@@ -149,6 +153,7 @@ function OnboardingInner() {
           }
         }
       } catch { /* fall through to onboarding on any error */ }
+      reportTimezone()
       setChecking(false)
     })()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -245,7 +250,7 @@ function OnboardingInner() {
     )
   }
 
-  const cardWidth = step === 1 || step === 3 ? 'max-w-[520px]' : 'max-w-[440px]'
+  const cardWidth = step === 1 || step === 3 || step === 4 ? 'max-w-[540px]' : 'max-w-[440px]'
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAFA] px-6 py-10 relative overflow-hidden">
@@ -464,10 +469,41 @@ function OnboardingInner() {
               </motion.div>
             )}
 
-            {/* ─────────── STEP 3: the browser extension ─────────── */}
+            {/* ─────────── STEP 3: bring in what you already have ─────────── */}
             {step === 3 && (
               <motion.div
                 key="step3"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h1 className="text-[22px] font-bold text-[#1a1a2e] mb-2 text-center">Bring in what you already have</h1>
+                <p className="text-[13px] text-gray-500 text-center mb-5 leading-relaxed">
+                  Connect a tool and Reattend reads what is already there, so your memory starts full instead of empty.
+                  You will see what it found in a minute.
+                </p>
+                <ImportSources />
+                <button
+                  onClick={() => setStep(4)}
+                  className="w-full h-[42px] mt-5 bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 mb-2.5"
+                >
+                  Continue
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setStep(4)}
+                  className="w-full text-center text-[13px] text-gray-500 hover:text-[#2563EB] font-medium transition-colors"
+                >
+                  Skip for now
+                </button>
+              </motion.div>
+            )}
+
+            {/* ─────────── STEP 4: the browser extension ─────────── */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -12 }}
@@ -541,14 +577,14 @@ function OnboardingInner() {
                 </ol>
 
                 <button
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="w-full h-[42px] bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 mb-2.5"
                 >
                   {extToken ? 'Done, continue' : 'Continue'}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
                 <button
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="w-full text-center text-[13px] text-gray-500 hover:text-[#2563EB] font-medium transition-colors"
                 >
                   I&apos;ll do this later
@@ -556,10 +592,10 @@ function OnboardingInner() {
               </motion.div>
             )}
 
-            {/* ─────────── STEP 4: you're set ─────────── */}
-            {step === 4 && (
+            {/* ─────────── STEP 5: you're set ─────────── */}
+            {step === 5 && (
               <motion.div
-                key="step4"
+                key="step5"
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -12 }}
@@ -578,22 +614,29 @@ function OnboardingInner() {
                 </p>
 
                 <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-4 mb-4">
-                  <p className="text-[12.5px] font-semibold text-[#1a1a2e] mb-1.5">Good first move</p>
+                  <p className="text-[12.5px] font-semibold text-[#1a1a2e] mb-1.5">Tomorrow morning</p>
                   <p className="text-[12px] text-gray-500 leading-relaxed">
-                    Paste in a recent meeting note or a few scattered thoughts. Reattend
-                    will split them into memories and start connecting them - you&apos;ll
-                    see what it does within about a minute.
+                    Start My Day: what came in, what is due and who you are meeting, written from your own memory.
+                    It is on your home page, and in your inbox around 7am whenever there is something new.
+                    For now, see what Reattend has already found.
                   </p>
                 </div>
 
                 <button
-                  onClick={() => markCompleteAndLeave('/app/brain-dump')}
+                  onClick={() => markCompleteAndLeave('/app/first-look')}
                   disabled={leaving}
                   className="w-full h-[42px] bg-[#1a1a2e] hover:bg-[#2d2b55] active:scale-[0.98] text-white text-[13px] font-semibold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 mb-2.5"
                 >
                   {leaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                  Start with a brain-dump
+                  See what Reattend found
                   <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => markCompleteAndLeave('/app/brain-dump')}
+                  disabled={leaving}
+                  className="w-full text-center text-[13px] text-gray-500 hover:text-[#2563EB] font-medium transition-colors disabled:opacity-50 mb-1.5"
+                >
+                  Or start with a brain-dump
                 </button>
                 <button
                   onClick={() => markCompleteAndLeave(redirectTo)}

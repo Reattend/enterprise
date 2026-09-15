@@ -1755,5 +1755,33 @@ try {
   console.log('- organizations.company_size (already exists)')
 }
 
+// ─── Start My Day: user timezone, email switch, daily briefing cache ─────
+try {
+  sqlite.exec(`ALTER TABLE users ADD COLUMN timezone TEXT;`)
+  console.log('✓ users.timezone')
+} catch (e: any) {
+  console.log('- users.timezone (already exists)')
+}
+try {
+  sqlite.exec(`ALTER TABLE users ADD COLUMN briefing_email INTEGER NOT NULL DEFAULT 1;`)
+  console.log('✓ users.briefing_email')
+} catch (e: any) {
+  console.log('- users.briefing_email (already exists)')
+}
+sqlite.exec(`
+CREATE TABLE IF NOT EXISTS daily_briefings (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scope TEXT NOT NULL,
+  day TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'briefing',
+  payload TEXT NOT NULL,
+  emailed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS db_user_scope_day_kind_idx ON daily_briefings(user_id, scope, day, kind);
+`)
+console.log('✓ daily_briefings')
+
 console.log('Database migration complete!')
 sqlite.close()

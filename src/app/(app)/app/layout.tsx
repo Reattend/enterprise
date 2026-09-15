@@ -20,6 +20,7 @@ import { TrialBanner } from '@/components/enterprise/trial-banner'
 import { AnnouncementBanner } from '@/components/enterprise/announcement-banner'
 import { SandboxBanner } from '@/components/enterprise/sandbox-banner'
 import { StoreHydrator } from '@/components/app/store-hydrator'
+import { TimezoneReporter } from '@/components/app/timezone-reporter'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
 import { AskExpertsDialog } from '@/components/enterprise/ask-experts-dialog'
 import { useAppStore } from '@/stores/app-store'
@@ -68,6 +69,7 @@ const NO_ORG_ALLOWED_PREFIXES = [
   '/app/settings',            // profile, billing, integrations, API keys
   '/app/extension',           // Chrome extension install + API key management
   '/app/admin/onboarding',    // create an organization (the "For my team" signup door)
+  '/app/first-look',          // "here's what Reattend found" after the first import
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -211,6 +213,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="enterprise-shell reattend-workspace canvas-shell h-screen overflow-hidden" data-route={pathname}>
         <StoreHydrator />
+        <TimezoneReporter />
         <KeyboardShortcuts />
         <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
         <CaptureDrawer />
@@ -231,6 +234,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       data-route={pathname}
     >
       <StoreHydrator />
+      <TimezoneReporter />
       <KeyboardShortcuts />
       <AskExpertsDialog open={askExpertsOpen} onOpenChange={setAskExpertsOpen} />
       <CaptureDrawer />

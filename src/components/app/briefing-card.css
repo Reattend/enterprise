@@ -1,0 +1,46 @@
+/* Start My Day card on the home pages. App shell tokens (dashboard.css),
+   so it follows light and dark mode with the rest. */
+
+.bf-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    radial-gradient(420px 160px at 100% 0%, color-mix(in oklch, var(--brand) 9%, transparent), transparent 70%),
+    var(--panel);
+  padding: 18px 20px 12px;
+  margin-bottom: 18px;
+}
+.bf-card.is-teaser { padding-bottom: 12px; }
+.bf-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--brand-ink, var(--brand));
+}
+.bf-card h2 { font-family: var(--serif); font-size: 21px; line-height: 1.25; margin: 6px 0 4px; color: var(--ink); font-weight: 500; }
+.bf-focus { font-family: var(--serif); font-size: 19px; line-height: 1.45; margin: 8px 0 4px; color: var(--ink); max-width: 72ch; }
+.bf-lead { font-size: 13.5px; line-height: 1.55; color: var(--ink-3); margin: 4px 0 6px; max-width: 70ch; }
+
+.bf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 22px; margin-top: 12px; }
+.bf-block { min-width: 0; padding: 4px 0; }
+.bf-h {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+.bf-row { display: flex; flex-direction: column; gap: 1px; padding: 5px 0; border-top: 1px solid color-mix(in oklch, var(--line) 70%, transparent); min-width: 0; }
+.bf-row:first-of-type { border-top: 0; }
+.bf-row a, .bf-row span { font-size: 13.5px; font-weight: 550; color: var(--ink); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bf-row a:hover { color: var(--brand-ink, var(--brand)); text-decoration: underline; text-underline-offset: 2px; }
+.bf-row em { font-style: normal; font-size: 12px; color: var(--ink-3); text-transform: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bf-row em.bf-sum { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+.bf-foot {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+  font-size: 12px; color: var(--ink-3);
+}
+.bf-foot button {
+  margin-left: auto; border: 0; background: none; padding: 0; cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 600; color: var(--brand-ink, var(--brand));
+}
+.bf-foot button:hover { text-decoration: underline; }
+.bf-foot button:disabled { opacity: 0.5; }

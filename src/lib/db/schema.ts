@@ -24,8 +24,31 @@ export const users = sqliteTable('users', {
   // org-creation step) - the latter gets redirected to /onboarding
   // instead of silently landing in PersonalHomePage. See today.md.
   personalLegacyGrandfathered: integer('personal_legacy_grandfathered', { mode: 'boolean' }).notNull().default(false),
+  // IANA zone reported by the browser (e.g. 'Asia/Kolkata'). Used to send
+  // the Start My Day email in the person's morning; null until they visit.
+  timezone: text('timezone'),
+  // Start My Day email on/off. On by default; the email's unsubscribe link
+  // and the home card's toggle flip it.
+  briefingEmail: integer('briefing_email', { mode: 'boolean' }).notNull().default(true),
   createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
 })
+
+// ─── Daily briefings (Start My Day) ─────────────────────
+// One cached row per (user, scope, local day, kind), so the home card and
+// the morning email share a single AI call. scope = 'personal' or an orgId.
+// kind = 'briefing' (Start My Day) or 'questions' (First look suggestions).
+export const dailyBriefings = sqliteTable('daily_briefings', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  scope: text('scope').notNull(),
+  day: text('day').notNull(), // YYYY-MM-DD in the user's timezone
+  kind: text('kind').notNull().default('briefing'),
+  payload: text('payload').notNull(), // JSON
+  emailedAt: text('emailed_at'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+}, (table) => ({
+  userDayIdx: uniqueIndex('db_user_scope_day_kind_idx').on(table.userId, table.scope, table.day, table.kind),
+}))
 
 // ─── Workspaces ─────────────────────────────────────────
 export const workspaces = sqliteTable('workspaces', {

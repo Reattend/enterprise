@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { MemoryPulse, WorkspaceFocus } from '@/components/app/workspace-focus'
 import { MemorySignals } from '@/components/app/memory-signals'
 import { GettingStarted } from '@/components/app/getting-started'
+import { BriefingCard } from '@/components/app/briefing-card'
 import {
   Plus, MessageSquare, Database, Sparkles, Zap,
   FileText, Layers,
@@ -102,6 +103,8 @@ export default function PersonalHomePage({ user }: Props) {
           </Link>
         </div>
       </div>
+
+      <BriefingCard />
 
       <GettingStarted />
 

@@ -10,6 +10,7 @@ import { runMeetingBriefs } from '@/lib/ai/meeting-brief'
 import { runWeeklyDigest } from '@/lib/ai/weekly-digest'
 import { runCrossWorkspaceSynthesis } from '@/lib/ai/cross-workspace-synthesis'
 import { runMemoryGapDetection } from '@/lib/ai/memory-gap-detection'
+import { runMorningBriefings } from '@/lib/briefing/morning'
 
 const CRON_SECRET = process.env.CRON_SECRET || '655468654457899876768dfffgd890'
 const GMAIL_SYNC_INTERVAL_MS = 30 * 60 * 1000    // 30 minutes
@@ -154,7 +155,9 @@ export async function POST(req: NextRequest) {
     const { sent: synthSent } = await runCrossWorkspaceSynthesis().catch(() => ({ sent: 0 }))
     // Step 7: memory gap detection (Friday 08:00–09:00 UTC)
     const { sent: gapsSent } = await runMemoryGapDetection().catch(() => ({ sent: 0 }))
-    return NextResponse.json({ gmailSynced, calendarSynced, slackSynced, triaged, processed, briefsSent, digestsSent, synthSent, gapsSent, ts: new Date().toISOString() })
+    // Step 8: Start My Day email (7am in each person's timezone, once a day)
+    const { sent: morningSent } = await runMorningBriefings().catch((e) => { console.error('[Cron] morning briefings', e); return { sent: 0 } })
+    return NextResponse.json({ gmailSynced, calendarSynced, slackSynced, triaged, processed, briefsSent, digestsSent, synthSent, gapsSent, morningSent, ts: new Date().toISOString() })
   } catch (error: any) {
     console.error('[Cron] error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
