@@ -1495,3 +1495,45 @@ extension, and said 300 questions (real: 800).
    landing page were proposed as next steps (D, E).
 5. /sandbox says "Sessions reset every 24 hours" but cleanup drops sandbox
    orgs after 1 hour.
+
+## Day-one value: import step, First look, Start My Day (2026-09-15, `80bc5fb`)
+
+Partha: people wait too long for a reward; make it wow on day one / day two.
+
+- **Import step** (personal wizard step 3, `components/app/import-sources.tsx`):
+  live connectors (same connect + backfill as /app/integrations) + file
+  upload + live memory counter (`/api/me/first-look?counts=1`, no AI).
+  .md/.txt notes are split by the brain-dump parser (a 1-page notes file ->
+  9 typed memories in testing); other files are one memory via /api/upload.
+- **First look** `/app/first-look` (+ `/api/me/first-look`): decisions,
+  dated items or open tasks, people (first names merged into full names),
+  one connection (contradiction first), 3 AI-written questions (cached per
+  day in daily_briefings kind='questions') that open Ask and auto-send
+  (`/app/ask?q=...&send=1`). Wizard finish, brain-dump result and the
+  checklist link here.
+- **Start My Day** (`src/lib/briefing/index.ts`): 24h new memories,
+  reminders due in 48h, today's calendar meetings, org pending acks, one
+  memory from 2-12 weeks ago, AI focus limited to those items, max 3
+  sentences. One cached row per user/scope/local day (`daily_briefings`).
+  Home card on both homes (`components/app/briefing-card.tsx`).
+- **7am email** (`src/lib/briefing/morning.ts`, jobs cron step 8): users
+  with a browser-reported timezone (`users.timezone`), email on
+  (`users.briefing_email`, default on), local hour 7, only if there is
+  something, once a day, max 200 per run. Unsubscribe:
+  `/api/briefing/unsubscribe?u=&t=` (HMAC of user id with NEXTAUTH_SECRET)
+  + List-Unsubscribe headers + toggle on the card.
+- Brain-dump parser now keeps relative times as written.
+- Prod DB backed up to /root/reattend-pre-briefing-*.db before migrating.
+
+**Know before relying on it:**
+- Existing users get the email only after they next open the app (that is
+  when the timezone is recorded).
+- Resend plan limits were not checked; with ~250 users most days send far
+  fewer (only people with something new), but watch the Resend dashboard.
+- Dated reminders are only created on the raw-item triage path (extension,
+  integrations), not for brain-dump/upload memories, so "Coming up" is
+  empty for those; First look falls back to open tasks.
+- Org founders do not get the import step yet (org wizard goes org -> plan
+  -> invite); their checklist has "Connect a tool".
+- Found, not fixed: the trial-reminder email tells users free accounts get
+  "90-day rolling retention" - nothing enforces that.
